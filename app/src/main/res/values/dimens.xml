@@ -1,0 +1,69 @@
+<resources>
+    <dimen name="toolbar_height">52dp</dimen>
+    <dimen name="tab_height">48dp</dimen>
+
+    <dimen name="m3_card_corner_radius">16dp</dimen>
+    <dimen name="m3_card_large_radius">40dp</dimen>
+    <dimen name="m3_dialog_corner_size">28dp</dimen>
+
+    <dimen name="adaptive_icon_size">48dp</dimen>
+    <dimen name="button_padding_vertical">10dp</dimen>
+    <dimen name="fab_margin_top_left_right">16dp</dimen>
+    <dimen name="fab_custom_size">56dp</dimen>
+    <dimen name="fab_size_padding">96dp</dimen>
+    <dimen name="lyrics_text_size">20sp</dimen>
+    <dimen name="permission_margin">24dp</dimen>
+    <dimen name="info_view_margin_horizontal">24dp</dimen>
+    <dimen name="header_margin_horizontal">20dp</dimen>
+
+    <dimen name="mini_player_height">56dp</dimen>
+    <dimen name="bottom_nav_height">80dp</dimen>
+    <dimen name="bottom_nav_mini_player_height">136dp</dimen>
+
+    <dimen name="notification_image_size">70dp</dimen>
+    <dimen name="notification_big_image_size">128dp</dimen>
+
+    <!-- For use with 24dp drawables in the item_list layouts-->
+    <dimen name="list_item_song_height">60dp</dimen>
+    <dimen name="list_item_image_size">44dp</dimen>
+    <dimen name="list_item_image_icon_padding">10dp</dimen>
+    <dimen name="list_pref_guideline_begin">56dp</dimen>
+    <dimen name="grid_item_margin">4dp</dimen>
+
+    <dimen name="pref_title_padding">72dp</dimen>
+    <dimen name="preference_widget_size">32dp</dimen>
+    <dimen name="preference_widget_margin">4dp</dimen>
+
+    <dimen name="play_pause_button_size">56dp</dimen>
+    <dimen name="player_landscape_vertical_space">16dp</dimen>
+
+    <dimen name="lyrics_editor_padding_horizontal">16dp</dimen>
+    <dimen name="lyrics_editor_padding_vertical">16dp</dimen>
+
+    <dimen name="equalizer_top_padding">16dp</dimen>
+    <dimen name="equalizer_edge_padding">16dp</dimen>
+    <dimen name="equalizer_edge_padding_large">20dp</dimen>
+    <dimen name="equalizer_edge_padding_small">8dp</dimen>
+
+    <!--App Widgets-->
+    <dimen name="app_widget_classic_height">96dp</dimen>
+    <dimen name="app_widget_classic_image_size">96dp</dimen>
+    <dimen name="app_widget_classic_min_width">250dp</dimen>
+    <dimen name="app_widget_classic_min_height">40dp</dimen>
+
+    <dimen name="app_widget_small_button_height">48dp</dimen>
+    <dimen name="app_widget_small_image_size">48dp</dimen>
+    <dimen name="app_widget_small_min_width">250dp</dimen>
+    <dimen name="app_widget_small_min_height">40dp</dimen>
+
+    <dimen name="app_widget_big_min_width">250dp</dimen>
+    <dimen name="app_widget_big_min_height">110dp</dimen>
+
+    <dimen name="app_widget_card_image_size">56dp</dimen>
+    <dimen name="app_widget_card_min_width">250dp</dimen>
+    <dimen name="app_widget_card_buttons_width">128dp</dimen>
+    <dimen name="app_widget_card_radius">2dp</dimen>
+
+    <dimen name="app_widget_md3_height">90dp</dimen>
+    <dimen name="app_widget_md3_image_size">70dp</dimen>
+</resources>

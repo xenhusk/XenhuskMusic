@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="FullBackupContent">
+    <cloud-backup>
+        <include domain="database" path="song_play_count.db"/>
+        <include domain="database" path="history.db"/>
+
+        <include domain="external" path="/Lyrics/*"/>
+
+        <exclude domain="database" path="playlist.db"/>
+        <exclude domain="database" path="music_playback_state.db"/>
+
+        <exclude domain="sharedpref" path="artist_signatures.xml"/>
+        <exclude domain="sharedpref" path="pro_version.xml"/>
+    </cloud-backup>
+</data-extraction-rules>

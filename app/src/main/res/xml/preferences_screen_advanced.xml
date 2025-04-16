@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ListPreference
+        app:icon="@drawable/ic_language_24dp"
+        app:title="@string/app_language_title"
+        app:entries="@array/pref_language_names"
+        app:entryValues="@array/pref_language_codes"
+        app:negativeButtonText="@null"
+        app:positiveButtonText="@null"
+        app:useSimpleSummaryProvider="true"
+        app:defaultValue="auto"
+        app:layout="@layout/list_item_view"
+        app:key="language_name"/>
+
+    <PreferenceCategory
+        app:title="@string/backup_restore_header"
+        app:layout="@layout/preference_category_title">
+
+        <Preference
+            app:title="@string/backup_data_title"
+            app:summary="@string/backup_app_data_summary"
+            app:persistent="false"
+            app:layout="@layout/list_item_view"
+            app:key="backup_data"/>
+
+        <Preference
+            app:title="@string/restore_backup_title"
+            app:summary="@string/restore_backup_summary"
+            app:persistent="false"
+            app:layout="@layout/list_item_view"
+            app:key="restore_data"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

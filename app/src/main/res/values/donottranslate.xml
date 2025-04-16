@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name" translatable="false">Booming Music</string>
+	<string name="app_name_long" translatable="false">Booming Music</string>
+
+	<string name="mardous" translatable="false">Christians Martínez Alvarado</string>
+
+	<string name="empty_text_emoji" translatable="false">&#128561;</string>
+
+	<string name="google" translatable="false">Google</string>
+	<string name="lastfm" translatable="false">Last.fm</string>
+	<string name="wikipedia" translatable="false">Wikipedia</string>
+	<string name="youtube" translatable="false">YouTube</string>
+</resources>

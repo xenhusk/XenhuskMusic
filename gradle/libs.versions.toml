@@ -1,0 +1,107 @@
+[versions]
+androidPluginVersion = "8.9.1"
+kspPluginVersion = "2.1.0-1.0.29"
+gmsPluginVersion ="4.4.2"
+crashlyticsPluginVersion = "3.0.3"
+kotlinVersion = "2.1.0"
+kotlinCoroutinesVersion = "1.10.2"
+constraintlayout = "2.2.1"
+cardview = "1.0.0"
+appcompat = "1.7.0"
+coreSplashscreen = "1.0.1"
+coreVersion = "1.16.0"
+firebaseBom = "33.12.0"
+fragmentKtx = "1.8.6"
+lifecycleVersion = "2.8.7"
+material = "1.12.0"
+media = "1.7.0"
+navigationVersion = "2.8.9"
+paletteKtx = "1.0.0"
+preferenceKtx = "1.2.1"
+recyclerview = "1.4.0"
+gson = "2.13.0"
+roomVersion = "2.7.0"
+koinVersion = "4.0.4"
+swiperefreshlayout = "1.1.0"
+fadingedgelayout = "1.0.0"
+advrecyclerview = "1.0.0"
+fastscroll = "1.3.0"
+glideVersion = "4.16.0"
+jaudiotagger = "2.3.15"
+niervisualizer = "v0.1.3"
+customactivityoncrash = "2.4.0"
+versioncompare = "1.5.0"
+markdown = "4.6.2"
+ktor = "3.1.1"
+
+[libraries]
+androidx-palette-ktx = { module = "androidx.palette:palette-ktx", version.ref = "paletteKtx" }
+androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
+androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
+androidx-media = { module = "androidx.media:media", version.ref = "media" }
+core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreVersion" }
+fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
+appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+material-components = { module = "com.google.android.material:material", version.ref = "material" }
+
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
+
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutinesVersion" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinCoroutinesVersion" }
+
+lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleVersion" }
+lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleVersion" }
+lifecycle-common-java8 = { module = "androidx.lifecycle:lifecycle-common-java8", version.ref = "lifecycleVersion" }
+lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleVersion" }
+
+navigation-common-ktx = { module = "androidx.navigation:navigation-common-ktx", version.ref = "navigationVersion" }
+navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationVersion" }
+navigation-runtime-ktx = { module = "androidx.navigation:navigation-runtime-ktx", version.ref = "navigationVersion" }
+navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationVersion" }
+
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
+
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinVersion" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinVersion" }
+
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-encoding = { group = "io.ktor", name = "ktor-client-encoding", version.ref = "ktor" }
+ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glideVersion" }
+glide-ksp = { module = "com.github.bumptech.glide:ksp", version.ref = "glideVersion" }
+glide-okhttp3 = { module = "com.github.bumptech.glide:okhttp3-integration", version.ref = "glideVersion" }
+fadingedgelayout = { module = "com.github.bosphere.android-fadingedgelayout:fadingedgelayout", version.ref = "fadingedgelayout" }
+advrecyclerview = { module = "com.h6ah4i.android.widget.advrecyclerview:advrecyclerview", version.ref = "advrecyclerview" }
+fastscroll = { module = "me.zhanghai.android.fastscroll:library", version.ref = "fastscroll" }
+jaudiotagger = { module = "com.github.Adonai:jaudiotagger", version.ref = "jaudiotagger" }
+niervisualizer = { module = "com.github.bogerchan:Nier-Visualizer", version.ref = "niervisualizer" }
+customactivityoncrash = { module = "cat.ereza:customactivityoncrash", version.ref = "customactivityoncrash" }
+versioncompare = { module = "io.github.g00fy2:versioncompare", version.ref = "versioncompare" }
+
+markdown-core = { module = "io.noties.markwon:core", version.ref = "markdown" }
+markdown-html = { module = "io.noties.markwon:html", version.ref = "markdown" }
+markdown-glide = { module = "io.noties.markwon:image-glide", version.ref = "markdown" }
+markdown-linkify= { module = "io.noties.markwon:linkify", version.ref = "markdown" }
+
+gms-plugin = { module = "com.google.gms:google-services", version.ref = "gmsPluginVersion" }
+crashlytics-plugin = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "crashlyticsPluginVersion" }
+
+[bundles]
+ktor = ["ktor-client-core", "ktor-client-okhttp", "ktor-serialization-json", "ktor-client-content-negotiation", "ktor-client-encoding"]
+
+[plugins]
+agp = { id = "com.android.application", version.ref = "androidPluginVersion" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinVersion" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinVersion" }
+google-ksp = { id = "com.google.devtools.ksp", version.ref = "kspPluginVersion" }
+androidx-safeargs = { id = "androidx.navigation.safeargs", version.ref = "navigationVersion" }

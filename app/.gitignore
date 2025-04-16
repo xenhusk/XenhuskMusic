@@ -1,0 +1,11 @@
+# Build files
+/build
+
+# Release output files
+/release
+/normal
+/fdroid
+
+# Firebase files
+/src/debug/google-services.json
+google-services.json

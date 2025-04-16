@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/mini_player_height"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingEnd="6dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/image"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_vertical"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="?shapeAppearanceCornerSmall"
+        app:layout_constraintTop_toTopOf="@+id/songInfo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/songInfo"
+        tools:src="@tools:sample/backgrounds/scenic[2]"
+        tools:ignore="ContentDescription"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/songInfo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:layout_marginStart="16dp"
+        android:ellipsize="marquee"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:freezesText="true"
+        android:gravity="start"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:textAppearance="?textAppearanceBody2"
+        android:textColor="?android:textColorPrimary"
+        tools:text="Title"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/actionPrevious"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:contentDescription="@string/action_previous"
+        android:visibility="gone"
+        app:icon="@drawable/ic_previous_24dp"
+        app:iconTint="?attr/colorControlNormal"
+        tools:visibility="visible"/>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:trackCornerRadius="16dp"
+            tools:progress="75"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/actionPlayPause"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_height="40dp"
+            android:layout_width="40dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/action_play_pause"
+            app:iconTint="?colorControlNormal"
+            tools:icon="@drawable/ic_pause_24dp"/>
+
+    </FrameLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/actionNext"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:contentDescription="@string/action_next"
+        android:visibility="gone"
+        app:icon="@drawable/ic_next_24dp"
+        app:iconTint="?attr/colorControlNormal"
+        tools:visibility="visible"/>
+
+</LinearLayout>
+

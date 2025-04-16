@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content xmlns:tools="http://schemas.android.com/tools">
+    <include domain="database" path="song_play_count.db"/>
+    <include domain="database" path="history.db"/>
+
+    <include domain="external" path="/Lyrics/*"/>
+
+    <exclude domain="database" path="playlist.db" tools:ignore="FullBackupContent"/>
+    <exclude domain="database" path="music_playback_state.db" tools:ignore="FullBackupContent"/>
+
+    <!-- Exclude the shared preferences file that contains the GCM registrationId -->
+    <exclude domain="sharedpref" path="artist_signatures.xml" tools:ignore="FullBackupContent"/>
+    <!--<exclude domain="sharedpref" path="custom_artist_image.xml" tools:ignore="FullBackupContent"/>-->
+    <exclude domain="sharedpref" path="pro_version.xml" tools:ignore="FullBackupContent"/>
+</full-backup-content>

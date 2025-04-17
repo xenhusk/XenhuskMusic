@@ -47,9 +47,6 @@ class NowPlayingScreenPreferenceDialog : DialogFragment(), ViewPager.OnPageChang
         binding.nowPlayingScreenViewPager.pageMargin = 32.dp(resources)
         binding.nowPlayingScreenViewPager.currentItem = Preferences.nowPlayingScreen.ordinal
 
-        binding.pageIndicator.setViewPager(binding.nowPlayingScreenViewPager)
-        binding.pageIndicator.onPageSelected(binding.nowPlayingScreenViewPager.currentItem)
-
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.now_playing_screen_title)
             .setView(binding.root)
@@ -77,7 +74,6 @@ class NowPlayingScreenPreferenceDialog : DialogFragment(), ViewPager.OnPageChang
             collection.addView(binding.root)
 
             binding.image.setImageResource(nowPlayingScreen.drawableResId)
-            binding.title.setText(nowPlayingScreen.titleRes)
             return binding.root
         }
 

@@ -5,21 +5,6 @@
     <attr name="toolbarPopupTheme" format="reference"/>
     <attr name="defaultFooterColor" format="color"/>
 
-    <declare-styleable name="InkPageIndicator">
-        <attr format="dimension" name="dotDiameter"/>
-        <attr format="dimension" name="dotGap"/>
-        <attr format="integer" name="animationDuration"/>
-        <attr format="color" name="pageIndicatorColor"/>
-        <attr format="color" name="currentPageIndicatorColor"/>
-    </declare-styleable>
-
-    <declare-styleable name="SmartPlaylistView">
-        <attr name="playlistIcon" format="reference"/>
-        <attr name="playlistIconTint" format="color"/>
-        <attr name="playlistIconShapeTint" format="color"/>
-        <attr name="playlistName" format="string"/>
-    </declare-styleable>
-
     <declare-styleable name="InfoView">
         <attr name="infoTitle" format="string"/>
         <attr name="infoTitleColor" format="color"/>

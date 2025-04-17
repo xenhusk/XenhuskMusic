@@ -24,13 +24,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.databinding.TagEditorArtistFieldBinding
 import com.mardous.booming.extensions.glide.*
+import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.extensions.webSearch
 import com.mardous.booming.glide.BoomingSimpleTarget
 import com.mardous.booming.misc.TagWriter
@@ -96,8 +96,7 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
         } else artistBinding.genre.setText(genre)
     }
 
-    override fun getDefaultPlaceholder(): Drawable =
-        ContextCompat.getDrawable(this, DEFAULT_ARTIST_IMAGE)!!
+    override fun getDefaultPlaceholder(): Drawable = getDrawableCompat(DEFAULT_ARTIST_IMAGE)!!
 
     override fun selectImage() {
         val items = arrayOf(

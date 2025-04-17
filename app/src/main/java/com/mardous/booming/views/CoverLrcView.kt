@@ -37,6 +37,7 @@ import android.widget.Scroller
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.withSave
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.lyrics.LrcEntry
 import com.mardous.booming.lyrics.LrcLyrics
 import com.mardous.booming.lyrics.LrcUtils
@@ -186,7 +187,7 @@ class CoverLrcView @JvmOverloads constructor(
         mLrcPadding = ta.getDimension(R.styleable.LrcView_lrcPadding, 0f)
         mTimelineColor = ta.getColor(R.styleable.LrcView_lrcTimelineColor, ContextCompat.getColor(context, R.color.lrc_timeline_color))
         mPlayDrawable = ta.getDrawable(R.styleable.LrcView_lrcPlayDrawable)
-        mPlayDrawable = if (mPlayDrawable == null) ContextCompat.getDrawable(context, R.drawable.ic_play_24dp) else mPlayDrawable
+        mPlayDrawable = if (mPlayDrawable == null) context.getDrawableCompat(R.drawable.ic_play_24dp) else mPlayDrawable
         mTimeTextColor = ta.getColor(R.styleable.LrcView_lrcTimeTextColor, ContextCompat.getColor(context, R.color.lrc_time_text_color))
         mTextGravity = ta.getInteger(R.styleable.LrcView_lrcTextGravity, LrcEntry.GRAVITY_CENTER)
 

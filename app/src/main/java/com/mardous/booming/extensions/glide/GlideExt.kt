@@ -22,7 +22,6 @@ import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
-import androidx.core.content.ContextCompat
 import com.bumptech.glide.*
 import com.bumptech.glide.load.Key
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -33,6 +32,7 @@ import com.mardous.booming.R
 import com.mardous.booming.appContext
 import com.mardous.booming.extensions.media.albumCoverUri
 import com.mardous.booming.extensions.resources.defaultFooterColor
+import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.glide.artistimage.ArtistImage
 import com.mardous.booming.glide.audiocover.AudioFileCover
 import com.mardous.booming.glide.palette.BitmapPaletteWrapper
@@ -134,7 +134,7 @@ fun <T> RequestBuilder<T>.playlistOptions() = apply {
 }
 
 private fun getDrawable(@DrawableRes id: Int): Drawable? {
-    return ContextCompat.getDrawable(appContext(), id)
+    return appContext().getDrawableCompat(id)
 }
 
 private fun createSignature(artist: Artist): Key {

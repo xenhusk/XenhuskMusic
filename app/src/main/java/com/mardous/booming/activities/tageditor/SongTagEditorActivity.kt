@@ -27,6 +27,7 @@ import com.mardous.booming.R
 import com.mardous.booming.databinding.TagEditorSongFieldBinding
 import com.mardous.booming.extensions.files.toBitmap
 import com.mardous.booming.extensions.glide.DEFAULT_SONG_IMAGE
+import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.extensions.resources.getResized
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.webSearch
@@ -90,8 +91,7 @@ class SongTagEditorActivity : AbsTagEditorActivity() {
         } else songBinding.genre.setText(genre)
     }
 
-    override fun getDefaultPlaceholder(): Drawable =
-        ContextCompat.getDrawable(this, DEFAULT_SONG_IMAGE)!!
+    override fun getDefaultPlaceholder(): Drawable = getDrawableCompat(DEFAULT_SONG_IMAGE)!!
 
     override fun searchLastFMImage() {
         val songTitleStr = songBinding.title.text?.toString()

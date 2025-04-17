@@ -29,6 +29,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import java.io.OutputStream
 import kotlin.math.roundToInt
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
 
 fun Context.getDrawableCompat(@DrawableRes resId: Int) = ContextCompat.getDrawable(this, resId)
 
@@ -43,10 +45,9 @@ fun Drawable?.getTinted(@ColorInt color: Int): Drawable? {
 }
 
 fun Drawable.toBitmap(sizeMultiplier: Float = 1f): Bitmap {
-    return Bitmap.createBitmap(
+    return createBitmap(
         (intrinsicWidth * sizeMultiplier).toInt(),
-        (intrinsicHeight * sizeMultiplier).toInt(),
-        Bitmap.Config.ARGB_8888
+        (intrinsicHeight * sizeMultiplier).toInt()
     ).apply {
         Canvas(this).let { c ->
             setBounds(0, 0, c.width, c.height)
@@ -75,7 +76,7 @@ fun Bitmap.getResized(maxForSmallerSize: Int): Bitmap {
         dstWidth = (maxForSmallerSize * ratio).roundToInt()
         dstHeight = maxForSmallerSize
     }
-    return Bitmap.createScaledBitmap(this, dstWidth, dstHeight, false)
+    return this.scale(dstWidth, dstHeight, false)
 }
 
 fun Bitmap.toJPG(quality: Int = 90, stream: OutputStream?): Boolean {

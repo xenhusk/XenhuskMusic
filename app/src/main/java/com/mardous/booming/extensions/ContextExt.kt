@@ -49,6 +49,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.mardous.booming.extensions.files.readString
+import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.extensions.resources.getTinted
 import com.mardous.booming.model.theme.AppTheme
 import com.mardous.booming.util.AutoDownloadMetadataPolicy
@@ -179,7 +180,7 @@ fun Context.readStringFromAsset(assetName: String): String? =
     runCatching { assets.open(assetName).readString() }.getOrNull()
 
 fun Context.getTintedDrawable(@DrawableRes resId: Int, @ColorInt color: Int): Drawable? =
-    ContextCompat.getDrawable(this, resId).getTinted(color)
+    getDrawableCompat(resId).getTinted(color)
 
 @Suppress("DEPRECATION")
 fun Context.getScreenSize(): Point {

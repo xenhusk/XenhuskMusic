@@ -53,8 +53,8 @@ import com.mardous.booming.androidauto.AutoMediaIDHelper
 import com.mardous.booming.androidauto.AutoMusicProvider
 import com.mardous.booming.androidauto.PackageValidator
 import com.mardous.booming.appwidgets.AppWidgetBig
-import com.mardous.booming.appwidgets.AppWidgetCard
-import com.mardous.booming.appwidgets.AppWidgetMD3
+import com.mardous.booming.appwidgets.AppWidgetSimple
+import com.mardous.booming.appwidgets.AppWidgetSmall
 import com.mardous.booming.database.toPlayCount
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.glide.getSongGlideModel
@@ -99,8 +99,8 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     private val repository by inject<Repository>()
 
     private val appWidgetBig = AppWidgetBig.instance
-    private val appWidgetCard = AppWidgetCard.instance
-    private val appWidgetMd3 = AppWidgetMD3.instance
+    private val appWidgetSimple = AppWidgetSimple.instance
+    private val appWidgetSmall = AppWidgetSmall.instance
 
     private lateinit var playingQueue: SmartPlayingQueue
 
@@ -911,8 +911,8 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     private fun sendChangeInternal(what: String) {
         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(what))
         appWidgetBig.notifyChange(this, what)
-        appWidgetCard.notifyChange(this, what)
-        appWidgetMd3.notifyChange(this, what)
+        appWidgetSimple.notifyChange(this, what)
+        appWidgetSmall.notifyChange(this, what)
     }
 
     private fun handleChangeInternal(what: String) {
@@ -1188,11 +1188,11 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                 AppWidgetBig.NAME -> {
                     appWidgetBig.performUpdate(this@MusicService, ids)
                 }
-                AppWidgetCard.NAME -> {
-                    appWidgetCard.performUpdate(this@MusicService, ids)
+                AppWidgetSimple.NAME -> {
+                    appWidgetSimple.performUpdate(this@MusicService, ids)
                 }
-                AppWidgetMD3.NAME -> {
-                    appWidgetMd3.performUpdate(this@MusicService, ids)
+                AppWidgetSmall.NAME -> {
+                    appWidgetSmall.performUpdate(this@MusicService, ids)
                 }
             }
         }

@@ -2,4 +2,7 @@
 <resources>
     <dimen name="notification_image_size">56dp</dimen>
     <dimen name="notification_big_image_size">112dp</dimen>
+
+    <dimen name="widget_background_radius">@android:dimen/system_app_widget_background_radius</dimen>
+    <dimen name="widget_inner_radius">@android:dimen/system_app_widget_inner_radius</dimen>
 </resources>

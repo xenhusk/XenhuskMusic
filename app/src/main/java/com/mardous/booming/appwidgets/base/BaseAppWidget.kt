@@ -26,16 +26,16 @@ import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.widget.RemoteViews
-import androidx.core.content.ContextCompat
+import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mardous.booming.R
 import com.mardous.booming.extensions.media.songInfo
+import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.model.Song
 import com.mardous.booming.service.MusicService
 import com.mardous.booming.service.constants.ServiceAction
 import com.mardous.booming.service.constants.ServiceEvent
-import androidx.core.graphics.createBitmap
 
 abstract class BaseAppWidget : AppWidgetProvider() {
     /**
@@ -97,15 +97,32 @@ abstract class BaseAppWidget : AppWidgetProvider() {
     @Suppress("DEPRECATION")
     protected fun getAlbumArtDrawable(context: Context, bitmap: Bitmap?): Drawable {
         return bitmap?.toDrawable(context.resources)
-            ?: ContextCompat.getDrawable(context, R.drawable.default_audio_art)!!
+            ?: context.getDrawableCompat(R.drawable.default_audio_art)!!
     }
 
     protected fun getSongArtistAndAlbum(song: Song): String {
         return song.songInfo(true)
     }
 
+    protected fun getInnerRadius(context: Context): Float {
+        if (innerRadius == 0F) {
+            innerRadius = context.resources.getDimension(R.dimen.widget_inner_radius)
+        }
+        return innerRadius
+    }
+
+    protected fun getWidgetRadius(context: Context): Float {
+        if (widgetRadius == 0f) {
+            widgetRadius = context.resources.getDimension(R.dimen.widget_background_radius)
+        }
+        return widgetRadius
+    }
+
     companion object {
         const val NAME = "app_widget"
+
+        private var widgetRadius = 0F
+        private var innerRadius = 0F
 
         @JvmStatic
         protected fun createRoundedBitmap(

@@ -203,28 +203,28 @@
                 android:resource="@xml/app_widget_big_info"/>
         </receiver>
         <receiver
-            android:name=".appwidgets.AppWidgetCard"
+            android:name=".appwidgets.AppWidgetSimple"
             android:exported="false"
-            android:label="@string/app_widget_card_name">
+            android:label="@string/app_widget_simple_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/app_widget_card_info"/>
+                android:resource="@xml/app_widget_simple_info"/>
         </receiver>
         <receiver
-            android:name=".appwidgets.AppWidgetMD3"
+            android:name=".appwidgets.AppWidgetSmall"
             android:exported="false"
-            android:label="@string/app_widget_md3_name">
+            android:label="@string/app_widget_small_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/app_widget_md3_info"/>
+                android:resource="@xml/app_widget_small_info"/>
         </receiver>
 
         <provider

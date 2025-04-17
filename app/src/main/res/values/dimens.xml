@@ -46,24 +46,19 @@
     <dimen name="equalizer_edge_padding_small">8dp</dimen>
 
     <!--App Widgets-->
-    <dimen name="app_widget_classic_height">96dp</dimen>
-    <dimen name="app_widget_classic_image_size">96dp</dimen>
-    <dimen name="app_widget_classic_min_width">250dp</dimen>
-    <dimen name="app_widget_classic_min_height">40dp</dimen>
+    <dimen name="widget_background_radius">16dp</dimen>
+    <dimen name="widget_inner_radius">8dp</dimen>
 
-    <dimen name="app_widget_small_button_height">48dp</dimen>
-    <dimen name="app_widget_small_image_size">48dp</dimen>
     <dimen name="app_widget_small_min_width">250dp</dimen>
-    <dimen name="app_widget_small_min_height">40dp</dimen>
+    <dimen name="app_widget_small_min_height">90dp</dimen>
+    <dimen name="app_widget_small_height">90dp</dimen>
+    <dimen name="app_widget_small_image_size">70dp</dimen>
 
     <dimen name="app_widget_big_min_width">250dp</dimen>
     <dimen name="app_widget_big_min_height">110dp</dimen>
 
-    <dimen name="app_widget_card_image_size">56dp</dimen>
-    <dimen name="app_widget_card_min_width">250dp</dimen>
-    <dimen name="app_widget_card_buttons_width">128dp</dimen>
-    <dimen name="app_widget_card_radius">2dp</dimen>
-
-    <dimen name="app_widget_md3_height">90dp</dimen>
-    <dimen name="app_widget_md3_image_size">70dp</dimen>
+    <dimen name="app_widget_simple_image_size">70dp</dimen>
+    <dimen name="app_widget_simple_min_width">250dp</dimen>
+    <dimen name="app_widget_simple_min_height">70dp</dimen>
+    <dimen name="app_widget_simple_button_size">50dp</dimen>
 </resources>

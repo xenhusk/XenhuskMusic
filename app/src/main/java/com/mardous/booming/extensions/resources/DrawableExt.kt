@@ -17,15 +17,20 @@
 
 package com.mardous.booming.extensions.resources
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import androidx.annotation.CheckResult
 import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import java.io.OutputStream
 import kotlin.math.roundToInt
+
+fun Context.getDrawableCompat(@DrawableRes resId: Int) = ContextCompat.getDrawable(this, resId)
 
 @CheckResult
 fun Drawable?.getTinted(@ColorInt color: Int): Drawable? {

@@ -25,9 +25,7 @@
         <item name="android:windowSplashScreenAnimationDuration">1000</item>
     </style>
 
-    <style name="Theme.AppWidget" parent="@android:style/Theme.DeviceDefault.DayNight">
-        <item name="colorSurface">@android:color/system_accent1_50</item>
-    </style>
+    <style name="Theme.AppWidget" parent="@style/Theme.Material3.DynamicColors.DayNight"/>
 
     <style name="ThemeOverlay.Booming.Adaptive" parent="ThemeOverlay.Material3.Light"/>
 

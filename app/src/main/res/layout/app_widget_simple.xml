@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:background="@drawable/card"
-    android:backgroundTint="?attr/colorSurface"
+    android:background="@drawable/app_widget_background"
+    android:backgroundTint="?android:attr/colorBackground"
     android:orientation="horizontal"
     android:theme="@style/Theme.AppWidget">
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="@dimen/app_widget_card_image_size"
-        android:layout_height="@dimen/app_widget_card_image_size"
+        android:layout_width="@dimen/app_widget_simple_image_size"
+        android:layout_height="@dimen/app_widget_simple_image_size"
         android:scaleType="centerInside"
-        tools:ignore="ContentDescription"
-        tools:src="@drawable/default_audio_art" />
+        android:src="@drawable/default_audio_art"
+        tools:ignore="ContentDescription" />
 
     <LinearLayout
         android:id="@+id/media_titles"
@@ -34,8 +35,8 @@
             android:gravity="center_vertical"
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-            android:textColor="?android:attr/textColorPrimary"
-            tools:text="Title" />
+            android:textColor="?android:textColorPrimary"
+            android:text="@string/title" />
 
         <TextView
             android:id="@+id/text"
@@ -44,51 +45,33 @@
             android:gravity="center_vertical"
             android:singleLine="true"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            android:textColor="?android:attr/textColorSecondary"
-            tools:text="Text" />
+            android:textColor="?android:textColorSecondary"
+            android:text="@string/artist" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/media_actions"
-        android:layout_width="@dimen/app_widget_card_buttons_width"
-        android:layout_height="match_parent"
+        android:layout_width="@dimen/app_widget_simple_button_size"
+        android:layout_height="@dimen/app_widget_simple_button_size"
         android:layout_gravity="center_vertical"
-        android:layout_margin="4dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/app_widget_inner_background"
+        android:backgroundTint="?colorPrimaryContainer"
         android:focusable="true"
         android:gravity="center"
         android:layoutDirection="ltr"
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/button_prev"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/widget_selector_light"
-            tools:ignore="ContentDescription"
-            tools:src="@drawable/ic_previous_24dp"
-            tools:tint="@android:color/black" />
-
-        <ImageButton
             android:id="@+id/button_toggle_play_pause"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/widget_selector_light"
-            tools:ignore="ContentDescription"
-            tools:src="@drawable/ic_play_24dp"
-            tools:tint="@android:color/black" />
-
-        <ImageButton
-            android:id="@+id/button_next"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/widget_selector_light"
-            tools:ignore="ContentDescription"
-            tools:src="@drawable/ic_next_24dp"
-            tools:tint="@android:color/black" />
+            android:background="@drawable/widget_selector"
+            android:src="@drawable/ic_play_32dp"
+            app:tint="?colorOnPrimaryContainer"
+            tools:ignore="ContentDescription" />
 
     </LinearLayout>
 </LinearLayout>

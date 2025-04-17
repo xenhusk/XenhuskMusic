@@ -20,8 +20,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.text.SpannableString
-import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.RemoteViews
 import com.bumptech.glide.Glide
@@ -31,42 +29,32 @@ import com.bumptech.glide.request.transition.Transition
 import com.mardous.booming.R
 import com.mardous.booming.activities.MainActivity
 import com.mardous.booming.appwidgets.base.BaseAppWidget
-import com.mardous.booming.extensions.dp
-import com.mardous.booming.extensions.getTintedDrawable
-import com.mardous.booming.extensions.glide.asBitmapPalette
 import com.mardous.booming.extensions.glide.getSongGlideModel
 import com.mardous.booming.extensions.glide.songOptions
 import com.mardous.booming.extensions.media.displayArtistName
-import com.mardous.booming.extensions.resources.*
-import com.mardous.booming.extensions.utilities.DEFAULT_INFO_DELIMITER
-import com.mardous.booming.glide.palette.BitmapPaletteWrapper
+import com.mardous.booming.extensions.resources.getDrawableCompat
+import com.mardous.booming.extensions.toHtml
 import com.mardous.booming.service.MusicService
 import com.mardous.booming.service.constants.ServiceAction
 
-class AppWidgetMD3 : BaseAppWidget() {
-    private var target: Target<BitmapPaletteWrapper>? = null // for cancellation
+class AppWidgetSmall : BaseAppWidget() {
+    private var target: Target<Bitmap>? = null // for cancellation
 
     /**
      * Initialize given widgets to default state, where we launch Music on default click and hide
      * actions if service not running.
      */
     override fun defaultAppWidget(context: Context, appWidgetIds: IntArray) {
-        val appWidgetView = RemoteViews(context.packageName, R.layout.app_widget_md3)
+        val appWidgetView = RemoteViews(context.packageName, R.layout.app_widget_small)
 
-        appWidgetView.setViewVisibility(R.id.media_titles, View.INVISIBLE)
-        appWidgetView.setImageViewResource(R.id.image, R.drawable.default_audio_art)
-        val secondaryColor = getSecondaryTextColor(context, true)
+        val innerRadius = getInnerRadius(context)
+        val imageSize = getImageSize(context)
         appWidgetView.setImageViewBitmap(
-            R.id.button_next,
-            context.getTintedDrawable(R.drawable.ic_next_24dp, secondaryColor)!!.toBitmap()
-        )
-        appWidgetView.setImageViewBitmap(
-            R.id.button_prev,
-            context.getTintedDrawable(R.drawable.ic_previous_24dp, secondaryColor)!!.toBitmap()
-        )
-        appWidgetView.setImageViewBitmap(
-            R.id.button_toggle_play_pause,
-            context.getTintedDrawable(R.drawable.ic_play_32dp, secondaryColor)!!.toBitmap()
+            R.id.image,
+            createRoundedBitmap(
+                context.getDrawableCompat(R.drawable.default_audio_art),
+                imageSize, imageSize, innerRadius, innerRadius, innerRadius, innerRadius
+            )
         )
 
         linkButtons(context, appWidgetView)
@@ -77,7 +65,7 @@ class AppWidgetMD3 : BaseAppWidget() {
      * Update all active widget instances by pushing changes
      */
     override fun performUpdate(service: MusicService, appWidgetIds: IntArray?) {
-        val appWidgetView = RemoteViews(service.packageName, R.layout.app_widget_md3)
+        val appWidgetView = RemoteViews(service.packageName, R.layout.app_widget_small)
 
         val isPlaying = service.isPlaying
         val song = service.getCurrentSong()
@@ -86,96 +74,54 @@ class AppWidgetMD3 : BaseAppWidget() {
         if (song.title.isEmpty() && song.artistName.isEmpty()) {
             appWidgetView.setViewVisibility(R.id.media_titles, View.INVISIBLE)
         } else {
-            val builder = SpannableStringBuilder()
-            val title = SpannableString(song.title).apply {
-                setSpan(service.textColorPrimary().toForegroundColorSpan(), 0, length, 0)
-            }
-            val text = SpannableString(song.displayArtistName()).apply {
-                setSpan(service.textColorSecondary().toForegroundColorSpan(), 0, length, 0)
-            }
-
             appWidgetView.setViewVisibility(R.id.media_titles, View.VISIBLE)
-            appWidgetView.setTextViewText(R.id.title, builder.append(title).append(DEFAULT_INFO_DELIMITER).append(text))
+            appWidgetView.setTextViewText(R.id.title, "<b>${song.title}</b> - ${song.displayArtistName()}".toHtml())
         }
 
         // Set correct drawable for pause state
-        val playPauseRes = if (isPlaying) R.drawable.ic_pause_24dp else R.drawable.ic_play_32dp
-        appWidgetView.setImageViewBitmap(
-            R.id.button_toggle_play_pause,
-            service.getTintedDrawable(playPauseRes, getSecondaryTextColor(service, true))!!.toBitmap()
-        )
-
+        val playPauseRes = if (isPlaying) R.drawable.ic_pause_24dp else R.drawable.ic_play_24dp
+        appWidgetView.setImageViewResource(R.id.button_toggle_play_pause, playPauseRes)
         // Set prev/next button drawables
-        appWidgetView.setImageViewBitmap(
-            R.id.button_next,
-            service.getTintedDrawable(R.drawable.ic_next_24dp, getSecondaryTextColor(service, true))!!.toBitmap()
-        )
-        appWidgetView.setImageViewBitmap(
-            R.id.button_prev,
-            service.getTintedDrawable(R.drawable.ic_previous_24dp, getSecondaryTextColor(service, true))!!.toBitmap()
-        )
+        appWidgetView.setImageViewResource(R.id.button_next, R.drawable.ic_next_24dp)
+        appWidgetView.setImageViewResource(R.id.button_prev, R.drawable.ic_previous_24dp)
 
         // Link actions buttons to intents
         linkButtons(service, appWidgetView)
 
-        if (imageSize == 0) {
-            imageSize = service.resources.getDimensionPixelSize(R.dimen.app_widget_card_image_size)
-        }
-        if (cardRadius == 0f) {
-            cardRadius = 8f.dp(service).toFloat()
-        }
-
         // Load the album cover async and push the update on completion
+        val imageSize = getImageSize(service)
         service.runOnUiThread {
             if (target != null) {
                 Glide.with(service).clear(target)
             }
             target = Glide.with(service)
-                .asBitmapPalette()
+                .asBitmap()
                 .songOptions(song)
                 .load(song.getSongGlideModel())
                 .centerCrop()
-                .into(object : CustomTarget<BitmapPaletteWrapper>(imageSize, imageSize) {
-                    override fun onResourceReady(resource: BitmapPaletteWrapper, transition: Transition<in BitmapPaletteWrapper>?) {
-                        val palette = resource.palette
-                        update(resource.bitmap, palette.getVibrantColor(
-                            palette.getMutedColor(getSecondaryTextColor(service, true)))
-                        )
+                .into(object : CustomTarget<Bitmap>(imageSize, imageSize) {
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                        update(resource)
                     }
 
                     override fun onLoadFailed(errorDrawable: Drawable?) {
                         super.onLoadFailed(errorDrawable)
-                        update(null, getSecondaryTextColor(service, true))
+                        update(null)
                     }
 
                     override fun onLoadCleared(placeholder: Drawable?) {}
 
-                    private fun update(bitmap: Bitmap?, color: Int) {
-                        // Set correct drawable for pause state
-                        appWidgetView.setImageViewBitmap(
-                            R.id.button_toggle_play_pause,
-                            service.getTintedDrawable(playPauseRes, color)!!.toBitmap()
-                        )
-
-                        // Set prev/next button drawables
-                        appWidgetView.setImageViewBitmap(
-                            R.id.button_next,
-                            service.getTintedDrawable(R.drawable.ic_next_24dp, color)!!.toBitmap()
-                        )
-                        appWidgetView.setImageViewBitmap(
-                            R.id.button_prev,
-                            service.getTintedDrawable(R.drawable.ic_previous_24dp, color)!!.toBitmap()
-                        )
-
+                    private fun update(bitmap: Bitmap?) {
                         val image = getAlbumArtDrawable(service, bitmap)
+                        val innerRadius = getInnerRadius(service)
                         val roundedBitmap = createRoundedBitmap(
                             image,
                             imageSize,
                             imageSize,
-                            cardRadius,
-                            cardRadius,
-                            cardRadius,
-                            cardRadius
+                            innerRadius,
+                            innerRadius,
+                            innerRadius,
+                            innerRadius
                         )
                         appWidgetView.setImageViewBitmap(R.id.image, roundedBitmap)
 
@@ -211,18 +157,24 @@ class AppWidgetMD3 : BaseAppWidget() {
         views.setOnClickPendingIntent(R.id.button_next, pendingIntent)
     }
 
+    private fun getImageSize(context: Context): Int {
+        if (imageSize == 0) {
+            imageSize = context.resources.getDimensionPixelSize(R.dimen.app_widget_small_image_size)
+        }
+        return imageSize
+    }
+
     companion object {
 
-        const val NAME = "app_widget_md3"
+        const val NAME = "app_widget_small"
 
-        private var mInstance: AppWidgetMD3? = null
         private var imageSize = 0
-        private var cardRadius = 0F
+        private var mInstance: AppWidgetSmall? = null
 
-        val instance: AppWidgetMD3
+        val instance: AppWidgetSmall
             @Synchronized get() {
                 if (mInstance == null) {
-                    mInstance = AppWidgetMD3()
+                    mInstance = AppWidgetSmall()
                 }
                 return mInstance!!
             }

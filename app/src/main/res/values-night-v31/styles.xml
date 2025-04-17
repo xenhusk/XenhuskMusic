@@ -6,10 +6,6 @@
         <item name="dividerColor">@color/dividerBlack</item>
     </style>
 
-    <style name="Theme.AppWidget" parent="@android:style/Theme.DeviceDefault.DayNight">
-        <item name="colorSurface">@android:color/system_accent2_800</item>
-    </style>
-
     <style name="ThemeOverlay.Booming.Adaptive" parent="ThemeOverlay.Material3.Dark"/>
 
     <style name="BlackThemeOverlay">

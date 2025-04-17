@@ -138,9 +138,9 @@
     <string name="nothing_to_scan">Nada para escanear</string>
     <string name="scanned_x_of_x_files">Escaneados %1$d de %2$d archivos.</string>
     <string name="could_not_scan_files">No se pudieron escannear %d archivos.</string>
-    <string name="app_widget_big_name">Booming Music - Grande</string>
-    <string name="app_widget_card_name">Booming Music - Tarjeta</string>
-    <string name="app_widget_md3_name">Booming Music - MD3</string>
+    <string name="app_widget_big_name">Grande</string>
+    <string name="app_widget_simple_name">Simple</string>
+    <string name="app_widget_small_name">Pequeño</string>
     <string name="now_playing">Reproduciendo ahora</string>
     <string name="playing_queue_label">Cola de reproducción</string>
     <string name="list_start">Inicio de la lista.</string>
@@ -268,6 +268,7 @@
     <string name="label_file_path">Ruta de acceso</string>
     <string name="size">Tamaño</string>
     <string name="label_file_format">Formato</string>
+    <string name="title_and_artist">Título y Artista</string>
     <string name="song">Canción</string>
     <string name="title">Título</string>
     <string name="album">Álbum</string>

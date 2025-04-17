@@ -6,11 +6,12 @@
 
 ### A modern, Material 3 local music player built for smooth offline listening
 
-[![Platform](https://img.shields.io/badge/Platform-Android-green.svg)](https://android.com/)
-[![API](https://img.shields.io/badge/API-26%2B-green.svg?style=flat)](https://android-arsenal.com/api?level=26)
-[![Latest Release](https://img.shields.io/github/v/release/mardous/BoomingMusic)](https://github.com/mardous/BoomingMusic/releases/latest)
-[![License: GPL v3](https://img.shields.io/github/license/mardous/BoomingMusic?color=blue)](LICENSE.txt)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor_Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+[![Platform](https://img.shields.io/badge/Platform-Android-green.svg?logo=android)](https://android.com/)
+[![API](https://img.shields.io/badge/API-26%2B-green.svg?style=flat&logo=android)](https://android-arsenal.com/api?level=26)
+[![Latest Release](https://img.shields.io/github/v/release/mardous/BoomingMusic?label=Release&logo=github)](https://github.com/mardous/BoomingMusic/releases/latest)
+[![License: GPL v3](https://img.shields.io/github/license/mardous/BoomingMusic?color=orange&label=License&logo=gnu)](LICENSE.txt)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor_Covenant-2.1-4baaaa.svg?logo=contributorcovenant)](CODE_OF_CONDUCT.md)
+[![Telegram Group](https://img.shields.io/badge/Telegram-Join_Chat-blue?style=flat&logo=telegram)](https://t.me/mardousdev)
 
 > WARNING:
 > Please keep in mind that Booming Music is in BETA stage, so it is very likely that it will contain
@@ -75,7 +76,7 @@ not have an official translation project on any platform, however, if you are in
 contributing new translations, you can do so through PRs.
 
 ## 💬 Social
-Join the [Telegram chat](https://t.me/droidsanatomy) to stay up-to-date on new releases, discuss new features,
+Join the [Telegram chat](https://t.me/mardousdev) to stay up-to-date on new releases, discuss new features,
 report bugs, and engage with other community users.
 
 ## 👏 Credits

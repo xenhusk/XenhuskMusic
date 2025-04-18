@@ -43,7 +43,9 @@ class MediaSessionCallback(private val musicService: MusicService, private val c
     override fun onPrepare() {
         super.onPrepare()
         if (musicService.getCurrentSong() != Song.emptySong) {
-            musicService.restoreState()
+            coroutineScope.launch(IO) {
+                musicService.restoreState()
+            }
         }
     }
 

@@ -200,7 +200,9 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
             MediaStore.Audio.Media.INTERNAL_CONTENT_URI, true, mediaStoreObserver
         )
 
-        restoreState()
+        serviceScope.launch(IO) {
+            restoreState()
+        }
 
         musicProvider.setMusicService(this)
         packageValidator = PackageValidator(this, R.xml.allowed_media_browser_callers)
@@ -371,16 +373,14 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         playingQueue.saveQueues()
     }
 
-    internal fun restoreState(fullRestore: Boolean = true) {
+    internal suspend fun restoreState(fullRestore: Boolean = true) {
         if (fullRestore) {
             playingQueue.restoreState { restoredPositionInTrack ->
                 setRestored(restoredPositionInTrack)
             }
         } else {
-            serviceScope.launch {
-                playingQueue.restoreQueuesAndPositionIfNecessary { restoredPositionInTrack ->
-                    setRestored(restoredPositionInTrack)
-                }
+            playingQueue.restoreQueuesAndPositionIfNecessary { restoredPositionInTrack ->
+                setRestored(restoredPositionInTrack)
             }
         }
     }

@@ -26,7 +26,7 @@ android {
         targetSdk = 35
 
         applicationId = namespace
-        versionCode = 1000007
+        versionCode = 1000008
         versionName = currentVersion.name
         check(versionCode == currentVersionCode)
     }

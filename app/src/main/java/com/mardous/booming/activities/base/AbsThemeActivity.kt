@@ -49,6 +49,7 @@ abstract class AbsThemeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         if (hasQ()) {
+            window.isNavigationBarContrastEnforced = false
             window.decorView.isForceDarkAllowed = false
         }
         ViewGroupCompat.installCompatInsetsDispatch(window.decorView)

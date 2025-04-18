@@ -75,5 +75,5 @@ val currentVersion: Version = Version.Alpha(
     versionMajor = 1,
     versionMinor = 0,
     versionPatch = 0,
-    versionBuild = 6
+    versionBuild = 7
 )

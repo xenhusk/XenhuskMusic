@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/app_widget_small_height"
     android:background="@drawable/app_widget_background"
-    android:backgroundTint="?android:attr/colorBackground"
+    android:backgroundTint="?colorSurfaceContainer"
     android:orientation="horizontal"
     android:theme="@style/Theme.AppWidget">
 
@@ -44,7 +44,7 @@
                 android:background="@drawable/widget_selector"
                 android:contentDescription="@string/action_previous"
                 android:src="@drawable/ic_previous_24dp"
-                app:tint="?colorAccent" />
+                app:tint="?colorOnSurface" />
 
             <ImageButton
                 android:id="@+id/button_toggle_play_pause"
@@ -54,7 +54,7 @@
                 android:background="@drawable/widget_selector"
                 android:contentDescription="@string/action_play_pause"
                 android:src="@drawable/ic_play_24dp"
-                app:tint="?colorAccent" />
+                app:tint="?colorOnSurface" />
 
             <ImageButton
                 android:id="@+id/button_next"
@@ -64,7 +64,7 @@
                 android:background="@drawable/widget_selector"
                 android:contentDescription="@string/action_next"
                 android:src="@drawable/ic_next_24dp"
-                app:tint="?colorAccent" />
+                app:tint="?colorOnSurface" />
 
         </LinearLayout>
 

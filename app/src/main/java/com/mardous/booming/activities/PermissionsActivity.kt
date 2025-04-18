@@ -82,10 +82,10 @@ class PermissionsActivity : AbsMusicServiceActivity() {
             }
         }
         if (binding.scheduleExactAlarms.isVisible) {
-            binding.scheduleExactAlarms.setOnClickListener {
+            binding.scheduleExactAlarms.setButtonOnClickListener {
                 if (!binding.scheduleExactAlarms.isGranted() && hasS()) {
                     val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-                    startSettingsActivity(intent)
+                    startActivity(intent)
                 }
             }
         }

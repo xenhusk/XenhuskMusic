@@ -45,8 +45,11 @@ class AudioOutputObserver(
 
     private var isObserving = false
 
-    override fun onReceive(context: Context, intent: Intent) {
-        requestVolume()
+    override fun onReceive(context: Context, intent: Intent?) {
+        val action = intent?.action ?: return
+        if (action == VOLUME_CHANGED_ACTION || action == Intent.ACTION_HEADSET_PLUG) {
+            requestVolume()
+        }
     }
 
     /**

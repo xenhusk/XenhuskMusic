@@ -25,6 +25,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type
+import androidx.core.view.marginTop
 import androidx.core.view.updatePadding
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentDefaultPlayerBinding
@@ -56,15 +57,14 @@ class DefaultPlayerFragment : AbsPlayerFragment(R.layout.fragment_default_player
         setupToolbar()
         inflateMenuInView(playerToolbar)
         if (binding.albumCoverFragmentContainer != null) {
-            view.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+            val coverContainer = binding.albumCoverFragmentContainer!!
+            coverContainer.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
-                    val availablePanelHeight =
-                        view.height - binding.albumCoverFragmentContainer!!.height + 8.dp(resources)
-                    val minPanelHeight = (72 + 24 + 20 + (16 * 2)).dp(resources)
+                    val availablePanelHeight = view.height - coverContainer.height + coverContainer.marginTop
+                    val minPanelHeight = (64 + 56 + 32 + 16 + (48 * 2)).dp(resources)
                     if (availablePanelHeight < minPanelHeight) {
-                        binding.albumCoverFragmentContainer!!.layoutParams.height =
-                            binding.albumCoverFragmentContainer!!.height - (minPanelHeight - availablePanelHeight)
-                        binding.albumCoverFragmentContainer!!.forceSquare(false)
+                        coverContainer.layoutParams.height = coverContainer.height - (minPanelHeight - availablePanelHeight)
+                        coverContainer.forceSquare(false)
                     }
                     view.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 }

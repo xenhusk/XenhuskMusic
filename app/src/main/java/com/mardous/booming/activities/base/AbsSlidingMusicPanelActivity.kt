@@ -144,9 +144,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 binding.sheetView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                if (nowPlayingScreen != NowPlayingScreen.Peek) {
+                if (nowPlayingScreen == NowPlayingScreen.Peek) {
                     slidingPanel.updateLayoutParams<ViewGroup.LayoutParams> {
-                        height = ViewGroup.LayoutParams.MATCH_PARENT
+                        height = ViewGroup.LayoutParams.WRAP_CONTENT
                     }
                 }
                 when (panelState) {

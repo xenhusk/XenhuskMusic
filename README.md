@@ -83,7 +83,5 @@ report bugs, and engage with other community users.
 Booming Music is built upon the open-source project [Retro Music](https://github.com/RetroMusicPlayer/RetroMusicPlayer),
 which served as a starting point for many features and functionality in this app.
 
-<a href="https://www.flaticon.com/free-icons/music-note" title="music note icons">Music note icons created by Azland Studio - Flaticon</a>
-
 ## ⚖️ License
 Booming Music is released under the GNU General Public License, which can be found [here](LICENSE.txt).

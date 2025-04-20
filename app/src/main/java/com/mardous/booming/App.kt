@@ -23,6 +23,7 @@ import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.os.StrictMode.VmPolicy
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import cat.ereza.customactivityoncrash.config.CaocConfig
 import com.bumptech.glide.Glide
@@ -30,6 +31,7 @@ import com.mardous.booming.activities.ErrorActivity
 import com.mardous.booming.activities.MainActivity
 import com.mardous.booming.fragments.settings.SettingsScreen
 import com.mardous.booming.misc.ReplayGainTagExtractor
+import com.mardous.booming.util.EXPERIMENTAL_UPDATES
 import com.mardous.booming.util.Preferences.getDayNightMode
 import org.jaudiotagger.tag.TagOptionSingleton
 import org.koin.android.ext.koin.androidContext
@@ -65,6 +67,9 @@ class App : Application() {
         if (!prefs.getBoolean(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES, false)) {
             for (screen in SettingsScreen.entries) {
                 PreferenceManager.setDefaultValues(this, screen.layoutRes, true)
+            }
+            if (isExperimentalBuild()) {
+                prefs.edit { putBoolean(EXPERIMENTAL_UPDATES, true) }
             }
         }
 
@@ -104,5 +109,8 @@ class App : Application() {
         @get:Synchronized
         internal lateinit var instance: App
             private set
+
+        fun isExperimentalBuild(): Boolean =
+            BuildConfig.VERSION_NAME.contains("(alpha|beta|rc)".toRegex(RegexOption.IGNORE_CASE))
     }
 }

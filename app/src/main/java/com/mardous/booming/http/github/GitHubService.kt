@@ -20,12 +20,38 @@ package com.mardous.booming.http.github
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.statement.HttpResponse
 
-class GitHubService(private val client: HttpClient) {
+class GitHubService(private val client: HttpClient, private val authToken: String? = null) {
 
-    suspend fun latestRelease(user: String = DEFAULT_USER, repo: String = DEFAULT_REPO) =
-        client.get("https://api.github.com/repos/$user/$repo/releases/latest")
-            .body<GitHubRelease>()
+    private suspend fun get(url: String): HttpResponse {
+        return client.get(url) {
+            authToken?.let {
+                headers { append("Authorization", "token $it") }
+            }
+        }
+    }
+
+    private suspend fun fetchStableRelease(user: String, repo: String): GitHubRelease =
+        get("https://api.github.com/repos/$user/$repo/releases/latest").body()
+
+    private suspend fun fetchAllReleases(user: String, repo: String): List<GitHubRelease> =
+        get("https://api.github.com/repos/$user/$repo/releases").body()
+
+    suspend fun latestRelease(user: String = DEFAULT_USER, repo: String = DEFAULT_REPO, isStable: Boolean = true): GitHubRelease {
+        return if (isStable) {
+            fetchStableRelease(user, repo)
+        } else {
+            val allReleases = fetchAllReleases(user, repo)
+                .filter { it.isPrerelease }
+                .sortedByDescending { it.publishedAt }
+            allReleases.firstOrNull()
+                ?: throw ReleaseNotFoundException("No prerelease found for $user/$repo")
+        }
+    }
+
+    class ReleaseNotFoundException(message: String) : Exception(message)
 
     companion object {
         const val DEFAULT_USER = "mardous"

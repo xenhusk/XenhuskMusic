@@ -29,13 +29,14 @@ import com.mardous.booming.R
 import com.mardous.booming.extensions.files.asReadableFileSize
 import com.mardous.booming.extensions.packageInfo
 import io.github.g00fy2.versioncompare.Version
+import kotlinx.datetime.Instant
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import java.text.SimpleDateFormat
-import java.util.Locale
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Parcelize
 @Serializable
@@ -57,6 +58,9 @@ class GitHubRelease(
     companion object {
         private const val IGNORED_RELEASE = "ignored_release"
     }
+
+    val publishedAt: Instant
+        get() = Instant.parse(date)
 
     fun isDownloadable(context: Context): Boolean {
         val hasApk = downloads.any { it.isApk }
@@ -107,12 +111,12 @@ class GitHubRelease(
     }
 
     fun getFormattedDate(): String? {
-        val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
-        val date = format.parse(date)
-        if (date != null) {
-            return SimpleDateFormat.getDateInstance().format(date)
-        }
-        return null
+        val instant = Instant.parse(date)
+        val zonedDateTime = java.time.Instant.ofEpochMilli(instant.toEpochMilliseconds())
+            .atZone(ZoneId.systemDefault())
+
+        val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
+        return zonedDateTime.format(formatter)
     }
 
     @Parcelize

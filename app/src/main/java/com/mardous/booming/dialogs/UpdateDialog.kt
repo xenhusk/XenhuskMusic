@@ -35,7 +35,6 @@ import com.mardous.booming.extensions.resources.setMarkdownText
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.fragments.LibraryViewModel
 import com.mardous.booming.http.github.GitHubRelease
-import com.mardous.booming.util.Preferences
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class UpdateDialog : BottomSheetDialogFragment(), View.OnClickListener {
@@ -55,9 +54,6 @@ class UpdateDialog : BottomSheetDialogFragment(), View.OnClickListener {
             fillVersionInfo()
             return BottomSheetDialog(requireContext()).also {
                 it.setContentView(binding.root)
-                it.setOnShowListener {
-                    Preferences.lastUpdateSearch = System.currentTimeMillis()
-                }
             }
         }
         return MaterialAlertDialogBuilder(requireContext())

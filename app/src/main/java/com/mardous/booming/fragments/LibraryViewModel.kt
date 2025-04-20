@@ -33,6 +33,8 @@ import com.mardous.booming.mvvm.AddToPlaylistResult
 import com.mardous.booming.mvvm.ImportResult
 import com.mardous.booming.mvvm.ImportablePlaylistResult
 import com.mardous.booming.mvvm.SuggestedResult
+import com.mardous.booming.mvvm.UpdateSearchResult
+import com.mardous.booming.mvvm.event.Event
 import com.mardous.booming.repository.RealSmartRepository
 import com.mardous.booming.repository.Repository
 import com.mardous.booming.service.MusicPlayer
@@ -43,6 +45,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.Date
 
 class LibraryViewModel(
     private val repository: Repository,
@@ -66,6 +69,7 @@ class LibraryViewModel(
     private val fabMargin = MutableLiveData(0)
     private val songHistory = MutableLiveData<List<Song>>()
     private val paletteColor = MutableLiveData<Int>()
+    private val updateSearch = MutableLiveData<Event<UpdateSearchResult>>()
 
     fun getSuggestions(): LiveData<SuggestedResult> = suggestions
     fun getSongs(): LiveData<List<Song>> = songs
@@ -76,6 +80,7 @@ class LibraryViewModel(
     fun getYears(): LiveData<List<ReleaseYear>> = years
     fun getFabMargin(): LiveData<Int> = fabMargin
     fun getPaletteColor(): LiveData<Int> = paletteColor
+    fun getUpdateSearchEvent(): LiveData<Event<UpdateSearchResult>> = updateSearch
 
     fun setFabMargin(context: Context, bottomMargin: Int) {
         val currentValue = 16.dp(context) + bottomMargin
@@ -326,9 +331,44 @@ class LibraryViewModel(
         }
     }
 
-    fun getLatestUpdate(): LiveData<GitHubRelease> = liveData(IO + ioHandler) {
-        emit(updateService.latestRelease())
-    }
+    fun searchForUpdate(fromUser: Boolean, stableUpdate: Boolean = !Preferences.experimentalUpdates) =
+        viewModelScope.launch(IO) {
+            val current = updateSearch.value?.peekContent() ?: UpdateSearchResult(executedAtMillis = Preferences.lastUpdateSearch)
+            if (current.shouldStartNewSearchFor(fromUser, stableUpdate)) {
+                updateSearch.postValue(
+                    Event(
+                        current.copy(
+                            state = UpdateSearchResult.State.Searching,
+                            wasFromUser = fromUser,
+                            wasStableQuery = stableUpdate
+                        )
+                    )
+                )
+
+                val result = runCatching {
+                    updateService.latestRelease(isStable = stableUpdate)
+                }
+                val executedAtMillis = Date().time
+                val newState = if (result.isSuccess) {
+                    UpdateSearchResult(
+                        state = UpdateSearchResult.State.Completed,
+                        data = result.getOrThrow(),
+                        executedAtMillis = executedAtMillis,
+                        wasFromUser = fromUser,
+                        wasStableQuery = stableUpdate
+                    )
+                } else {
+                    UpdateSearchResult(
+                        state = UpdateSearchResult.State.Failed,
+                        data = null,
+                        executedAtMillis = executedAtMillis,
+                        wasFromUser = fromUser,
+                        wasStableQuery = stableUpdate
+                    )
+                }
+                updateSearch.postValue(Event(newState))
+            }
+        }
 
     fun downloadUpdate(context: Context, release: GitHubRelease) =
         viewModelScope.launch(IO + ioHandler) {

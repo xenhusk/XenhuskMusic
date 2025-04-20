@@ -29,6 +29,7 @@ import com.mardous.booming.appshortcuts.DynamicShortcutManager
 import com.mardous.booming.dialogs.UpdateDialog
 import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.navigation.isValidCategory
+import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.lyrics.LyricsViewModel
 import com.mardous.booming.helper.SearchQueryHelper
@@ -36,6 +37,7 @@ import com.mardous.booming.http.github.isAbleToUpdate
 import com.mardous.booming.interfaces.IScrollHelper
 import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.model.Playlist
+import com.mardous.booming.mvvm.UpdateSearchResult
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.Preferences
@@ -61,6 +63,12 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
         // Set up dynamic shortcuts
         DynamicShortcutManager(this).initDynamicShortcuts()
 
+        libraryViewModel.getUpdateSearchEvent().observe(this) { result ->
+            result.getContentIfNotConsumed()?.let {
+                processUpdateSearchResult(it)
+            }
+        }
+
         if (savedInstanceState == null) {
             searchUpdate()
         }
@@ -68,11 +76,33 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
 
     private fun searchUpdate() {
         if (isAbleToUpdate()) {
-            libraryViewModel.getLatestUpdate().observe(this) { release ->
-                if (release.isDownloadable(this)) {
-                    UpdateDialog.create(release).show(supportFragmentManager, "UPDATE_FOUND")
+            libraryViewModel.searchForUpdate(false)
+        }
+    }
+
+    private fun processUpdateSearchResult(result: UpdateSearchResult) {
+        when (result.state) {
+            UpdateSearchResult.State.Searching -> {
+                if (result.wasFromUser) {
+                    showToast(R.string.searching_for_update)
                 }
             }
+            UpdateSearchResult.State.Completed -> {
+                val release = result.data ?: return
+                if (result.wasFromUser || result.data.isDownloadable(this)) {
+                    val existingDialog = supportFragmentManager.findFragmentByTag("UPDATE_FOUND")
+                    if (existingDialog == null) {
+                        UpdateDialog.create(release).show(supportFragmentManager, "UPDATE_FOUND")
+                    }
+                }
+                Preferences.lastUpdateSearch = result.executedAtMillis
+            }
+            UpdateSearchResult.State.Failed -> {
+                if (result.wasFromUser) {
+                    showToast(R.string.could_not_check_for_updates)
+                }
+            }
+            else -> {}
         }
     }
 

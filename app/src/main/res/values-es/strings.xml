@@ -745,6 +745,9 @@
     <string name="receive_experimental_updates_title">Recibir actualizaciones experimentales</string>
     <string name="receive_experimental_updates_summary">Tenga en cuenta que estas actualizaciones suelen ser muy inestables y están destinadas a usuarios expertos.</string>
     <string name="search_for_update_title">Buscar actualización</string>
+    <string name="last_update_search_x">Última comprobación: %s</string>
+    <string name="searching_for_update">Buscando actualización…</string>
+    <string name="could_not_check_for_updates">No se puedieron comprobar las actualizaciones.</string>
     <string name="the_app_is_up_to_date">La app está actualizada</string>
     <string name="update_available_title">Actualización disponible</string>
     <string name="more_info_action">Más info.</string>

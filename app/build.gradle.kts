@@ -115,6 +115,7 @@ fun Properties.property(key: String) =
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.datetime)
 
     // Firebase BoM
     "normalImplementation"(platform(libs.firebase.bom))

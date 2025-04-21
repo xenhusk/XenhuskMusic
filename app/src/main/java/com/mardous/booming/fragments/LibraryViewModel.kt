@@ -29,11 +29,7 @@ import com.mardous.booming.extensions.dp
 import com.mardous.booming.http.github.GitHubRelease
 import com.mardous.booming.http.github.GitHubService
 import com.mardous.booming.model.*
-import com.mardous.booming.mvvm.AddToPlaylistResult
-import com.mardous.booming.mvvm.ImportResult
-import com.mardous.booming.mvvm.ImportablePlaylistResult
-import com.mardous.booming.mvvm.SuggestedResult
-import com.mardous.booming.mvvm.UpdateSearchResult
+import com.mardous.booming.mvvm.*
 import com.mardous.booming.mvvm.event.Event
 import com.mardous.booming.repository.RealSmartRepository
 import com.mardous.booming.repository.Repository
@@ -348,7 +344,9 @@ class LibraryViewModel(
                 val result = runCatching {
                     updateService.latestRelease(isStable = stableUpdate)
                 }
-                val executedAtMillis = Date().time
+                val executedAtMillis = Date().time.also {
+                    Preferences.lastUpdateSearch = it
+                }
                 val newState = if (result.isSuccess) {
                     UpdateSearchResult(
                         state = UpdateSearchResult.State.Completed,

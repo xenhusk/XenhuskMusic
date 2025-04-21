@@ -95,7 +95,6 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
                         UpdateDialog.create(release).show(supportFragmentManager, "UPDATE_FOUND")
                     }
                 }
-                Preferences.lastUpdateSearch = result.executedAtMillis
             }
             UpdateSearchResult.State.Failed -> {
                 if (result.wasFromUser) {

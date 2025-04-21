@@ -33,10 +33,12 @@ class ProgressIndicatorPreference @JvmOverloads constructor(
 ) : Preference(context, attrs, defStyleAttr) {
 
     private var progressIndicator: CircularProgressIndicator? = null
+    private var shouldShowProgress = false
 
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
         progressIndicator = holder.findViewById(android.R.id.progress) as? CircularProgressIndicator
+        applyProgressVisibility()
     }
 
     override fun onPrepareForRemoval() {
@@ -45,10 +47,22 @@ class ProgressIndicatorPreference @JvmOverloads constructor(
     }
 
     fun showProgressIndicator() {
-        progressIndicator?.show()
+        shouldShowProgress = true
+        applyProgressVisibility()
     }
 
     fun hideProgressIndicator() {
-        progressIndicator?.hide()
+        shouldShowProgress = false
+        applyProgressVisibility()
+    }
+
+    private fun applyProgressVisibility() {
+        progressIndicator?.let {
+            if (shouldShowProgress) {
+                it.show()
+            } else {
+                it.hide()
+            }
+        }
     }
 }

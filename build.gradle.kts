@@ -19,9 +19,3 @@ buildscript {
         }
     }
 }
-
-tasks.register("printVersion") {
-    doLast {
-        print("Version name: ${currentVersion.name}, version code: ${currentVersion.code}")
-    }
-}

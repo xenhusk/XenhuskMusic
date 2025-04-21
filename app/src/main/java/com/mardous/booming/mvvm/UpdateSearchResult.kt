@@ -24,12 +24,12 @@ data class UpdateSearchResult(
     val data: GitHubRelease? = null,
     val executedAtMillis: Long = -1,
     val wasFromUser: Boolean = false,
-    val wasStableQuery: Boolean = true,
+    val wasExperimentalQuery: Boolean = true,
 ) {
-    fun shouldStartNewSearchFor(fromUser: Boolean, stableUpdate: Boolean): Boolean {
+    fun shouldStartNewSearchFor(fromUser: Boolean, allowExperimental: Boolean): Boolean {
         return when (state) {
             State.Idle -> true
-            State.Completed, State.Failed -> fromUser || wasStableQuery != stableUpdate
+            State.Completed, State.Failed -> fromUser || wasExperimentalQuery != allowExperimental
             State.Searching -> false
         }
     }

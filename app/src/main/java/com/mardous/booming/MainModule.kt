@@ -59,7 +59,7 @@ val networkModule = module {
         provideOkHttp(get(), get())
     }
     single {
-        GitHubService(get())
+        GitHubService(androidContext(), get())
     }
     single {
         DeezerService(get())

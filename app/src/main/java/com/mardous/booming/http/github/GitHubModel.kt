@@ -59,11 +59,13 @@ class GitHubRelease(
         private const val IGNORED_RELEASE = "ignored_release"
     }
 
+    val hasApk: Boolean
+        get() = downloads.any { it.isApk }
+
     val publishedAt: Instant
         get() = Instant.parse(date)
 
     fun isDownloadable(context: Context): Boolean {
-        val hasApk = downloads.any { it.isApk }
         if (hasApk) {
             return isNewer(context) && !isIgnored()
         }

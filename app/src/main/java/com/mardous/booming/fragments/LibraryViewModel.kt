@@ -327,22 +327,22 @@ class LibraryViewModel(
         }
     }
 
-    fun searchForUpdate(fromUser: Boolean, stableUpdate: Boolean = !Preferences.experimentalUpdates) =
+    fun searchForUpdate(fromUser: Boolean, allowExperimental: Boolean = Preferences.experimentalUpdates) =
         viewModelScope.launch(IO) {
             val current = updateSearch.value?.peekContent() ?: UpdateSearchResult(executedAtMillis = Preferences.lastUpdateSearch)
-            if (current.shouldStartNewSearchFor(fromUser, stableUpdate)) {
+            if (current.shouldStartNewSearchFor(fromUser, allowExperimental)) {
                 updateSearch.postValue(
                     Event(
                         current.copy(
                             state = UpdateSearchResult.State.Searching,
                             wasFromUser = fromUser,
-                            wasStableQuery = stableUpdate
+                            wasExperimentalQuery = allowExperimental
                         )
                     )
                 )
 
                 val result = runCatching {
-                    updateService.latestRelease(isStable = stableUpdate)
+                    updateService.latestRelease(allowExperimental = allowExperimental)
                 }
                 val executedAtMillis = Date().time.also {
                     Preferences.lastUpdateSearch = it
@@ -353,7 +353,7 @@ class LibraryViewModel(
                         data = result.getOrThrow(),
                         executedAtMillis = executedAtMillis,
                         wasFromUser = fromUser,
-                        wasStableQuery = stableUpdate
+                        wasExperimentalQuery = allowExperimental
                     )
                 } else {
                     UpdateSearchResult(
@@ -361,7 +361,7 @@ class LibraryViewModel(
                         data = null,
                         executedAtMillis = executedAtMillis,
                         wasFromUser = fromUser,
-                        wasStableQuery = stableUpdate
+                        wasExperimentalQuery = allowExperimental
                     )
                 }
                 updateSearch.postValue(Event(newState))

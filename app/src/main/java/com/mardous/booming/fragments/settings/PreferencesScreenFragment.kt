@@ -18,9 +18,9 @@
 package com.mardous.booming.fragments.settings
 
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
@@ -60,7 +60,7 @@ open class PreferencesScreenFragment : PreferenceFragmentCompat() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setDivider(ColorDrawable(Color.TRANSPARENT))
+        setDivider(Color.TRANSPARENT.toDrawable())
         if (hasS()) {
             listView.overScrollMode = View.OVER_SCROLL_NEVER
         }

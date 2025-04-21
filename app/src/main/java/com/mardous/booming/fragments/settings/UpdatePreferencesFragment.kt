@@ -51,7 +51,7 @@ class UpdatePreferencesFragment : PreferencesScreenFragment() {
                 UpdateSearchResult.State.Searching -> {
                     preference?.showProgressIndicator()
                     preference?.isEnabled = false
-                    preference?.summary = getString(R.string.searching_for_update)
+                    preference?.summary = getString(R.string.checking_please_wait)
                 }
                 else -> {
                     defaultState(preference, result.executedAtMillis)

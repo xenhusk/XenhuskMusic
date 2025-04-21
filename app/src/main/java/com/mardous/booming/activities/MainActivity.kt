@@ -82,11 +82,11 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
 
     private fun processUpdateSearchResult(result: UpdateSearchResult) {
         when (result.state) {
-            UpdateSearchResult.State.Searching -> {
-                if (result.wasFromUser) {
-                    showToast(R.string.searching_for_update)
-                }
-            }
+//            UpdateSearchResult.State.Searching -> {
+//                if (result.wasFromUser) {
+//                    showToast(R.string.checking_please_wait)
+//                }
+//            }
             UpdateSearchResult.State.Completed -> {
                 val release = result.data ?: return
                 if (result.wasFromUser || result.data.isDownloadable(this)) {

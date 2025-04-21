@@ -748,7 +748,7 @@
     <string name="receive_experimental_updates_summary">Please note that these updates are often very unstable and are intended for experienced users.</string>
     <string name="search_for_update_title">Search for update</string>
     <string name="last_update_search_x">Last check: %s</string>
-    <string name="searching_for_update">Searching for update…</string>
+    <string name="checking_please_wait">Checking, please wait…</string>
     <string name="could_not_check_for_updates">Could not check for updates.</string>
     <string name="the_app_is_up_to_date">The app is up-to-date</string>
     <string name="update_available_title">Update available</string>

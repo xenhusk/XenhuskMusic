@@ -91,10 +91,7 @@ class AboutFragment : Fragment(R.layout.fragment_about), View.OnClickListener {
     override fun onClick(view: View?) {
         when (view) {
             binding.cardApp.changelog -> {
-                MarkdownDialog()
-                    .setTitle(getString(R.string.changelog))
-                    .setContentFromAsset(requireContext(), "CHANGELOG.md")
-                    .show(childFragmentManager, "CHANGELOG")
+                openUrl(RELEASES_LINK)
             }
 
             binding.cardApp.licenses -> {
@@ -174,6 +171,7 @@ class AboutFragment : Fragment(R.layout.fragment_about), View.OnClickListener {
     companion object {
         private const val AUTHOR_GITHUB_URL = "https://www.github.com/mardous"
         private const val GITHUB_URL = "$AUTHOR_GITHUB_URL/BoomingMusic"
+        private const val RELEASES_LINK = "$GITHUB_URL/releases"
         private const val ISSUE_TRACKER_LINK = "$GITHUB_URL/issues"
         private const val AUTHOR_TELEGRAM_LINK = "https://t.me/mardeez"
         private const val APP_TELEGRAM_LINK = "https://t.me/mardousdev"

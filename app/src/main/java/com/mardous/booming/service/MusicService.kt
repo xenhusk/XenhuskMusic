@@ -933,10 +933,12 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                 if (playingQueue.stopPosition < getPosition()) {
                     setStopPosition(-1)
                 }
-                playingNotification?.update(getCurrentSong()) { startForegroundOrNotify() }
                 // We must call updateMediaSessionPlaybackState after the load of album art is completed
                 // if we are loading it, or it won't be updated in the notification
-                updateMediaSessionMetadata(::updateMediaSessionPlaybackState)
+                updateMediaSessionMetadata {
+                    updateMediaSessionPlaybackState()
+                    playingNotification?.update(getCurrentSong()) { startForegroundOrNotify() }
+                }
                 savePosition()
                 savePositionInTrack()
                 serviceScope.launch(IO) {

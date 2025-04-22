@@ -45,6 +45,8 @@ import com.mardous.booming.service.constants.ServiceAction
 class PlayingNotificationImpl24(service: MusicService, mediaSessionToken: MediaSessionCompat.Token) :
     PlayingNotification(service) {
 
+    private var currentTarget: CustomTarget<Bitmap>? = null
+
     init {
         val action = Intent(context, MainActivity::class.java)
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -98,29 +100,35 @@ class PlayingNotificationImpl24(service: MusicService, mediaSessionToken: MediaS
 
     override fun update(song: Song, onUpdate: () -> Unit) {
         if (song == Song.emptySong) return
+
         setContentTitle(song.title)
         setContentText(song.displayArtistName())
         setSubText(getExtraTextString(song))
         val bigNotificationImageSize = context.dip(R.dimen.notification_big_image_size)
-        Glide.with(context)
+
+        setAlbumArtImage(null)
+        onUpdate()
+
+        currentTarget?.let { Glide.with(context).clear(it) }
+        currentTarget = Glide.with(context)
             .asBitmap()
             .songOptions(song)
             .load(song.getSongGlideModel())
             .centerCrop()
             .into(object : CustomTarget<Bitmap>(bigNotificationImageSize, bigNotificationImageSize) {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    setLargeIcon(resource)
+                    setAlbumArtImage(resource)
                     onUpdate()
                 }
 
                 override fun onLoadFailed(errorDrawable: Drawable?) {
                     super.onLoadFailed(errorDrawable)
-                    setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.default_audio_art))
+                    setAlbumArtImage(null)
                     onUpdate()
                 }
 
                 override fun onLoadCleared(placeholder: Drawable?) {
-                    setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.default_audio_art))
+                    setAlbumArtImage(null)
                     onUpdate()
                 }
             })
@@ -131,9 +139,16 @@ class PlayingNotificationImpl24(service: MusicService, mediaSessionToken: MediaS
         mActions[1] = buildPlayAction(isPlaying)
     }
 
+    private fun setAlbumArtImage(image: Bitmap?) {
+        if (image == null) {
+            setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.default_audio_art))
+        } else {
+            setLargeIcon(image)
+        }
+    }
+
     private fun buildPlayAction(isPlaying: Boolean): NotificationCompat.Action {
-        val playButtonResId =
-            if (isPlaying) R.drawable.ic_pause_24dp else R.drawable.ic_play_24dp
+        val playButtonResId = if (isPlaying) R.drawable.ic_pause_24dp else R.drawable.ic_play_24dp
         return NotificationCompat.Action.Builder(
             playButtonResId,
             context.getString(R.string.action_play_pause),

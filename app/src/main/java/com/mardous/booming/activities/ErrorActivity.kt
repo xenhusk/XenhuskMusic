@@ -48,7 +48,7 @@ class ErrorActivity : AbsThemeActivity() {
         }
         val errorReport = CustomActivityOnCrash.getAllErrorDetailsFromIntent(this, intent)
         val nameFromTime = System.currentTimeMillis().asFormattedFileTime()
-        val errorReportFile = File(appContext().cacheDir, "Crash_${nameFromTime}.log")
+        val errorReportFile = File(appContext().filesDir, "Crash_${nameFromTime}.log")
         if (!errorReportFile.exists() || errorReportFile.delete()) {
             errorReportFile.writeText(errorReport)
         }

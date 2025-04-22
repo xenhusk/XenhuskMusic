@@ -213,6 +213,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.palette.ktx)
+    implementation(libs.androidx.viewpager)
     implementation(libs.material.components)
 
     implementation(libs.niervisualizer) {

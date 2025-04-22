@@ -130,7 +130,7 @@ class SongFileAdapter(
     }
 
     override fun getPopupText(view: View, position: Int): CharSequence {
-        return dataSet[position].name.sectionName()
+        return dataSet.getOrNull(position)?.name?.sectionName() ?: ""
     }
 
     inner class ViewHolder(itemView: View) : MediaEntryViewHolder(itemView) {

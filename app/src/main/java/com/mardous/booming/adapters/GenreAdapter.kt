@@ -121,7 +121,7 @@ class GenreAdapter(
     }
 
     override fun getPopupText(view: View, position: Int): CharSequence {
-        val genre = dataSet[position]
+        val genre = dataSet.getOrNull(position) ?: return ""
         return if (genre.id != -1L) genre.name.sectionName() else ""
     }
 

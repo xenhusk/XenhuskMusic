@@ -131,7 +131,7 @@ open class ArtistAdapter(
     }
 
     override fun getPopupText(view: View, position: Int): CharSequence {
-        return dataSet[position].displayName().sectionName()
+        return dataSet.getOrNull(position)?.displayName()?.sectionName() ?: ""
     }
 
     open inner class ViewHolder(itemView: View) : com.mardous.booming.adapters.base.MediaEntryViewHolder(itemView) {

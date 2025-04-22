@@ -146,7 +146,7 @@ open class SongAdapter(
     }
 
     override fun getPopupText(view: View, position: Int): CharSequence {
-        val song: Song = dataSet[position]
+        val song = dataSet.getOrNull(position) ?: return ""
         return when (sortOrder?.value) {
             SortKeys.ALBUM -> song.albumName.sectionName()
             SortKeys.ARTIST -> song.displayArtistName().sectionName()

@@ -96,10 +96,8 @@ class PlayingNotificationImpl24(service: MusicService, mediaSessionToken: MediaS
         priority = notificationPriority
     }
 
-    @SuppressLint("RestrictedApi")
-    override fun update(song: Song, isPlaying: Boolean, onUpdate: () -> Unit) {
+    override fun update(song: Song, onUpdate: () -> Unit) {
         if (song == Song.emptySong) return
-        mActions[1] = buildPlayAction(isPlaying)
         setContentTitle(song.title)
         setContentText(song.displayArtistName())
         setSubText(getExtraTextString(song))
@@ -126,6 +124,11 @@ class PlayingNotificationImpl24(service: MusicService, mediaSessionToken: MediaS
                     onUpdate()
                 }
             })
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun setPlaying(isPlaying: Boolean) {
+        mActions[1] = buildPlayAction(isPlaying)
     }
 
     private fun buildPlayAction(isPlaying: Boolean): NotificationCompat.Action {

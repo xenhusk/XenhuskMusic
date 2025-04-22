@@ -926,14 +926,14 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                     }
                 }
                 songPlayCountHelper.notifyPlayStateChanged(isPlaying)
-                playingNotification?.update(getCurrentSong(), isPlaying) { startForegroundOrNotify() }
+                playingNotification?.setPlaying(isPlaying)
             }
 
             ServiceEvent.META_CHANGED -> {
                 if (playingQueue.stopPosition < getPosition()) {
                     setStopPosition(-1)
                 }
-                playingNotification?.update(getCurrentSong(), isPlaying) { startForegroundOrNotify() }
+                playingNotification?.update(getCurrentSong()) { startForegroundOrNotify() }
                 // We must call updateMediaSessionPlaybackState after the load of album art is completed
                 // if we are loading it, or it won't be updated in the notification
                 updateMediaSessionMetadata(::updateMediaSessionPlaybackState)
@@ -1101,13 +1101,19 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
             CLASSIC_NOTIFICATION -> {
                 updateNotification()
-                playingNotification?.update(getCurrentSong(), isPlaying) { startForegroundOrNotify() }
+                playingNotification?.update(getCurrentSong()) {
+                    playingNotification?.setPlaying(isPlaying)
+                    startForegroundOrNotify()
+                }
             }
 
             COLORED_NOTIFICATION,
             NOTIFICATION_EXTRA_TEXT_LINE,
             NOTIFICATION_PRIORITY -> {
-                playingNotification?.update(getCurrentSong(), isPlaying) { startForegroundOrNotify() }
+                playingNotification?.update(getCurrentSong()) {
+                    playingNotification?.setPlaying(isPlaying)
+                    startForegroundOrNotify()
+                }
             }
         }
     }

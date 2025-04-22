@@ -75,7 +75,7 @@ class PlayingNotificationClassic(context: Context) : PlayingNotification(context
         return remoteViews
     }
 
-    override fun update(song: Song, isPlaying: Boolean, onUpdate: () -> Unit) {
+    override fun update(song: Song, onUpdate: () -> Unit) {
         if (song == Song.emptySong) return
         val notificationLayout = getCombinedRemoteViews(true, song)
         val notificationLayoutBig = getCombinedRemoteViews(false, song)
@@ -183,7 +183,7 @@ class PlayingNotificationClassic(context: Context) : PlayingNotification(context
                         R.drawable.ic_next_24dp,
                         primary
                     )!!.toBitmap()
-                    val playPause = getPlayPauseBitmap(isPlaying)
+                    val playPause = getPlayPauseBitmap(true)
 
                     contentView.setTextColor(R.id.title, primary)
                     contentView.setTextColor(R.id.subtitle, secondary)
@@ -213,6 +213,13 @@ class PlayingNotificationClassic(context: Context) : PlayingNotification(context
                     )
                 }
             })
+    }
+
+    override fun setPlaying(isPlaying: Boolean) {
+        getPlayPauseBitmap(isPlaying).also {
+            contentView?.setImageViewBitmap(R.id.action_play_pause, it)
+            bigContentView?.setImageViewBitmap(R.id.action_play_pause, it)
+        }
     }
 
     private fun getPlayPauseBitmap(isPlaying: Boolean): Bitmap {

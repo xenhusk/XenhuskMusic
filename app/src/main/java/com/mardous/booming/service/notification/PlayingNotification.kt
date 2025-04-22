@@ -32,7 +32,9 @@ import com.mardous.booming.util.Preferences
 abstract class PlayingNotification(protected val context: Context) :
     NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID) {
 
-    abstract fun update(song: Song, isPlaying: Boolean, onUpdate: () -> Unit)
+    abstract fun update(song: Song, onUpdate: () -> Unit)
+
+    abstract fun setPlaying(isPlaying: Boolean)
 
     @Synchronized
     protected fun getExtraTextString(song: Song): String? {

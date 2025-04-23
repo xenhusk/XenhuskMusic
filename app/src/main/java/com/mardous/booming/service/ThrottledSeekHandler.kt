@@ -18,14 +18,12 @@
 package com.mardous.booming.service
 
 import android.os.Handler
-import com.mardous.booming.service.constants.ServiceEvent
 import kotlinx.coroutines.Runnable
 
-class ThrottledSeekHandler constructor(private val musicService: MusicService, private val mHandler: Handler) :
+class ThrottledSeekHandler(private val musicService: MusicService, private val mHandler: Handler) :
     Runnable {
     override fun run() {
         musicService.savePositionInTrack()
-        musicService.sendPublicIntent(ServiceEvent.PLAY_STATE_CHANGED) // for musixmatch synced lyrics
     }
 
     fun notifySeek() {

@@ -871,41 +871,11 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     private fun notifyChange(what: String) {
         handleAndSendChangeInternal(what)
-        sendPublicIntent(what)
     }
 
     internal fun handleAndSendChangeInternal(what: String) {
         handleChangeInternal(what)
         sendChangeInternal(what)
-    }
-
-    @Suppress("DEPRECATION")
-    internal fun sendPublicIntent(action: String) {
-        if (!Preferences.publicBroadcast)
-            return
-
-        val song = getCurrentSong()
-        sendStickyBroadcast(
-            getPublicIntent(
-                action.replace(ServiceEvent.BOOMING_PACKAGE_NAME, ServiceEvent.MUSIC_PACKAGE_NAME), song
-            )
-        )
-    }
-
-    private fun getPublicIntent(action: String, song: Song): Intent {
-        val intent = Intent(action)
-        intent.putExtra("id", song.id)
-        intent.putExtra("artist", song.artistName)
-        intent.putExtra("album", song.albumName)
-        intent.putExtra("track", song.title)
-        intent.putExtra("position", getSongProgressMillis())
-        intent.putExtra("duration", getSongDurationMillis())
-        intent.putExtra("playing", isPlaying)
-        intent.putExtra("shuffleMode", getShuffleMode())
-        intent.putExtra("repeatMode", getRepeatMode())
-        intent.putExtra("ListSize", getPlayingQueue().size)
-        intent.putExtra("scrobbling_source", packageName)
-        return intent
     }
 
     private fun sendChangeInternal(what: String) {

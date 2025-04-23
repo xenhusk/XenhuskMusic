@@ -23,5 +23,5 @@ import java.io.File
 class SaveLyricsResult(
     val isPending: Boolean,
     val isSuccess: Boolean,
-    val pendingWrite: Pair<File, Uri>? = null
+    val pendingWrite: List<Pair<File, Uri>>? = null
 )

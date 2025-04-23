@@ -22,7 +22,8 @@ import com.mardous.booming.lyrics.LrcLyrics
 class LyricsResult(
     val id: Long,
     val data: String? = null,
-    val lrcData: LrcLyrics = LrcLyrics()
+    val lrcData: LrcLyrics = LrcLyrics(),
+    val fromLocalFile: Boolean = false
 ) {
     val hasData: Boolean get() = !data.isNullOrEmpty()
     val isSynced: Boolean get() = lrcData.hasLines

@@ -41,6 +41,8 @@ import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
 import com.mardous.booming.mvvm.LyricsResult
 import com.mardous.booming.mvvm.SaveLyricsResult
+import com.mardous.booming.util.LyricsUtil
+import com.mardous.booming.util.UriUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
@@ -81,29 +83,38 @@ class LyricsViewModel(
         liveData(IO + silentHandler) {
             check(song.id != Song.emptySong.id)
             val embeddedLyrics = getEmbeddedLyrics(song, isFallbackAllowed)
-            val syncedLyrics = lyricsDao.getLyrics(song.id)
-            if (syncedLyrics == null && allowDownload && appContext().isAllowedToDownloadMetadata()) {
-                val onlineLyrics = lyricsService.getLyrics(song)
-                if (onlineLyrics.isSynced) {
-                    val lrcData = LrcUtils.parse(onlineLyrics.syncedLyrics!!)
-                    if (lrcData.hasLines) {
-                        lyricsDao.insertLyrics(song.toLyricsEntity(lrcData.getText(), autoDownload = true))
-                        emit(LyricsResult(song.id, embeddedLyrics, lrcData))
-                    }
-                }
-            } else if (syncedLyrics != null) {
-                val lrcData = LrcUtils.parse(syncedLyrics.syncedLyrics)
-                emit(LyricsResult(song.id, embeddedLyrics, lrcData))
+            val localLrcLyrics = LyricsUtil.getSyncedLyricsFile(song)?.let {
+                LrcUtils.parseLrcFromFile(it)
+            }
+            if (localLrcLyrics != null && localLrcLyrics.hasLines) {
+                emit(LyricsResult(song.id, embeddedLyrics, localLrcLyrics, fromLocalFile = true))
             } else {
-                if (!embeddedLyrics.isNullOrEmpty()) {
-                    val parsedLrc = LrcUtils.parse(embeddedLyrics)
-                    if (parsedLrc.hasLines) {
-                        emit(LyricsResult(song.id, data = embeddedLyrics, lrcData = parsedLrc))
+                val internalSyncedLyrics = lyricsDao.getLyrics(song.id)
+                if (internalSyncedLyrics == null && allowDownload && appContext().isAllowedToDownloadMetadata()) {
+                    val onlineLyrics = lyricsService.getLyrics(song)
+                    if (onlineLyrics.isSynced) {
+                        val lrcData = LrcUtils.parse(onlineLyrics.syncedLyrics!!)
+                        if (lrcData.hasLines) {
+                            lyricsDao.insertLyrics(
+                                song.toLyricsEntity(lrcData.getText(), autoDownload = true)
+                            )
+                            emit(LyricsResult(song.id, embeddedLyrics, lrcData))
+                        }
+                    }
+                } else if (internalSyncedLyrics != null) {
+                    val lrcData = LrcUtils.parse(internalSyncedLyrics.syncedLyrics)
+                    emit(LyricsResult(song.id, embeddedLyrics, lrcData))
+                } else {
+                    if (!embeddedLyrics.isNullOrEmpty()) {
+                        val parsedLrc = LrcUtils.parse(embeddedLyrics)
+                        if (parsedLrc.hasLines) {
+                            emit(LyricsResult(song.id, data = embeddedLyrics, lrcData = parsedLrc))
+                        } else {
+                            emit(LyricsResult(song.id, embeddedLyrics))
+                        }
                     } else {
                         emit(LyricsResult(song.id, embeddedLyrics))
                     }
-                } else {
-                    emit(LyricsResult(song.id, embeddedLyrics))
                 }
             }
         }
@@ -155,9 +166,19 @@ class LyricsViewModel(
         syncedLyrics: String?,
         plainLyricsModified: Boolean
     ): LiveData<SaveLyricsResult> = liveData(IO) {
-        saveSyncedLyrics(song, syncedLyrics)
+        val pendingLrcFile = saveSyncedLyrics(context, song, syncedLyrics)
         if (!plainLyricsModified) {
-            emit(SaveLyricsResult(isPending = false, isSuccess = true))
+            if (pendingLrcFile != null) {
+                emit(
+                    SaveLyricsResult(
+                        isPending = true,
+                        isSuccess = false,
+                        pendingWrite = listOf(pendingLrcFile)
+                    )
+                )
+            } else {
+                emit(SaveLyricsResult(isPending = false, isSuccess = true))
+            }
         } else {
             val fieldKeyValueMap = EnumMap<FieldKey, String>(FieldKey::class.java).apply {
                 put(FieldKey.LYRICS, plainLyrics)
@@ -168,7 +189,13 @@ class LyricsViewModel(
                     TagWriter.writeTagsToFilesR(context, writeInfo).first() to song.mediaStoreUri
                 }
                 if (pending.isSuccess) {
-                    emit(SaveLyricsResult(isPending = true, isSuccess = false, pending.getOrThrow()))
+                    emit(
+                        SaveLyricsResult(
+                            isPending = true,
+                            isSuccess = false,
+                            pendingWrite = listOfNotNull(pendingLrcFile, pending.getOrThrow())
+                        )
+                    )
                 } else {
                     emit(SaveLyricsResult(isPending = false, isSuccess = false))
                 }
@@ -185,26 +212,40 @@ class LyricsViewModel(
         }
     }
 
-    private suspend fun saveSyncedLyrics(song: Song, syncedLyrics: String?) {
-        if (syncedLyrics.isNullOrEmpty()) {
-            val lyrics = lyricsDao.getLyrics(song.id)
-            if (lyrics != null) {
-                if (lyrics.autoDownload) {
-                    // The user has deleted an automatically downloaded lyrics, perhaps
-                    // because it was incorrect. In this case we do not delete the
-                    // registry, we simply clean it, this way it will prevent us from
-                    // trying to download it again in the future.
-                    lyricsDao.insertLyrics(song.toLyricsEntity("", userCleared = true))
-                } else if (!lyrics.userCleared) {
-                    lyricsDao.removeLyrics(song.id)
+    private suspend fun saveSyncedLyrics(context: Context, song: Song, syncedLyrics: String?): Pair<File, Uri>? {
+        val localLrcFile = LyricsUtil.getSyncedLyricsFile(song)
+        if (localLrcFile != null) {
+            if (hasR()) {
+                val destinationUri = UriUtil.getUriFromPath(context, localLrcFile.absolutePath)
+                val cacheFile = File(context.cacheDir, localLrcFile.name).also {
+                    it.writeText(syncedLyrics ?: "")
                 }
+                return cacheFile to destinationUri
+            } else {
+                LyricsUtil.writeLrc(song, syncedLyrics ?: "")
             }
         } else {
-            val parsedLyrics = LrcUtils.parse(syncedLyrics)
-            if (parsedLyrics.hasLines) {
-                lyricsDao.insertLyrics(song.toLyricsEntity(parsedLyrics.getText()))
+            if (syncedLyrics.isNullOrEmpty()) {
+                val lyrics = lyricsDao.getLyrics(song.id)
+                if (lyrics != null) {
+                    if (lyrics.autoDownload) {
+                        // The user has deleted an automatically downloaded lyrics, perhaps
+                        // because it was incorrect. In this case we do not delete the
+                        // registry, we simply clean it, this way it will prevent us from
+                        // trying to download it again in the future.
+                        lyricsDao.insertLyrics(song.toLyricsEntity("", userCleared = true))
+                    } else if (!lyrics.userCleared) {
+                        lyricsDao.removeLyrics(song.id)
+                    }
+                }
+            } else {
+                val parsedLyrics = LrcUtils.parse(syncedLyrics)
+                if (parsedLyrics.hasLines) {
+                    lyricsDao.insertLyrics(song.toLyricsEntity(parsedLyrics.getText()))
+                }
             }
         }
+        return null
     }
 
     fun setLRCContentFromUri(context: Context, song: Song, uri: Uri?): LiveData<Boolean> =

@@ -72,7 +72,7 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
     private val binding get() = _binding!!
 
     private lateinit var editLyricsLauncher: ActivityResultLauncher<IntentSenderRequest>
-    private var pendingWrite: Pair<File, Uri>? = null
+    private var pendingWrite: List<Pair<File, Uri>>? = null
 
     private var plainLyricsModified = false
 
@@ -85,7 +85,9 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         setSupportActionBar(binding.toolbar)
         editLyricsLauncher = registerForActivityResult(StartIntentSenderForResult()) {
             if (it.resultCode == Activity.RESULT_OK && pendingWrite != null) {
-                pendingWrite!!.first.copyToUri(requireContext(), pendingWrite!!.second)
+                pendingWrite?.forEach { (file, uri) ->
+                    file.copyToUri(requireContext(), uri)
+                }
             }
         }
 
@@ -107,6 +109,7 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         updateEditor()
 
         lyricsViewModel.getAllLyrics(song).observe(viewLifecycleOwner) {
+            binding.editingLrcFile.isVisible = it.fromLocalFile
             binding.plainInput.setText(it.data)
             binding.plainInput.doOnTextChanged { _, _, _, _ -> plainLyricsModified = true }
             binding.syncedInput.setText(it.lrcData.getText())
@@ -225,10 +228,10 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             binding.syncedInput.text?.toString(),
             plainLyricsModified
         ).observe(viewLifecycleOwner) {
-            if (it.isPending && hasR()) {
+            if (it.isPending && hasR() && it.pendingWrite != null) {
                 pendingWrite = it.pendingWrite
                 val pendingIntent = MediaStore.createWriteRequest(
-                    requireContext().contentResolver, listOf(song.mediaStoreUri)
+                    requireContext().contentResolver, it.pendingWrite.map { it.second }
                 )
                 editLyricsLauncher.launch(IntentSenderRequest.Builder(pendingIntent).build())
             } else {

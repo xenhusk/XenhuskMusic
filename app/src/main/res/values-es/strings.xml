@@ -464,6 +464,7 @@
     <string name="no_synced_lyrics_found">No se encontró la letra sincronizada</string>
     <string name="lyrics_were_updated_successfully">La letra se actualizó correctamente.</string>
     <string name="failed_to_update_lyrics">La letra no se pudo actualizar.</string>
+    <string name="editing_lrc_file_warning">La letra sincronizada proviene de un archivo LRC. Los cambios se guardarán en ese archivo.</string>
 
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Programador de apagado</string>

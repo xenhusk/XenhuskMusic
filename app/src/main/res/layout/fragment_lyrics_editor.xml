@@ -121,7 +121,7 @@
             android:paddingStart="@dimen/lyrics_editor_padding_horizontal"
             android:paddingEnd="@dimen/lyrics_editor_padding_horizontal"
             app:layout_constraintTop_toBottomOf="@+id/toggleGroup"
-            app:layout_constraintBottom_toTopOf="@+id/search">
+            app:layout_constraintBottom_toTopOf="@+id/editingLrcFile">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/plainInputLayout"
@@ -157,6 +157,20 @@
             </com.google.android.material.textfield.TextInputLayout>
 
         </FrameLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/editingLrcFile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/lyrics_editor_padding_vertical"
+            android:paddingStart="@dimen/lyrics_editor_padding_horizontal"
+            android:paddingEnd="@dimen/lyrics_editor_padding_horizontal"
+            android:textAlignment="center"
+            android:textAppearance="?textAppearanceCaption"
+            android:text="@string/editing_lrc_file_warning"
+            app:layout_constraintBottom_toTopOf="@+id/save"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/search"

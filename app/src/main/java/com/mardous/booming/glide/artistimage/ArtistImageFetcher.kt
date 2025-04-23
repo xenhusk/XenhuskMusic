@@ -24,7 +24,6 @@ import com.bumptech.glide.load.data.DataFetcher
 import com.mardous.booming.extensions.isAllowedToDownloadMetadata
 import com.mardous.booming.extensions.media.albumCoverUri
 import com.mardous.booming.extensions.media.isNameUnknown
-import com.mardous.booming.glide.artistimage.ArtistImageUtils.getDeezerArtistImageUrl
 import com.mardous.booming.http.deezer.DeezerService
 import com.mardous.booming.util.Preferences
 import io.ktor.client.HttpClient
@@ -72,7 +71,7 @@ class ArtistImageFetcher(
             try {
                 if (isAllowedToDownloadImage) {
                     val deezerArtist = deezerService.artist(model.artist.name)
-                    val imageUrl = getDeezerArtistImageUrl(deezerArtist?.result?.firstOrNull(), preferredImageSize)
+                    val imageUrl = deezerArtist?.getImageUrl(preferredImageSize)
                     if (imageUrl != null) {
                         val inputStream = fetchImageInputStream(imageUrl)
                         withContext(Dispatchers.Main) {

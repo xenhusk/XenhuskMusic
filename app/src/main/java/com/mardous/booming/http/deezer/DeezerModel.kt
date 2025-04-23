@@ -17,6 +17,7 @@
 
 package com.mardous.booming.http.deezer
 
+import com.mardous.booming.util.ImageSize
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -72,6 +73,17 @@ class DeezerArtist(
     val result: List<Result>,
     val total: Int
 ) {
+
+    fun getImageUrl(requestedImageSize: String): String? {
+        return result.firstOrNull()?.let {
+            when (requestedImageSize) {
+                ImageSize.LARGE -> it.largeImage ?: it.mediumImage
+                ImageSize.SMALL -> it.smallImage ?: it.mediumImage
+                else -> it.mediumImage
+            }
+        }?.takeIf { it.isNotBlank() && !it.contains("/images/artist//") }
+    }
+
     @Serializable
     class Result(
         @SerialName("picture_small")

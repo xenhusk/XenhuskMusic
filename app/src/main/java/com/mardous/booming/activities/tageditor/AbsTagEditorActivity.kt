@@ -143,7 +143,7 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
 
     protected open fun selectImage() {
         val items = arrayOf(
-            getString(R.string.download_from_last_fm),
+            getString(R.string.download_image),
             getString(R.string.pick_from_local_storage),
             getString(R.string.web_search),
             getString(R.string.restore_default),

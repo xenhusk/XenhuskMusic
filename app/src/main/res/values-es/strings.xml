@@ -248,7 +248,7 @@
     <string name="restore_default">Restaurar la predeterminada</string>
     <string name="remove_cover">Remover portada</string>
     <string name="could_not_download_album_cover">"No se puede descargar una portada de álbum coincidente."</string>
-    <string name="download_from_last_fm">Descargar desde Last.fm</string>
+    <string name="download_image">Descargar imagen</string>
     <string name="pick_from_local_storage">Seleccionar desde el almacenamiento interno</string>
     <string name="about_x_title">Acerca de %s</string>
     <string name="listeners_label">Oyentes</string>

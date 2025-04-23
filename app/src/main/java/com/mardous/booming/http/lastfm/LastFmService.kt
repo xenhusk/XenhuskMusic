@@ -37,12 +37,6 @@ class LastFmService(private val client: HttpClient) {
             block()
         }
 
-    suspend fun trackInfo(title: String, artistName: String) =
-        client.lastfm("track.getInfo") {
-            url.encodedParameters.append("track", title.encodeURLParameter())
-            url.encodedParameters.append("artist", artistName.encodeURLParameter())
-        }.body<LastFmTrack>()
-
     suspend fun albumInfo(albumName: String, artistName: String, language: String?) =
         client.lastfm("album.getInfo") {
             parameter("lang", language)

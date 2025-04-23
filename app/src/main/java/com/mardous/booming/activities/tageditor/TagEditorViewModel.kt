@@ -28,8 +28,8 @@ import com.mardous.booming.extensions.files.getBestTag
 import com.mardous.booming.extensions.files.safeMerge
 import com.mardous.booming.extensions.files.toAudioFile
 import com.mardous.booming.http.Result
-import com.mardous.booming.http.lastfm.LastFmAlbum
-import com.mardous.booming.http.lastfm.LastFmTrack
+import com.mardous.booming.http.deezer.DeezerAlbum
+import com.mardous.booming.http.deezer.DeezerTrack
 import com.mardous.booming.misc.TagWriter
 import com.mardous.booming.misc.TagWriter.WriteInfo
 import com.mardous.booming.model.Album
@@ -184,12 +184,12 @@ class TagEditorViewModel(private val repository: Repository, private val id: Lon
         }
     }
 
-    fun getAlbumInfo(artistName: String, albumName: String): LiveData<Result<LastFmAlbum>> = liveData(IO) {
-        emit(repository.albumInfo(artistName, albumName, null))
+    fun getAlbumInfo(artistName: String, albumName: String): LiveData<Result<DeezerAlbum>> = liveData(IO) {
+        emit(repository.deezerAlbum(artistName, albumName))
     }
 
-    fun getTrackInfo(artistName: String, title: String): LiveData<Result<LastFmTrack>> = liveData(IO) {
-        emit(repository.trackInfo(artistName, title))
+    fun getTrackInfo(artistName: String, title: String): LiveData<Result<DeezerTrack>> = liveData(IO) {
+        emit(repository.deezerTrack(artistName, title))
     }
 
     fun writeTags(context: Context, writeInfo: WriteInfo): LiveData<SaveTagsResult> =

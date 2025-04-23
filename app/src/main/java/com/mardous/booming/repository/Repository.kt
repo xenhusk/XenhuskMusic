@@ -24,10 +24,12 @@ import com.mardous.booming.database.*
 import com.mardous.booming.http.Result
 import com.mardous.booming.http.Result.Error
 import com.mardous.booming.http.Result.Success
+import com.mardous.booming.http.deezer.DeezerAlbum
+import com.mardous.booming.http.deezer.DeezerService
+import com.mardous.booming.http.deezer.DeezerTrack
 import com.mardous.booming.http.lastfm.LastFmAlbum
 import com.mardous.booming.http.lastfm.LastFmArtist
 import com.mardous.booming.http.lastfm.LastFmService
-import com.mardous.booming.http.lastfm.LastFmTrack
 import com.mardous.booming.model.*
 import com.mardous.booming.search.SearchFilter
 import com.mardous.booming.search.SearchQuery
@@ -109,13 +111,15 @@ interface Repository {
     suspend fun searchSongs(query: String): List<Song>
     suspend fun searchArtists(query: String): List<Artist>
     suspend fun searchAlbums(query: String): List<Album>
-    suspend fun trackInfo(artist: String, title: String): Result<LastFmTrack>
+    suspend fun deezerTrack(artist: String, title: String): Result<DeezerTrack>
+    suspend fun deezerAlbum(artist: String, name: String): Result<DeezerAlbum>
     suspend fun artistInfo(name: String, lang: String?, cache: String?): Result<LastFmArtist>
     suspend fun albumInfo(artist: String, album: String, lang: String?): Result<LastFmAlbum>
 }
 
 class RealRepository(
     private val context: Context,
+    private val deezerService: DeezerService,
     private val lastFmService: LastFmService,
     private val songRepository: SongRepository,
     private val albumRepository: AlbumRepository,
@@ -371,9 +375,17 @@ class RealRepository(
 
     override suspend fun searchAlbums(query: String): List<Album> = albumRepository.albums(query)
 
-    override suspend fun trackInfo(artist: String, title: String): Result<LastFmTrack> {
+    override suspend fun deezerTrack(artist: String, title: String): Result<DeezerTrack> {
         return try {
-            Success(lastFmService.trackInfo(title, artist))
+            Success(deezerService.track(artist, title))
+        } catch (e: Exception) {
+            Error(e)
+        }
+    }
+
+    override suspend fun deezerAlbum(artist: String, name: String): Result<DeezerAlbum> {
+        return try {
+            Success(deezerService.album(artist, name))
         } catch (e: Exception) {
             Error(e)
         }

@@ -21,8 +21,23 @@ import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.http.encodeURLParameter
 
 class DeezerService(private val client: HttpClient) {
+    suspend fun track(artistName: String, title: String) =
+        client.get("https://api.deezer.com/search?limit=1") {
+            url {
+                encodedParameters.append("q", "$artistName $title".encodeURLParameter())
+            }
+        }.body<DeezerTrack>()
+
+    suspend fun album(artistName: String, name: String) =
+        client.get("https://api.deezer.com/search/album?limit=1") {
+            url {
+                encodedParameters.append("q", "$artistName $name".encodeURLParameter())
+            }
+        }.body<DeezerAlbum>()
+
     suspend fun artist(artistName: String) =
         try {
             client.get("https://api.deezer.com/search/artist") {

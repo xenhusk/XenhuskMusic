@@ -33,17 +33,6 @@ class LastFmArtist(val artist: Artist?) {
 }
 
 @Serializable
-class LastFmTrack(val track: Track?) {
-    @Serializable
-    class Track(val artist: Artist?, val album: Album?) {
-        @Serializable
-        class Artist(val name: String?)
-        @Serializable
-        class Album(val title: String?, val image: List<LastFmImage>)
-    }
-}
-
-@Serializable
 class LastFmImage(
     @SerialName("#text")
     val text: String?,

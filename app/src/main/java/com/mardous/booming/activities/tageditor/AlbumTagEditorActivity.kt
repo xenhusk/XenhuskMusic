@@ -22,7 +22,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import com.mardous.booming.R
 import com.mardous.booming.databinding.TagEditorAlbumFieldBinding
 import com.mardous.booming.extensions.files.toBitmap
@@ -32,7 +31,6 @@ import com.mardous.booming.extensions.resources.getResized
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.webSearch
 import com.mardous.booming.http.Result
-import com.mardous.booming.http.lastfm.getLargestImageUrl
 import org.jaudiotagger.tag.FieldKey
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -93,8 +91,8 @@ class AlbumTagEditorActivity : AbsTagEditorActivity() {
             return
         }
         viewModel.getAlbumInfo(albumArtistNameStr, albumTitleStr).observe(this) { result ->
-            if (result is Result.Success && result.data.album != null) {
-                val url = result.data.album.image.getLargestImageUrl()
+            if (result is Result.Success) {
+                val url = result.data.imageUrl
                 if (!url.isNullOrEmpty()) {
                     loadImageFromUrl(url)
                 } else {

@@ -927,6 +927,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                 }
                 songPlayCountHelper.notifyPlayStateChanged(isPlaying)
                 playingNotification?.setPlaying(isPlaying)
+                startForegroundOrNotify()
             }
 
             ServiceEvent.META_CHANGED -> {

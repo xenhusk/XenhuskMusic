@@ -41,6 +41,7 @@ import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
 import com.mardous.booming.mvvm.LyricsResult
 import com.mardous.booming.mvvm.SaveLyricsResult
+import com.mardous.booming.recordException
 import com.mardous.booming.util.LyricsUtil
 import com.mardous.booming.util.UriUtil
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -166,7 +167,12 @@ class LyricsViewModel(
         syncedLyrics: String?,
         plainLyricsModified: Boolean
     ): LiveData<SaveLyricsResult> = liveData(IO) {
-        val pendingLrcFile = saveSyncedLyrics(context, song, syncedLyrics)
+        val pendingLrcFile = try {
+            saveSyncedLyrics(context, song, syncedLyrics)
+        } catch (e: Exception) {
+            recordException(e)
+            null
+        }
         if (!plainLyricsModified) {
             if (pendingLrcFile != null) {
                 emit(

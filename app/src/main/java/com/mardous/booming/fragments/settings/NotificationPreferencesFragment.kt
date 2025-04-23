@@ -23,9 +23,9 @@ import com.mardous.booming.R
 /**
  * @author Christians M. A. (mardous)
  */
-class RemotePreferencesFragment : PreferencesScreenFragment() {
+class NotificationPreferencesFragment : PreferencesScreenFragment() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        addPreferencesFromResource(R.xml.preferences_screen_remote)
+        addPreferencesFromResource(R.xml.preferences_screen_notification)
     }
 }

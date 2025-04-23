@@ -530,8 +530,8 @@
     <string name="metadata_summary">Settings related to album and artists images.</string>
     <string name="library_title">Library</string>
     <string name="library_summary">Settings for playlists and exclusion/inclusion filters.</string>
-    <string name="remote_title">Remote</string>
-    <string name="remote_summary">Customize the lockscreen and notification.</string>
+    <string name="notification_title">Notification</string>
+    <string name="notification_summary">Customize the notification style.</string>
     <string name="advanced_title">Advanced</string>
     <string name="advanced_summary">In-app language and other settings for advanced users.</string>
     <string name="update_title">Update</string>
@@ -550,7 +550,6 @@
     <string name="headphones_header">Headphones</string>
     <string name="bluetooth_header">Bluetooth</string>
     <string name="audio_focus_header">Audio focus</string>
-    <string name="notification_header">Notification</string>
     <string name="lockscreen_header">Lockscreen</string>
     <string name="shuffle_mode_header">Shuffle mode</string>
     <string name="display_header">Display</string>
@@ -664,9 +663,6 @@
     <string name="min_song_duration_summary">How many seconds (at least) must last a song to be shown in your library.</string>
 
     <!-- Remote preferences -->
-    <string name="public_broadcast_title">Public player</string>
-    <string name="public_broadcast_summary">Notifies other apps about playback state. Needed for lyrics apps.
-        \nYou can disable it to save battery.</string>
     <string name="classic_notification_title">Classic notification</string>
     <string name="classic_notification_summary">Use the classic notification design.</string>
     <string name="colored_notification_title">Colored notification</string>

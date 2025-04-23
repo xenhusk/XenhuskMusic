@@ -39,10 +39,10 @@
 
     <Preference
         app:layout="@layout/layout_preference_material"
-        app:title="@string/remote_title"
-        app:summary="@string/remote_summary"
-        app:icon="@drawable/ic_settings_remote_24dp"
-        app:key="remote"/>
+        app:title="@string/notification_title"
+        app:summary="@string/notification_summary"
+        app:icon="@drawable/ic_notifications_24dp"
+        app:key="notification"/>
 
     <Preference
         app:layout="@layout/layout_preference_material"

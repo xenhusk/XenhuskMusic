@@ -24,6 +24,7 @@ import androidx.preference.Preference
 import com.google.android.material.color.DynamicColors
 import com.mardous.booming.R
 import com.mardous.booming.appInstance
+import com.mardous.booming.extensions.hasR
 import com.mardous.booming.extensions.hasS
 import com.mardous.booming.preferences.ThemePreference
 import com.mardous.booming.util.*
@@ -39,6 +40,10 @@ class AppearancePreferencesFragment : PreferencesScreenFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (hasR()) {
+            findPreference<Preference>("lockscreen_category")?.isVisible = false
+        }
+
         findPreference<ThemePreference>(GENERAL_THEME)?.apply {
             customCallback = object : ThemePreference.Callback {
                 override fun onThemeSelected(themeName: String) {

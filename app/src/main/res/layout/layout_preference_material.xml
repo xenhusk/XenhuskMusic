@@ -20,7 +20,7 @@
         android:layout_height="40dp"
         android:scaleType="center"
         app:tint="?colorControlNormal"
-        tools:src="@drawable/ic_settings_remote_24dp"
+        tools:src="@drawable/ic_notifications_24dp"
         tools:ignore="ContentDescription"/>
 
     <LinearLayout
@@ -38,7 +38,7 @@
             android:fadingEdge="horizontal"
             android:textAppearance="?textAppearanceBody1"
             android:text="@string/report_bugs"
-            tools:text="@string/remote_title"/>
+            tools:text="@string/notification_title"/>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@android:id/summary"
@@ -48,7 +48,7 @@
             android:fadingEdge="horizontal"
             android:textAppearance="?textAppearanceBody2"
             android:textColor="?android:textColorSecondary"
-            tools:text="@string/remote_summary"/>
+            tools:text="@string/notification_summary"/>
 
     </LinearLayout>
 

@@ -529,8 +529,8 @@
     <string name="metadata_summary">Ajustes relacionados a imágenes de álbumes y artistas.</string>
     <string name="library_title">Biblioteca</string>
     <string name="library_summary">Ajustes de las listas y filtros de exclusión/inclusión.</string>
-    <string name="remote_title">Remoto</string>
-    <string name="remote_summary">Personalice la pantalla de bloqueo y la notificación.</string>
+    <string name="notification_title">Notificación</string>
+    <string name="notification_summary">Personalice el estilo de la notificación.</string>
     <string name="advanced_title">Avanzado</string>
     <string name="advanced_summary">Idioma de la app y otros ajustes para usuarios expertos.</string>
     <string name="update_title">Actualización</string>
@@ -549,7 +549,6 @@
     <string name="headphones_header">Auriculares</string>
     <string name="bluetooth_header">Bluetooth</string>
     <string name="audio_focus_header">Foco de audio</string>
-    <string name="notification_header">Notificación</string>
     <string name="lockscreen_header">Pantalla de bloqueo</string>
     <string name="shuffle_mode_header">Modo aleatorio</string>
     <string name="display_header">Vista</string>
@@ -663,9 +662,6 @@
     <string name="min_song_duration_summary">Cuántos segundos debería (como mínimo) durar una canción para aparecer en la biblioteca.</string>
 
     <!-- Remote preferences -->
-    <string name="public_broadcast_title">Reproductor público</string>
-    <string name="public_broadcast_summary">Notifica a otras apps sobre el estado del reproductor. Necesario para apps de lyrics.
-        \nPuede desactivarlo para ahorrar batería.</string>
     <string name="classic_notification_title">Diseño clásico</string>
     <string name="classic_notification_summary">Usar el diseño clásico de notificación.</string>
     <string name="colored_notification_title">Notificación coloreada</string>

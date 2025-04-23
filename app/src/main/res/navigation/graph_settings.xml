@@ -44,12 +44,12 @@
             app:popExitAnim="@anim/booming_fragment_close_exit"
             app:destination="@+id/nav_library_preferences"/>
         <action
-            android:id="@+id/action_to_remotePreferences"
+            android:id="@+id/action_to_notificationPreferences"
             app:enterAnim="@anim/booming_fragment_open_enter"
             app:exitAnim="@anim/booming_fragment_open_exit"
             app:popEnterAnim="@anim/booming_fragment_close_enter"
             app:popExitAnim="@anim/booming_fragment_close_exit"
-            app:destination="@+id/nav_remote_preferences"/>
+            app:destination="@+id/nav_notification_preferences"/>
         <action
             android:id="@+id/action_to_updatePreferences"
             app:enterAnim="@anim/booming_fragment_open_enter"
@@ -94,9 +94,9 @@
         android:name="com.mardous.booming.fragments.settings.LibraryPreferencesFragment"
         android:label="@string/library_title"/>
     <fragment
-        android:id="@+id/nav_remote_preferences"
-        android:name="com.mardous.booming.fragments.settings.RemotePreferencesFragment"
-        android:label="@string/remote_title"/>
+        android:id="@+id/nav_notification_preferences"
+        android:name="com.mardous.booming.fragments.settings.NotificationPreferencesFragment"
+        android:label="@string/notification_title"/>
     <fragment
         android:id="@+id/nav_update_preferences"
         android:name="com.mardous.booming.fragments.settings.UpdatePreferencesFragment"

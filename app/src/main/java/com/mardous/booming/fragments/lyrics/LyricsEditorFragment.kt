@@ -81,7 +81,7 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         _binding = FragmentLyricsEditorBinding.bind(view)
 
         materialSharedAxis(view)
-        view.applyWindowInsets(left = true, right = true, bottom = true, ime = !isLandscape())
+        view.applyWindowInsets(left = true, right = true, bottom = true)
         setSupportActionBar(binding.toolbar)
         editLyricsLauncher = registerForActivityResult(StartIntentSenderForResult()) {
             if (it.resultCode == Activity.RESULT_OK && pendingWrite != null) {

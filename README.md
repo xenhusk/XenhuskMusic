@@ -41,7 +41,7 @@
 - Tag editor for editing song metadata
 - Smart auto playlists (Recently Played, Most Played, History)
 - ReplayGain support
-- Artist images from Deezer
+- Automatic download of artist images
 - Blacklist and whitelist support
 
 ## 📱 Screenshots

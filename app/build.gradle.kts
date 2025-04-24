@@ -30,10 +30,10 @@ sealed class Version(
         private const val PATCH = 10_000L
         private const val VARIANT = 100L
 
-        private const val ALPHA = VARIANT * 0
-        private const val BETA = VARIANT * 1
-        private const val RELEASE_CANDIDATE = VARIANT * 2
-        private const val STABLE = VARIANT * 3
+        private const val ALPHA = 0L
+        private const val BETA = 1L
+        private const val RELEASE_CANDIDATE = 2L
+        private const val STABLE = 3L
     }
 
     init {

@@ -259,7 +259,7 @@ public class LrcView extends View {
         });
     }
 
-    public void setLRCContent(LrcLyrics lyrics) {
+    public void setLRCContent(@Nullable LrcLyrics lyrics) {
         reset();
         if (lyrics != null && lyrics.getHasLines()) {
             mLrcEntryList.addAll(lyrics.getValidLines());
@@ -316,7 +316,7 @@ public class LrcView extends View {
         if (!hasLrc()) {
             mLrcPaint.setColor(mCurrentTextColor);
 
-            StaticLayout staticLayout = StaticLayout.Builder.obtain(mDefaultLabel, 0, mDefaultLabel.length(), mLrcPaint, (int) getLrcWidth())
+            StaticLayout staticLayout = StaticLayout.Builder.obtain(mDefaultLabel, 0, mDefaultLabel.length(), mLrcPaint, getWidth() - (int) (mLrcPadding * 2))
                     .setAlignment(Layout.Alignment.ALIGN_CENTER)
                     .setLineSpacing(0f, 1f)
                     .setIncludePad(false)

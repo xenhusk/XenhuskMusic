@@ -18,16 +18,23 @@
 package com.mardous.booming.model
 
 import android.content.Context
-import com.google.gson.annotations.Expose
 import com.mardous.booming.R
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 /**
  * @author Christians M. A. (mardous)
  */
+@Serializable
 data class EQPreset(
-    @Expose val name: String,
-    @Expose val levels: IntArray,
-    @Expose val effects: HashMap<String, Float> = hashMapOf(),
+    @SerialName("name")
+    val name: String,
+    @SerialName("levels")
+    val levels: IntArray,
+    @SerialName("effects")
+    val effects: HashMap<String, Float> = hashMapOf(),
+    @Transient
     val isCustom: Boolean = false
 ) {
 

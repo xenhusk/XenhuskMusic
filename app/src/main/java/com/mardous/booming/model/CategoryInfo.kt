@@ -24,11 +24,14 @@ import androidx.annotation.Keep
 import androidx.annotation.StringRes
 import com.mardous.booming.R
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
 @Keep
 @Parcelize
+@Serializable
 class CategoryInfo(val category: Category, var visible: Boolean) : Parcelable {
 
+    @Serializable
     enum class Category(
         @IdRes val id: Int,
         @StringRes val titleRes: Int,

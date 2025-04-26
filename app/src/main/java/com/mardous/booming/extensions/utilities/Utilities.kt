@@ -17,8 +17,7 @@
 
 package com.mardous.booming.extensions.utilities
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.json.Json
 import java.text.DecimalFormat
 import java.util.Locale
 
@@ -79,8 +78,8 @@ inline fun <reified T : Enum<T>> String.toEnum() =
 
 inline fun <reified T> String?.deserialize(defaultValue: T): T {
     return if (!isNullOrEmpty())
-        runCatching<T> { Gson().fromJson(this, object : TypeToken<T>() {}.type) }.getOrDefault(defaultValue)
+        runCatching<T> { Json.decodeFromString(this) }.getOrDefault(defaultValue)
     else defaultValue
 }
 
-inline fun <reified T> T.serialize(): String = Gson().toJson(this, object : TypeToken<T>() {}.type)
+inline fun <reified T> T.serialize(): String = Json.encodeToString(this)

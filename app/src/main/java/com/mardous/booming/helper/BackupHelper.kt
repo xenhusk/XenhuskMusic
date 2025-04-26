@@ -20,10 +20,6 @@ package com.mardous.booming.helper
 import android.content.Context
 import android.net.Uri
 import androidx.annotation.StringRes
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.Strictness
-import com.google.gson.reflect.TypeToken
 import com.mardous.booming.R
 import com.mardous.booming.database.LyricsDao
 import com.mardous.booming.database.LyricsEntity
@@ -39,6 +35,7 @@ import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.util.FileUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
@@ -52,11 +49,6 @@ object BackupHelper : KoinComponent {
     private val repository by inject<Repository>()
     private val songRepository by inject<SongRepository>()
     private val lyricsDao by inject<LyricsDao>()
-
-    private val gson: Gson = GsonBuilder()
-        .setPrettyPrinting()
-        .setStrictness(Strictness.LENIENT)
-        .create()
 
     suspend fun createBackup(context: Context, uri: Uri?) {
         if (uri == null) return
@@ -128,7 +120,7 @@ object BackupHelper : KoinComponent {
     private suspend fun getLyricsZipItems(): List<ZipItem> {
         val allLyrics = lyricsDao.getAllLyrics()
         if (allLyrics.isNotEmpty()) {
-            return listOf(ZipItem(LYRICS_PATH.child("lyrics.json"), fileContent = gson.toJson(allLyrics)))
+            return listOf(ZipItem(LYRICS_PATH.child("lyrics.json"), fileContent = Json.encodeToString(allLyrics)))
         }
         return emptyList()
     }
@@ -214,9 +206,7 @@ object BackupHelper : KoinComponent {
 
     private suspend fun restoreLyrics(zipIn: ZipInputStream) {
         val serializedLyrics = zipIn.bufferedReader().readText()
-        val lyrics: List<LyricsEntity> = gson.fromJson(
-            serializedLyrics, object : TypeToken<List<LyricsEntity>>() {}.type
-        )
+        val lyrics = Json.decodeFromString<List<LyricsEntity>>(serializedLyrics)
         lyricsDao.insertLyrics(lyrics)
     }
 

@@ -23,7 +23,9 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.model.Song
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(indices = [Index("song_title", "song_artist", unique = true)])
 class LyricsEntity(
     @PrimaryKey

@@ -233,7 +233,6 @@ dependencies {
     implementation(libs.markdown.linkify)
 
     implementation(libs.bundles.ktor)
-    implementation(libs.gson)
 
     implementation(libs.koin.core)
     implementation(libs.koin.android)

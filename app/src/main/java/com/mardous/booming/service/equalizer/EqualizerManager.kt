@@ -22,9 +22,6 @@ import android.content.Context
 import android.media.audiofx.AudioEffect
 import androidx.annotation.FloatRange
 import androidx.core.content.edit
-import com.google.gson.GsonBuilder
-import com.google.gson.Strictness
-import com.google.gson.reflect.TypeToken
 import com.mardous.booming.extensions.files.getFormattedFileName
 import com.mardous.booming.interfaces.IEQInterface
 import com.mardous.booming.model.EQPreset
@@ -34,6 +31,7 @@ import com.mardous.booming.util.PLAYBACK_PITCH
 import com.mardous.booming.util.PLAYBACK_SPEED
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import java.util.Locale
 import java.util.UUID
 
@@ -62,9 +60,9 @@ class EqualizerManager internal constructor(context: Context) {
     var isEqualizerEnabled: Boolean
         get() = isEqualizerSupported && mPreferences.getBoolean(Keys.GLOBAL_ENABLED, false)
         set(equalizerEnabled) {
-            mPreferences.edit()
-                .putBoolean(Keys.GLOBAL_ENABLED, isEqualizerSupported && equalizerEnabled)
-                .apply()
+            mPreferences.edit {
+                putBoolean(Keys.GLOBAL_ENABLED, isEqualizerSupported && equalizerEnabled)
+            }
 
             callInterfaces { it.eqStateChanged(isEqualizerSupported && equalizerEnabled, false) }
         }
@@ -152,16 +150,15 @@ class EqualizerManager internal constructor(context: Context) {
 
     @Synchronized
     fun getEqualizerPresets(): MutableList<EQPreset> {
-        if (presets == null) {
-            presets = mPreferences.getString(Keys.PRESETS, null).let { json ->
-                if (json == null || json.trim().isEmpty()) {
-                    arrayListOf()
-                } else {
-                    GSON.fromJson(json, object : TypeToken<List<EQPreset>>() {}.type)
-                }
+        return presets ?: run {
+            val json = mPreferences.getString(Keys.PRESETS, null).orEmpty()
+            presets = if (json.isBlank()) {
+                arrayListOf()
+            } else {
+                Json.decodeFromString<List<EQPreset>>(json).toMutableList()
             }
+            presets!!
         }
-        return presets!!
     }
 
     @Synchronized
@@ -265,7 +262,7 @@ class EqualizerManager internal constructor(context: Context) {
     @Synchronized
     private fun setEqualizerPresets(presets: List<EQPreset>, callInterface: Boolean) {
         mPreferences.edit {
-            putString(Keys.PRESETS, GSON.toJson(presets))
+            putString(Keys.PRESETS, Json.encodeToString(presets))
         }
         if (callInterface) {
             callInterfaces { it.eqPresetListChanged(presets) }
@@ -306,7 +303,7 @@ class EqualizerManager internal constructor(context: Context) {
             if (savedPreset == null || savedPreset.trim().isEmpty()) {
                 return null
             }
-            eqPreset = GSON.fromJson(savedPreset, EQPreset::class.java)
+            eqPreset = Json.decodeFromString(savedPreset)
         }
         return eqPreset
     }
@@ -316,7 +313,7 @@ class EqualizerManager internal constructor(context: Context) {
         callInterfaces { it.eqPresetChanged(this.eqPreset, eqPreset) }
         this.eqPreset = eqPreset
         mPreferences.edit {
-            putString(Keys.PRESET, GSON.toJson(eqPreset))
+            putString(Keys.PRESET, Json.encodeToString(eqPreset))
         }
     }
 
@@ -327,7 +324,7 @@ class EqualizerManager internal constructor(context: Context) {
                 getEmptyPreset(CUSTOM_PRESET_NAME, true, numberOfBands).also { emptyPreset ->
                     setCustomPreset(emptyPreset, false)
                 }
-            } else GSON.fromJson(json, EQPreset::class.java)
+            } else Json.decodeFromString(json)
         }
 
     @Synchronized
@@ -336,9 +333,9 @@ class EqualizerManager internal constructor(context: Context) {
             if (usePreset) {
                 setCurrentPreset(preset)
             }
-            mPreferences.edit()
-                .putString(Keys.CUSTOM_PRESET, GSON.toJson(preset))
-                .apply()
+            mPreferences.edit {
+                putString(Keys.CUSTOM_PRESET, Json.encodeToString(preset))
+            }
         }
     }
 
@@ -462,9 +459,9 @@ class EqualizerManager internal constructor(context: Context) {
                 centerFreqs.append(DEFAULT_DELIMITER)
             }
         }
-        mPreferences.edit()
-            .putString(Keys.CENTER_FREQUENCIES, centerFreqs.toString())
-            .apply()
+        mPreferences.edit {
+            putString(Keys.CENTER_FREQUENCIES, centerFreqs.toString())
+        }
     }
 
     @get:FloatRange(from = OpenSLESConstants.MIN_BALANCE.toDouble(), to = OpenSLESConstants.MAX_BALANCE.toDouble())
@@ -577,11 +574,6 @@ class EqualizerManager internal constructor(context: Context) {
          * Max number of EQ bands supported
          */
         const val EQUALIZER_MAX_BANDS = 6
-
-        private val GSON = GsonBuilder()
-            .setPrettyPrinting()
-            .setStrictness(Strictness.LENIENT)
-            .create()
 
         const val PREFERENCES_NAME = "BoomingAudioFX"
         private const val CUSTOM_PRESET_NAME = "Custom"

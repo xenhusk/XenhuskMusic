@@ -24,12 +24,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
 import com.mardous.booming.R
 import com.mardous.booming.extensions.MIME_TYPE_APPLICATION
 import com.mardous.booming.extensions.files.getContentUri
+import com.mardous.booming.extensions.files.readString
 import com.mardous.booming.interfaces.IEQInterface
 import com.mardous.booming.model.EQPreset
 import com.mardous.booming.mvvm.*
@@ -40,6 +38,7 @@ import com.mardous.booming.service.equalizer.EqualizerManager.Companion.EFFECT_T
 import com.mardous.booming.service.equalizer.EqualizerManager.Companion.EFFECT_TYPE_VIRTUALIZER
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import java.io.File
 
 class EqualizerViewModel(
@@ -49,10 +48,6 @@ class EqualizerViewModel(
 ) : ViewModel() {
 
     private var exportContent: String? = null
-    private val gson: Gson = GsonBuilder()
-        .excludeFieldsWithoutExposeAnnotation()
-        .setPrettyPrinting()
-        .create()
 
     fun bindEqualizer(eqInterface: IEQInterface?) {
         equalizerManager.registerInterface(eqInterface)
@@ -139,7 +134,7 @@ class EqualizerViewModel(
     }
 
     fun generateExportData(presets: List<EQPreset>): LiveData<String> = liveData(IO) {
-        exportContent = gson.toJson(presets)
+        exportContent = Json.encodeToString(presets)
         emit(equalizerManager.getNewExportName())
     }
 
@@ -175,9 +170,7 @@ class EqualizerViewModel(
         } else {
             val result = runCatching {
                 contentResolver.openInputStream(data)?.use { stream ->
-                    stream.bufferedReader().use { reader ->
-                        gson.fromJson<List<EQPreset>>(reader, object : TypeToken<List<EQPreset>>() {}.type)
-                    }
+                    Json.decodeFromString<List<EQPreset>>(stream.readString())
                 }
             }
             val presets = result.getOrNull()
@@ -205,7 +198,9 @@ class EqualizerViewModel(
             } else {
                 val name = equalizerManager.getNewExportName()
                 val result = runCatching {
-                    File(cacheDir, name).also { it.writeText(gson.toJson(presets)) }.getContentUri(context)
+                    File(cacheDir, name).also {
+                        it.writeText(Json.encodeToString(presets))
+                    }.getContentUri(context)
                 }
                 if (result.isSuccess) {
                     emit(PresetExportResult(true, data = result.getOrThrow(), mimeType = MIME_TYPE_APPLICATION))

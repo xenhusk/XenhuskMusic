@@ -83,18 +83,18 @@
 -keep class * extends androidx.fragment.app.Fragment{}
 -keepnames class * extends android.os.Parcelable
 -keepnames class * extends java.io.Serializable
--keep class com.mardous.booming.database.LyricsEntity
--keep class com.mardous.booming.http.deezer.model.** { *; }
--keep class com.mardous.booming.http.lastfm.model.** { *; }
--keep class com.mardous.booming.model.** { *; }
--keep class com.mardous.booming.search.SearchFilter { *; }
--keep class com.mardous.booming.update.** { *; }
 -keep class com.google.android.material.bottomsheet.** { *; }
 -keep class com.google.android.material.transition.** { *; }
 
 # Keep player
 -keep class com.mardous.booming.fragments.player.base.** { *; }
 -keep class com.mardous.booming.fragments.player.styles.** { *; }
+
+-keep class com.mardous.booming.model.** { *; }
+-keep class com.mardous.booming.database.LyricsEntity { *; }
+-keep class com.mardous.booming.http.deezer.model.** { *; }
+-keep class com.mardous.booming.http.lastfm.model.** { *; }
+-keep class com.mardous.booming.search.SearchFilter { *; }
 
 # Gson - required after agp 8 made r8 full mode default
 -keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken

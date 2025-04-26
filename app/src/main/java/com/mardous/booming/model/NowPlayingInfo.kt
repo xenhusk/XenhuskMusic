@@ -21,12 +21,15 @@ import android.os.Parcelable
 import com.mardous.booming.R
 import com.mardous.booming.extensions.files.getGenre
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 import org.jaudiotagger.audio.AudioHeader
 import org.jaudiotagger.tag.FieldKey
 
 @Parcelize
+@Serializable
 class NowPlayingInfo(val info: Info, var isEnabled: Boolean) : Parcelable {
 
+    @Serializable
     enum class Info(val displayNameRes: Int, val key: FieldKey?) {
         Album(R.string.album, FieldKey.ALBUM),
         AlbumArtist(R.string.album_artist, FieldKey.ALBUM_ARTIST),

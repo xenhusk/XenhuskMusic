@@ -92,15 +92,19 @@ class LyricsViewModel(
             } else {
                 val internalSyncedLyrics = lyricsDao.getLyrics(song.id)
                 if (internalSyncedLyrics == null && allowDownload && appContext().isAllowedToDownloadMetadata()) {
-                    val onlineLyrics = lyricsService.getLyrics(song)
-                    if (onlineLyrics.isSynced) {
+                    val onlineLyrics = runCatching { lyricsService.getLyrics(song) }.getOrNull()
+                    if (onlineLyrics != null && onlineLyrics.isSynced) {
                         val lrcData = LrcUtils.parse(onlineLyrics.syncedLyrics!!)
                         if (lrcData.hasLines) {
                             lyricsDao.insertLyrics(
                                 song.toLyricsEntity(lrcData.getText(), autoDownload = true)
                             )
                             emit(LyricsResult(song.id, embeddedLyrics, lrcData))
+                        } else {
+                            emit(LyricsResult(song.id, embeddedLyrics))
                         }
+                    } else {
+                        emit(LyricsResult(song.id, embeddedLyrics))
                     }
                 } else if (internalSyncedLyrics != null) {
                     val lrcData = LrcUtils.parse(internalSyncedLyrics.syncedLyrics)

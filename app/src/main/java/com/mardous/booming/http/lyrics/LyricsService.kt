@@ -28,12 +28,14 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.encodeURLParameter
+import java.io.IOException
 
 class LyricsService(context: Context, private val client: HttpClient) {
 
     private val appleMusicLyricsApi = AppleMusicLyricsApi(client)
     private val spotifyLyricsApi = SpotifyLyricsApi(context, client)
 
+    @Throws(IOException::class)
     suspend fun getLyrics(
         song: Song,
         title: String = song.title,

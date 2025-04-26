@@ -45,6 +45,7 @@
                 android:padding="16dp"
                 android:textIsSelectable="true"
                 android:textSize="@dimen/lyrics_text_size"
+                android:visibility="gone"
                 tools:text="@tools:sample/lorem/random"/>
 
         </androidx.core.widget.NestedScrollView>
@@ -53,20 +54,19 @@
             android:id="@+id/lyrics_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone"
             app:lrcLabel="@string/no_lyrics_found"
             app:lrcNormalTextSize="@dimen/lyrics_text_size"
             app:lrcPadding="16dp"
             app:lrcTextGravity="left"
             app:lrcTextSize="@dimen/lyrics_text_size"/>
 
-        <TextView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="@string/no_lyrics_found"
-            android:textSize="@dimen/lyrics_text_size"
-            android:visibility="gone"/>
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@android:id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"/>
 
     </FrameLayout>
 

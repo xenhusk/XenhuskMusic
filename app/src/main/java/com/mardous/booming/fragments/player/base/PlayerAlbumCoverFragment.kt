@@ -267,6 +267,9 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), OnPageChangeListener
                 allowDownload = true,
                 isFallbackAllowed = true
             ).observe(viewLifecycleOwner) {
+                if (it.loading)
+                    return@observe
+
                 if (it.id == MusicPlayer.currentSong.id) {
                     if (it.isSynced) {
                         setLyricsContent(it.lrcData, null)

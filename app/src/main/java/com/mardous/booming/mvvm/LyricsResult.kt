@@ -23,7 +23,8 @@ class LyricsResult(
     val id: Long,
     val data: String? = null,
     val lrcData: LrcLyrics = LrcLyrics(),
-    val fromLocalFile: Boolean = false
+    val fromLocalFile: Boolean = false,
+    val loading: Boolean = false,
 ) {
     val hasData: Boolean get() = !data.isNullOrEmpty()
     val isSynced: Boolean get() = lrcData.hasLines

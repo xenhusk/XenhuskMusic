@@ -83,6 +83,7 @@ class LyricsViewModel(
     fun getAllLyrics(song: Song, allowDownload: Boolean = false, isFallbackAllowed: Boolean = false): LiveData<LyricsResult> =
         liveData(IO + silentHandler) {
             check(song.id != Song.emptySong.id)
+            emit(LyricsResult(id = song.id, loading = true))
             val embeddedLyrics = getEmbeddedLyrics(song, isFallbackAllowed)
             val localLrcLyrics = LyricsUtil.getSyncedLyricsFile(song)?.let {
                 LrcUtils.parseLrcFromFile(it)

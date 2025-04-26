@@ -29,6 +29,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ShareCompat
 import androidx.core.view.MenuProvider
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -39,7 +40,6 @@ import com.mardous.booming.extensions.resources.accentColor
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.helper.MusicProgressViewUpdateHelper
 import com.mardous.booming.model.Song
-import com.mardous.booming.mvvm.LyricsResult
 import com.mardous.booming.service.MusicPlayer
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.properties.Delegates
@@ -59,10 +59,7 @@ class LyricsFragment : AbsMainActivityFragment(R.layout.fragment_lyrics),
     private lateinit var progressViewUpdateHelper: MusicProgressViewUpdateHelper
 
     private var song: Song by Delegates.notNull()
-
     private var importLRCFor: Song? = null
-    private var isSyncedMode: Boolean = false
-    private var isPaused: Boolean = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -96,7 +93,20 @@ class LyricsFragment : AbsMainActivityFragment(R.layout.fragment_lyrics),
 
     private fun loadLyrics() {
         lyricsViewModel.getAllLyrics(song, allowDownload = true, isFallbackAllowed = true)
-            .observe(viewLifecycleOwner) { displayLyrics(it) }
+            .observe(viewLifecycleOwner) { lyrics ->
+                if (lyrics.loading) {
+                    binding.progress.show()
+                    binding.normalLyrics.isGone = true
+                    binding.lyricsView.isGone = true
+                } else {
+                    binding.progress.hide()
+                    binding.normalLyrics.text = lyrics.data
+                    binding.normalLyrics.isGone = lyrics.isEmpty || lyrics.isSynced
+                    binding.lyricsView.setLRCContent(lyrics.lrcData)
+                    binding.lyricsView.updateTime(MusicPlayer.songProgressMillis.toLong())
+                    binding.lyricsView.isVisible = lyrics.isEmpty || lyrics.isSynced
+                }
+            }
     }
 
     private fun updateCurrentSong() {
@@ -106,23 +116,7 @@ class LyricsFragment : AbsMainActivityFragment(R.layout.fragment_lyrics),
         } else {
             binding.edit.show()
         }
-        isPaused = false
-        displayLyrics(LyricsResult(song.id))
         loadLyrics()
-    }
-
-    private fun displayLyrics(lyrics: LyricsResult) {
-        isSyncedMode = lyrics.isSynced
-        binding.empty.isVisible = lyrics.isEmpty
-        if (lyrics.isSynced) {
-            binding.normalLyrics.isVisible = false
-            binding.lyricsView.isVisible = true
-            binding.lyricsView.setLRCContent(lyrics.lrcData)
-        } else {
-            binding.lyricsView.isVisible = false
-            binding.normalLyrics.text = lyrics.data
-            binding.normalLyrics.isVisible = lyrics.hasData
-        }
     }
 
     override fun onResume() {
@@ -144,9 +138,7 @@ class LyricsFragment : AbsMainActivityFragment(R.layout.fragment_lyrics),
     }
 
     override fun onUpdateProgressViews(progress: Long, total: Long) {
-        if (!isPaused) {
-            binding.lyricsView.updateTime(progress)
-        }
+        binding.lyricsView.updateTime(progress)
     }
 
     override fun onPlayingMetaChanged() {

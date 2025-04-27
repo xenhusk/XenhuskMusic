@@ -38,9 +38,6 @@ import java.util.zip.ZipOutputStream
 import kotlin.math.log10
 import kotlin.math.pow
 
-
-typealias FileFilter = ((File) -> Boolean)
-
 private val FILE_NAME_DATE_FORMAT = SimpleDateFormat("MMM_d_yyyy_HH.mm.ss", Locale.ENGLISH)
 
 fun getFormattedFileName(prefix: String, extension: String, timeMillis: Long = System.currentTimeMillis()): String {

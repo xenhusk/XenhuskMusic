@@ -71,7 +71,7 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
     private lateinit var permissionRequestLauncher: ActivityResultLauncher<String>
 
     private val visualizerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val equalizerManager: EqualizerManager by inject()
+    private val equalizerManager: EqualizerManager by inject() // TODO: UI components shouldn't interact directly with this class
 
     private lateinit var audioOutputObserver: AudioOutputObserver
 

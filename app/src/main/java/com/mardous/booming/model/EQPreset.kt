@@ -21,7 +21,6 @@ import android.content.Context
 import com.mardous.booming.R
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 /**
  * @author Christians M. A. (mardous)
@@ -34,7 +33,6 @@ data class EQPreset(
     val levels: IntArray,
     @SerialName("effects")
     val effects: HashMap<String, Float> = hashMapOf(),
-    @Transient
     val isCustom: Boolean = false
 ) {
 

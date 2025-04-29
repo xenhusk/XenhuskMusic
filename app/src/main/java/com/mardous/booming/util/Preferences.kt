@@ -371,10 +371,6 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(SAVED_ARTWORK_COPYRIGHT_NOTICE_SHOWN, false)
         set(value) = preferences.edit { putBoolean(SAVED_ARTWORK_COPYRIGHT_NOTICE_SHOWN, value) }
 
-    var loudnessEnhancerWarningShown: Boolean
-        get() = preferences.getBoolean(LOUDNESS_ENHANCER_WARNING_SHOWN, false)
-        set(value) = preferences.edit { putBoolean(LOUDNESS_ENHANCER_WARNING_SHOWN, value) }
-
     var initializedBlacklist: Boolean
         get() = preferences.getBoolean(INITIALIZED_BLACKLIST, false)
         set(value) = preferences.edit { putBoolean(INITIALIZED_BLACKLIST, value) }
@@ -601,7 +597,6 @@ const val LAST_UPDATE_ID = "last_update_id"
 const val EXPERIMENTAL_UPDATES = "experimental_updates"
 const val START_DIRECTORY = "start_directory"
 const val SAVED_ARTWORK_COPYRIGHT_NOTICE_SHOWN = "saved_artwork_copyright_notice_shown"
-const val LOUDNESS_ENHANCER_WARNING_SHOWN = "loudness_enhancer_warning_shown"
 const val INITIALIZED_BLACKLIST = "initialized_blacklist"
 const val SAF_SDCARD_URI = "saf_sdcard_uri"
 const val LAST_SLEEP_TIMER_VALUE = "last_sleep_timer_value"

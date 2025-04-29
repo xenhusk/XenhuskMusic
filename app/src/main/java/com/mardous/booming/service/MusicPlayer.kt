@@ -316,22 +316,6 @@ object MusicPlayer : KoinComponent {
         return false
     }
 
-    fun openEqualizerSession(internal: Boolean) {
-        musicService?.getPlaybackManager()?.openAudioEffectSession(internal)
-    }
-
-    fun closeEqualizerSessions(internal: Boolean) {
-        musicService?.getPlaybackManager()?.closeAudioEffectSession(internal)
-    }
-
-    fun resetEqualizer() {
-        musicService?.getPlaybackManager()?.resetEqualizer()
-    }
-
-    fun updateEqualizer() {
-        musicService?.getPlaybackManager()?.updateEqualizer()
-    }
-
     fun updateBalance() {
         musicService?.getPlaybackManager()?.updateBalance()
     }

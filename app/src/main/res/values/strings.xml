@@ -270,7 +270,6 @@
     <string name="save_artwork_copyright_info_title">Copyright notice</string>
     <string name="save_artwork_copyright_info_message">Some album covers (or all of them) might be protected by Copyright laws. You can not use such images for commercial or advertisement purposes.
         \n\nOnly you have total responsibility over your usage of saved album covers.</string>
-    <string name="warning_title">Warning</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="label_file_path">File path</string>
@@ -408,7 +407,6 @@
     <string name="are_you_sure_you_want_to_reset_the_equalizer">Are you sure you want to reset the equalizer?
         \n\nThis will clear all your presets.</string>
     <string name="not_supported">Not supported</string>
-    <string name="no_preset">No preset selected</string>
     <string name="enable_equalizer">Enable EQ</string>
     <string name="select_preset">Select preset</string>
     <string name="please_enter_a_name_for_this_preset">Please, enter a name for this preset.</string>
@@ -429,7 +427,6 @@
     <string name="bassboost_label">BassBoost</string>
     <string name="virtualizer_label">Virtualizer</string>
     <string name="loudness_enhancer">Amplifier</string>
-    <string name="loudness_enhancer_warning">Be careful: higher levels may cause damages to the output device (speaker, wired/Bluetooth headset, etc.).</string>
     <string name="reverb_label">Reverb</string>
     <string name="reverb_preset_none">No reverb</string>
     <string name="reverb_preset_plate">Plate</string>

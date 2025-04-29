@@ -23,14 +23,16 @@ import android.media.audiofx.AudioEffect
 import androidx.annotation.FloatRange
 import androidx.core.content.edit
 import com.mardous.booming.extensions.files.getFormattedFileName
-import com.mardous.booming.interfaces.IEQInterface
 import com.mardous.booming.model.EQPreset
 import com.mardous.booming.model.EQPreset.Companion.getEmptyPreset
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.mvvm.equalizer.EqEffectState
+import com.mardous.booming.mvvm.equalizer.EqEffectUpdate
+import com.mardous.booming.mvvm.equalizer.EqState
+import com.mardous.booming.mvvm.equalizer.EqUpdate
 import com.mardous.booming.util.PLAYBACK_PITCH
 import com.mardous.booming.util.PLAYBACK_SPEED
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.Json
 import java.util.Locale
 import java.util.UUID
@@ -41,76 +43,38 @@ import java.util.UUID
 class EqualizerManager internal constructor(context: Context) {
 
     private val mPreferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+    private val eqSession = EqualizerSession(context, this)
 
-    private val boundInterfaces = ArrayList<IEQInterface?>()
-    private var presets: MutableList<EQPreset>? = null
-    private var eqPreset: EQPreset? = null
+    private var isEqualizerSupported = false
+    private var isVirtualizerSupported = false
+    private var isBassBoostSupported = false
+    private var isLoudnessEnhancerSupported = false
+    private var isPresetReverbSupported = false
 
-    var isEqualizerSupported = false
-        private set
-    var isVirtualizerSupported = false
-        private set
-    var isBassBoostSupported = false
-        private set
-    var isLoudnessEnhancerSupported = false
-        private set
-    var isPresetReverbSupported = false
-        private set
+    private val _eqStateFlow: MutableStateFlow<EqState>
+    private val _bassBoostFlow: MutableStateFlow<EqEffectState<Float>>
+    private val _virtualizerFlow: MutableStateFlow<EqEffectState<Float>>
+    private val _loudnessGainFlow: MutableStateFlow<EqEffectState<Float>>
+    private val _presetReverbFlow: MutableStateFlow<EqEffectState<Int>>
+    private val _currentPresetFlow: MutableStateFlow<EQPreset>
+    private val _presetsFlow: MutableStateFlow<List<EQPreset>>
 
-    var isEqualizerEnabled: Boolean
-        get() = isEqualizerSupported && mPreferences.getBoolean(Keys.GLOBAL_ENABLED, false)
-        set(equalizerEnabled) {
-            mPreferences.edit {
-                putBoolean(Keys.GLOBAL_ENABLED, isEqualizerSupported && equalizerEnabled)
-            }
+    val eqStateFlow: StateFlow<EqState> get() = _eqStateFlow
+    val bassBoostFlow: StateFlow<EqEffectState<Float>> get() = _bassBoostFlow
+    val virtualizerFlow: StateFlow<EqEffectState<Float>> get() = _virtualizerFlow
+    val loudnessGainFlow: StateFlow<EqEffectState<Float>> get() = _loudnessGainFlow
+    val presetReverbFlow: StateFlow<EqEffectState<Int>> get() = _presetReverbFlow
+    val currentPresetFlow: StateFlow<EQPreset> get() = _currentPresetFlow
+    val presetsFlow: StateFlow<List<EQPreset>> get() = _presetsFlow
 
-            callInterfaces { it.eqStateChanged(isEqualizerSupported && equalizerEnabled, false) }
-        }
+    val eqState: EqState get() = eqStateFlow.value
+    val bassBoostState: EqEffectState<Float> get() = bassBoostFlow.value
+    val virtualizerState: EqEffectState<Float> get() = virtualizerFlow.value
+    val loudnessGainState: EqEffectState<Float> get() = loudnessGainFlow.value
+    val presetReverbState: EqEffectState<Int> get() = presetReverbFlow.value
 
-    private fun callInterfaces(function: (IEQInterface) -> Unit) {
-        boundInterfaces.forEach { it?.let(function) }
-    }
-
-    private fun requestState(isBeingReset: Boolean) {
-        callInterfaces { it.eqStateChanged(isEqualizerSupported && isEqualizerEnabled, isBeingReset) }
-    }
-
-    fun requestState() {
-        requestState(false)
-    }
-
-    fun requestPresetsList() {
-        callInterfaces { it.eqPresetListChanged(getEqualizerPresets()) }
-    }
-
-    fun requestCurrentPreset() {
-        callInterfaces { it.eqPresetChanged(null, getCurrentPreset()) }
-    }
-
-    @Synchronized
-    fun resetConfiguration() {
-        mPreferences.edit {
-            putBoolean(Keys.IS_INITIALIZED, false)
-            putBoolean(Keys.GLOBAL_ENABLED, false)
-            putBoolean(Keys.LOUDNESS_ENABLED, false)
-            putBoolean(Keys.PRESET_REVERB_ENABLED, false)
-            remove(Keys.PRESETS)
-            remove(Keys.PRESET)
-            remove(Keys.CUSTOM_PRESET)
-            remove(Keys.BAND_LEVEL_RANGE)
-            remove(Keys.LOUDNESS_GAIN)
-            remove(Keys.PRESET_REVERB_PRESET)
-        }
-
-        eqPreset = null
-        presets = null
-
-        MusicPlayer.resetEqualizer()
-
-        requestState(true)
-        requestPresetsList()
-        requestCurrentPreset()
-    }
+    val equalizerPresets: List<EQPreset> get() = presetsFlow.value
+    val currentPreset: EQPreset get() = currentPresetFlow.value
 
     var isInitialized: Boolean
         get() = mPreferences.getBoolean(Keys.IS_INITIALIZED, false)
@@ -118,19 +82,84 @@ class EqualizerManager internal constructor(context: Context) {
             putBoolean(Keys.IS_INITIALIZED, value)
         }
 
-    fun registerInterface(eqInterface: IEQInterface?) {
-        if (!boundInterfaces.contains(eqInterface)) {
-            boundInterfaces.add(eqInterface)
+    init {
+        try {
+            //Query available effects
+            val effects = AudioEffect.queryEffects()
+            //Determine available/supported effects
+            if (!effects.isNullOrEmpty()) {
+                for (effect in effects) {
+                    when (effect.type) {
+                        UUID.fromString(EFFECT_TYPE_EQUALIZER) -> isEqualizerSupported = true
+                        UUID.fromString(EFFECT_TYPE_BASS_BOOST) -> isBassBoostSupported = true
+                        UUID.fromString(EFFECT_TYPE_VIRTUALIZER) -> isVirtualizerSupported = true
+                        UUID.fromString(EFFECT_TYPE_LOUDNESS_ENHANCER) -> isLoudnessEnhancerSupported = true
+                        UUID.fromString(EFFECT_TYPE_PRESET_REVERB) -> isPresetReverbSupported = true
+                    }
+                }
+            }
+        } catch (_: NoClassDefFoundError) {
+            //The user doesn't have the AudioEffect/AudioEffect.Descriptor class. How sad.
+        }
+
+        _eqStateFlow = MutableStateFlow<EqState>(initializeEqState())
+        _presetsFlow = MutableStateFlow<List<EQPreset>>(initializePresets())
+        _currentPresetFlow = MutableStateFlow<EQPreset>(initializeCurrentPreset())
+        _bassBoostFlow = MutableStateFlow<EqEffectState<Float>>(initializeBassBoostState())
+        _virtualizerFlow = MutableStateFlow<EqEffectState<Float>>(initializeVirtualizerState())
+        _loudnessGainFlow = MutableStateFlow<EqEffectState<Float>>(initializeLoudnessGain())
+        _presetReverbFlow = MutableStateFlow<EqEffectState<Int>>(initializePresetReverb())
+    }
+
+    suspend fun initializeEqualizer() {
+        if (!isInitialized) {
+            val result = runCatching { EffectSet(0) }
+            if (result.isSuccess) {
+                val temp = result.getOrThrow()
+
+                setDefaultPresets(temp)
+                numberOfBands = temp.getNumEqualizerBands().toInt()
+                setBandLevelRange(temp.equalizer.getBandLevelRange())
+                setCenterFreqs(temp)
+
+                temp.release()
+            }
+
+            isInitialized = true
+            initializeFlow()
+
+            eqSession.update()
         }
     }
 
-    fun unregisterInterface(eqInterface: IEQInterface?) {
-        boundInterfaces.remove(eqInterface)
+    suspend fun initializeFlow() {
+        _eqStateFlow.emit(initializeEqState())
+        _presetsFlow.emit(initializePresets())
+        _currentPresetFlow.emit(initializeCurrentPreset())
+        _bassBoostFlow.emit(initializeBassBoostState())
+        _virtualizerFlow.emit(initializeVirtualizerState())
+        _loudnessGainFlow.emit(initializeLoudnessGain())
+        _presetReverbFlow.emit(initializePresetReverb())
     }
 
-    @Synchronized
+    fun openAudioEffectSession(audioSessionId: Int, internal: Boolean) {
+        eqSession.openEqualizerSession(internal, audioSessionId)
+    }
+
+    fun closeAudioEffectSession(audioSessionId: Int, internal: Boolean) {
+        eqSession.closeEqualizerSessions(internal, audioSessionId)
+    }
+
+    fun update() {
+        eqSession.update()
+    }
+
+    fun release() {
+        eqSession.release()
+    }
+
     fun isPresetNameAvailable(presetName: String): Boolean {
-        for ((name) in getEqualizerPresets()) {
+        for ((name) in equalizerPresets) {
             if (name.equals(presetName, ignoreCase = true)) return false
         }
         return true
@@ -138,140 +167,107 @@ class EqualizerManager internal constructor(context: Context) {
 
     fun getNewExportName(): String = getFormattedFileName("BoomingEQ", "json")
 
-    @Synchronized
-    private fun getCustomPresetFromCurrent(): EQPreset {
-        return getCurrentPreset()?.let { EQPreset(it, CUSTOM_PRESET_NAME, true) }
-            ?: getEmptyPreset(CUSTOM_PRESET_NAME, true, numberOfBands)
-    }
-
     fun getNewPresetFromCustom(presetName: String): EQPreset {
-        return getCustomPreset().copy(name = presetName, isCustom = false)
+        return EQPreset(getCustomPreset(), presetName, isCustom = false)
     }
 
-    @Synchronized
-    fun getEqualizerPresets(): MutableList<EQPreset> {
-        return presets ?: run {
-            val json = mPreferences.getString(Keys.PRESETS, null).orEmpty()
-            presets = if (json.isBlank()) {
-                arrayListOf()
-            } else {
-                Json.decodeFromString<List<EQPreset>>(json).toMutableList()
-            }
-            presets!!
-        }
-    }
+    fun getEqualizerPresetsWithCustom(presets: List<EQPreset> = equalizerPresets) =
+        presets.toMutableList().apply { add(getCustomPreset()) }
 
-    @Synchronized
-    fun getEqualizerPresetsWithCustom(presets: List<EQPreset> = getEqualizerPresets()) =
-        ArrayList(presets).apply {
-            add(getCustomPreset())
-        }
-
-    @Synchronized
     fun renamePreset(preset: EQPreset, newName: String): Boolean {
-        if (newName.trim().isEmpty())
+        val trimmedName = newName.trim()
+        if (trimmedName.isEmpty()) return false
+
+        val currentPresets = equalizerPresets.toMutableList()
+        if (currentPresets.any { it.name.equals(trimmedName, ignoreCase = true) }) {
             return false
-
-        val temp = getEqualizerPresets()
-        for ((name) in temp) {
-            if (name.equals(newName, ignoreCase = true)) {
-                return false
-            }
         }
 
-        val newPreset = preset.copy(name = newName)
-        val index = temp.indexOfFirst { it.name == preset.name }
-        if (index > -1) {
-            temp[index] = newPreset
-            setEqualizerPresets(temp, true)
-            if (preset == getCurrentPreset()) {
-                setCurrentPreset(newPreset)
-            }
-            return true
+        val index = currentPresets.indexOfFirst { it.name == preset.name }
+        if (index == -1) return false
+
+        currentPresets[index] = preset.copy(name = trimmedName)
+
+        setEqualizerPresets(currentPresets, updateFlow = true)
+        if (preset == currentPreset) {
+            setCurrentPreset(currentPresets[index])
         }
-        return false
+        return true
     }
 
-    @Synchronized
     fun addPreset(preset: EQPreset, allowReplace: Boolean, usePreset: Boolean): Boolean {
-        if (!preset.isValid)
-            return false
+        if (!preset.isValid) return false
 
-        val temp = getEqualizerPresets()
-        for (i in temp.indices) {
-            val value = temp[i]
-            if (value.name.equals(preset.name, ignoreCase = true)) {
-                if (allowReplace) { // copy bands and effects
-                    temp[i] = preset
-                    setEqualizerPresets(temp, true)
-                    if (usePreset) {
-                        setCurrentPreset(preset)
-                    }
-                    return true
+        val currentPresets = equalizerPresets.toMutableList()
+        val index = currentPresets.indexOfFirst { it.name.equals(preset.name, ignoreCase = true) }
+        if (index != -1) {
+            if (allowReplace) {
+                currentPresets[index] = preset
+                setEqualizerPresets(currentPresets, updateFlow = true)
+                if (usePreset) {
+                    setCurrentPreset(preset)
                 }
-                return false
+                return true
             }
+            return false
         }
 
-        if (temp.add(preset)) {
-            setEqualizerPresets(temp, true)
-            if (usePreset) {
-                setCurrentPreset(preset)
-            }
-            return true
+        currentPresets.add(preset)
+        setEqualizerPresets(currentPresets, updateFlow = true)
+        if (usePreset) {
+            setCurrentPreset(preset)
         }
-
-        return false
+        return true
     }
 
-    @Synchronized
     fun removePreset(preset: EQPreset): Boolean {
-        val temp = getEqualizerPresets()
-        if (temp.removeIf { it.name == preset.name }) {
-            if (preset == getCurrentPreset()) {
-                setCurrentPreset(getCustomPreset())
-            }
-            setEqualizerPresets(temp, true)
-            return true
+        val currentPresets = equalizerPresets.toMutableList()
+        val removed = currentPresets.removeIf { it.name == preset.name }
+        if (!removed) return false
+
+        setEqualizerPresets(currentPresets, updateFlow = true)
+        if (preset == currentPreset) {
+            setCurrentPreset(getCustomPreset())
         }
-        return false
+        return true
     }
 
-    @Synchronized
     fun importPresets(toImport: List<EQPreset>): Int {
-        var imported = 0
-        val numberOfBands = numberOfBands
-        val temp = getEqualizerPresets()
-        for (importing in toImport) {
-            if (!importing.isValid || importing.numberOfBands != numberOfBands)
-                continue
+        if (toImport.isEmpty()) return 0
 
-            val existent = temp.firstOrNull { it.name.equals(importing.name, ignoreCase = true) }
-            if (existent != null) {
-                val index = temp.indexOf(existent)
-                temp[index] = importing
+        val currentPresets = equalizerPresets.toMutableList()
+        val numBands = numberOfBands
+
+        var imported = 0
+        for (preset in toImport) {
+            if (!preset.isValid || preset.isCustom || preset.numberOfBands != numBands) {
+                continue
+            }
+            val existingIndex = currentPresets.indexOfFirst { it.name.equals(preset.name, ignoreCase = true) }
+            if (existingIndex >= 0) {
+                currentPresets[existingIndex] = preset
                 imported++
-            } else if (temp.add(importing)) {
+            } else {
+                currentPresets.add(preset)
                 imported++
             }
         }
-        setEqualizerPresets(temp, true)
+        if (imported > 0) {
+            setEqualizerPresets(currentPresets, updateFlow = true)
+        }
         return imported
     }
 
-    @Synchronized
-    private fun setEqualizerPresets(presets: List<EQPreset>, callInterface: Boolean) {
-        mPreferences.edit {
-            putString(Keys.PRESETS, Json.encodeToString(presets))
-        }
-        if (callInterface) {
-            callInterfaces { it.eqPresetListChanged(presets) }
+    private fun setEqualizerPresets(presets: List<EQPreset>, updateFlow: Boolean) {
+        mPreferences.edit { putString(Keys.PRESETS, Json.encodeToString(presets)) }
+        if (updateFlow) {
+            _presetsFlow.tryEmit(presets)
         }
     }
 
     @SuppressLint("KotlinPropertyAccess")
     fun setDefaultPresets(effectSet: EffectSet) {
-        val presets: MutableList<EQPreset> = ArrayList()
+        val presets = arrayListOf<EQPreset>()
 
         val numPresets = effectSet.numEqualizerPresets.toInt()
         val numBands = effectSet.numEqualizerBands.toInt()
@@ -297,35 +293,14 @@ class EqualizerManager internal constructor(context: Context) {
     }
 
     @Synchronized
-    fun getCurrentPreset(): EQPreset? {
-        if (eqPreset == null) {
-            val savedPreset = mPreferences.getString(Keys.PRESET, null)
-            if (savedPreset == null || savedPreset.trim().isEmpty()) {
-                return null
-            }
-            eqPreset = Json.decodeFromString(savedPreset)
-        }
-        return eqPreset
+    private fun getCustomPreset(): EQPreset {
+        val json = mPreferences.getString(Keys.CUSTOM_PRESET, null).orEmpty().trim()
+        return if (json.isEmpty()) {
+            getAndSaveEmptyCustomPreset()
+        } else runCatching {
+            Json.decodeFromString<EQPreset>(json)
+        }.getOrElse { null }?.takeIf { it.isValid } ?: getAndSaveEmptyCustomPreset()
     }
-
-    @Synchronized
-    fun setCurrentPreset(eqPreset: EQPreset) {
-        callInterfaces { it.eqPresetChanged(this.eqPreset, eqPreset) }
-        this.eqPreset = eqPreset
-        mPreferences.edit {
-            putString(Keys.PRESET, Json.encodeToString(eqPreset))
-        }
-    }
-
-    @Synchronized
-    private fun getCustomPreset(): EQPreset =
-        mPreferences.getString(Keys.CUSTOM_PRESET, null).let { json ->
-            if (json == null || json.trim().isEmpty()) {
-                getEmptyPreset(CUSTOM_PRESET_NAME, true, numberOfBands).also { emptyPreset ->
-                    setCustomPreset(emptyPreset, false)
-                }
-            } else Json.decodeFromString(json)
-        }
 
     @Synchronized
     private fun setCustomPreset(preset: EQPreset, usePreset: Boolean = true) {
@@ -339,17 +314,28 @@ class EqualizerManager internal constructor(context: Context) {
         }
     }
 
+    private fun getAndSaveEmptyCustomPreset(): EQPreset {
+        val emptyPreset = getEmptyPreset(CUSTOM_PRESET_NAME, true, numberOfBands)
+        setCustomPreset(emptyPreset, usePreset = false)
+        return emptyPreset
+    }
+
+    private fun getAndSaveDefaultOrEmptyPreset(): EQPreset {
+        return equalizerPresets.firstOrNull()
+            ?: getAndSaveEmptyCustomPreset()
+    }
+
+    @Synchronized
+    private fun getCustomPresetFromCurrent(): EQPreset {
+        return EQPreset(currentPreset, CUSTOM_PRESET_NAME, true)
+    }
+
     /**
      * Copies the current preset to a "Custom" configuration
      * and sets the band level on it
      */
-    suspend fun setCustomPresetBandLevel(band: Int, level: Int) {
-        var currentPreset = getCurrentPreset()
-        if (currentPreset == null || !currentPreset.isCustom) {
-            currentPreset = withContext(Dispatchers.Default) {
-                getCustomPresetFromCurrent()
-            }
-        }
+    fun setCustomPresetBandLevel(band: Int, level: Int) {
+        var currentPreset = getCustomPresetFromCurrent()
         currentPreset.setBandLevel(band, level)
         setCustomPreset(currentPreset)
     }
@@ -358,13 +344,8 @@ class EqualizerManager internal constructor(context: Context) {
      * Copies the current preset to a "Custom" configuration
      * and sets the effect value on it
      */
-    suspend fun setCustomPresetEffect(effect: String, value: Float) {
-        var currentPreset = getCurrentPreset()
-        if (currentPreset == null || !currentPreset.isCustom) {
-            currentPreset = withContext(Dispatchers.Default) {
-                getCustomPresetFromCurrent()
-            }
-        }
+    private fun setCustomPresetEffect(effect: String, value: Float) {
+        var currentPreset = getCustomPresetFromCurrent()
         if (value == 0f) { // zero means "disabled", we must remove disabled effects
             currentPreset.removeEffect(effect)
         } else {
@@ -373,41 +354,131 @@ class EqualizerManager internal constructor(context: Context) {
         setCustomPreset(currentPreset)
     }
 
-    var isPresetReverbEnabled: Boolean
-        get() = isPresetReverbSupported && mPreferences.getBoolean(Keys.PRESET_REVERB_ENABLED, false)
-        set(presetReverbEnabled) = mPreferences.edit {
-            putBoolean(Keys.PRESET_REVERB_ENABLED, presetReverbEnabled)
+    fun setCurrentPreset(eqPreset: EQPreset) {
+        mPreferences.edit {
+            putString(Keys.PRESET, Json.encodeToString(eqPreset))
         }
+        _currentPresetFlow.tryEmit(eqPreset)
+    }
 
-    var presetReverbPreset: Int
-        get() = mPreferences.getInt(Keys.PRESET_REVERB_PRESET, 0)
-        set(presetReverbPreset) = mPreferences.edit {
-            putInt(Keys.PRESET_REVERB_PRESET, presetReverbPreset)
+    suspend fun setEqualizerState(update: EqUpdate<EqState>, apply: Boolean) {
+        val newState = update.toState()
+        if (apply) newState.apply()
+        _eqStateFlow.emit(newState)
+    }
+
+    suspend fun setLoudnessGain(update: EqEffectUpdate<Float>, apply: Boolean) {
+        val newState = update.toState()
+        if (apply) newState.apply()
+        _loudnessGainFlow.emit(newState)
+    }
+
+    suspend fun setPresetReverb(update: EqEffectUpdate<Int>, apply: Boolean) {
+        val newState = update.toState()
+        if (apply) newState.apply()
+        _presetReverbFlow.tryEmit(newState)
+    }
+
+    suspend fun setBassBoost(update: EqEffectUpdate<Float>, apply: Boolean) {
+        val newState = update.toState()
+        if (apply) newState.apply()
+        _bassBoostFlow.emit(newState)
+    }
+
+    suspend fun setVirtualizer(update: EqEffectUpdate<Float>, apply: Boolean) {
+        val newState = update.toState()
+        if (apply) newState.apply()
+        _virtualizerFlow.emit(newState)
+    }
+
+    suspend fun applyPendingStates() {
+        eqState.apply()
+        loudnessGainState.apply()
+        presetReverbState.apply()
+        bassBoostState.apply()
+        virtualizerState.apply()
+    }
+
+    private fun initializePresets(): List<EQPreset> {
+        val json = mPreferences.getString(Keys.PRESETS, null).orEmpty()
+        return runCatching {
+            Json.decodeFromString<List<EQPreset>>(json).toMutableList()
+        }.getOrElse {
+            arrayListOf()
         }
+    }
 
-    var isLoudnessEnabled: Boolean
-        get() = isLoudnessEnhancerSupported && mPreferences.getBoolean(Keys.LOUDNESS_ENABLED, false)
-        set(loudnessEnabled) = mPreferences.edit {
-            putBoolean(Keys.LOUDNESS_ENABLED, loudnessEnabled)
+    private fun initializeCurrentPreset(): EQPreset {
+        val json = mPreferences.getString(Keys.PRESET, null).orEmpty().trim()
+        if (json.isEmpty()) {
+            return getAndSaveDefaultOrEmptyPreset()
         }
+        return runCatching {
+            Json.decodeFromString<EQPreset>(json)
+        }.getOrElse { getAndSaveDefaultOrEmptyPreset() }
+    }
 
-    var loudnessGain: Int
-        get() = mPreferences.getInt(Keys.LOUDNESS_GAIN, OpenSLESConstants.MINIMUM_LOUDNESS_GAIN)
-        set(loudnessGain) = mPreferences.edit {
-            putInt(Keys.LOUDNESS_GAIN, loudnessGain)
-        }
+    private fun initializeEqState(): EqState {
+        return EqState(
+            isSupported = isEqualizerSupported,
+            isEnabled = mPreferences.getBoolean(Keys.GLOBAL_ENABLED, false),
+            onCommit = { state ->
+                mPreferences.edit(commit = true) {
+                    putBoolean(Keys.GLOBAL_ENABLED, state.isEnabled)
+                }
+            }
+        )
+    }
 
-    val isBassBoostEnabled: Boolean
-        get() = isBassBoostSupported && getCurrentPreset()?.hasEffect(EFFECT_TYPE_BASS_BOOST) == true
+    private fun initializeLoudnessGain(): EqEffectState<Float> {
+        return EqEffectState(
+            isSupported = isLoudnessEnhancerSupported,
+            isEnabled = mPreferences.getBoolean(Keys.LOUDNESS_ENABLED, false),
+            value = mPreferences.getFloat(Keys.LOUDNESS_GAIN, OpenSLESConstants.MINIMUM_LOUDNESS_GAIN.toFloat()),
+            onCommitEffect = { state ->
+                mPreferences.edit(commit = true) {
+                    putBoolean(Keys.LOUDNESS_ENABLED, state.isEnabled)
+                    putFloat(Keys.LOUDNESS_GAIN, state.value)
+                }
+            }
+        )
+    }
 
-    val bassStrength: Float
-        get() = getCurrentPreset()?.getEffect(EFFECT_TYPE_BASS_BOOST) ?: 0f
+    private fun initializePresetReverb(): EqEffectState<Int> {
+        return EqEffectState(
+            isSupported = isPresetReverbSupported,
+            isEnabled = mPreferences.getBoolean(Keys.PRESET_REVERB_ENABLED, false),
+            value = mPreferences.getInt(Keys.PRESET_REVERB_PRESET, 0),
+            onCommitEffect = { state ->
+                mPreferences.edit(commit = true) {
+                    putBoolean(Keys.PRESET_REVERB_ENABLED, state.isEnabled)
+                    putInt(Keys.PRESET_REVERB_PRESET, state.value)
+                }
+            }
+        )
+    }
 
-    val isVirtualizerEnabled: Boolean
-        get() = isVirtualizerSupported && getCurrentPreset()?.hasEffect(EFFECT_TYPE_VIRTUALIZER) == true
+    private fun initializeBassBoostState(): EqEffectState<Float> {
+        return EqEffectState(
+            isSupported = isBassBoostSupported,
+            isEnabled = currentPreset.hasEffect(EFFECT_TYPE_BASS_BOOST),
+            value = currentPreset.getEffect(EFFECT_TYPE_BASS_BOOST),
+            onCommitEffect = { state ->
+                setCustomPresetEffect(EFFECT_TYPE_BASS_BOOST, state.value)
+            }
+        )
+    }
 
-    val virtualizerStrength: Float
-        get() = getCurrentPreset()?.getEffect(EFFECT_TYPE_VIRTUALIZER) ?: 0f
+    private fun initializeVirtualizerState(): EqEffectState<Float> {
+        return EqEffectState(
+            isSupported = isVirtualizerSupported,
+            isEnabled = currentPreset.hasEffect(EFFECT_TYPE_VIRTUALIZER),
+            value = currentPreset.getEffect(EFFECT_TYPE_VIRTUALIZER),
+            onCommitEffect = { state ->
+                setCustomPresetEffect(EFFECT_TYPE_VIRTUALIZER, state.value)
+            }
+        )
+    }
 
     var numberOfBands: Int
         get() = mPreferences.getInt(Keys.NUM_BANDS, 5)
@@ -441,7 +512,7 @@ class EqualizerManager internal constructor(context: Context) {
     }
 
     val centerFreqs: IntArray
-        get() = mPreferences.getString(Keys.CENTER_FREQUENCIES, PlaybackEQ.getZeroedBandsString(numberOfBands))!!
+        get() = mPreferences.getString(Keys.CENTER_FREQUENCIES, EqualizerSession.getZeroedBandsString(numberOfBands))!!
             .split(DEFAULT_DELIMITER).toTypedArray().let { savedValue ->
                 val frequencies = IntArray(savedValue.size)
                 for (i in frequencies.indices) {
@@ -540,6 +611,22 @@ class EqualizerManager internal constructor(context: Context) {
         return value
     }
 
+    suspend fun resetConfiguration() {
+        mPreferences.edit {
+            putBoolean(Keys.IS_INITIALIZED, false)
+            putBoolean(Keys.GLOBAL_ENABLED, false)
+            putBoolean(Keys.LOUDNESS_ENABLED, false)
+            putBoolean(Keys.PRESET_REVERB_ENABLED, false)
+            remove(Keys.PRESETS)
+            remove(Keys.PRESET)
+            remove(Keys.CUSTOM_PRESET)
+            remove(Keys.BAND_LEVEL_RANGE)
+            remove(Keys.LOUDNESS_GAIN)
+            remove(Keys.PRESET_REVERB_PRESET)
+        }
+        initializeEqualizer()
+    }
+
     interface Keys {
         companion object {
             const val GLOBAL_ENABLED = "audiofx.global.enable"
@@ -578,26 +665,5 @@ class EqualizerManager internal constructor(context: Context) {
         const val PREFERENCES_NAME = "BoomingAudioFX"
         private const val CUSTOM_PRESET_NAME = "Custom"
         private const val DEFAULT_DELIMITER = ";"
-    }
-
-    init {
-        try {
-            //Query available effects
-            val effects = AudioEffect.queryEffects()
-            //Determine available/supported effects
-            if (!effects.isNullOrEmpty()) {
-                for (effect in effects) {
-                    when (effect.type) {
-                        UUID.fromString(EFFECT_TYPE_EQUALIZER) -> isEqualizerSupported = true
-                        UUID.fromString(EFFECT_TYPE_BASS_BOOST) -> isBassBoostSupported = true
-                        UUID.fromString(EFFECT_TYPE_VIRTUALIZER) -> isVirtualizerSupported = true
-                        UUID.fromString(EFFECT_TYPE_LOUDNESS_ENHANCER) -> isLoudnessEnhancerSupported = true
-                        UUID.fromString(EFFECT_TYPE_PRESET_REVERB) -> isPresetReverbSupported = true
-                    }
-                }
-            }
-        } catch (ignored: NoClassDefFoundError) {
-            //The user doesn't have the AudioEffect/AudioEffect.Descriptor class. How sad.
-        }
     }
 }

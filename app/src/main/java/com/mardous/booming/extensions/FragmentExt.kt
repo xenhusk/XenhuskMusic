@@ -29,9 +29,15 @@ import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.NavHostFragment
 import androidx.transition.Fade
 import com.google.android.material.transition.MaterialSharedAxis
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 fun DialogFragment.getAlertDialog() = dialog as? AlertDialog
 
@@ -95,6 +101,12 @@ fun <T : Fragment> FragmentActivity.whichFragment(@IdRes id: Int): T {
 @Suppress("UNCHECKED_CAST")
 fun <T : Fragment> Fragment.whichFragment(@IdRes id: Int): T {
     return childFragmentManager.findFragmentById(id) as T
+}
+
+fun LifecycleOwner.launchAndRepeatWithViewLifecycle(state: Lifecycle.State = Lifecycle.State.STARTED, block: suspend CoroutineScope.() -> Unit) {
+    lifecycleScope.launch {
+        lifecycle.repeatOnLifecycle(state, block)
+    }
 }
 
 fun Fragment.setSupportActionBar(toolbar: Toolbar, title: CharSequence? = toolbar.title) {

@@ -51,6 +51,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.extensions.dip
 import io.noties.markwon.AbstractMarkwonPlugin
@@ -342,6 +343,26 @@ fun NavigationBarView.hide() {
         }
         start()
     }
+}
+
+typealias TrackingTouchListener = (Slider) -> Unit
+
+fun Slider.setTrackingTouchListener(
+    onStart: TrackingTouchListener? = null,
+    onStop: TrackingTouchListener? = null
+) {
+    if (onStart == null && onStop == null)
+        return
+
+    addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+        override fun onStartTrackingTouch(slider: Slider) {
+            onStart?.invoke(slider)
+        }
+
+        override fun onStopTrackingTouch(slider: Slider) {
+            onStop?.invoke(slider)
+        }
+    })
 }
 
 fun BottomSheetBehavior<*>.peekHeightAnimate(value: Int): Animator {

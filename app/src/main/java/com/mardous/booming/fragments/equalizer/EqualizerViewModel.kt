@@ -28,15 +28,18 @@ import com.mardous.booming.R
 import com.mardous.booming.extensions.MIME_TYPE_APPLICATION
 import com.mardous.booming.extensions.files.getContentUri
 import com.mardous.booming.extensions.files.readString
-import com.mardous.booming.interfaces.IEQInterface
 import com.mardous.booming.model.EQPreset
 import com.mardous.booming.mvvm.*
+import com.mardous.booming.mvvm.equalizer.EqEffectState
+import com.mardous.booming.mvvm.equalizer.EqEffectUpdate
+import com.mardous.booming.mvvm.equalizer.EqState
+import com.mardous.booming.mvvm.equalizer.EqUpdate
 import com.mardous.booming.providers.MediaStoreWriter
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.equalizer.EqualizerManager
-import com.mardous.booming.service.equalizer.EqualizerManager.Companion.EFFECT_TYPE_BASS_BOOST
-import com.mardous.booming.service.equalizer.EqualizerManager.Companion.EFFECT_TYPE_VIRTUALIZER
+import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -47,48 +50,93 @@ class EqualizerViewModel(
     private val mediaStoreWriter: MediaStoreWriter
 ) : ViewModel() {
 
+    val eqStateFlow: StateFlow<EqState> get() = equalizerManager.eqStateFlow
+    val currentPresetFlow: StateFlow<EQPreset> get() = equalizerManager.currentPresetFlow
+    val bassBoostFlow: StateFlow<EqEffectState<Float>> = equalizerManager.bassBoostFlow
+    val virtualizerFlow: StateFlow<EqEffectState<Float>> = equalizerManager.virtualizerFlow
+    val loudnessGainFlow: StateFlow<EqEffectState<Float>> = equalizerManager.loudnessGainFlow
+    val presetReverbFlow: StateFlow<EqEffectState<Int>> = equalizerManager.presetReverbFlow
+    val presetsFlow: StateFlow<List<EQPreset>> get() = equalizerManager.presetsFlow
+
+    val eqState: EqState get() = equalizerManager.eqState
+    val bassBoostState: EqEffectState<Float> get() = equalizerManager.bassBoostState
+    val virtualizerState: EqEffectState<Float> get() = equalizerManager.virtualizerState
+    val loudnessGainState: EqEffectState<Float> get() = equalizerManager.loudnessGainState
+    val presetReverbState: EqEffectState<Int> get() = equalizerManager.presetReverbState
+
+    val numberOfBands: Int get() = equalizerManager.numberOfBands
+    val bandLevelRange: IntArray get() = equalizerManager.bandLevelRange
+    val centerFreqs: IntArray get() = equalizerManager.centerFreqs
+
     private var exportContent: String? = null
 
-    fun bindEqualizer(eqInterface: IEQInterface?) {
-        equalizerManager.registerInterface(eqInterface)
-        if (eqInterface != null) {
-            equalizerManager.requestCurrentPreset()
-            equalizerManager.requestState()
+    fun isCustomPresetSelected() = equalizerManager.currentPreset.isCustom
+
+    fun setEqualizerState(isEnabled: Boolean, apply: Boolean = true) {
+        // update equalizer session
+        equalizerManager.closeAudioEffectSession(MusicPlayer.audioSessionId, !isEnabled)
+        equalizerManager.openAudioEffectSession(MusicPlayer.audioSessionId, isEnabled)
+
+        // set parameter and state
+        viewModelScope.launch(Default) {
+            equalizerManager.setEqualizerState(EqUpdate<EqState>(eqState, isEnabled), apply)
+            if (apply) updateEqualizer()
         }
     }
 
-    fun unbindEqualizer(eqInterface: IEQInterface?) {
-        equalizerManager.unregisterInterface(eqInterface)
+    fun setLoudnessGain(
+        isEnabled: Boolean = loudnessGainState.isUsable,
+        value: Float = loudnessGainState.value,
+        apply: Boolean = true
+    ) = viewModelScope.launch(Default) {
+        equalizerManager.setLoudnessGain(EqEffectUpdate(loudnessGainState, isEnabled, value), apply)
+        if (apply) updateEqualizer()
     }
 
-    fun isCustomPresetSelected() = equalizerManager.getCurrentPreset()?.isCustom == true
-
-    fun setEqualizerState(isEnabled: Boolean) {
-        // update equalizer session
-        MusicPlayer.closeEqualizerSessions(!isEnabled)
-        MusicPlayer.openEqualizerSession(isEnabled)
-
-        // set parameter and state
-        equalizerManager.isEqualizerEnabled = isEnabled
-        MusicPlayer.updateEqualizer()
+    fun setPresetReverb(
+        isEnabled: Boolean = presetReverbState.isUsable,
+        value: Int = presetReverbState.value,
+        apply: Boolean = true
+    ) = viewModelScope.launch(Default) {
+        equalizerManager.setPresetReverb(EqEffectUpdate(presetReverbState, isEnabled, value), apply)
+        if (apply) updateEqualizer()
     }
 
-    fun setEqualizerPreset(eqPreset: EQPreset) {
+    fun setBassBoost(
+        isEnabled: Boolean = bassBoostState.isUsable,
+        value: Float = bassBoostState.value,
+        apply: Boolean = true
+    ) = viewModelScope.launch(Default) {
+        equalizerManager.setBassBoost(EqEffectUpdate(bassBoostState, isEnabled, value), apply)
+        if (apply) updateEqualizer()
+    }
+
+    fun setVirtualizer(
+        isEnabled: Boolean = virtualizerState.isUsable,
+        value: Float = virtualizerState.value,
+        apply: Boolean = true
+    ) = viewModelScope.launch(Default) {
+        equalizerManager.setVirtualizer(EqEffectUpdate(virtualizerState, isEnabled, value), apply)
+        if (apply) updateEqualizer()
+    }
+
+    fun setEqualizerPreset(eqPreset: EQPreset) = viewModelScope.launch(IO) {
         equalizerManager.setCurrentPreset(eqPreset)
-        MusicPlayer.updateEqualizer()
+        updateEqualizer()
     }
 
-    fun setCustomPresetBandLevel(band: Int, level: Int) = viewModelScope.launch {
+    fun setCustomPresetBandLevel(band: Int, level: Int) = viewModelScope.launch(Default) {
         equalizerManager.setCustomPresetBandLevel(band, level)
+        updateEqualizer()
     }
 
-    fun setBassStrength(level: Float) = viewModelScope.launch {
-        equalizerManager.setCustomPresetEffect(EFFECT_TYPE_BASS_BOOST, level)
+    fun applyPendingStates() = viewModelScope.launch(IO) {
+        equalizerManager.applyPendingStates()
+        updateEqualizer()
     }
 
-    fun setVirtualizerStrength(level: Float) = viewModelScope.launch {
-        equalizerManager.setCustomPresetEffect(EFFECT_TYPE_VIRTUALIZER, level)
-    }
+    fun getEqualizerPresetsWithCustom(presets: List<EQPreset>) =
+        equalizerManager.getEqualizerPresetsWithCustom(presets)
 
     fun savePreset(presetName: String?, canReplace: Boolean): LiveData<PresetOpResult> = liveData(IO) {
         if (presetName.isNullOrBlank()) {
@@ -124,7 +172,7 @@ class EqualizerViewModel(
     }
 
     fun requestExport(): LiveData<ExportRequestResult> = liveData(IO) {
-        val presets = equalizerManager.getEqualizerPresets()
+        val presets = equalizerManager.equalizerPresets
         val names = presets.map { it.name }
         if (names.isEmpty()) {
             emit(ExportRequestResult(false, R.string.there_is_nothing_to_export))
@@ -211,6 +259,10 @@ class EqualizerViewModel(
         } else {
             emit(PresetExportResult(false))
         }
+    }
+
+    fun updateEqualizer() = viewModelScope.launch(IO) {
+        equalizerManager.update()
     }
 
     fun resetEqualizer() = viewModelScope.launch(IO) {

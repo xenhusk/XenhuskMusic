@@ -201,6 +201,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         )
 
         serviceScope.launch(IO) {
+            equalizerManager.initializeEqualizer()
             restoreState()
         }
 

@@ -262,7 +262,6 @@
     <string name="save_artwork_copyright_info_title">Aviso de Copyright</string>
     <string name="save_artwork_copyright_info_message">Algunas portadas de álbumes (o quizás todas) están protegidas por leyes de Copyright. No puedes hacer uso de estas imágenes para propósitos comerciales.
         \n\nSolo tú tienes total responsabilidad sobre el uso que hagas de las portadas guardadas.</string>
-    <string name="warning_title">Advertencia</string>
     <string name="yes">Sí</string>
     <string name="no">No</string>
     <string name="label_file_path">Ruta de acceso</string>
@@ -407,7 +406,6 @@
     <string name="are_you_sure_you_want_to_reset_the_equalizer">¿Está seguro de querer restablecer el ecualizador?
         \n\nEsto limpiará todas sus configuraciones personalizadas.</string>
     <string name="not_supported">No soportado</string>
-    <string name="no_preset">Ninguna configuración seleccionada</string>
     <string name="enable_equalizer">Habilitar EQ</string>
     <string name="select_preset">Seleccionar configuración</string>
     <string name="please_enter_a_name_for_this_preset">Por favor, ingrese un nombre para la nueva configuración.</string>
@@ -428,7 +426,6 @@
     <string name="bassboost_label">Refuerzo de graves</string>
     <string name="virtualizer_label">Virtualizador</string>
     <string name="loudness_enhancer">Amplificador</string>
-    <string name="loudness_enhancer_warning">Sé cuidadoso: los niveles altos pueden dañar el dispositivo de salida (altavoz, audífonos cableados o de Bluetooth, etc.).</string>
     <string name="reverb_label">Reverberación</string>
     <string name="reverb_preset_none">Sin reverberación</string>
     <string name="reverb_preset_plate">Plato</string>

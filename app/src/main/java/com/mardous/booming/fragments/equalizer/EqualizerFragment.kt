@@ -35,10 +35,11 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ShareCompat
+import androidx.core.view.isGone
+import androidx.core.view.iterator
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.slider.Slider
 import com.google.android.material.snackbar.Snackbar
 import com.mardous.booming.R
 import com.mardous.booming.adapters.EQPresetAdapter
@@ -47,8 +48,8 @@ import com.mardous.booming.databinding.FragmentEqualizerBinding
 import com.mardous.booming.dialogs.InputDialog
 import com.mardous.booming.dialogs.MultiCheckDialog
 import com.mardous.booming.extensions.*
+import com.mardous.booming.extensions.resources.setTrackingTouchListener
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
-import com.mardous.booming.interfaces.IEQInterface
 import com.mardous.booming.interfaces.IEQPresetCallback
 import com.mardous.booming.model.EQPreset
 import com.mardous.booming.mvvm.ExportRequestResult
@@ -56,9 +57,7 @@ import com.mardous.booming.mvvm.ImportRequestResult
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.equalizer.OpenSLESConstants
-import com.mardous.booming.util.Preferences
 import com.mardous.booming.views.AnimSlider
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Formatter
 import java.util.Locale
@@ -67,13 +66,12 @@ import java.util.Locale
  * @author Christians M. A. (mardous)
  */
 class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
-    CompoundButton.OnCheckedChangeListener, Slider.OnSliderTouchListener, IEQInterface, IEQPresetCallback {
+    CompoundButton.OnCheckedChangeListener, IEQPresetCallback {
 
     private var _binding: FragmentEqualizerBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: EqualizerViewModel by viewModel()
-    private val equalizerManager: EqualizerManager by inject()
 
     private lateinit var presetAdapter: EQPresetAdapter
 
@@ -90,10 +88,10 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
     private val formatter = Formatter(formatBuilder, Locale.getDefault())
 
     private val bandLevelRange: IntArray
-        get() = equalizerManager.bandLevelRange
+        get() = viewModel.bandLevelRange
 
     private val centerFrequencies: IntArray
-        get() = equalizerManager.centerFreqs
+        get() = viewModel.centerFreqs
 
     override fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
         when (buttonView) {
@@ -102,30 +100,11 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
             }
 
             binding.equalizerEffects.loudnessEnhancerSwitch -> {
-                if (isChecked) {
-                    if (!Preferences.loudnessEnhancerWarningShown) {
-                        MaterialAlertDialogBuilder(requireContext())
-                            .setTitle(R.string.warning_title)
-                            .setMessage(R.string.loudness_enhancer_warning)
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show {
-                                Preferences.loudnessEnhancerWarningShown = true
-                            }
-                    }
-                }
-                if (equalizerManager.isLoudnessEnabled != isChecked) {
-                    equalizerManager.isLoudnessEnabled = isChecked
-                    MusicPlayer.updateEqualizer()
-                }
-                binding.equalizerEffects.loudnessGain.isEnabled = isChecked
+                viewModel.setLoudnessGain(isEnabled = isChecked)
             }
 
             binding.equalizerEffects.reverbSwitch -> {
-                if (equalizerManager.isPresetReverbEnabled != isChecked) {
-                    equalizerManager.isPresetReverbEnabled = isChecked
-                    MusicPlayer.updateEqualizer()
-                }
-                binding.equalizerEffects.reverb.isEnabled = isChecked
+                viewModel.setPresetReverb(isEnabled = isChecked)
             }
         }
     }
@@ -138,13 +117,102 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
                 setNavigationIcon(R.drawable.ic_back_24dp)
             }
         }.also { viewBinding ->
-            viewBinding.equalizerBands.presetSwitch.isChecked =
-                equalizerManager.isEqualizerSupported && equalizerManager.isEqualizerEnabled
-            viewBinding.equalizerBands.presetSwitch.isEnabled = equalizerManager.isEqualizerSupported
             viewBinding.equalizerBands.presetSwitch.setOnCheckedChangeListener(this)
+            viewBinding.equalizerEffects.loudnessEnhancerSwitch.setOnCheckedChangeListener(this)
+            viewBinding.equalizerEffects.reverbSwitch.setOnCheckedChangeListener(this)
         }
 
-        presetAdapter = EQPresetAdapter(requireContext(), equalizerManager.getEqualizerPresetsWithCustom(), this)
+        presetAdapter = EQPresetAdapter(requireContext(), emptyList(), this)
+
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            viewModel.eqStateFlow.collect { state ->
+                prepareMenu(binding.appBarLayout.toolbar.menu, state.isUsable)
+
+                binding.equalizerBands.presetSwitch.isEnabled = state.isSupported
+                if (binding.equalizerBands.presetSwitch.isChecked != state.isUsable) {
+                    binding.equalizerBands.presetSwitch.isChecked = state.isUsable
+                }
+
+                val isUsable = state.isUsable
+                for (seekBar in mEqualizerSeekBar) {
+                    seekBar?.isEnabled = state.isUsable
+                }
+
+                binding.equalizerBands.selectPreset.isEnabled = isUsable
+                binding.equalizerBands.savePreset.isEnabled = isUsable && viewModel.isCustomPresetSelected()
+                binding.equalizerEffects.virtualizerStrength.isEnabled = isUsable && viewModel.virtualizerState.isSupported
+                binding.equalizerEffects.bassboostStrength.isEnabled = isUsable && viewModel.bassBoostState.isSupported
+                binding.equalizerEffects.reverbSwitch.isEnabled = isUsable && viewModel.loudnessGainState.isSupported
+                binding.equalizerEffects.reverb.isEnabled = isUsable && viewModel.presetReverbState.isUsable
+                binding.equalizerEffects.loudnessEnhancerSwitch.isEnabled = isUsable && viewModel.loudnessGainState.isSupported
+                binding.equalizerEffects.loudnessGain.isEnabled = isUsable && viewModel.loudnessGainState.isUsable
+            }
+        }
+
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            viewModel.loudnessGainFlow.collect { state ->
+                binding.equalizerEffects.loudnessEnhancerSwitch.isEnabled = viewModel.eqState.isEnabled && state.isSupported
+                binding.equalizerEffects.loudnessEnhancerSwitch.isChecked = state.isUsable
+                binding.equalizerEffects.loudnessGain.isEnabled = viewModel.eqState.isEnabled && state.isUsable
+                binding.equalizerEffects.loudnessGain.setValueAnimated(state.value.toFloat())
+                binding.equalizerEffects.loudnessGainDisplay.text = String.format(Locale.ROOT, "%.0f mDb", state.value)
+            }
+        }
+
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            viewModel.presetReverbFlow.collect { state ->
+                binding.equalizerEffects.reverbSwitch.isEnabled = viewModel.eqState.isEnabled && state.isSupported
+                binding.equalizerEffects.reverbSwitch.isChecked = state.isUsable
+                binding.equalizerEffects.reverb.isEnabled = viewModel.eqState.isEnabled && state.isUsable
+                binding.equalizerEffects.reverb.setSelection(state.value)
+            }
+        }
+
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            viewModel.presetsFlow.collect { presets ->
+                presetAdapter.presets = viewModel.getEqualizerPresetsWithCustom(presets)
+            }
+        }
+
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            viewModel.currentPresetFlow.collect { newPreset ->
+                if (!viewModel.eqState.isSupported)
+                    return@collect
+
+                binding.equalizerBands.preset.text = newPreset.getName(requireContext())
+                binding.equalizerBands.savePreset.isEnabled = newPreset.isCustom
+
+                val levels = newPreset.levels
+                for (band in levels.indices) {
+                    mEqualizerSeekBar[band]?.setValueAnimated(
+                        levels[band].toFloat().let { floatLevel ->
+                            bandLevelRange[1] / 100.0f + floatLevel / 100.0f
+                        })
+                }
+            }
+        }
+
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            viewModel.bassBoostFlow.collect { state ->
+                binding.equalizerEffects.bassboostStrength.setValueAnimated(state.value)
+                setSoundEffectDisplay(
+                    binding.equalizerEffects.bassboostStrengthDisplay,
+                    state.value.toInt(),
+                    binding.equalizerEffects.bassboostStrength.valueTo.toInt()
+                )
+            }
+        }
+
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            viewModel.virtualizerFlow.collect { state ->
+                binding.equalizerEffects.virtualizerStrength.setValueAnimated(state.value)
+                setSoundEffectDisplay(
+                    binding.equalizerEffects.virtualizerStrengthDisplay,
+                    state.value.toInt(),
+                    binding.equalizerEffects.virtualizerStrength.valueTo.toInt()
+                )
+            }
+        }
 
         selectExportDocumentLauncher =
             registerForActivityResult(ActivityResultContracts.CreateDocument(MIME_TYPE_APPLICATION)) { data: Uri? ->
@@ -185,8 +253,15 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
         setUpEQViews()
     }
 
+    private fun prepareMenu(menu: Menu, isSupported: Boolean) {
+        menu.iterator().forEach {
+            it.takeIf { it.itemId != R.id.action_open_dsp }?.isEnabled = isSupported
+        }
+    }
+
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_equalizer, menu)
+        prepareMenu(menu, viewModel.eqState.isUsable)
 
         val intent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)
         if (requireContext().packageManager.resolveActivity(intent) == null) {
@@ -225,11 +300,7 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
             R.id.action_share_configuration -> {
                 viewModel.requestExport().observe(viewLifecycleOwner) { requestResult ->
                     if (requestResult.success) {
-                        showExportDialog(
-                            R.string.share_configuration,
-                            R.string.select_configurations_to_share,
-                            requestResult
-                        ) {
+                        showExportDialog(R.string.share_configuration, R.string.select_configurations_to_share, requestResult) {
                             viewModel.sharePresets(requireContext(), it).observe(viewLifecycleOwner) { exportResult ->
                                 if (exportResult.success) {
                                     val builder = ShareCompat.IntentBuilder(requireContext())
@@ -301,7 +372,7 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
     }
 
     private fun setUpPresets() {
-        if (equalizerManager.isEqualizerSupported) {
+        if (viewModel.eqState.isSupported) {
             // setup equalizer presets
             binding.equalizerBands.selectPreset.setOnClickListener {
                 if (mPresetsDialog == null) {
@@ -357,7 +428,7 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
 
     private fun setUpEqualizerViews() {
         //Initialize the equalizer elements
-        mEqualizerBands = equalizerManager.numberOfBands
+        mEqualizerBands = viewModel.numberOfBands
 
         val centerFreqs = centerFrequencies
         val bandLevelRange = bandLevelRange
@@ -384,39 +455,26 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
             mEqualizerSeekBar[band] =
                 binding.equalizerBands.eqContainer.findViewById<AnimSlider>(eqViewElementIds[band][1]).apply {
                     valueTo = maxProgress.toFloat()
-
                     setLabelFormatter {
                         String.format(Locale.ROOT, "%+.1fdb", it - maxProgress / 2)
                     }
-
-                    addOnSliderTouchListener(this@EqualizerFragment)
-                    addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
-                        override fun onStartTrackingTouch(slider: Slider) {}
-                        override fun onStopTrackingTouch(slider: Slider) {
-                            viewModel.setCustomPresetBandLevel(band, bandLevelRange[0] + slider.value.toInt() * 100)
-                        }
+                    setTrackingTouchListener(onStop = {
+                        viewModel.setCustomPresetBandLevel(band, bandLevelRange[0] + it.value.toInt() * 100)
                     })
                 }
         }
     }
 
     private fun setUpBassBoostViews() {
-        if (equalizerManager.isBassBoostSupported) {
+        if (viewModel.bassBoostState.isSupported) {
             binding.equalizerEffects.bassboostStrength.apply {
-                valueTo =
-                    (OpenSLESConstants.BASSBOOST_MAX_STRENGTH - OpenSLESConstants.BASSBOOST_MIN_STRENGTH).toFloat()
-
-                addOnSliderTouchListener(this@EqualizerFragment)
+                valueTo = (OpenSLESConstants.BASSBOOST_MAX_STRENGTH - OpenSLESConstants.BASSBOOST_MIN_STRENGTH).toFloat()
                 addOnChangeListener { slider, value, fromUser ->
                     if (fromUser) {
-                        setSoundEffectDisplay(
-                            binding.equalizerEffects.bassboostStrengthDisplay,
-                            value.toInt(),
-                            slider.valueTo.toInt()
-                        )
-                        viewModel.setBassStrength(value)
+                        viewModel.setBassBoost(isEnabled = value > 0f, value = value, apply = false)
                     }
                 }
+                setTrackingTouchListener(onStop = { viewModel.applyPendingStates() })
             }
         } else {
             binding.equalizerEffects.bassboostStrength.isEnabled = false
@@ -424,22 +482,15 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
     }
 
     private fun setUpVirtualizerViews() {
-        if (equalizerManager.isVirtualizerSupported) {
+        if (viewModel.virtualizerState.isSupported) {
             binding.equalizerEffects.virtualizerStrength.apply {
-                valueTo =
-                    (OpenSLESConstants.VIRTUALIZER_MAX_STRENGTH - OpenSLESConstants.VIRTUALIZER_MIN_STRENGTH).toFloat()
-
-                addOnSliderTouchListener(this@EqualizerFragment)
+                valueTo = (OpenSLESConstants.VIRTUALIZER_MAX_STRENGTH - OpenSLESConstants.VIRTUALIZER_MIN_STRENGTH).toFloat()
                 addOnChangeListener { slider, value, fromUser ->
                     if (fromUser) {
-                        setSoundEffectDisplay(
-                            binding.equalizerEffects.virtualizerStrengthDisplay,
-                            value.toInt(),
-                            slider.valueTo.toInt()
-                        )
-                        viewModel.setVirtualizerStrength(value)
+                        viewModel.setVirtualizer(isEnabled = value > 0f, value = value, apply = false)
                     }
                 }
+                setTrackingTouchListener(onStop = { viewModel.applyPendingStates() })
             }
         } else {
             binding.equalizerEffects.virtualizerStrength.isEnabled = false
@@ -447,187 +498,46 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
     }
 
     private fun setUpLoudnessViews() {
-        if (equalizerManager.isLoudnessEnhancerSupported) {
-            binding.equalizerEffects.loudnessEnhancerSwitch.apply {
-                isChecked = equalizerManager.isLoudnessEnabled
-                setOnCheckedChangeListener(this@EqualizerFragment)
-            }
-
+        if (viewModel.loudnessGainState.isSupported) {
             binding.equalizerEffects.loudnessGain.apply {
-                isEnabled = equalizerManager.isEqualizerEnabled && equalizerManager.isLoudnessEnabled
-
                 valueFrom = OpenSLESConstants.MINIMUM_LOUDNESS_GAIN.toFloat()
                 valueTo = OpenSLESConstants.MAXIMUM_LOUDNESS_GAIN.toFloat()
-
-                setLoudnessGainDisplay(equalizerManager.loudnessGain.also { loudnessGain ->
-                    value = loudnessGain.toFloat()
-                })
-
                 addOnChangeListener { _, value, fromUser ->
-                    setLoudnessGainDisplay(value.toInt())
                     if (fromUser) {
-                        equalizerManager.loudnessGain = value.toInt()
-                        MusicPlayer.updateEqualizer()
+                        viewModel.setLoudnessGain(value = value, apply = false)
                     }
                 }
+                setTrackingTouchListener(onStop = { viewModel.applyPendingStates() })
+            }
+        }
+    }
+
+    private fun setUpReverbViews() {
+        if (viewModel.presetReverbState.isSupported) {
+            if (mReverbSpinnerAdapter == null || mReverbSpinnerAdapter!!.count == 0) {
+                mReverbSpinnerAdapter = ArrayAdapter(
+                    requireContext(), android.R.layout.simple_spinner_item, resources.getStringArray(R.array.reverb_preset_names)
+                ).apply {
+                    setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                }
+                binding.equalizerEffects.reverb.adapter = mReverbSpinnerAdapter
+                binding.equalizerEffects.reverb.onItemSelectedListener =
+                    object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                            viewModel.setPresetReverb(value = position)
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>?) {}
+                    }
             }
         } else {
-            binding.equalizerEffects.loudnessEnhancerSwitch.isEnabled = false
-            binding.equalizerEffects.loudnessGain.isEnabled = false
+            binding.equalizerEffects.reverbSwitch.isGone = true
+            binding.equalizerEffects.reverb.isGone = true
         }
     }
 
     private fun setSoundEffectDisplay(view: TextView, value: Int, maxValue: Int) {
         view.text = String.format(Locale.ROOT, "%d%%", (value * 100) / maxValue)
-    }
-
-    private fun setLoudnessGainDisplay(loudnessGain: Int) {
-        binding.equalizerEffects.loudnessGainDisplay.text = String.format(Locale.ROOT, "%d mDb", loudnessGain)
-    }
-
-    private fun setUpReverbViews() {
-        if (equalizerManager.isPresetReverbSupported) {
-            binding.equalizerEffects.reverbSwitch.apply {
-                isChecked = equalizerManager.isPresetReverbEnabled
-                setOnCheckedChangeListener(this@EqualizerFragment)
-            }
-
-            if (mReverbSpinnerAdapter == null || mReverbSpinnerAdapter!!.count == 0) {
-                mReverbSpinnerAdapter = ArrayAdapter(
-                    requireContext(), android.R.layout.simple_spinner_item,
-                    resources.getStringArray(R.array.reverb_preset_names)
-                ).apply {
-                    setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                }.also {
-                    binding.equalizerEffects.reverb.adapter = it
-                    binding.equalizerEffects.reverb.setSelection(equalizerManager.presetReverbPreset)
-                    binding.equalizerEffects.reverb.onItemSelectedListener =
-                        object : AdapterView.OnItemSelectedListener {
-                            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                                equalizerManager.presetReverbPreset = position
-                                MusicPlayer.updateEqualizer()
-                            }
-
-                            override fun onNothingSelected(parent: AdapterView<*>?) {}
-                        }
-                }
-            }
-        } else {
-            mReverbSpinnerAdapter = ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_spinner_item, arrayOf(getString(R.string.not_supported))
-            ).also {
-                binding.equalizerEffects.reverb.isEnabled = false
-                binding.equalizerEffects.reverb.adapter = it
-                binding.equalizerEffects.reverb.setSelection(0)
-            }
-
-            binding.equalizerEffects.reverbSwitch.isEnabled = false
-        }
-    }
-
-    override fun onStartTrackingTouch(slider: Slider) {}
-
-    override fun onStopTrackingTouch(slider: Slider) {
-        // we must force the "Custom" entry to be updated
-        equalizerManager.requestPresetsList()
-        MusicPlayer.updateEqualizer()
-    }
-
-    override fun eqStateChanged(isGlobalEnabled: Boolean, isBeingReset: Boolean) {
-        runOnUi {
-            if (binding.equalizerBands.presetSwitch.isChecked != isGlobalEnabled) {
-                binding.equalizerBands.presetSwitch.isChecked = isGlobalEnabled
-            }
-
-            for (seekBar in mEqualizerSeekBar) {
-                seekBar?.isEnabled = isGlobalEnabled
-            }
-
-            binding.equalizerBands.selectPreset.isEnabled = isGlobalEnabled
-            binding.equalizerBands.savePreset.isEnabled =
-                isGlobalEnabled && viewModel.isCustomPresetSelected()
-
-            // Toggle sound effects
-            binding.equalizerEffects.virtualizerStrength.isEnabled =
-                isGlobalEnabled && equalizerManager.isVirtualizerSupported
-            binding.equalizerEffects.bassboostStrength.isEnabled =
-                isGlobalEnabled && equalizerManager.isBassBoostSupported
-
-            // Toggle preset reverb
-            binding.equalizerEffects.reverbSwitch.isEnabled =
-                isGlobalEnabled && equalizerManager.isPresetReverbSupported
-            binding.equalizerEffects.reverb.isEnabled =
-                isGlobalEnabled && equalizerManager.isPresetReverbEnabled
-
-            // Toggle loudness enhancer
-            binding.equalizerEffects.loudnessEnhancerSwitch.isEnabled =
-                isGlobalEnabled && equalizerManager.isLoudnessEnhancerSupported
-            binding.equalizerEffects.loudnessGain.isEnabled =
-                isGlobalEnabled && equalizerManager.isLoudnessEnabled
-
-            if (isBeingReset) {
-                binding.equalizerEffects.reverb.setSelection(equalizerManager.presetReverbPreset)
-                binding.equalizerEffects.loudnessGain.value = equalizerManager.loudnessGain.toFloat()
-            }
-        }
-    }
-
-    override fun eqPresetListChanged(presets: List<EQPreset>) {
-        runOnUi {
-            presetAdapter.presets = equalizerManager.getEqualizerPresetsWithCustom(presets)
-        }
-    }
-
-    override fun eqPresetChanged(oldPreset: EQPreset?, newPreset: EQPreset?) {
-        if (!equalizerManager.isEqualizerSupported)
-            return
-
-        runOnUi {
-            if (newPreset == null) {
-                binding.equalizerBands.preset.text = getString(R.string.no_preset)
-                binding.equalizerBands.savePreset.isEnabled = false
-
-                for (band in 0 until mEqualizerBands) {
-                    mEqualizerSeekBar[band]?.setValueAnimated(bandLevelRange[1] / 100.0f)
-                }
-
-                binding.equalizerEffects.virtualizerStrength.setValueAnimated(0f)
-                binding.equalizerEffects.bassboostStrength.setValueAnimated(0f)
-            } else {
-                binding.equalizerBands.preset.text = newPreset.getName(requireContext())
-                binding.equalizerBands.savePreset.isEnabled = newPreset.isCustom
-
-                if (!newPreset.areSameLevels(oldPreset)) {
-                    val levels = newPreset.levels
-                    for (band in levels.indices) {
-                        mEqualizerSeekBar[band]?.setValueAnimated(
-                            levels[band].toFloat().let { floatLevel ->
-                                bandLevelRange[1] / 100.0f + floatLevel / 100.0f
-                            })
-                    }
-                }
-
-                binding.equalizerEffects.virtualizerStrength.setValueAnimated(
-                    newPreset.getEffect(EqualizerManager.EFFECT_TYPE_VIRTUALIZER)
-                        .also { value ->
-                            setSoundEffectDisplay(
-                                binding.equalizerEffects.virtualizerStrengthDisplay,
-                                value.toInt(),
-                                binding.equalizerEffects.virtualizerStrength.valueTo.toInt()
-                            )
-                        })
-                binding.equalizerEffects.bassboostStrength.setValueAnimated(
-                    newPreset.getEffect(EqualizerManager.EFFECT_TYPE_BASS_BOOST)
-                        .also { value ->
-                            setSoundEffectDisplay(
-                                binding.equalizerEffects.bassboostStrengthDisplay,
-                                value.toInt(),
-                                binding.equalizerEffects.bassboostStrength.valueTo.toInt()
-                            )
-                        })
-            }
-        }
     }
 
     override fun eqPresetSelected(eqPreset: EQPreset) {
@@ -714,16 +624,6 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
             .show(childFragmentManager, "EXPORT_PRESET_DIALOG")
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.bindEqualizer(this)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        viewModel.unbindEqualizer(this)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         if (mEqualizerSeekBar.isNotEmpty()) {
@@ -740,7 +640,10 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
             slider.clearOnChangeListeners()
             slider.clearOnSliderTouchListeners()
         }
-        binding.equalizerEffects.loudnessGain.clearOnChangeListeners()
+        binding.equalizerEffects.loudnessGain.let { slider ->
+            slider.clearOnChangeListeners()
+            slider.clearOnSliderTouchListeners()
+        }
         _binding = null
     }
 

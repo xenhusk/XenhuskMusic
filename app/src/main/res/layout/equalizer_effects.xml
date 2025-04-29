@@ -81,7 +81,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:checked="true"/>
 
-    <com.google.android.material.slider.Slider
+    <com.mardous.booming.views.AnimSlider
         android:id="@+id/loudness_gain"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

@@ -37,10 +37,12 @@ import com.mardous.booming.service.MultiPlayer
 import com.mardous.booming.service.MusicService
 import com.mardous.booming.service.constants.ServiceAction
 import com.mardous.booming.service.equalizer.EqualizerManager
-import com.mardous.booming.service.equalizer.PlaybackEQ
 import com.mardous.booming.util.Preferences
 
-class PlaybackManager(val context: Context, equalizerManager: EqualizerManager) : AudioManager.OnAudioFocusChangeListener {
+class PlaybackManager(
+    private val context: Context,
+    private val equalizerManager: EqualizerManager
+) : AudioManager.OnAudioFocusChangeListener {
 
     private val audioManager: AudioManager? = context.getSystemService()
 
@@ -72,13 +74,12 @@ class PlaybackManager(val context: Context, equalizerManager: EqualizerManager) 
     private var isPausedByTransientLossOfFocus = false
 
     private var playback: Playback? = null
-    private var equalizer: PlaybackEQ? = null
-    private var equalizerEnabled: Boolean = false
+
+    private val equalizerEnabled: Boolean
+        get() = equalizerManager.eqState.isUsable
 
     init {
         playback = MultiPlayer(context)
-        equalizer = PlaybackEQ(context, equalizerManager)
-        equalizerEnabled = equalizerManager.isEqualizerEnabled
         isGaplessPlayback = Preferences.gaplessPlayback
     }
 
@@ -155,31 +156,23 @@ class PlaybackManager(val context: Context, equalizerManager: EqualizerManager) 
     }
 
     fun openAudioEffectSession(internal: Boolean) {
-        equalizer?.openEqualizerSession(internal, getAudioSessionId())
+        equalizerManager.openAudioEffectSession(getAudioSessionId(), internal)
     }
 
     fun closeAudioEffectSession(internal: Boolean) {
-        equalizer?.closeEqualizerSessions(internal, getAudioSessionId())
-    }
-
-    fun resetEqualizer() {
-        equalizer?.reset()
-    }
-
-    fun updateEqualizer() {
-        equalizer?.update()
+        equalizerManager.closeAudioEffectSession(getAudioSessionId(), internal)
     }
 
     fun updateBalance() {
-        playback?.let { equalizer?.updateBalance(it) }
+        playback?.setBalance(equalizerManager.balanceLeft, equalizerManager.balanceRight)
     }
 
     fun updateTempo() {
-        playback?.let { equalizer?.updateTempo(it) }
+        playback?.setTempo(equalizerManager.speed, equalizerManager.pitch)
     }
 
     fun release() {
-        equalizer?.release()
+        equalizerManager.release()
         playback?.release()
         playback = null
         abandonFocus()

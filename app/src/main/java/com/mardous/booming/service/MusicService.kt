@@ -69,6 +69,7 @@ import com.mardous.booming.misc.ReplayGainTagExtractor
 import com.mardous.booming.model.Playlist
 import com.mardous.booming.model.Song
 import com.mardous.booming.providers.databases.HistoryStore
+import com.mardous.booming.providers.databases.PlaybackQueueStore
 import com.mardous.booming.providers.databases.SongPlayCountStore
 import com.mardous.booming.repository.Repository
 import com.mardous.booming.service.constants.ServiceAction
@@ -81,8 +82,10 @@ import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.service.playback.Playback.PlaybackCallbacks
 import com.mardous.booming.service.playback.PlaybackManager
 import com.mardous.booming.service.queue.SmartPlayingQueue
+import com.mardous.booming.service.queue.toQueueSongs
 import com.mardous.booming.util.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import org.koin.android.ext.android.inject
@@ -103,6 +106,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     private val appWidgetSmall = AppWidgetSmall.instance
 
     private lateinit var playingQueue: SmartPlayingQueue
+    private var queuesRestored = false
 
     private val sharedPreferences: SharedPreferences by inject()
     private val equalizerManager: EqualizerManager by inject()
@@ -199,10 +203,10 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         contentResolver.registerContentObserver(
             MediaStore.Audio.Media.INTERNAL_CONTENT_URI, true, mediaStoreObserver
         )
+        restoreState()
 
         serviceScope.launch(IO) {
             equalizerManager.initializeEqualizer()
-            restoreState()
         }
 
         musicProvider.setMusicService(this)
@@ -266,7 +270,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null && intent.action != null) {
             serviceScope.launch {
-                restoreState(false)
+                restoreQueuesAndPositionIfNecessary()
                 when (intent.action) {
                     ServiceAction.ACTION_TOGGLE_PAUSE -> if (isPlaying) {
                         pause()
@@ -374,37 +378,50 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         playingQueue.saveQueues()
     }
 
-    internal suspend fun restoreState(fullRestore: Boolean = true) {
-        if (fullRestore) {
-            playingQueue.restoreState { restoredPositionInTrack ->
-                setRestored(restoredPositionInTrack)
-            }
-        } else {
-            playingQueue.restoreQueuesAndPositionIfNecessary { restoredPositionInTrack ->
-                setRestored(restoredPositionInTrack)
-            }
+    fun restoreState(completion: () -> Unit = {}) {
+        playingQueue.repeatMode = sharedPreferences.getInt(SAVED_REPEAT_MODE, Playback.RepeatMode.OFF)
+        playingQueue.shuffleMode = sharedPreferences.getInt(SAVED_SHUFFLE_MODE, Playback.ShuffleMode.OFF)
+        handleAndSendChangeInternal(ServiceEvent.REPEAT_MODE_CHANGED)
+        handleAndSendChangeInternal(ServiceEvent.SHUFFLE_MODE_CHANGED)
+        serviceScope.launch {
+            restoreQueuesAndPositionIfNecessary()
+            completion()
         }
     }
 
-    private fun setRestored(restoredPositionInTrack: Int) {
-        serviceScope.launch(Main) {
-            openCurrent {
-                prepareNext()
-                if (restoredPositionInTrack > 0) {
-                    seek(restoredPositionInTrack)
-                }
-                notHandledMetaChangedForCurrentTrack = true
-                sendChangeInternal(ServiceEvent.META_CHANGED)
-            }
-            if (receivedHeadsetConnected) {
-                play()
-                receivedHeadsetConnected = false
-            }
-        }
+    internal suspend fun restoreQueuesAndPositionIfNecessary() {
+        if (!queuesRestored && playingQueue.playingQueue.isEmpty()) {
+            withContext(IO) {
+                val restoredQueue = PlaybackQueueStore.getInstance(this@MusicService).savedPlayingQueue
+                val restoredOriginalQueue = PlaybackQueueStore.getInstance(this@MusicService).savedOriginalPlayingQueue
+                val restoredPosition = sharedPreferences.getInt(SAVED_QUEUE_POSITION, -1)
+                val restoredPositionInTrack = sharedPreferences.getInt(SAVED_POSITION_IN_TRACK, -1)
+                if (restoredQueue.isNotEmpty() && restoredQueue.size == restoredOriginalQueue.size && restoredPosition != -1) {
+                    playingQueue.originalPlayingQueue = ArrayList(restoredOriginalQueue.toQueueSongs())
+                    playingQueue.playingQueue = ArrayList(restoredQueue.toQueueSongs())
+                    playingQueue.position = restoredPosition
+                    withContext(Main) {
+                        openCurrent {
+                            prepareNext()
+                            if (restoredPositionInTrack > 0) {
+                                seek(restoredPositionInTrack)
+                            }
+                            notHandledMetaChangedForCurrentTrack = true
+                            sendChangeInternal(ServiceEvent.META_CHANGED)
+                        }
+                        if (receivedHeadsetConnected) {
+                            play()
+                            receivedHeadsetConnected = false
+                        }
+                    }
 
-        sendChangeInternal(ServiceEvent.QUEUE_CHANGED)
-        mediaSession?.setQueueTitle(getString(R.string.playing_queue_label))
-        mediaSession?.setQueue(playingQueue.playingQueue.asQueueItems())
+                    sendChangeInternal(ServiceEvent.QUEUE_CHANGED)
+                    mediaSession?.setQueueTitle(getString(R.string.playing_queue_label))
+                    mediaSession?.setQueue(playingQueue.playingQueue.asQueueItems())
+                }
+            }
+            queuesRestored = true
+        }
     }
 
     fun toggleFavorite() {
@@ -771,7 +788,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         // Every chromecast method needs to run on main thread, or you are greeted with IllegalStateException
         // So it will use Main dispatcher
         // And by using Default dispatcher for local playback we are reduce the burden of main thread
-        serviceScope.launch(Dispatchers.Default) {
+        serviceScope.launch(Default) {
             openTrackAndPrepareNextAt(position) { success ->
                 if (success) {
                     play()

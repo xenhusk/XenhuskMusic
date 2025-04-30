@@ -78,3 +78,7 @@ class QueueSong(
         isUpcoming
     )
 }
+
+fun Song.toQueueSong(upcoming: Boolean = false) = QueueSong(this, upcoming)
+
+fun List<Song>.toQueueSongs(upcoming: Boolean = false) = map { QueueSong(it, upcoming) }

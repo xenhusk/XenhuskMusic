@@ -23,14 +23,12 @@ import com.mardous.booming.helper.ShuffleHelper
 import com.mardous.booming.model.Song
 import com.mardous.booming.providers.databases.PlaybackQueueStore
 import com.mardous.booming.service.MusicService
-import com.mardous.booming.service.constants.ServiceEvent
 import com.mardous.booming.service.playback.Playback
-import com.mardous.booming.util.SAVED_POSITION_IN_TRACK
-import com.mardous.booming.util.SAVED_QUEUE_POSITION
 import com.mardous.booming.util.SAVED_REPEAT_MODE
 import com.mardous.booming.util.SAVED_SHUFFLE_MODE
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -51,9 +49,7 @@ class SmartPlayingQueue(
     var position = -1
 
     var playingQueue: MutableList<QueueSong> = ArrayList()
-        private set
-    private var originalPlayingQueue: MutableList<QueueSong> = ArrayList()
-    private var queuesRestored = false
+    var originalPlayingQueue: MutableList<QueueSong> = ArrayList()
 
     private val lastUpcomingPosition: Int
         get() = playingQueue.indexOfLast { it.isUpcoming }
@@ -73,11 +69,6 @@ class SmartPlayingQueue(
             removeAllRanges()
         }
     }
-
-    private fun Song.toQueueSong(upcoming: Boolean = false) = QueueSong(this, upcoming)
-
-    private fun List<Song>.toQueueSongs(upcoming: Boolean = false) =
-        map { QueueSong(it, upcoming) }
 
     fun open(queue: List<Song>, startPosition: Int, onCompleted: (position: Int) -> Unit) {
         if (queue.isNotEmpty() && startPosition >= 0 && startPosition < queue.size) {
@@ -365,7 +356,7 @@ class SmartPlayingQueue(
     }
 
     fun shuffleQueue(onCompleted: () -> Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(IO) {
             val currentPosition = position
             val endPosition = playingQueue.lastIndex
             if (currentPosition == endPosition)
@@ -434,38 +425,9 @@ class SmartPlayingQueue(
     }
 
     internal fun saveQueues() {
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(IO) {
             PlaybackQueueStore.getInstance(musicService)
                 .saveQueues(playingQueue, originalPlayingQueue)
-        }
-    }
-
-    internal fun restoreState(onRestored: (positionInTrack: Int) -> Unit) {
-        this.repeatMode = sharedPreferences.getInt(SAVED_REPEAT_MODE, Playback.RepeatMode.OFF)
-        this.shuffleMode = sharedPreferences.getInt(SAVED_SHUFFLE_MODE, Playback.ShuffleMode.OFF)
-        musicService.handleAndSendChangeInternal(ServiceEvent.REPEAT_MODE_CHANGED)
-        musicService.handleAndSendChangeInternal(ServiceEvent.SHUFFLE_MODE_CHANGED)
-        coroutineScope.launch {
-            restoreQueuesAndPositionIfNecessary(onRestored)
-        }
-    }
-
-    internal suspend fun restoreQueuesAndPositionIfNecessary(onRestored: (positionInTrack: Int) -> Unit) {
-        if (!queuesRestored && playingQueue.isEmpty()) {
-            withContext(Dispatchers.IO) {
-                val restoredQueue = PlaybackQueueStore.getInstance(musicService).savedPlayingQueue
-                val restoredOriginalQueue =
-                    PlaybackQueueStore.getInstance(musicService).savedOriginalPlayingQueue
-                val restoredPosition = sharedPreferences.getInt(SAVED_QUEUE_POSITION, -1)
-                val restoredPositionInTrack = sharedPreferences.getInt(SAVED_POSITION_IN_TRACK, -1)
-                if (restoredQueue.isNotEmpty() && restoredQueue.size == restoredOriginalQueue.size && restoredPosition != -1) {
-                    originalPlayingQueue = ArrayList(restoredOriginalQueue.toQueueSongs())
-                    playingQueue = ArrayList(restoredQueue.toQueueSongs())
-                    position = restoredPosition
-                    onRestored(restoredPositionInTrack)
-                }
-            }
-            queuesRestored = true
         }
     }
 }

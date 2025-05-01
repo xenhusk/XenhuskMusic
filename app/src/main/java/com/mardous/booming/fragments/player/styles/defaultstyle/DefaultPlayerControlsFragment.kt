@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.TextView
+import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
@@ -69,7 +70,6 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
     private var playbackControlsColor = 0
     private var disabledPlaybackControlsColor = 0
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentDefaultPlayerPlaybackControlsBinding.bind(view)
@@ -80,7 +80,9 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
     }
 
     private fun setupViews() {
-        binding.playPauseButton.post { binding.playPauseButton.centerPivot() }
+        binding.playPauseButton.doOnLayout {
+            it.centerPivot()
+        }
     }
 
     private fun setupColors() {

@@ -145,6 +145,7 @@
     <string name="playing_queue_label">Playing queue</string>
     <string name="list_start">List start.</string>
     <string name="list_end">List end.</string>
+    <string name="empty_play_queue">Empty play queue.</string>
     <string name="save_queue">Save queue</string>
     <string name="clear_queue">Clear queue</string>
     <string name="action_move_to_current_track">Show current track</string>

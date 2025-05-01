@@ -57,6 +57,9 @@ class SmartPlayingQueue(
     val currentSong: Song
         get() = getSongAt(position)
 
+    val isEmpty: Boolean
+        get() = playingQueue.isEmpty()
+
     val isFirstTrack: Boolean
         get() = position == 0
 

@@ -145,6 +145,7 @@
     <string name="playing_queue_label">Cola de reproducción</string>
     <string name="list_start">Inicio de la lista.</string>
     <string name="list_end">Fin de la lista.</string>
+    <string name="empty_play_queue">Cola de reproducción vacía.</string>
     <string name="save_queue">Guardar cola</string>
     <string name="clear_queue">Limpiar cola</string>
     <string name="action_move_to_current_track">Mostrar canción actual</string>

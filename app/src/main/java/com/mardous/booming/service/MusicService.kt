@@ -290,7 +290,13 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                         quit()
                     }
 
-                    ServiceAction.ACTION_PENDING_QUIT -> pendingQuit = true
+                    ServiceAction.ACTION_PENDING_QUIT -> {
+                        pendingQuit = isPlaying
+                        if (!pendingQuit) {
+                            playingQueue.stopPosition = -1
+                            quit()
+                        }
+                    }
                 }
             }
         }
@@ -390,7 +396,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     }
 
     internal suspend fun restoreQueuesAndPositionIfNecessary() {
-        if (!queuesRestored && playingQueue.playingQueue.isEmpty()) {
+        if (!queuesRestored && playingQueue.isEmpty) {
             withContext(IO) {
                 val restoredQueue = PlaybackQueueStore.getInstance(this@MusicService).savedPlayingQueue
                 val restoredOriginalQueue = PlaybackQueueStore.getInstance(this@MusicService).savedOriginalPlayingQueue
@@ -432,9 +438,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     fun quit() {
         pause()
-        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        isForeground = false
-        notificationManager?.cancel(PlayingNotification.NOTIFICATION_ID)
+        stopForegroundAndNotification()
 
         //force to update play count if necessary
         bumpPlayCount()
@@ -493,6 +497,8 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                 // If we are already in foreground just update the notification
                 notificationManager?.notify(PlayingNotification.NOTIFICATION_ID, playingNotification!!.build())
             }
+        } else {
+            stopForegroundAndNotification()
         }
     }
 
@@ -794,7 +800,11 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                     play()
                 } else {
                     runOnUiThread {
-                        showToast(R.string.unplayable_file)
+                        if (playingQueue.isEmpty) {
+                            showToast(R.string.empty_play_queue)
+                        } else {
+                            showToast(R.string.unplayable_file)
+                        }
                     }
                 }
             }

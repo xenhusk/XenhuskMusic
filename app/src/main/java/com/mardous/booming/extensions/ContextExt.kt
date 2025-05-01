@@ -43,7 +43,6 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.google.android.material.color.MaterialColors
@@ -151,9 +150,9 @@ fun Context.showToast(text: String?, duration: Int = Toast.LENGTH_SHORT) {
         return
 
     if (Looper.myLooper() != Looper.getMainLooper()) {
-        onUI { Toast.makeText(this, text, duration).show() }
+        onUI { Toast.makeText(applicationContext, text, duration).show() }
     } else {
-        Toast.makeText(this, text, duration).show()
+        Toast.makeText(applicationContext, text, duration).show()
     }
 }
 

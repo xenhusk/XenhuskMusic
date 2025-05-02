@@ -22,19 +22,11 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.GestureDetector
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.annotation.ColorInt
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isInvisible
-import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
+import androidx.core.view.*
 import androidx.viewpager.widget.ViewPager
 import com.mardous.booming.R
 import com.mardous.booming.adapters.pager.AlbumCoverPagerAdapter
@@ -42,15 +34,7 @@ import com.mardous.booming.databinding.FragmentPlayerAlbumCoverBinding
 import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.keepScreenOn
-import com.mardous.booming.extensions.resources.AnimationCompleted
-import com.mardous.booming.extensions.resources.BOOMING_ANIM_TIME
-import com.mardous.booming.extensions.resources.applyColor
-import com.mardous.booming.extensions.resources.getPrimaryTextColor
-import com.mardous.booming.extensions.resources.getSecondaryTextColor
-import com.mardous.booming.extensions.resources.hide
-import com.mardous.booming.extensions.resources.isColorLight
-import com.mardous.booming.extensions.resources.show
-import com.mardous.booming.extensions.resources.surfaceColor
+import com.mardous.booming.extensions.resources.*
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.fragments.lyrics.LyricsFragment
 import com.mardous.booming.fragments.lyrics.LyricsViewModel
@@ -81,8 +65,14 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         Preferences.nowPlayingScreen
     }
 
-    private var lyricsState = LYRICS_STATE_NOT_VISIBLE
     private var lyricsLoaded = false
+
+    private val isAllowedToLoadLyrics: Boolean
+        get() = nps.supportsCoverLyrics && isAdded && !isRemoving
+    private var isShowLyricsOnCover: Boolean
+        get() = Preferences.showLyricsOnCover
+        set(value) { Preferences.showLyricsOnCover = value }
+
     private lateinit var progressViewUpdateHelper: MusicProgressViewUpdateHelper
 
     private var gestureDetector: GestureDetector? = null
@@ -179,10 +169,11 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
         when (key) {
             LYRICS_ON_COVER -> {
-                if (!Preferences.showLyricsOnCover) {
+                val isShowLyrics = sharedPreferences.getBoolean(key, true)
+                if (isShowLyrics && !binding.lyricsLayout.isVisible) {
+                    showLyrics()
+                } else if (!isShowLyrics && binding.lyricsLayout.isVisible) {
                     removeLyrics()
-                } else {
-                    updateLyrics()
                 }
             }
 
@@ -241,42 +232,44 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
     }
 
     override fun onUpdateProgressViews(progress: Long, total: Long) {
+        if (!isShowingLyrics())
+            return
+
         _binding?.syncedLyricsView?.updateTime(progress)
     }
 
     fun isShowingLyrics() = lyricsLoaded
 
     fun toggleLyrics() {
-        if (binding.lyricsLayout.isVisible) {
+        if (isShowLyricsOnCover) {
             hideLyrics(true)
         } else {
             showLyrics(true)
         }
     }
 
-    fun showLyrics(forceVisibility: Boolean = false) {
-        if (!lyricsLoaded || binding.lyricsLayout.isVisible ||
-            (lyricsState == LYRICS_STATE_HIDDEN && !forceVisibility))
+    fun showLyrics(isForced: Boolean = false) {
+        if (!lyricsLoaded || binding.lyricsLayout.isVisible || (!isShowLyricsOnCover && !isForced))
             return
 
-        this.lyricsState = LYRICS_STATE_VISIBLE
-        setLyricsLayoutVisible(true)
+        setLyricsLayoutVisible(true) {
+            isShowLyricsOnCover = true
+        }
     }
 
-    fun hideLyrics(forceHidden: Boolean = false) {
+    fun hideLyrics(isPermanent: Boolean = false) {
         if (!lyricsLoaded || !binding.lyricsLayout.isVisible) return
 
-        this.lyricsState = if (forceHidden) LYRICS_STATE_HIDDEN else LYRICS_STATE_NOT_VISIBLE
-        setLyricsLayoutVisible(false)
-    }
-
-    private fun canShowLyrics(): Boolean {
-        return Preferences.showLyricsOnCover && nps.supportsCoverLyrics && isAdded && !isRemoving
+        setLyricsLayoutVisible(false) {
+            if (isPermanent) {
+                isShowLyricsOnCover = false
+            }
+        }
     }
 
     private fun updateLyrics() {
         removeLyrics {
-            if (!canShowLyrics()) {
+            if (!isAllowedToLoadLyrics) {
                 return@removeLyrics
             }
             lyricsViewModel.getAllLyrics(
@@ -365,7 +358,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
                     safeBinding.normalLyrics.hide()
                 }
                 animatorSet.start()
-                if (lyricsState == LYRICS_STATE_VISIBLE && !isLyricsLayoutVisible) {
+                if (isShowLyricsOnCover && !isLyricsLayoutVisible) {
                     setLyricsLayoutVisible(true)
                 }
                 this.lyricsLoaded = true
@@ -386,7 +379,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
                     safeBinding.syncedLyricsView.hide()
                 }
                 animatorSet.start()
-                if (lyricsState == LYRICS_STATE_VISIBLE && !isLyricsLayoutVisible) {
+                if (isShowLyricsOnCover && !isLyricsLayoutVisible) {
                     setLyricsLayoutVisible(true)
                 }
                 this.lyricsLoaded = true
@@ -458,14 +451,5 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
 
     companion object {
         const val TAG = "PlayerAlbumCoverFragment"
-
-        /** Lyrics are (or can be) visible. */
-        private const val LYRICS_STATE_VISIBLE = 0
-
-        /** Lyrics are not (but can be) visible. */
-        private const val LYRICS_STATE_NOT_VISIBLE = 1
-
-        /** Lyrics were explicitly hidden by the user. */
-        private const val LYRICS_STATE_HIDDEN = 2
     }
 }

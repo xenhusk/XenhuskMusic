@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Christians Martínez Alvarado
+ * Copyright (c) 2025 Christians Martínez Alvarado
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,32 +15,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.fragments.player.base
+package com.mardous.booming.fragments.player
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.*
-import android.view.GestureDetector.SimpleOnGestureListener
+import android.view.GestureDetector
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
-import androidx.core.view.*
-import androidx.core.view.WindowInsetsCompat.Type
-import androidx.viewpager.widget.ViewPager.OnPageChangeListener
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
+import androidx.viewpager.widget.ViewPager
 import com.mardous.booming.R
 import com.mardous.booming.adapters.pager.AlbumCoverPagerAdapter
-import com.mardous.booming.adapters.pager.AlbumCoverPagerAdapter.AlbumCoverFragment.ColorReceiver
 import com.mardous.booming.databinding.FragmentPlayerAlbumCoverBinding
 import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.keepScreenOn
-import com.mardous.booming.extensions.resources.*
+import com.mardous.booming.extensions.resources.AnimationCompleted
+import com.mardous.booming.extensions.resources.BOOMING_ANIM_TIME
+import com.mardous.booming.extensions.resources.applyColor
+import com.mardous.booming.extensions.resources.getPrimaryTextColor
+import com.mardous.booming.extensions.resources.getSecondaryTextColor
+import com.mardous.booming.extensions.resources.hide
+import com.mardous.booming.extensions.resources.isColorLight
+import com.mardous.booming.extensions.resources.show
+import com.mardous.booming.extensions.resources.surfaceColor
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.fragments.lyrics.LyricsFragment
 import com.mardous.booming.fragments.lyrics.LyricsViewModel
+import com.mardous.booming.fragments.player.base.goToDestination
 import com.mardous.booming.helper.MusicProgressViewUpdateHelper
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.lyrics.LrcLyrics
@@ -54,7 +68,7 @@ import com.mardous.booming.util.LYRICS_ON_COVER
 import com.mardous.booming.util.Preferences
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
-class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), OnPageChangeListener,
+class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChangeListener,
     SharedPreferences.OnSharedPreferenceChangeListener, MusicProgressViewUpdateHelper.Callback {
 
     private val lyricsViewModel: LyricsViewModel by activityViewModel()
@@ -78,19 +92,20 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), OnPageChangeListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        gestureDetector = GestureDetector(activity, object : SimpleOnGestureListener() {
-            override fun onSingleTapConfirmed(event: MotionEvent): Boolean {
-                return consumeGesture(GestureOnCover.Tap)
-            }
+        gestureDetector =
+            GestureDetector(activity, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onSingleTapConfirmed(event: MotionEvent): Boolean {
+                    return consumeGesture(GestureOnCover.Tap)
+                }
 
-            override fun onDoubleTap(event: MotionEvent): Boolean {
-                return consumeGesture(GestureOnCover.DoubleTap)
-            }
+                override fun onDoubleTap(event: MotionEvent): Boolean {
+                    return consumeGesture(GestureOnCover.DoubleTap)
+                }
 
-            override fun onLongPress(e: MotionEvent) {
-                consumeGesture(GestureOnCover.LongPress)
-            }
-        })
+                override fun onLongPress(e: MotionEvent) {
+                    consumeGesture(GestureOnCover.LongPress)
+                }
+            })
     }
 
     override fun onCreateView(
@@ -120,7 +135,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), OnPageChangeListener
     private fun applyWindowInsets() {
         if (nps == NowPlayingScreen.Gradient) {
             ViewCompat.setOnApplyWindowInsetsListener(binding.lyricsLayout) { v: View, insets: WindowInsetsCompat ->
-                val padding = insets.getInsets(Type.displayCutout())
+                val padding = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
                 v.updatePadding(left = padding.left, right = padding.right)
                 WindowInsetsCompat.CONSUMED
             }
@@ -405,7 +420,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), OnPageChangeListener
         }
     }
 
-    private val colorReceiver = object : ColorReceiver {
+    private val colorReceiver = object : AlbumCoverPagerAdapter.AlbumCoverFragment.ColorReceiver {
         override fun onColorReady(color: MediaNotificationProcessor, request: Int) {
             if (currentPosition == request) {
                 notifyColorChange(color)

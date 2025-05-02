@@ -63,6 +63,7 @@ import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.LibraryViewModel
 import com.mardous.booming.fragments.ReloadType
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
+import com.mardous.booming.fragments.player.PlayerAlbumCoverFragment
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.helper.menu.newPopupMenu
 import com.mardous.booming.helper.menu.onSongMenu

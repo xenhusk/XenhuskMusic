@@ -199,9 +199,11 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), OnPageChangeListener
     }
 
     override fun onDestroyView() {
-        _binding?.viewPager?.removeOnPageChangeListener(this)
-        super.onDestroyView()
+        viewPager.removeOnPageChangeListener(this)
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
+        gestureDetector = null
+        _binding = null
+        super.onDestroyView()
     }
 
     override fun onServiceConnected() {

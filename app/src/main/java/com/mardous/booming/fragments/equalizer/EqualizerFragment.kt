@@ -142,29 +142,38 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
                 binding.equalizerBands.savePreset.isEnabled = isUsable && viewModel.isCustomPresetSelected()
                 binding.equalizerEffects.virtualizerStrength.isEnabled = isUsable && viewModel.virtualizerState.isSupported
                 binding.equalizerEffects.bassboostStrength.isEnabled = isUsable && viewModel.bassBoostState.isSupported
-                binding.equalizerEffects.reverbSwitch.isEnabled = isUsable && viewModel.loudnessGainState.isSupported
-                binding.equalizerEffects.reverb.isEnabled = isUsable && viewModel.presetReverbState.isUsable
-                binding.equalizerEffects.loudnessEnhancerSwitch.isEnabled = isUsable && viewModel.loudnessGainState.isSupported
-                binding.equalizerEffects.loudnessGain.isEnabled = isUsable && viewModel.loudnessGainState.isUsable
+                if (viewModel.presetReverbState.isSupported) {
+                    binding.equalizerEffects.reverbSwitch.isEnabled = isUsable
+                    binding.equalizerEffects.reverb.isEnabled = isUsable && viewModel.presetReverbState.isUsable
+                }
+                if (viewModel.loudnessGainState.isSupported) {
+                    binding.equalizerEffects.loudnessEnhancerSwitch.isEnabled = isUsable
+                    binding.equalizerEffects.loudnessGain.isEnabled = isUsable && viewModel.loudnessGainState.isUsable
+                }
             }
         }
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             viewModel.loudnessGainFlow.collect { state ->
-                binding.equalizerEffects.loudnessEnhancerSwitch.isEnabled = viewModel.eqState.isEnabled && state.isSupported
-                binding.equalizerEffects.loudnessEnhancerSwitch.isChecked = state.isUsable
-                binding.equalizerEffects.loudnessGain.isEnabled = viewModel.eqState.isEnabled && state.isUsable
-                binding.equalizerEffects.loudnessGain.setValueAnimated(state.value.toFloat())
-                binding.equalizerEffects.loudnessGainDisplay.text = String.format(Locale.ROOT, "%.0f mDb", state.value)
+                if (state.isSupported) {
+                    binding.equalizerEffects.loudnessEnhancerSwitch.isEnabled = viewModel.eqState.isEnabled
+                    binding.equalizerEffects.loudnessEnhancerSwitch.isChecked = state.isUsable
+                    binding.equalizerEffects.loudnessGain.isEnabled = viewModel.eqState.isEnabled && state.isUsable
+                    binding.equalizerEffects.loudnessGain.setValueAnimated(state.value.toFloat())
+                    binding.equalizerEffects.loudnessGainDisplay.text =
+                        String.format(Locale.ROOT, "%.0f mDb", state.value)
+                }
             }
         }
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             viewModel.presetReverbFlow.collect { state ->
-                binding.equalizerEffects.reverbSwitch.isEnabled = viewModel.eqState.isEnabled && state.isSupported
-                binding.equalizerEffects.reverbSwitch.isChecked = state.isUsable
-                binding.equalizerEffects.reverb.isEnabled = viewModel.eqState.isEnabled && state.isUsable
-                binding.equalizerEffects.reverb.setSelection(state.value)
+                if (state.isSupported) {
+                    binding.equalizerEffects.reverbSwitch.isEnabled = viewModel.eqState.isEnabled
+                    binding.equalizerEffects.reverbSwitch.isChecked = state.isUsable
+                    binding.equalizerEffects.reverb.isEnabled = viewModel.eqState.isEnabled && state.isUsable
+                    binding.equalizerEffects.reverb.setSelection(state.value)
+                }
             }
         }
 
@@ -509,6 +518,10 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
                 }
                 setTrackingTouchListener(onStop = { viewModel.applyPendingStates() })
             }
+        } else {
+            binding.equalizerEffects.loudnessEnhancerSwitch.isGone = true
+            binding.equalizerEffects.loudnessGain.isGone = true
+            binding.equalizerEffects.loudnessGainDisplay.isGone = true
         }
     }
 

@@ -94,7 +94,8 @@ class EqualizerManager internal constructor(context: Context) {
                         UUID.fromString(EFFECT_TYPE_BASS_BOOST) -> isBassBoostSupported = true
                         UUID.fromString(EFFECT_TYPE_VIRTUALIZER) -> isVirtualizerSupported = true
                         UUID.fromString(EFFECT_TYPE_LOUDNESS_ENHANCER) -> isLoudnessEnhancerSupported = true
-                        UUID.fromString(EFFECT_TYPE_PRESET_REVERB) -> isPresetReverbSupported = true
+                        //UUID.fromString(EFFECT_TYPE_PRESET_REVERB) -> isPresetReverbSupported = true
+                        //We've temporarily disabled PresetReverb because it was not working as expected.
                     }
                 }
             }

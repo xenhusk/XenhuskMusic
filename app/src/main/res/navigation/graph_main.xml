@@ -179,7 +179,7 @@
 
     <dialog
         android:id="@+id/nav_sound_settings"
-        android:name="com.mardous.booming.fragments.other.SoundSettingsFragment"
+        android:name="com.mardous.booming.fragments.sound.SoundSettingsFragment"
         android:label="SoundSettingsFragment"/>
 
 </navigation>

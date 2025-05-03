@@ -20,7 +20,6 @@ package com.mardous.booming.service.equalizer
 import android.annotation.SuppressLint
 import android.content.Context
 import android.media.audiofx.AudioEffect
-import androidx.annotation.FloatRange
 import androidx.core.content.edit
 import com.mardous.booming.extensions.files.getFormattedFileName
 import com.mardous.booming.model.EQPreset
@@ -536,82 +535,6 @@ class EqualizerManager internal constructor(context: Context) {
         }
     }
 
-    @get:FloatRange(from = OpenSLESConstants.MIN_BALANCE.toDouble(), to = OpenSLESConstants.MAX_BALANCE.toDouble())
-    var balanceLeft: Float
-        get() = normalizeBalanceValue(mPreferences.getFloat(Keys.LEFT_BALANCE, OpenSLESConstants.MAX_BALANCE))
-        set(balanceDivisorLeft) = mPreferences.edit {
-            putFloat(Keys.LEFT_BALANCE, normalizeBalanceValue(balanceDivisorLeft))
-        }
-
-    @get:FloatRange(from = OpenSLESConstants.MIN_BALANCE.toDouble(), to = OpenSLESConstants.MAX_BALANCE.toDouble())
-    var balanceRight: Float
-        get() = normalizeBalanceValue(mPreferences.getFloat(Keys.RIGHT_BALANCE, OpenSLESConstants.MAX_BALANCE))
-        set(balanceDivisorRight) = mPreferences.edit {
-            putFloat(Keys.RIGHT_BALANCE, normalizeBalanceValue(balanceDivisorRight))
-        }
-
-    val maximumSpeed: Float
-        get() = if (isFixedPitchEnabled) OpenSLESConstants.MAXIMUM_SPEED else OpenSLESConstants.MAXIMUM_SPEED_NO_PITCH
-
-    val minimumSpeed: Float
-        get() = if (isFixedPitchEnabled) OpenSLESConstants.MINIMUM_SPEED else OpenSLESConstants.MINIMUM_SPEED_NO_PITCH
-
-    var speed: Float
-        get() = normalizeValue(
-            mPreferences.getFloat(Keys.SPEED, OpenSLESConstants.DEFAULT_SPEED),
-            minimumSpeed,
-            maximumSpeed
-        )
-        set(speed) {
-            if (isFixedPitchEnabled) {
-                pitch = speed
-            }
-            mPreferences.edit {
-                putFloat(Keys.SPEED, normalizeValue(speed, minimumSpeed, maximumSpeed))
-            }
-        }
-
-    var pitch: Float
-        get() = if (isFixedPitchEnabled) {
-            speed
-        } else {
-            normalizeValue(
-                mPreferences.getFloat(Keys.PITCH, OpenSLESConstants.DEFAULT_PITCH),
-                OpenSLESConstants.MINIMUM_PITCH,
-                OpenSLESConstants.MAXIMUM_PITCH
-            )
-        }
-        set(pitch) = mPreferences.edit {
-            putFloat(
-                Keys.PITCH,
-                normalizeValue(pitch, OpenSLESConstants.MINIMUM_PITCH, OpenSLESConstants.MAXIMUM_PITCH)
-            )
-        }
-
-    var isFixedPitchEnabled: Boolean
-        get() = mPreferences.getBoolean(Keys.IS_FIXED_PITCH, true)
-        set(enabled) {
-            if (enabled) {
-                pitch = speed
-            }
-            mPreferences.edit {
-                putBoolean(Keys.IS_FIXED_PITCH, enabled)
-            }
-        }
-
-    private fun normalizeBalanceValue(balance: Float): Float {
-        return normalizeValue(balance, OpenSLESConstants.MIN_BALANCE, OpenSLESConstants.MAX_BALANCE)
-    }
-
-    private fun normalizeValue(value: Float, minimumValue: Float, maximumValue: Float): Float {
-        if (value < minimumValue) {
-            return minimumValue
-        } else if (value > maximumValue) {
-            return maximumValue
-        }
-        return value
-    }
-
     suspend fun resetConfiguration() {
         mPreferences.edit {
             putBoolean(Keys.IS_INITIALIZED, false)
@@ -632,11 +555,6 @@ class EqualizerManager internal constructor(context: Context) {
         companion object {
             const val GLOBAL_ENABLED = "audiofx.global.enable"
             const val NUM_BANDS = "equalizer.number_of_bands"
-            const val LEFT_BALANCE = "equalizer.balance.left"
-            const val RIGHT_BALANCE = "equalizer.balance.right"
-            const val SPEED = PLAYBACK_SPEED
-            const val PITCH = PLAYBACK_PITCH
-            const val IS_FIXED_PITCH = "equalizer.pitch.fixed"
             const val IS_INITIALIZED = "equalizer.initialized"
             const val LOUDNESS_ENABLED = "audiofx.eq.loudness.enable"
             const val LOUDNESS_GAIN = "audiofx.eq.loudness.gain"

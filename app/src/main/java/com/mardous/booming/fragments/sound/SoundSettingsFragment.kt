@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Christians Martínez Alvarado
+ * Copyright (c) 2025 Christians Martínez Alvarado
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.fragments.other
+package com.mardous.booming.fragments.sound
 
 import android.Manifest
 import android.app.Dialog
@@ -34,6 +34,9 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
@@ -49,20 +52,20 @@ import com.mardous.booming.extensions.resources.hide
 import com.mardous.booming.extensions.resources.primaryColor
 import com.mardous.booming.extensions.resources.show
 import com.mardous.booming.service.MusicPlayer
-import com.mardous.booming.service.equalizer.EqualizerManager
-import com.mardous.booming.service.equalizer.OpenSLESConstants
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import me.bogerchan.niervisualizer.NierVisualizerManager
 import me.bogerchan.niervisualizer.renderer.columnar.ColumnarType1Renderer
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Locale
-import kotlin.properties.Delegates
-import kotlin.reflect.KProperty
 
 /**
  * @author Christians M. A. (mardous)
  */
 class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
     Slider.OnChangeListener, Slider.OnSliderTouchListener, AudioOutputObserver.Callback {
+
+    private val viewModel: SoundSettingsViewModel by viewModel()
 
     private var _binding: FragmentSoundSettingsBinding? = null
     private val binding get() = _binding!!
@@ -71,24 +74,11 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
     private lateinit var permissionRequestLauncher: ActivityResultLauncher<String>
 
     private val visualizerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val equalizerManager: EqualizerManager by inject() // TODO: UI components shouldn't interact directly with this class
 
     private lateinit var audioOutputObserver: AudioOutputObserver
 
     private val audioManager: AudioManager
         get() = audioOutputObserver.audioManager
-
-    private var isFixedPitchEnabled: Boolean by Delegates.observable(equalizerManager.isFixedPitchEnabled) { _: KProperty<*>, _: Boolean, newValue: Boolean ->
-        equalizerManager.isFixedPitchEnabled = newValue
-
-        updateTempoValues()
-        updateFixedPitchState()
-
-        binding.pitchSlider.isEnabled = !newValue
-        binding.pitchIcon.isEnabled = !newValue
-
-        MusicPlayer.updateTempo()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,6 +90,7 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
         setupVisualizer()
         setupVolumeViews()
         setupTempoViews()
+        launchFlow()
         initializeVisualizer(false)
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.sound_settings)
@@ -109,33 +100,39 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
             .create {
                 audioOutputObserver.requestVolume()
                 audioOutputObserver.requestAudioDevice()
-
-                // set initial slider values
-                updateTempoValues()
-                updateFixedPitchState()
             }
     }
 
-    override fun onClick(view: View) {
-        when (view) {
-            binding.speedIcon -> {
-                equalizerManager.speed = OpenSLESConstants.DEFAULT_SPEED
-                if (isFixedPitchEnabled) {
-                    equalizerManager.pitch = OpenSLESConstants.DEFAULT_PITCH
+    private fun launchAndRepeatWithViewLifecycle(block: suspend CoroutineScope.() -> Unit) {
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED, block)
+        }
+    }
+
+    private fun launchFlow() {
+        launchAndRepeatWithViewLifecycle {
+            viewModel.balanceFlow.collect {
+                binding.leftBalanceSlider.value = it.value.left
+                binding.rightBalanceSlider.value = it.value.right
+            }
+        }
+        launchAndRepeatWithViewLifecycle {
+            viewModel.tempoFlow.collect {
+                binding.speedSlider.valueFrom = viewModel.minSpeed
+                binding.speedSlider.valueTo = viewModel.maxSpeed
+                binding.speedSlider.setValueAnimated(it.value.speed)
+                binding.pitchSlider.valueFrom = viewModel.minPitch
+                binding.pitchSlider.valueTo = viewModel.maxPitch
+                binding.pitchSlider.setValueAnimated(it.value.actualPitch)
+                if (it.value.isFixedPitch) {
+                    binding.fixedPitchIcon.setImageResource(R.drawable.ic_lock_24dp)
+                    binding.fixedPitchIcon.setColorFilter(controlColorNormal(), PorterDuff.Mode.SRC_IN)
+                } else {
+                    binding.fixedPitchIcon.setImageResource(R.drawable.ic_lock_open_24dp)
+                    binding.fixedPitchIcon.clearColorFilter()
                 }
-                MusicPlayer.updateTempo()
-                updateTempoValues()
-            }
-
-            binding.pitchIcon -> {
-                equalizerManager.pitch = OpenSLESConstants.DEFAULT_PITCH
-                MusicPlayer.updateTempo()
-                updateTempoValues()
-            }
-
-            binding.fixedPitchIcon -> {
-                val isFixedPitch = isFixedPitchEnabled
-                isFixedPitchEnabled = !isFixedPitch
+                binding.pitchIcon.isEnabled = !it.value.isFixedPitch
+                binding.pitchSlider.isEnabled = !it.value.isFixedPitch
             }
         }
     }
@@ -173,50 +170,50 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
     }
 
     private fun setupVolumeViews() {
-        binding.volumeSlider.addOnChangeListener(this@SoundSettingsFragment)
-        binding.volumeSlider.addOnSliderTouchListener(this@SoundSettingsFragment)
+        binding.volumeSlider.addOnChangeListener(this)
         binding.leftBalanceSlider.apply {
-            valueFrom = OpenSLESConstants.MIN_BALANCE
-            valueTo = OpenSLESConstants.MAX_BALANCE
-            value = equalizerManager.balanceLeft
-
+            valueFrom = viewModel.minBalance
+            valueTo = viewModel.maxBalance
             addOnChangeListener(this@SoundSettingsFragment)
+            addOnSliderTouchListener(this@SoundSettingsFragment)
         }
         binding.rightBalanceSlider.apply {
-            valueFrom = OpenSLESConstants.MIN_BALANCE
-            valueTo = OpenSLESConstants.MAX_BALANCE
-            value = equalizerManager.balanceRight
-
+            valueFrom = viewModel.minBalance
+            valueTo = viewModel.maxBalance
             addOnChangeListener(this@SoundSettingsFragment)
+            addOnSliderTouchListener(this@SoundSettingsFragment)
         }
     }
 
     private fun setupTempoViews() {
         binding.speedSlider.apply {
             setLabelFormatter { value ->
-                String.format(Locale.getDefault(), "%.1f%s", value, "x")
+                String.Companion.format(Locale.getDefault(), "%.1f%s", value, "x")
             }
             addOnChangeListener(this@SoundSettingsFragment)
             addOnSliderTouchListener(this@SoundSettingsFragment)
         }
         binding.pitchSlider.apply {
-            isEnabled = !isFixedPitchEnabled
             setLabelFormatter { value ->
-                String.format(Locale.getDefault(), "%.1f", value)
+                String.Companion.format(Locale.getDefault(), "%.1f", value)
             }
+            addOnChangeListener(this@SoundSettingsFragment)
             addOnSliderTouchListener(this@SoundSettingsFragment)
         }
 
-        binding.pitchIcon.isEnabled = !isFixedPitchEnabled
-        binding.pitchIcon.setOnClickListener(this@SoundSettingsFragment)
-        binding.speedIcon.setOnClickListener(this@SoundSettingsFragment)
-        binding.fixedPitchIcon.setOnClickListener(this@SoundSettingsFragment)
+        binding.pitchIcon.setOnClickListener(this)
+        binding.speedIcon.setOnClickListener(this)
+        binding.fixedPitchIcon.setOnClickListener(this)
     }
 
     private fun initializeVisualizer(canRequestPermission: Boolean) {
         if (requireContext().checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            if (visualizerManager.init(MusicPlayer.audioSessionId) == NierVisualizerManager.SUCCESS) {
-                visualizerManager.start(binding.visualizer, arrayOf(ColumnarType1Renderer(visualizerPaint)))
+            if (visualizerManager.init(MusicPlayer.audioSessionId) == NierVisualizerManager.Companion.SUCCESS) {
+                visualizerManager.start(binding.visualizer, arrayOf(
+                    ColumnarType1Renderer(
+                        visualizerPaint
+                    )
+                ))
                 binding.root.updatePadding(top = 16.dp(resources))
                 binding.visualizer.setZOrderOnTop(true)
                 binding.visualizer.holder?.setFormat(PixelFormat.TRANSLUCENT)
@@ -228,27 +225,11 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
         }
     }
 
-    private fun updateFixedPitchState() {
-        if (isFixedPitchEnabled) {
-            binding.fixedPitchIcon.setImageResource(R.drawable.ic_lock_24dp)
-            binding.fixedPitchIcon.setColorFilter(controlColorNormal(), PorterDuff.Mode.SRC_IN)
-        } else {
-            binding.fixedPitchIcon.setImageResource(R.drawable.ic_lock_open_24dp)
-            binding.fixedPitchIcon.clearColorFilter()
-        }
-    }
-
-    private fun updateTempoValues() {
-        binding.speedSlider.apply {
-            valueFrom = equalizerManager.minimumSpeed
-            valueTo = equalizerManager.maximumSpeed
-            setValueAnimated(equalizerManager.speed)
-        }
-
-        binding.pitchSlider.apply {
-            valueFrom = OpenSLESConstants.MINIMUM_PITCH
-            valueTo = OpenSLESConstants.MAXIMUM_PITCH
-            setValueAnimated(equalizerManager.pitch)
+    override fun onClick(view: View) {
+        when (view) {
+            binding.speedIcon -> viewModel.setTempo(speed = viewModel.defaultSpeed)
+            binding.pitchIcon -> viewModel.setTempo(pitch = viewModel.defaultPitch)
+            binding.fixedPitchIcon -> viewModel.setTempo(isFixedPitch = !viewModel.tempo.isFixedPitch)
         }
     }
 
@@ -256,21 +237,10 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
         if (fromUser) {
             when (slider) {
                 binding.volumeSlider -> audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value.toInt(), 0)
-                binding.leftBalanceSlider -> {
-                    equalizerManager.balanceLeft = value
-                    MusicPlayer.updateBalance()
-                }
-
-                binding.rightBalanceSlider -> {
-                    equalizerManager.balanceRight = value
-                    MusicPlayer.updateBalance()
-                }
-
-                binding.speedSlider -> {
-                    if (isFixedPitchEnabled) {
-                        binding.pitchSlider.value = value
-                    }
-                }
+                binding.leftBalanceSlider -> viewModel.setBalance(left = value, apply = false)
+                binding.rightBalanceSlider -> viewModel.setBalance(right = value, apply = false)
+                binding.speedSlider -> viewModel.setTempo(speed = value, apply = false)
+                binding.pitchSlider -> viewModel.setTempo(pitch = value, apply = false)
             }
         }
     }
@@ -278,17 +248,7 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
     override fun onStartTrackingTouch(slider: Slider) {}
 
     override fun onStopTrackingTouch(slider: Slider) {
-        when (slider) {
-            binding.speedSlider -> {
-                equalizerManager.speed = binding.speedSlider.value
-                MusicPlayer.updateTempo()
-            }
-
-            binding.pitchSlider -> {
-                equalizerManager.pitch = binding.pitchSlider.value
-                MusicPlayer.updateTempo()
-            }
-        }
+        viewModel.applyPendingState()
     }
 
     override fun onAudioOutputDeviceChange(currentDevice: AudioDevice) {
@@ -335,8 +295,14 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
     }
 
     override fun onDestroy() {
+        binding.volumeSlider.clearOnChangeListeners()
+        binding.leftBalanceSlider.clearOnChangeListeners()
+        binding.leftBalanceSlider.clearOnSliderTouchListeners()
+        binding.rightBalanceSlider.clearOnChangeListeners()
+        binding.rightBalanceSlider.clearOnSliderTouchListeners()
         binding.speedSlider.clearOnChangeListeners()
         binding.speedSlider.clearOnSliderTouchListeners()
+        binding.pitchSlider.clearOnChangeListeners()
         binding.pitchSlider.clearOnSliderTouchListeners()
         super.onDestroy()
         visualizerManager.release()

@@ -316,14 +316,6 @@ object MusicPlayer : KoinComponent {
         return false
     }
 
-    fun updateBalance() {
-        musicService?.getPlaybackManager()?.updateBalance()
-    }
-
-    fun updateTempo() {
-        musicService?.getPlaybackManager()?.updateTempo()
-    }
-
     fun playFromUri(uri: Uri): Boolean {
         if (musicService != null) {
             var song = Song.emptySong

@@ -21,6 +21,7 @@ import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.mardous.booming.activities.tageditor.TagEditorViewModel
 import com.mardous.booming.androidauto.AutoMusicProvider
+import com.mardous.booming.audio.SoundSettings
 import com.mardous.booming.database.BoomingDatabase
 import com.mardous.booming.fragments.LibraryViewModel
 import com.mardous.booming.fragments.albums.AlbumDetailViewModel
@@ -31,6 +32,7 @@ import com.mardous.booming.fragments.info.InfoViewModel
 import com.mardous.booming.fragments.lyrics.LyricsViewModel
 import com.mardous.booming.fragments.playlists.PlaylistDetailViewModel
 import com.mardous.booming.fragments.search.SearchViewModel
+import com.mardous.booming.fragments.sound.SoundSettingsViewModel
 import com.mardous.booming.fragments.years.YearDetailViewModel
 import com.mardous.booming.http.deezer.DeezerService
 import com.mardous.booming.http.github.GitHubService
@@ -84,6 +86,9 @@ private val mainModule = module {
     }
     single {
         EqualizerManager(androidContext())
+    }
+    single {
+        SoundSettings(androidContext())
     }
     single {
         MediaStoreWriter(androidContext(), get())
@@ -213,6 +218,10 @@ private val viewModule = module {
 
     viewModel {
         InfoViewModel(get())
+    }
+
+    viewModel {
+        SoundSettingsViewModel(get())
     }
 }
 

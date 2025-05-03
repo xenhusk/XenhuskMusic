@@ -32,16 +32,21 @@ import androidx.media.AudioAttributesCompat
 import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.mardous.booming.R
+import com.mardous.booming.audio.SoundSettings
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.service.MultiPlayer
 import com.mardous.booming.service.MusicService
 import com.mardous.booming.service.constants.ServiceAction
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.util.Preferences
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class PlaybackManager(
     private val context: Context,
-    private val equalizerManager: EqualizerManager
+    private val equalizerManager: EqualizerManager,
+    private val soundSettings: SoundSettings,
+    coroutineScope: CoroutineScope
 ) : AudioManager.OnAudioFocusChangeListener {
 
     private val audioManager: AudioManager? = context.getSystemService()
@@ -81,6 +86,16 @@ class PlaybackManager(
     init {
         playback = MultiPlayer(context)
         isGaplessPlayback = Preferences.gaplessPlayback
+        coroutineScope.launch {
+            soundSettings.balanceFlow.collect {
+                updateBalance(it.value.left, it.value.right)
+            }
+        }
+        coroutineScope.launch {
+            soundSettings.tempoFlow.collect {
+                updateTempo(it.value.speed, it.value.actualPitch)
+            }
+        }
     }
 
     fun getAudioSessionId(): Int = playback?.getAudioSessionId() ?: AudioEffect.ERROR_BAD_VALUE
@@ -163,12 +178,18 @@ class PlaybackManager(
         equalizerManager.closeAudioEffectSession(getAudioSessionId(), internal)
     }
 
-    fun updateBalance() {
-        playback?.setBalance(equalizerManager.balanceLeft, equalizerManager.balanceRight)
+    fun updateBalance(
+        left: Float = soundSettings.balance.left,
+        right: Float = soundSettings.balance.right
+    ) {
+        playback?.setBalance(left, right)
     }
 
-    fun updateTempo() {
-        playback?.setTempo(equalizerManager.speed, equalizerManager.pitch)
+    fun updateTempo(
+        speed: Float = soundSettings.tempo.speed,
+        pitch: Float = soundSettings.tempo.actualPitch
+    ) {
+        playback?.setTempo(speed, pitch)
     }
 
     fun release() {

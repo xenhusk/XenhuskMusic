@@ -55,6 +55,7 @@ import com.mardous.booming.androidauto.PackageValidator
 import com.mardous.booming.appwidgets.AppWidgetBig
 import com.mardous.booming.appwidgets.AppWidgetSimple
 import com.mardous.booming.appwidgets.AppWidgetSmall
+import com.mardous.booming.audio.SoundSettings
 import com.mardous.booming.database.toPlayCount
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.glide.getSongGlideModel
@@ -110,6 +111,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     private val sharedPreferences: SharedPreferences by inject()
     private val equalizerManager: EqualizerManager by inject()
+    private val soundSettings: SoundSettings by inject()
     private lateinit var playbackManager: PlaybackManager
     private var mediaSession: MediaSessionCompat? = null
     private var playingNotification: PlayingNotification? = null
@@ -183,7 +185,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         musicPlayerHandlerThread = HandlerThread("PlaybackHandler", Process.THREAD_PRIORITY_BACKGROUND)
         musicPlayerHandlerThread!!.start()
         playerHandler = Handler(musicPlayerHandlerThread!!.looper)
-        playbackManager = PlaybackManager(this, equalizerManager)
+        playbackManager = PlaybackManager(this, equalizerManager, soundSettings, serviceScope)
         playbackManager.setCallbacks(this)
         setupMediaSession()
 

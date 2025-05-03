@@ -147,6 +147,7 @@ open class MultiPlayer(private val context: Context) : Playback,
                     .build()
             )
             player.setOnPreparedListener {
+                player.setAuxEffectSendLevel(1.0f)
                 player.setOnPreparedListener(null)
                 completion(true)
             }

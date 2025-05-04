@@ -13,14 +13,6 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor_Covenant-2.1-4baaaa.svg?logo=contributorcovenant)](CODE_OF_CONDUCT.md)
 [![Telegram Group](https://img.shields.io/badge/Telegram-Join_Chat-blue?style=flat&logo=telegram)](https://t.me/mardousdev)
 
-> WARNING:
-> Please keep in mind that Booming Music is in BETA stage, so it is very likely that it will contain
-> all kinds of bugs or unexpected behavior. Although I have made every effort to polish the application
-> as best as possible up to this point, it is possible that some bugs are still present.
->
-> You're welcome to open issues to report bugs or suggest relevant changes, or join our
-> [Telegram group](https://t.me/mardousdev) to participate and report issues directly.
-
 </div>
 
 ## 🎶 Key Features 
@@ -73,7 +65,7 @@ in contributing to this project, thank you very much in advance.
 
 ## 🌎 Translation
 For now, pull requests are the only available way to help translate Booming Music.
-We'll be uploading the project to Hosted Weblate or a similar platform soon.
+We'll be uploading the project to Crowdin soon.
 
 ## 💬 Social
 Join the [Telegram chat](https://t.me/mardousdev) to stay up-to-date on new releases, discuss new features,

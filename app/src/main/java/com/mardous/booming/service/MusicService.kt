@@ -160,10 +160,12 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                         pause()
                     }
                     // Check whether the current song is empty which means the playing queue hasn't restored yet
-                    1 -> if (getCurrentSong() != Song.emptySong && Preferences.isResumeOnConnect(false)) {
-                        play()
-                    } else {
-                        receivedHeadsetConnected = true
+                    1 -> if (Preferences.isResumeOnConnect(false)) {
+                        if (getCurrentSong() != Song.emptySong) {
+                            play()
+                        } else {
+                            receivedHeadsetConnected = true
+                        }
                     }
                 }
             }

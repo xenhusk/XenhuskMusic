@@ -29,8 +29,9 @@
                 android:id="@+id/author_icon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:scaleType="centerCrop"
-                app:shapeAppearanceOverlay="@style/CircularShapeAppearance"
+                android:scaleType="center"
+                app:srcCompat="@drawable/ic_person_24dp"
+                app:tint="?android:textColorPrimary"
                 tools:ignore="ContentDescription"/>
 
             <LinearLayout

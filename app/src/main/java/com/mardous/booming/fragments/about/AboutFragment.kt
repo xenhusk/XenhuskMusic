@@ -24,7 +24,6 @@ import android.widget.Toast
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.BuildConfig
 import com.mardous.booming.R
@@ -32,7 +31,6 @@ import com.mardous.booming.databinding.FragmentAboutBinding
 import com.mardous.booming.dialogs.MarkdownDialog
 import com.mardous.booming.extensions.MIME_TYPE_PLAIN_TEXT
 import com.mardous.booming.extensions.applyBottomWindowInsets
-import com.mardous.booming.extensions.glide.getDefaultGlideTransition
 import com.mardous.booming.extensions.openWeb
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.model.DeviceInfo
@@ -52,7 +50,6 @@ class AboutFragment : Fragment(R.layout.fragment_about), View.OnClickListener {
         deviceInfo = DeviceInfo(requireActivity())
         _binding = FragmentAboutBinding.bind(view)
         view.applyBottomWindowInsets()
-        loadAuthorImage()
         setupVersion()
         setupListeners()
     }
@@ -64,14 +61,6 @@ class AboutFragment : Fragment(R.layout.fragment_about), View.OnClickListener {
 
     private fun setupVersion() {
         binding.cardApp.version.text = BuildConfig.VERSION_NAME
-    }
-
-    private fun loadAuthorImage() {
-        Glide.with(this)
-            .asBitmap()
-            .load("$AUTHOR_GITHUB_URL.png")
-            .transition(getDefaultGlideTransition())
-            .into(binding.cardAuthor.authorIcon)
     }
 
     private fun setupListeners() {

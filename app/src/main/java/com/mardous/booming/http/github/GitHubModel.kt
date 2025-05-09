@@ -25,6 +25,7 @@ import android.os.Environment
 import android.os.Parcelable
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import com.mardous.booming.BuildConfig
 import com.mardous.booming.R
 import com.mardous.booming.extensions.files.asReadableFileSize
 import com.mardous.booming.extensions.packageInfo
@@ -134,7 +135,7 @@ class GitHubRelease(
     ) : Parcelable {
 
         val isApk: Boolean
-            get() = contentType == APK_MIME_TYPE
+            get() = contentType == APK_MIME_TYPE && name.contains(BuildConfig.FLAVOR)
 
         companion object {
             const val APK_MIME_TYPE = "application/vnd.android.package-archive"

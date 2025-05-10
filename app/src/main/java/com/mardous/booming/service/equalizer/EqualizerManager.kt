@@ -297,10 +297,10 @@ class EqualizerManager internal constructor(context: Context) {
     }
 
     @Synchronized
-    private fun setCustomPreset(preset: EQPreset, usePreset: Boolean = true) {
+    private fun setCustomPreset(preset: EQPreset, fromUser: Boolean) {
         if (preset.isCustom) {
-            if (usePreset) {
-                setCurrentPreset(preset, updateEffect = false)
+            if (fromUser) {
+                setCurrentPreset(preset, fromUser = true)
             }
             mPreferences.edit {
                 putString(Keys.CUSTOM_PRESET, Json.encodeToString(preset))
@@ -310,7 +310,7 @@ class EqualizerManager internal constructor(context: Context) {
 
     private fun getAndSaveEmptyCustomPreset(): EQPreset {
         val emptyPreset = getEmptyPreset(CUSTOM_PRESET_NAME, true, numberOfBands)
-        setCustomPreset(emptyPreset, usePreset = false)
+        setCustomPreset(emptyPreset, fromUser = false)
         return emptyPreset
     }
 
@@ -331,7 +331,7 @@ class EqualizerManager internal constructor(context: Context) {
     fun setCustomPresetBandLevel(band: Int, level: Int) {
         var currentPreset = getCustomPresetFromCurrent()
         currentPreset.setBandLevel(band, level)
-        setCustomPreset(currentPreset)
+        setCustomPreset(currentPreset, fromUser = true)
     }
 
     /**
@@ -345,15 +345,21 @@ class EqualizerManager internal constructor(context: Context) {
         } else {
             currentPreset.setEffect(effect, value)
         }
-        setCustomPreset(currentPreset)
+        setCustomPreset(currentPreset, fromUser = true)
     }
 
-    fun setCurrentPreset(eqPreset: EQPreset, updateEffect: Boolean = true) {
+    fun setCurrentPreset(eqPreset: EQPreset, fromUser: Boolean = false) {
         mPreferences.edit {
             putString(Keys.PRESET, Json.encodeToString(eqPreset))
         }
         _currentPresetFlow.tryEmit(eqPreset)
-        if (updateEffect) {
+        if (fromUser) {
+            // We must force the preset list in the adapter to be updated so
+            // that the "Custom" entry reflects the new parameters.
+            _presetsFlow.tryEmit(presetsFlow.value.toList())
+        } else {
+            // In this case, the changes were not made by the user so these
+            // flows are not aware of the new state, we need to refresh them.
             _virtualizerFlow.tryEmit(initializeVirtualizerState(eqPreset))
             _bassBoostFlow.tryEmit(initializeBassBoostState(eqPreset))
         }

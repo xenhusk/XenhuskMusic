@@ -179,7 +179,7 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             viewModel.presetsFlow.collect { presets ->
-                presetAdapter.presets = viewModel.getEqualizerPresetsWithCustom(presets)
+                presetAdapter.presets = viewModel.getEqualizerPresetsWithCustom(presets.list)
             }
         }
 

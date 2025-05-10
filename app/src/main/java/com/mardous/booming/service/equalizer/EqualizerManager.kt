@@ -50,7 +50,7 @@ class EqualizerManager internal constructor(context: Context) {
     private val _loudnessGainFlow: MutableStateFlow<EqEffectState<Float>>
     private val _presetReverbFlow: MutableStateFlow<EqEffectState<Int>>
     private val _currentPresetFlow: MutableStateFlow<EQPreset>
-    private val _presetsFlow: MutableStateFlow<List<EQPreset>>
+    private val _presetsFlow: MutableStateFlow<EqPresetList>
 
     val eqStateFlow get() = _eqStateFlow
     val bassBoostFlow get() = _bassBoostFlow
@@ -66,7 +66,7 @@ class EqualizerManager internal constructor(context: Context) {
     val loudnessGainState get() = loudnessGainFlow.value
     val presetReverbState get() = presetReverbFlow.value
 
-    val equalizerPresets get() = presetsFlow.value
+    val equalizerPresets get() = presetsFlow.value.list
     val currentPreset get() = currentPresetFlow.value
 
     var isInitialized: Boolean
@@ -251,7 +251,7 @@ class EqualizerManager internal constructor(context: Context) {
     private fun setEqualizerPresets(presets: List<EQPreset>, updateFlow: Boolean) {
         mPreferences.edit { putString(Keys.PRESETS, Json.encodeToString(presets)) }
         if (updateFlow) {
-            _presetsFlow.tryEmit(presets)
+            _presetsFlow.tryEmit(EqPresetList(presets))
         }
     }
 
@@ -352,7 +352,7 @@ class EqualizerManager internal constructor(context: Context) {
         if (fromUser) {
             // We must force the preset list in the adapter to be updated so
             // that the "Custom" entry reflects the new parameters.
-            _presetsFlow.tryEmit(presetsFlow.value.toList())
+            _presetsFlow.tryEmit(EqPresetList(equalizerPresets))
         } else {
             // In this case, the changes were not made by the user so these
             // flows are not aware of the new state, we need to refresh them.
@@ -400,13 +400,14 @@ class EqualizerManager internal constructor(context: Context) {
         virtualizerState.apply()
     }
 
-    private fun initializePresets(): List<EQPreset> {
+    private fun initializePresets(): EqPresetList {
         val json = mPreferences.getString(Keys.PRESETS, null).orEmpty()
-        return runCatching {
+        val presets = runCatching {
             Json.decodeFromString<List<EQPreset>>(json).toMutableList()
         }.getOrElse {
             arrayListOf()
         }
+        return EqPresetList(presets)
     }
 
     private fun initializeCurrentPreset(): EQPreset {

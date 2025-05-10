@@ -30,7 +30,6 @@ import com.mardous.booming.extensions.files.getContentUri
 import com.mardous.booming.extensions.files.readString
 import com.mardous.booming.model.EQPreset
 import com.mardous.booming.mvvm.*
-import com.mardous.booming.mvvm.equalizer.EqEffectState
 import com.mardous.booming.mvvm.equalizer.EqEffectUpdate
 import com.mardous.booming.mvvm.equalizer.EqState
 import com.mardous.booming.mvvm.equalizer.EqUpdate
@@ -39,7 +38,6 @@ import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.equalizer.EqualizerManager
 import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -50,19 +48,19 @@ class EqualizerViewModel(
     private val mediaStoreWriter: MediaStoreWriter
 ) : ViewModel() {
 
-    val eqStateFlow: StateFlow<EqState> get() = equalizerManager.eqStateFlow
-    val currentPresetFlow: StateFlow<EQPreset> get() = equalizerManager.currentPresetFlow
-    val bassBoostFlow: StateFlow<EqEffectState<Float>> = equalizerManager.bassBoostFlow
-    val virtualizerFlow: StateFlow<EqEffectState<Float>> = equalizerManager.virtualizerFlow
-    val loudnessGainFlow: StateFlow<EqEffectState<Float>> = equalizerManager.loudnessGainFlow
-    val presetReverbFlow: StateFlow<EqEffectState<Int>> = equalizerManager.presetReverbFlow
-    val presetsFlow: StateFlow<List<EQPreset>> get() = equalizerManager.presetsFlow
+    val eqStateFlow get() = equalizerManager.eqStateFlow
+    val currentPresetFlow get() = equalizerManager.currentPresetFlow
+    val bassBoostFlow get() = equalizerManager.bassBoostFlow
+    val virtualizerFlow get() = equalizerManager.virtualizerFlow
+    val loudnessGainFlow get() = equalizerManager.loudnessGainFlow
+    val presetReverbFlow get() = equalizerManager.presetReverbFlow
+    val presetsFlow get() = equalizerManager.presetsFlow
 
-    val eqState: EqState get() = equalizerManager.eqState
-    val bassBoostState: EqEffectState<Float> get() = equalizerManager.bassBoostState
-    val virtualizerState: EqEffectState<Float> get() = equalizerManager.virtualizerState
-    val loudnessGainState: EqEffectState<Float> get() = equalizerManager.loudnessGainState
-    val presetReverbState: EqEffectState<Int> get() = equalizerManager.presetReverbState
+    val eqState get() = equalizerManager.eqState
+    val bassBoostState get() = equalizerManager.bassBoostState
+    val virtualizerState get() = equalizerManager.virtualizerState
+    val loudnessGainState get() = equalizerManager.loudnessGainState
+    val presetReverbState get() = equalizerManager.presetReverbState
 
     val numberOfBands: Int get() = equalizerManager.numberOfBands
     val bandLevelRange: IntArray get() = equalizerManager.bandLevelRange

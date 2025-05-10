@@ -24,12 +24,8 @@ import androidx.core.content.edit
 import com.mardous.booming.extensions.files.getFormattedFileName
 import com.mardous.booming.model.EQPreset
 import com.mardous.booming.model.EQPreset.Companion.getEmptyPreset
-import com.mardous.booming.mvvm.equalizer.EqEffectState
-import com.mardous.booming.mvvm.equalizer.EqEffectUpdate
-import com.mardous.booming.mvvm.equalizer.EqState
-import com.mardous.booming.mvvm.equalizer.EqUpdate
+import com.mardous.booming.mvvm.equalizer.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.Json
 import java.util.Locale
 import java.util.UUID
@@ -56,22 +52,22 @@ class EqualizerManager internal constructor(context: Context) {
     private val _currentPresetFlow: MutableStateFlow<EQPreset>
     private val _presetsFlow: MutableStateFlow<List<EQPreset>>
 
-    val eqStateFlow: StateFlow<EqState> get() = _eqStateFlow
-    val bassBoostFlow: StateFlow<EqEffectState<Float>> get() = _bassBoostFlow
-    val virtualizerFlow: StateFlow<EqEffectState<Float>> get() = _virtualizerFlow
-    val loudnessGainFlow: StateFlow<EqEffectState<Float>> get() = _loudnessGainFlow
-    val presetReverbFlow: StateFlow<EqEffectState<Int>> get() = _presetReverbFlow
-    val currentPresetFlow: StateFlow<EQPreset> get() = _currentPresetFlow
-    val presetsFlow: StateFlow<List<EQPreset>> get() = _presetsFlow
+    val eqStateFlow get() = _eqStateFlow
+    val bassBoostFlow get() = _bassBoostFlow
+    val virtualizerFlow get() = _virtualizerFlow
+    val loudnessGainFlow get() = _loudnessGainFlow
+    val presetReverbFlow get() = _presetReverbFlow
+    val currentPresetFlow get() = _currentPresetFlow
+    val presetsFlow get() = _presetsFlow
 
-    val eqState: EqState get() = eqStateFlow.value
-    val bassBoostState: EqEffectState<Float> get() = bassBoostFlow.value
-    val virtualizerState: EqEffectState<Float> get() = virtualizerFlow.value
-    val loudnessGainState: EqEffectState<Float> get() = loudnessGainFlow.value
-    val presetReverbState: EqEffectState<Int> get() = presetReverbFlow.value
+    val eqState get() = eqStateFlow.value
+    val bassBoostState get() = bassBoostFlow.value
+    val virtualizerState get() = virtualizerFlow.value
+    val loudnessGainState get() = loudnessGainFlow.value
+    val presetReverbState get() = presetReverbFlow.value
 
-    val equalizerPresets: List<EQPreset> get() = presetsFlow.value
-    val currentPreset: EQPreset get() = currentPresetFlow.value
+    val equalizerPresets get() = presetsFlow.value
+    val currentPreset get() = currentPresetFlow.value
 
     var isInitialized: Boolean
         get() = mPreferences.getBoolean(Keys.IS_INITIALIZED, false)
@@ -100,13 +96,13 @@ class EqualizerManager internal constructor(context: Context) {
             //The user doesn't have the AudioEffect/AudioEffect.Descriptor class. How sad.
         }
 
-        _eqStateFlow = MutableStateFlow<EqState>(initializeEqState())
-        _presetsFlow = MutableStateFlow<List<EQPreset>>(initializePresets())
-        _currentPresetFlow = MutableStateFlow<EQPreset>(initializeCurrentPreset())
-        _bassBoostFlow = MutableStateFlow<EqEffectState<Float>>(initializeBassBoostState())
-        _virtualizerFlow = MutableStateFlow<EqEffectState<Float>>(initializeVirtualizerState())
-        _loudnessGainFlow = MutableStateFlow<EqEffectState<Float>>(initializeLoudnessGain())
-        _presetReverbFlow = MutableStateFlow<EqEffectState<Int>>(initializePresetReverb())
+        _eqStateFlow = MutableStateFlow(initializeEqState())
+        _presetsFlow = MutableStateFlow(initializePresets())
+        _currentPresetFlow = MutableStateFlow(initializeCurrentPreset())
+        _bassBoostFlow = MutableStateFlow(initializeBassBoostState())
+        _virtualizerFlow = MutableStateFlow(initializeVirtualizerState())
+        _loudnessGainFlow = MutableStateFlow(initializeLoudnessGain())
+        _presetReverbFlow = MutableStateFlow(initializePresetReverb())
     }
 
     suspend fun initializeEqualizer() {

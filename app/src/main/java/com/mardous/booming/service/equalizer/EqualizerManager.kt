@@ -148,10 +148,6 @@ class EqualizerManager internal constructor(context: Context) {
         eqSession.closeEqualizerSessions(internal, audioSessionId)
     }
 
-    fun update() {
-        eqSession.update()
-    }
-
     fun release() {
         eqSession.release()
     }
@@ -361,6 +357,7 @@ class EqualizerManager internal constructor(context: Context) {
             _virtualizerFlow.tryEmit(initializeVirtualizerState(eqPreset))
             _bassBoostFlow.tryEmit(initializeBassBoostState(eqPreset))
         }
+        eqSession.update()
     }
 
     suspend fun setEqualizerState(update: EqUpdate<EqState>, apply: Boolean) {
@@ -428,6 +425,7 @@ class EqualizerManager internal constructor(context: Context) {
                 mPreferences.edit(commit = true) {
                     putBoolean(Keys.GLOBAL_ENABLED, state.isEnabled)
                 }
+                eqSession.update()
             }
         )
     }
@@ -442,6 +440,7 @@ class EqualizerManager internal constructor(context: Context) {
                     putBoolean(Keys.LOUDNESS_ENABLED, state.isEnabled)
                     putFloat(Keys.LOUDNESS_GAIN, state.value)
                 }
+                eqSession.update()
             }
         )
     }
@@ -456,6 +455,7 @@ class EqualizerManager internal constructor(context: Context) {
                     putBoolean(Keys.PRESET_REVERB_ENABLED, state.isEnabled)
                     putInt(Keys.PRESET_REVERB_PRESET, state.value)
                 }
+                eqSession.update()
             }
         )
     }

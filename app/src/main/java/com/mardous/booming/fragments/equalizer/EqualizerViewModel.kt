@@ -80,7 +80,6 @@ class EqualizerViewModel(
         // set parameter and state
         viewModelScope.launch(Default) {
             equalizerManager.setEqualizerState(EqUpdate<EqState>(eqState, isEnabled), apply)
-            if (apply) updateEqualizer()
         }
     }
 
@@ -90,7 +89,6 @@ class EqualizerViewModel(
         apply: Boolean = true
     ) = viewModelScope.launch(Default) {
         equalizerManager.setLoudnessGain(EqEffectUpdate(loudnessGainState, isEnabled, value), apply)
-        if (apply) updateEqualizer()
     }
 
     fun setPresetReverb(
@@ -99,7 +97,6 @@ class EqualizerViewModel(
         apply: Boolean = true
     ) = viewModelScope.launch(Default) {
         equalizerManager.setPresetReverb(EqEffectUpdate(presetReverbState, isEnabled, value), apply)
-        if (apply) updateEqualizer()
     }
 
     fun setBassBoost(
@@ -108,7 +105,6 @@ class EqualizerViewModel(
         apply: Boolean = true
     ) = viewModelScope.launch(Default) {
         equalizerManager.setBassBoost(EqEffectUpdate(bassBoostState, isEnabled, value), apply)
-        if (apply) updateEqualizer()
     }
 
     fun setVirtualizer(
@@ -117,22 +113,18 @@ class EqualizerViewModel(
         apply: Boolean = true
     ) = viewModelScope.launch(Default) {
         equalizerManager.setVirtualizer(EqEffectUpdate(virtualizerState, isEnabled, value), apply)
-        if (apply) updateEqualizer()
     }
 
     fun setEqualizerPreset(eqPreset: EQPreset) = viewModelScope.launch(IO) {
         equalizerManager.setCurrentPreset(eqPreset)
-        updateEqualizer()
     }
 
     fun setCustomPresetBandLevel(band: Int, level: Int) = viewModelScope.launch(Default) {
         equalizerManager.setCustomPresetBandLevel(band, level)
-        updateEqualizer()
     }
 
     fun applyPendingStates() = viewModelScope.launch(IO) {
         equalizerManager.applyPendingStates()
-        updateEqualizer()
     }
 
     fun getEqualizerPresetsWithCustom(presets: List<EQPreset>) =
@@ -259,10 +251,6 @@ class EqualizerViewModel(
         } else {
             emit(PresetExportResult(false))
         }
-    }
-
-    fun updateEqualizer() = viewModelScope.launch(IO) {
-        equalizerManager.update()
     }
 
     fun resetEqualizer() = viewModelScope.launch(IO) {

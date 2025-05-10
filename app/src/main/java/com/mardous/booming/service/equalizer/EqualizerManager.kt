@@ -28,8 +28,6 @@ import com.mardous.booming.mvvm.equalizer.EqEffectState
 import com.mardous.booming.mvvm.equalizer.EqEffectUpdate
 import com.mardous.booming.mvvm.equalizer.EqState
 import com.mardous.booming.mvvm.equalizer.EqUpdate
-import com.mardous.booming.util.PLAYBACK_PITCH
-import com.mardous.booming.util.PLAYBACK_SPEED
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.Json
@@ -306,7 +304,7 @@ class EqualizerManager internal constructor(context: Context) {
     private fun setCustomPreset(preset: EQPreset, usePreset: Boolean = true) {
         if (preset.isCustom) {
             if (usePreset) {
-                setCurrentPreset(preset)
+                setCurrentPreset(preset, updateEffect = false)
             }
             mPreferences.edit {
                 putString(Keys.CUSTOM_PRESET, Json.encodeToString(preset))
@@ -354,11 +352,15 @@ class EqualizerManager internal constructor(context: Context) {
         setCustomPreset(currentPreset)
     }
 
-    fun setCurrentPreset(eqPreset: EQPreset) {
+    fun setCurrentPreset(eqPreset: EQPreset, updateEffect: Boolean = true) {
         mPreferences.edit {
             putString(Keys.PRESET, Json.encodeToString(eqPreset))
         }
         _currentPresetFlow.tryEmit(eqPreset)
+        if (updateEffect) {
+            _virtualizerFlow.tryEmit(initializeVirtualizerState(eqPreset))
+            _bassBoostFlow.tryEmit(initializeBassBoostState(eqPreset))
+        }
     }
 
     suspend fun setEqualizerState(update: EqUpdate<EqState>, apply: Boolean) {
@@ -458,22 +460,22 @@ class EqualizerManager internal constructor(context: Context) {
         )
     }
 
-    private fun initializeBassBoostState(): EqEffectState<Float> {
+    private fun initializeBassBoostState(preset: EQPreset = currentPreset): EqEffectState<Float> {
         return EqEffectState(
             isSupported = isBassBoostSupported,
-            isEnabled = currentPreset.hasEffect(EFFECT_TYPE_BASS_BOOST),
-            value = currentPreset.getEffect(EFFECT_TYPE_BASS_BOOST),
+            isEnabled = preset.hasEffect(EFFECT_TYPE_BASS_BOOST),
+            value = preset.getEffect(EFFECT_TYPE_BASS_BOOST),
             onCommitEffect = { state ->
                 setCustomPresetEffect(EFFECT_TYPE_BASS_BOOST, state.value)
             }
         )
     }
 
-    private fun initializeVirtualizerState(): EqEffectState<Float> {
+    private fun initializeVirtualizerState(preset: EQPreset = currentPreset): EqEffectState<Float> {
         return EqEffectState(
             isSupported = isVirtualizerSupported,
-            isEnabled = currentPreset.hasEffect(EFFECT_TYPE_VIRTUALIZER),
-            value = currentPreset.getEffect(EFFECT_TYPE_VIRTUALIZER),
+            isEnabled = preset.hasEffect(EFFECT_TYPE_VIRTUALIZER),
+            value = preset.getEffect(EFFECT_TYPE_VIRTUALIZER),
             onCommitEffect = { state ->
                 setCustomPresetEffect(EFFECT_TYPE_VIRTUALIZER, state.value)
             }

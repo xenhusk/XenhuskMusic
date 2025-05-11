@@ -108,8 +108,14 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
 
         updateEditor()
 
-        lyricsViewModel.getAllLyrics(song).observe(viewLifecycleOwner) {
-            binding.editingLrcFile.isVisible = it.fromLocalFile
+        lyricsViewModel.getAllLyrics(song, fromEditor = true).observe(viewLifecycleOwner) {
+            if (it.fromLocalFile) {
+                binding.editionHint.isVisible = true
+                binding.editionHint.setText(R.string.editing_lrc_file_warning)
+            } else if (it.embeddedSynced) {
+                binding.editionHint.isVisible = true
+                binding.editionHint.setText(R.string.editing_embedded_synced_lyrics_warning)
+            }
             binding.plainInput.setText(it.data)
             binding.plainInput.doOnTextChanged { _, _, _, _ -> plainLyricsModified = true }
             binding.syncedInput.setText(it.lrcData.getText())

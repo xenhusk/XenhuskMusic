@@ -464,6 +464,7 @@
     <string name="lyrics_were_updated_successfully">Lyrics were updated successfully.</string>
     <string name="failed_to_update_lyrics">Failed to update lyrics.</string>
     <string name="editing_lrc_file_warning">The synced lyrics come from an LRC file. Changes will be saved directly to that file.</string>
+    <string name="editing_embedded_synced_lyrics_warning">This audio file includes synced lyrics in ID3v2. This format takes priority over downloaded lyrics.</string>
 
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Sleep timer</string>

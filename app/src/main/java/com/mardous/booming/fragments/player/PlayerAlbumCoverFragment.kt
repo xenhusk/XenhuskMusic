@@ -274,8 +274,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
             }
             lyricsViewModel.getAllLyrics(
                 MusicPlayer.currentSong,
-                allowDownload = true,
-                isFallbackAllowed = true
+                allowDownload = true
             ).observe(viewLifecycleOwner) {
                 if (it.loading)
                     return@observe

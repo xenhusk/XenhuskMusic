@@ -92,7 +92,7 @@ class LyricsFragment : AbsMainActivityFragment(R.layout.fragment_lyrics),
     }
 
     private fun loadLyrics() {
-        lyricsViewModel.getAllLyrics(song, allowDownload = true, isFallbackAllowed = true)
+        lyricsViewModel.getAllLyrics(song, allowDownload = true)
             .observe(viewLifecycleOwner) { lyrics ->
                 if (lyrics.loading) {
                     binding.progress.show()

@@ -24,6 +24,7 @@ class LyricsResult(
     val data: String? = null,
     val lrcData: LrcLyrics = LrcLyrics(),
     val fromLocalFile: Boolean = false,
+    val embeddedSynced: Boolean = false,
     val loading: Boolean = false,
 ) {
     val hasData: Boolean get() = !data.isNullOrEmpty()

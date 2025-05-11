@@ -463,6 +463,7 @@
     <string name="lyrics_were_updated_successfully">La letra se actualizó correctamente.</string>
     <string name="failed_to_update_lyrics">La letra no se pudo actualizar.</string>
     <string name="editing_lrc_file_warning">La letra sincronizada proviene de un archivo LRC. Los cambios se guardarán en ese archivo.</string>
+    <string name="editing_embedded_synced_lyrics_warning">Este archivo de audio incluye una letra sincronizada en ID3v2. Este formato tiene prioridad sobre las letras descargadas.</string>
 
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Programador de apagado</string>

@@ -18,6 +18,7 @@ import com.mardous.booming.model.Song
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
+import java.util.regex.Pattern
 
 /**
  * Created by hefuyi on 2016/11/8.
@@ -27,18 +28,11 @@ object LyricsUtil {
 
     fun writeLrc(song: Song, lrcContext: String) {
         var writer: FileWriter? = null
-        val location: File?
         try {
-            if (isLrcOriginalFileExist(song.data)) {
-                location = getLocalLyricOriginalFile(song.data)
-            } else if (isLrcFileExist(song.title, song.artistName)) {
-                location = getLocalLyricFile(song.title, song.artistName)
-            } else {
-                location = File(getLrcPath(song.title, song.artistName))
-                if (location.parentFile?.exists() != true) {
-                    location.parentFile?.mkdirs()
-                }
-            }
+            var location = getLocalLyricOriginalFile(song)
+                ?: getLocalLyricFile(song)
+                ?: File("$lrcRootPath${song.artistName} - ${song.title}.lrc")
+
             writer = FileWriter(location)
             writer.write(lrcContext)
         } catch (e: IOException) {
@@ -52,43 +46,68 @@ object LyricsUtil {
         }
     }
 
-    private fun isLrcFileExist(title: String, artist: String): Boolean {
-        val file = File(getLrcPath(title, artist))
-        return file.exists()
+    private fun getLocalLyricFile(song: Song): File? {
+        val file = File(song.data)
+        val dir = File(lrcRootPath)
+        return getLrcFileFromDir(dir, file, song)
     }
 
-    private fun isLrcOriginalFileExist(path: String): Boolean {
-        val file = File(getLrcOriginalPath(path))
-        return file.exists()
+    private fun getLocalLyricOriginalFile(song: Song): File? {
+        val file = File(song.data)
+        val dir = file.absoluteFile.parentFile
+        return getLrcFileFromDir(dir, file, song)
     }
 
-    private fun getLocalLyricFile(title: String, artist: String): File? {
-        return File(getLrcPath(title, artist)).takeIf { it.exists() }
-    }
+    private fun getLrcFileFromDir(dir: File?, file: File, song: Song): File? {
+        if (dir != null && dir.exists() && dir.isDirectory) {
+            val format = ".*%s.*\\.(lrc|txt)"
 
-    private fun getLocalLyricOriginalFile(path: String): File? {
-        return File(getLrcOriginalPath(path)).takeIf { it.exists() }
-    }
+            val filename = Pattern.quote(file.nameWithoutExtension)
+            val songinfo = Pattern.quote("${song.artistName} - ${song.title}")
+            val songtitle = Pattern.quote(song.title)
 
-    private fun getLrcPath(title: String, artist: String): String {
-        return "$lrcRootPath$title - $artist.lrc"
-    }
+            val patterns = mutableListOf<Pattern>().apply {
+                add(
+                    Pattern.compile(
+                        String.format(format, filename),
+                        Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE
+                    )
+                )
+                add(
+                    Pattern.compile(
+                        String.format(format, songinfo),
+                        Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE
+                    )
+                )
+                add(
+                    Pattern.compile(
+                        String.format(format, songtitle),
+                        Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE
+                    )
+                )
+            }
 
-    private fun getLrcOriginalPath(filePath: String): String {
-        return filePath.replace(filePath.substring(filePath.lastIndexOf(".") + 1), "lrc")
+            val files = dir.listFiles { f: File ->
+                if (f.isDirectory) {
+                    false
+                } else {
+                    for (pattern in patterns) {
+                        if (pattern.matcher(f.name).matches()) return@listFiles true
+                    }
+                    false
+                }
+            }
+
+            return files?.firstOrNull()
+        }
+        return null
     }
 
     fun getSyncedLyricsFile(song: Song): File? {
-        return when {
-            isLrcOriginalFileExist(song.data) -> {
-                getLocalLyricOriginalFile(song.data)
-            }
-            isLrcFileExist(song.title, song.artistName) -> {
-                getLocalLyricFile(song.title, song.artistName)
-            }
-            else -> {
-                null
-            }
+        var lrcFile = getLocalLyricOriginalFile(song)
+        if (lrcFile == null || !lrcFile.exists()) {
+            lrcFile = getLocalLyricFile(song)
         }
+        return lrcFile
     }
 }

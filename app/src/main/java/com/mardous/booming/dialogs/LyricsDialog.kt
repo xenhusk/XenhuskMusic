@@ -45,7 +45,7 @@ class LyricsDialog : DialogFragment() {
                 goToDestination(requireActivity(), R.id.nav_lyrics)
             }
             .create { dialog ->
-                lyricsViewModel.getLyrics(song, true).observe(this) { result ->
+                lyricsViewModel.getLyrics(song).observe(this) { result ->
                     if (result.hasData) {
                         dialog.setMessage(result.data)
                     }

@@ -51,7 +51,6 @@ import kotlinx.coroutines.launch
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
 import java.util.EnumMap
-import java.util.regex.Pattern
 
 /**
  * @author Christians M. A. (mardous)
@@ -87,7 +86,7 @@ class LyricsViewModel(
 
             emit(LyricsResult(id = song.id, loading = true))
 
-            val embeddedLyrics = getEmbeddedLyrics(song, isFallbackAllowed = !fromEditor).orEmpty()
+            val embeddedLyrics = getEmbeddedLyrics(song).orEmpty()
             val embeddedSynced = LrcUtils.parse(embeddedLyrics)
 
             val localLrc = LyricsUtil.getSyncedLyricsFile(song)?.let { LrcUtils.parseLrcFromFile(it) }
@@ -127,10 +126,10 @@ class LyricsViewModel(
             emit(LyricsResult(song.id, embeddedLyrics))
         }
 
-    fun getLyrics(song: Song, isFallbackAllowed: Boolean = false): LiveData<LyricsResult> =
+    fun getLyrics(song: Song): LiveData<LyricsResult> =
         liveData(IO + silentHandler) {
             if (song.id != Song.emptySong.id) {
-                emit(LyricsResult(song.id, getEmbeddedLyrics(song, isFallbackAllowed)))
+                emit(LyricsResult(song.id, getEmbeddedLyrics(song)))
             }
         }
 
@@ -284,61 +283,13 @@ class LyricsViewModel(
             }
         }
 
-    private fun getEmbeddedLyrics(song: Song, isFallbackAllowed: Boolean): String? {
-        var lyrics: String? = null
-
+    private fun getEmbeddedLyrics(song: Song): String? {
         val file = File(song.data)
-
         try {
-            lyrics = file.toAudioFile()?.getBestTag(false)?.getFirst(FieldKey.LYRICS)
+            return file.toAudioFile()?.getBestTag(false)?.getFirst(FieldKey.LYRICS)
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }
-
-        if (lyrics.isNullOrEmpty() && isFallbackAllowed) {
-            val dir = file.absoluteFile.parentFile
-            if (dir != null && dir.exists() && dir.isDirectory) {
-                val format = ".*%s.*\\.(lrc|txt)"
-
-                val filename = Pattern.quote(file.nameWithoutExtension)
-                val songtitle = Pattern.quote(song.title)
-
-                val patterns = ArrayList<Pattern>().apply {
-                    add(
-                        Pattern.compile(
-                            String.format(format, filename),
-                            Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE
-                        )
-                    )
-                    add(
-                        Pattern.compile(
-                            String.format(format, songtitle),
-                            Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE
-                        )
-                    )
-                }
-
-                val files = dir.listFiles { f: File ->
-                    for (pattern in patterns) {
-                        if (pattern.matcher(f.name).matches()) return@listFiles true
-                    }
-                    false
-                }
-
-                if (files != null && files.isNotEmpty()) {
-                    for (f in files) {
-                        try {
-                            val newLyrics = f.readText()
-                            if (newLyrics.trim().isNotEmpty()) {
-                                lyrics = newLyrics
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                }
-            }
-        }
-        return lyrics
+        return null
     }
 }

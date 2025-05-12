@@ -446,6 +446,9 @@
     <string name="action_hide_lyrics">Ocultar letra</string>
     <string name="plain_lyrics">No sincronizado</string>
     <string name="synced_lyrics">Sincronizado</string>
+    <string name="embedded_lyrics">Incrustada</string>
+    <string name="downloaded_lyrics">Descargada</string>
+    <string name="lrc_lyrics">Archivo LRC</string>
     <string name="action_import_synchronized_lyrics">Importar letra sincronizada</string>
     <string name="action_share_synchronized_lyrics">Compartir letra sincronizada</string>
     <string name="do_you_want_to_import_lrc_lyrics_for_song_x"><![CDATA[¿Quieres importar una letra sincronizada en LRC para la canción <b>%s</b>?]]></string>
@@ -462,8 +465,8 @@
     <string name="no_synced_lyrics_found">No se encontró la letra sincronizada</string>
     <string name="lyrics_were_updated_successfully">La letra se actualizó correctamente.</string>
     <string name="failed_to_update_lyrics">La letra no se pudo actualizar.</string>
-    <string name="editing_lrc_file_warning">La letra sincronizada proviene de un archivo LRC. Los cambios se guardarán en ese archivo.</string>
-    <string name="editing_embedded_synced_lyrics_warning">Este archivo de audio incluye una letra sincronizada en ID3v2. Este formato tiene prioridad sobre las letras descargadas.</string>
+    <string name="lyrics_source_lrc_file">La letra sincronizada proviene de un archivo LRC. Los cambios se guardarán en ese archivo.</string>
+    <string name="lyrics_source_embedded_synced">La letra incrustada está sincronizada. Tendrá mayor prioridad que las letras descargadas.</string>
 
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Programador de apagado</string>

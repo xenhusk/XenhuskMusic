@@ -97,18 +97,18 @@
             app:layout_constraintEnd_toEndOf="parent">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/normalButton"
+                android:id="@+id/embeddedButton"
                 style="?materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/normal_lyrics" />
+                android:text="@string/embedded_lyrics" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/syncedButton"
+                android:id="@+id/externalButton"
                 style="?materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/synced_lyrics" />
+                android:text="@string/downloaded_lyrics" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -121,7 +121,7 @@
             android:paddingStart="@dimen/lyrics_editor_padding_horizontal"
             android:paddingEnd="@dimen/lyrics_editor_padding_horizontal"
             app:layout_constraintTop_toBottomOf="@+id/toggleGroup"
-            app:layout_constraintBottom_toTopOf="@+id/editionHint">
+            app:layout_constraintBottom_toTopOf="@+id/save">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/plainInputLayout"
@@ -157,21 +157,6 @@
             </com.google.android.material.textfield.TextInputLayout>
 
         </FrameLayout>
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/editionHint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/lyrics_editor_padding_vertical"
-            android:paddingStart="@dimen/lyrics_editor_padding_horizontal"
-            android:paddingEnd="@dimen/lyrics_editor_padding_horizontal"
-            android:textAlignment="center"
-            android:textAppearance="?textAppearanceCaption"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/save"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="@string/editing_lrc_file_warning"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/search"

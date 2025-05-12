@@ -100,18 +100,18 @@
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/normalButton"
+                    android:id="@+id/embeddedButton"
                     style="?materialButtonOutlinedStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/normal_lyrics" />
+                    android:text="@string/embedded_lyrics" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/syncedButton"
+                    android:id="@+id/externalButton"
                     style="?materialButtonOutlinedStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/synced_lyrics" />
+                    android:text="@string/downloaded_lyrics" />
 
             </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -130,21 +130,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:viewBindingType="com.google.android.material.progressindicator.BaseProgressIndicator"
                 tools:visibility="visible" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/editionHint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="24dp"
-                android:paddingStart="48dp"
-                android:paddingEnd="48dp"
-                android:textAlignment="center"
-                android:textAppearance="?textAppearanceCaption"
-                android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@+id/progressIndicator"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:text="@string/editing_lrc_file_warning"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

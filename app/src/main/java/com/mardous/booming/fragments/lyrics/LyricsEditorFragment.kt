@@ -26,6 +26,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
@@ -55,14 +56,15 @@ import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.http.Result
 import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
+import com.mardous.booming.mvvm.LyricsResult
+import com.mardous.booming.mvvm.LyricsType
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import java.io.File
 
 /**
  * @author Christians M. A. (mardous)
  */
-class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_editor),
-    MaterialButtonToggleGroup.OnButtonCheckedListener {
+class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_editor) {
 
     private val lyricsViewModel: LyricsViewModel by activityViewModel()
     private val args: LyricsEditorFragmentArgs by navArgs()
@@ -91,8 +93,6 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             }
         }
 
-        binding.toggleGroup.check(R.id.normalButton)
-        binding.toggleGroup.addOnButtonCheckedListener(this)
         binding.search.setOnClickListener { searchLyrics() }
         binding.download.setOnClickListener { downloadLyrics() }
         binding.save.setOnClickListener { saveLyrics() }
@@ -106,26 +106,54 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             .transition(getDefaultGlideTransition())
             .into(binding.image)
 
-        updateEditor()
+        binding.progressIndicator.show()
 
         lyricsViewModel.getAllLyrics(song, fromEditor = true).observe(viewLifecycleOwner) {
-            if (it.fromLocalFile) {
-                binding.editionHint.isVisible = true
-                binding.editionHint.setText(R.string.editing_lrc_file_warning)
-            } else if (it.embeddedSynced) {
-                binding.editionHint.isVisible = true
-                binding.editionHint.setText(R.string.editing_embedded_synced_lyrics_warning)
-            }
+            setupButtonBehavior(it)
+            binding.progressIndicator.hide()
             binding.plainInput.setText(it.data)
             binding.plainInput.doOnTextChanged { _, _, _, _ -> plainLyricsModified = true }
             binding.syncedInput.setText(it.lrcData.getText())
         }
     }
 
-    private fun updateEditor() {
-        val isSyncedMode = binding.toggleGroup.checkedButtonId == R.id.syncedButton
-        binding.plainInputLayout.isGone = isSyncedMode
-        binding.syncedInputLayout.isVisible = isSyncedMode
+    private fun setupButtonBehavior(lyrics: LyricsResult) {
+        if (lyrics.loading)
+            return
+
+        lyrics.sources.forEach {
+            val button = requireView().findViewById<Button>(it.key.idRes)
+            button?.setText(it.value.titleRes)
+        }
+        binding.toggleGroup.addOnButtonCheckedListener(object : MaterialButtonToggleGroup.OnButtonCheckedListener {
+            override fun onButtonChecked(group: MaterialButtonToggleGroup?, checkedId: Int, isChecked: Boolean) {
+                if (!isChecked)
+                    return
+
+                val type = LyricsType.entries.first { it.idRes == checkedId }
+                binding.plainInputLayout.isGone = type.isExternal
+                binding.syncedInputLayout.isVisible = type.isExternal
+
+                val button = requireView().findViewById<Button>(checkedId)
+                if (button.getTag(R.id.id_balloon_shown) == true)
+                    return
+
+                val source = lyrics.sources[type]
+                if (source != null && source.descriptionRes != 0) {
+                    val balloon = createBoomingMusicBalloon {
+                        setDismissWhenClicked(true)
+                        setText(getString(source.descriptionRes))
+                    }
+                    if (isLandscape()) {
+                        balloon?.showAlignTop(button)
+                    } else {
+                        balloon?.showAlignBottom(button)
+                    }
+                }
+                button.setTag(R.id.id_balloon_shown, true)
+            }
+        })
+        binding.toggleGroup.check(R.id.embeddedButton)
     }
 
     private fun searchLyrics() {
@@ -162,10 +190,10 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
                             showLyricsSelector(downloadedLyrics)
                         } else if (!downloadedLyrics.syncedLyrics.isNullOrEmpty()) {
                             binding.syncedInput.setText(downloadedLyrics.syncedLyrics)
-                            binding.toggleGroup.check(R.id.syncedButton)
+                            binding.toggleGroup.check(R.id.embeddedButton)
                         } else if (!downloadedLyrics.plainLyrics.isNullOrEmpty()) {
                             binding.plainInput.setText(downloadedLyrics.plainLyrics)
-                            binding.toggleGroup.check(R.id.normalButton)
+                            binding.toggleGroup.check(R.id.externalButton)
                         } else {
                             downloadError()
                         }
@@ -250,10 +278,6 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         }
     }
 
-    override fun onButtonChecked(group: MaterialButtonToggleGroup, checkedId: Int, isChecked: Boolean) {
-        updateEditor()
-    }
-
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
         when (menuItem.itemId) {
@@ -263,4 +287,10 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             }
             else -> false
         }
+
+    override fun onDestroyView() {
+        binding.toggleGroup.clearOnButtonCheckedListeners()
+        super.onDestroyView()
+        _binding = null
+    }
 }

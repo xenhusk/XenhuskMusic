@@ -17,17 +17,33 @@
 
 package com.mardous.booming.mvvm
 
+import androidx.annotation.IdRes
+import androidx.annotation.StringRes
+import com.mardous.booming.R
 import com.mardous.booming.lyrics.LrcLyrics
 
 class LyricsResult(
     val id: Long,
     val data: String? = null,
     val lrcData: LrcLyrics = LrcLyrics(),
-    val fromLocalFile: Boolean = false,
-    val embeddedSynced: Boolean = false,
+    val sources: Map<LyricsType, LyricsSource> = hashMapOf(),
     val loading: Boolean = false,
 ) {
     val hasData: Boolean get() = !data.isNullOrEmpty()
     val isSynced: Boolean get() = lrcData.hasLines
     val isEmpty: Boolean get() = !hasData && !isSynced
+}
+
+enum class LyricsType(@IdRes val idRes: Int) {
+    Embedded(R.id.embeddedButton),
+    External(R.id.externalButton);
+
+    val isExternal get() = this == External
+}
+
+enum class LyricsSource(@StringRes val titleRes: Int, @StringRes val descriptionRes: Int = 0) {
+    Embedded(R.string.embedded_lyrics),
+    EmbeddedSynced(R.string.embedded_lyrics, R.string.lyrics_source_embedded_synced),
+    Downloaded(R.string.downloaded_lyrics),
+    Lrc(R.string.lrc_lyrics, R.string.lyrics_source_lrc_file)
 }

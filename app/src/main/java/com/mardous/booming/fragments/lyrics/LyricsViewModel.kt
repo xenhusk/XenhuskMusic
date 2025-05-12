@@ -41,6 +41,8 @@ import com.mardous.booming.misc.TagWriter
 import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
 import com.mardous.booming.mvvm.LyricsResult
+import com.mardous.booming.mvvm.LyricsSource
+import com.mardous.booming.mvvm.LyricsType
 import com.mardous.booming.mvvm.SaveLyricsResult
 import com.mardous.booming.recordException
 import com.mardous.booming.util.LyricsUtil
@@ -80,51 +82,72 @@ class LyricsViewModel(
         }
     }
 
-    fun getAllLyrics(song: Song, allowDownload: Boolean = false, fromEditor: Boolean = false): LiveData<LyricsResult> =
-        liveData(IO + silentHandler) {
-            check(song.id != Song.emptySong.id)
+    fun getAllLyrics(
+        song: Song,
+        allowDownload: Boolean = false,
+        fromEditor: Boolean = false
+    ): LiveData<LyricsResult> = liveData(IO + silentHandler) {
+        check(song.id != Song.emptySong.id)
 
-            emit(LyricsResult(id = song.id, loading = true))
+        emit(LyricsResult(id = song.id, loading = true))
 
-            val embeddedLyrics = getEmbeddedLyrics(song).orEmpty()
-            val embeddedSynced = LrcUtils.parse(embeddedLyrics)
+        val embeddedLyrics = getEmbeddedLyrics(song).orEmpty()
+        val embeddedSynced = LrcUtils.parse(embeddedLyrics)
 
-            val localLrc = LyricsUtil.getSyncedLyricsFile(song)?.let { LrcUtils.parseLrcFromFile(it) }
-            if (localLrc?.hasLines == true) {
-                emit(LyricsResult(song.id, embeddedLyrics, localLrc, fromLocalFile = true))
-                return@liveData
-            }
-
-            val storedSynced = lyricsDao.getLyrics(song.id)?.let { LrcUtils.parse(it.syncedLyrics) }
-            if (embeddedSynced.hasLines) {
-                if (fromEditor) {
-                    val lrcData = if (storedSynced?.hasLines == true) storedSynced else LrcLyrics()
-                    emit(LyricsResult(song.id, data = embeddedLyrics, lrcData = lrcData, embeddedSynced = true))
-                } else {
-                    emit(LyricsResult(song.id, lrcData = embeddedSynced))
-                }
-                return@liveData
-            }
-
-            if (storedSynced?.hasLines == true) {
-                emit(LyricsResult(song.id, data = embeddedLyrics, lrcData = storedSynced))
-                return@liveData
-            }
-
-            if (allowDownload && appContext().isAllowedToDownloadMetadata()) {
-                val downloaded = runCatching { lyricsService.getLyrics(song) }.getOrNull()
-                if (downloaded?.isSynced == true) {
-                    val lrcData = LrcUtils.parse(downloaded.syncedLyrics!!)
-                    if (lrcData.hasLines) {
-                        lyricsDao.insertLyrics(song.toLyricsEntity(lrcData.getText(), autoDownload = true))
-                        emit(LyricsResult(song.id, data = embeddedLyrics, lrcData = lrcData))
-                        return@liveData
-                    }
-                }
-            }
-
-            emit(LyricsResult(song.id, embeddedLyrics))
+        val localLrc = LyricsUtil.getSyncedLyricsFile(song)?.let { LrcUtils.parseLrcFromFile(it) }
+        if (localLrc?.hasLines == true) {
+            val embeddedSource = if (embeddedSynced.hasLines) LyricsSource.EmbeddedSynced else LyricsSource.Embedded
+            emit(
+                LyricsResult(
+                    song.id,
+                    embeddedLyrics,
+                    localLrc,
+                    sources = hashMapOf(
+                        LyricsType.Embedded to embeddedSource,
+                        LyricsType.External to LyricsSource.Lrc
+                    )
+                )
+            )
+            return@liveData
         }
+
+        val storedSynced = lyricsDao.getLyrics(song.id)?.let { LrcUtils.parse(it.syncedLyrics) }
+        if (embeddedSynced.hasLines) {
+            if (fromEditor) {
+                val lrcData = if (storedSynced?.hasLines == true) storedSynced else LrcLyrics()
+                emit(
+                    LyricsResult(
+                        song.id,
+                        data = embeddedLyrics,
+                        lrcData = lrcData,
+                        sources = hashMapOf(LyricsType.Embedded to LyricsSource.EmbeddedSynced)
+                    )
+                )
+            } else {
+                emit(LyricsResult(song.id, lrcData = embeddedSynced))
+            }
+            return@liveData
+        }
+
+        if (storedSynced?.hasLines == true) {
+            emit(LyricsResult(song.id, data = embeddedLyrics, lrcData = storedSynced))
+            return@liveData
+        }
+
+        if (allowDownload && appContext().isAllowedToDownloadMetadata()) {
+            val downloaded = runCatching { lyricsService.getLyrics(song) }.getOrNull()
+            if (downloaded?.isSynced == true) {
+                val lrcData = LrcUtils.parse(downloaded.syncedLyrics!!)
+                if (lrcData.hasLines) {
+                    lyricsDao.insertLyrics(song.toLyricsEntity(lrcData.getText(), autoDownload = true))
+                    emit(LyricsResult(song.id, data = embeddedLyrics, lrcData = lrcData))
+                    return@liveData
+                }
+            }
+        }
+
+        emit(LyricsResult(song.id, embeddedLyrics))
+    }
 
     fun getLyrics(song: Song): LiveData<LyricsResult> =
         liveData(IO + silentHandler) {

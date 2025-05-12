@@ -449,6 +449,7 @@
     <string name="embedded_lyrics">Incrustada</string>
     <string name="downloaded_lyrics">Descargada</string>
     <string name="lrc_lyrics">Archivo LRC</string>
+    <string name="show_lyrics_help">Mostrar ayuda sobre letras</string>
     <string name="action_import_synchronized_lyrics">Importar letra sincronizada</string>
     <string name="action_share_synchronized_lyrics">Compartir letra sincronizada</string>
     <string name="do_you_want_to_import_lrc_lyrics_for_song_x"><![CDATA[¿Quieres importar una letra sincronizada en LRC para la canción <b>%s</b>?]]></string>

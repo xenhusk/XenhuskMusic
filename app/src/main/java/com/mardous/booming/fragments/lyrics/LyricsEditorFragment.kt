@@ -58,6 +58,7 @@ import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
 import com.mardous.booming.mvvm.LyricsResult
 import com.mardous.booming.mvvm.LyricsType
+import com.mardous.booming.util.Preferences
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import java.io.File
 
@@ -150,7 +151,7 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         binding.syncedInputLayout.isVisible = type.isExternal && isChecked
 
         val button = binding.toggleGroup.findViewById<Button>(checkedId)
-        if (button.getTag(R.id.id_balloon_shown) == true) return
+        if (!isChecked || !Preferences.showLyricsEditorTips || button.getTag(R.id.id_balloon_shown) == true) return
 
         val source = lyrics.sources[type]
         if (source != null && source.descriptionRes != 0) {
@@ -289,13 +290,25 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         }
     }
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_lyrics_editor, menu)
+        menu.findItem(R.id.action_show_lyrics_help)?.isChecked = Preferences.showLyricsEditorTips
+    }
+
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
         when (menuItem.itemId) {
             android.R.id.home -> {
                 findNavController().navigateUp()
                 true
             }
+
+            R.id.action_show_lyrics_help -> {
+                val newValue = !menuItem.isChecked
+                menuItem.isChecked = newValue
+                Preferences.showLyricsEditorTips = newValue
+                true
+            }
+
             else -> false
         }
 

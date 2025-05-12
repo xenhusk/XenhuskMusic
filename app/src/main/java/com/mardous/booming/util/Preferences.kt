@@ -363,6 +363,10 @@ object Preferences : KoinComponent {
         get() = preferences.getLong(LAST_UPDATE_ID, -1)
         set(value) = preferences.edit { putLong(LAST_UPDATE_ID, value) }
 
+    var showLyricsEditorTips: Boolean
+        get() = preferences.getBoolean(LYRICS_EDITOR_TIPS, true)
+        set(value) = preferences.edit { putBoolean(LYRICS_EDITOR_TIPS, value) }
+
     var startDirectory: File
         get() = File(preferences.requireString(START_DIRECTORY, FileUtil.getDefaultStartDirectory().path))
         set(file) = preferences.edit { putString(START_DIRECTORY, file.getCanonicalPathSafe()) }
@@ -590,6 +594,7 @@ const val BLURRED_ALBUM_ART = "blurred_album_art"
 const val LANGUAGE_NAME = "language_name"
 const val BACKUP_DATA = "backup_data"
 const val RESTORE_DATA = "restore_data"
+const val LYRICS_EDITOR_TIPS = "lyrics_editor_tips"
 const val UPDATE_SEARCH_MODE = "update_search_mode"
 const val ONLY_WIFI = "update_only_wifi"
 const val LAST_UPDATE_SEARCH = "last_update_search"

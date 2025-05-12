@@ -89,6 +89,7 @@ jaudiotagger = { module = "com.github.Adonai:jaudiotagger", version.ref = "jaudi
 niervisualizer = { module = "com.github.bogerchan:Nier-Visualizer", version.ref = "niervisualizer" }
 customactivityoncrash = { module = "cat.ereza:customactivityoncrash", version.ref = "customactivityoncrash" }
 versioncompare = { module = "io.github.g00fy2:versioncompare", version.ref = "versioncompare" }
+balloon = { module = "com.github.skydoves:balloon", version = "1.6.12" }
 
 markdown-core = { module = "io.noties.markwon:core", version.ref = "markdown" }
 markdown-html = { module = "io.noties.markwon:html", version.ref = "markdown" }

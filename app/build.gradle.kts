@@ -215,6 +215,7 @@ dependencies {
     implementation(libs.androidx.viewpager)
     implementation(libs.material.components)
 
+    implementation(libs.balloon)
     implementation(libs.niervisualizer) {
         exclude(group = "com.android.support")
     }

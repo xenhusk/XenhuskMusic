@@ -36,6 +36,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.NavHostFragment
 import androidx.transition.Fade
 import com.google.android.material.transition.MaterialSharedAxis
+import com.mardous.booming.extensions.resources.createBoomingMusicBalloon
+import com.skydoves.balloon.Balloon
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -69,6 +71,10 @@ inline fun Fragment.runOnUi(crossinline consumer: (View) -> Unit) {
 
 inline fun <T : Fragment> T.withArgs(argsBuilder: Bundle.() -> Unit): T =
     this.apply { arguments = Bundle().apply(argsBuilder) }
+
+inline fun Fragment.createBoomingMusicBalloon(
+    crossinline block: Balloon.Builder.() -> Unit
+) = requestContext { it.createBoomingMusicBalloon(viewLifecycleOwner, block = block) }
 
 fun Fragment.plurals(resId: Int, quantity: Int) = requireContext().plurals(resId, quantity)
 

@@ -20,6 +20,7 @@ package com.mardous.booming.extensions.resources
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.util.TypedValue
@@ -43,6 +44,7 @@ import androidx.core.view.drawToBitmap
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.updatePaddingRelative
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
@@ -54,6 +56,8 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.extensions.dip
+import com.mardous.booming.extensions.resolveColor
+import com.skydoves.balloon.*
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
 import io.noties.markwon.core.MarkwonTheme
@@ -363,6 +367,29 @@ fun Slider.setTrackingTouchListener(
             onStop?.invoke(slider)
         }
     })
+}
+
+inline fun Context.createBoomingMusicBalloon(
+    lifecycleOwner: LifecycleOwner,
+    crossinline block: Balloon.Builder.() -> Unit
+): Balloon {
+    val bgColor = resolveColor(com.google.android.material.R.attr.colorTertiaryContainer)
+    val textColor = resolveColor(com.google.android.material.R.attr.colorOnTertiaryContainer)
+    return createBalloon(this) {
+        setBackgroundColor(bgColor)
+        setTextColor(textColor)
+        setWidthRatio(0.8f)
+        setPadding(10)
+        setHeight(BalloonSizeSpec.WRAP)
+        setBalloonAnimation(BalloonAnimation.CIRCULAR)
+        setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+        setArrowPosition(0.5f)
+        setCornerRadiusResource(R.dimen.m3_card_corner_radius)
+        setDismissWhenTouchOutside(true)
+        setAutoDismissDuration(5000)
+        setLifecycleOwner(lifecycleOwner)
+        block(this)
+    }
 }
 
 fun BottomSheetBehavior<*>.peekHeightAnimate(value: Int): Animator {

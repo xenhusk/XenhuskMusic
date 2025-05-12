@@ -93,6 +93,9 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             }
         }
 
+        binding.embeddedButton.setTag(R.id.id_balloon_shown, savedInstanceState?.getBoolean("embedded"))
+        binding.externalButton.setTag(R.id.id_balloon_shown, savedInstanceState?.getBoolean("external"))
+
         binding.search.setOnClickListener { searchLyrics() }
         binding.download.setOnClickListener { downloadLyrics() }
         binding.save.setOnClickListener { saveLyrics() }
@@ -111,10 +114,18 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         lyricsViewModel.getAllLyrics(song, fromEditor = true).observe(viewLifecycleOwner) {
             setupButtonBehavior(it)
             binding.progressIndicator.hide()
+            binding.embeddedButton.isEnabled = true
+            binding.externalButton.isEnabled = true
             binding.plainInput.setText(it.data)
             binding.plainInput.doOnTextChanged { _, _, _, _ -> plainLyricsModified = true }
             binding.syncedInput.setText(it.lrcData.getText())
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("embedded", binding.embeddedButton.getTag(R.id.id_balloon_shown) == true)
+        outState.putBoolean("external", binding.externalButton.getTag(R.id.id_balloon_shown) == true)
     }
 
     private fun setupButtonBehavior(lyrics: LyricsResult) {
@@ -127,33 +138,33 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         }
         binding.toggleGroup.addOnButtonCheckedListener(object : MaterialButtonToggleGroup.OnButtonCheckedListener {
             override fun onButtonChecked(group: MaterialButtonToggleGroup?, checkedId: Int, isChecked: Boolean) {
-                if (!isChecked)
-                    return
-
-                val type = LyricsType.entries.first { it.idRes == checkedId }
-                binding.plainInputLayout.isGone = type.isExternal
-                binding.syncedInputLayout.isVisible = type.isExternal
-
-                val button = requireView().findViewById<Button>(checkedId)
-                if (button.getTag(R.id.id_balloon_shown) == true)
-                    return
-
-                val source = lyrics.sources[type]
-                if (source != null && source.descriptionRes != 0) {
-                    val balloon = createBoomingMusicBalloon {
-                        setDismissWhenClicked(true)
-                        setText(getString(source.descriptionRes))
-                    }
-                    if (isLandscape()) {
-                        balloon?.showAlignTop(button)
-                    } else {
-                        balloon?.showAlignBottom(button)
-                    }
-                }
-                button.setTag(R.id.id_balloon_shown, true)
+                applyCheckedButtonState(lyrics, checkedId, isChecked)
             }
         })
-        binding.toggleGroup.check(R.id.embeddedButton)
+        applyCheckedButtonState(lyrics, binding.toggleGroup.checkedButtonId, true)
+    }
+
+    private fun applyCheckedButtonState(lyrics: LyricsResult, checkedId: Int, isChecked: Boolean) {
+        val type = LyricsType.entries.first { it.idRes == checkedId }
+        binding.plainInputLayout.isGone = type.isExternal && isChecked
+        binding.syncedInputLayout.isVisible = type.isExternal && isChecked
+
+        val button = binding.toggleGroup.findViewById<Button>(checkedId)
+        if (button.getTag(R.id.id_balloon_shown) == true) return
+
+        val source = lyrics.sources[type]
+        if (source != null && source.descriptionRes != 0) {
+            val balloon = createBoomingMusicBalloon {
+                setDismissWhenClicked(true)
+                setText(getString(source.descriptionRes))
+            }
+            if (isLandscape()) {
+                balloon?.showAlignTop(button)
+            } else {
+                balloon?.showAlignBottom(button)
+            }
+        }
+        button.setTag(R.id.id_balloon_shown, true)
     }
 
     private fun searchLyrics() {

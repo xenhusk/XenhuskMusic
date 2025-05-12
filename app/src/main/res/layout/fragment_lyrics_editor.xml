@@ -90,6 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/lyrics_editor_padding_vertical"
+            app:checkedButton="@+id/embeddedButton"
             app:selectionRequired="true"
             app:singleSelection="true"
             app:layout_constraintTop_toBottomOf="@+id/image"
@@ -101,6 +102,7 @@
                 style="?materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:enabled="false"
                 android:text="@string/embedded_lyrics" />
 
             <com.google.android.material.button.MaterialButton
@@ -108,6 +110,7 @@
                 style="?materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:enabled="false"
                 android:text="@string/downloaded_lyrics" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>

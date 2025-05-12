@@ -199,13 +199,13 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
 
     private fun showLyricsSelector(downloadedLyrics: DownloadedLyrics) {
         val dialogBinding = DialogLyricsSelectorBinding.inflate(layoutInflater)
-        dialogBinding.normalLyrics.setOnClickListener { dialogBinding.normalLyricsCheck.animateToggle() }
+        dialogBinding.plainLyrics.setOnClickListener { dialogBinding.plainLyricsCheck.animateToggle() }
         dialogBinding.syncedLyrics.setOnClickListener { dialogBinding.syncedLyricsCheck.animateToggle() }
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.choose_lyrics)
             .setView(dialogBinding.root)
             .setPositiveButton(android.R.string.ok) { _: DialogInterface, _: Int ->
-                if (dialogBinding.normalLyricsCheck.isChecked) {
+                if (dialogBinding.plainLyricsCheck.isChecked) {
                     binding.plainInput.setText(downloadedLyrics.plainLyrics ?: "")
                 }
                 if (dialogBinding.syncedLyricsCheck.isChecked) {

@@ -445,7 +445,7 @@
     <!-- Lyrics viewer -->
     <string name="action_show_lyrics">Show lyrics</string>
     <string name="action_hide_lyrics">Hide lyrics</string>
-    <string name="normal_lyrics">Not Synced</string>
+    <string name="plain_lyrics">Plain</string>
     <string name="synced_lyrics">Synced</string>
     <string name="action_import_synchronized_lyrics">Import synced lyrics</string>
     <string name="action_share_synchronized_lyrics">Share synced lyrics</string>

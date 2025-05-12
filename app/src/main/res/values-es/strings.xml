@@ -444,7 +444,7 @@
     <!-- Lyrics viewer -->
     <string name="action_show_lyrics">Mostrar letra</string>
     <string name="action_hide_lyrics">Ocultar letra</string>
-    <string name="normal_lyrics">No sincronizado</string>
+    <string name="plain_lyrics">No sincronizado</string>
     <string name="synced_lyrics">Sincronizado</string>
     <string name="action_import_synchronized_lyrics">Importar letra sincronizada</string>
     <string name="action_share_synchronized_lyrics">Compartir letra sincronizada</string>

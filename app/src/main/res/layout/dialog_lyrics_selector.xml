@@ -9,7 +9,7 @@
     android:paddingTop="?dialogPreferredPadding">
 
     <LinearLayout
-        android:id="@+id/normalLyrics"
+        android:id="@+id/plainLyrics"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="?dialogPreferredPadding"
@@ -18,7 +18,7 @@
         android:descendantFocusability="blocksDescendants">
 
         <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/normalLyricsCheck"
+            android:id="@+id/plainLyricsCheck"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="0dp"
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="12dp"
             android:textAppearance="?textAppearanceBody2"
-            android:text="@string/normal_lyrics"/>
+            android:text="@string/plain_lyrics"/>
 
     </LinearLayout>
 

@@ -439,7 +439,7 @@
     <string name="sound_settings">Sound settings</string>
     <string name="volume_label">Volume</string>
     <string name="tempo_label">Tempo</string>
-    <string name="action_open_dsp">Open DSP</string>
+    <string name="action_external_eq">External EQ</string>
     <string name="custom">Custom</string>
 
     <!-- Lyrics viewer -->

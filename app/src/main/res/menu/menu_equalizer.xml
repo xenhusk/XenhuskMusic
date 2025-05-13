@@ -4,8 +4,9 @@
 
     <item
         android:id="@+id/action_open_dsp"
-        android:title="@string/action_open_dsp"
-        app:showAsAction="never"/>
+        android:title="@string/action_external_eq"
+        android:icon="@drawable/ic_equalizer_24dp"
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_share_configuration"

@@ -152,8 +152,7 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
 
     private fun applyCheckedButtonState(lyrics: LyricsResult, checkedId: Int, isChecked: Boolean) {
         val type = LyricsType.entries.first { it.idRes == checkedId }
-        binding.plainInputLayout.isGone = type.isExternal && isChecked
-        binding.syncedInputLayout.isVisible = type.isExternal && isChecked
+        showLyricsInput(type, isChecked)
 
         val button = binding.toggleGroup.findViewById<Button>(checkedId)
         if (!isChecked || !Preferences.showLyricsEditorTips || button.getTag(R.id.id_balloon_shown) == true) return
@@ -171,6 +170,19 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             }
         }
         button.setTag(R.id.id_balloon_shown, true)
+    }
+
+    private fun showLyricsInput(type: LyricsType, isChecked: Boolean) {
+        binding.plainInput.clearFocus()
+        binding.syncedInput.clearFocus()
+        if (type.isExternal) {
+            binding.plainInputLayout.isGone = isChecked
+            binding.syncedInputLayout.isVisible = isChecked
+        } else {
+            binding.syncedInputLayout.isGone = isChecked
+            binding.plainInputLayout.isVisible = isChecked
+        }
+        activity?.hideSoftKeyboard()
     }
 
     private fun searchLyrics() {

@@ -25,7 +25,7 @@ import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import java.util.concurrent.ConcurrentHashMap
 
-open class EqualizerSession(
+class EqualizerSession(
     private val context: Context,
     private val equalizerManager: EqualizerManager
 ) {

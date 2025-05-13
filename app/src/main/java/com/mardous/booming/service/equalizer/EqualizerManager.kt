@@ -364,32 +364,32 @@ class EqualizerManager internal constructor(context: Context) {
 
     suspend fun setEqualizerState(update: EqUpdate<EqState>, apply: Boolean) {
         val newState = update.toState()
-        if (apply) newState.apply()
         _eqStateFlow.emit(newState)
+        if (apply) newState.apply()
     }
 
     suspend fun setLoudnessGain(update: EqEffectUpdate<Float>, apply: Boolean) {
         val newState = update.toState()
-        if (apply) newState.apply()
         _loudnessGainFlow.emit(newState)
+        if (apply) newState.apply()
     }
 
     suspend fun setPresetReverb(update: EqEffectUpdate<Int>, apply: Boolean) {
         val newState = update.toState()
-        if (apply) newState.apply()
         _presetReverbFlow.tryEmit(newState)
+        if (apply) newState.apply()
     }
 
     suspend fun setBassBoost(update: EqEffectUpdate<Float>, apply: Boolean) {
         val newState = update.toState()
-        if (apply) newState.apply()
         _bassBoostFlow.emit(newState)
+        if (apply) newState.apply()
     }
 
     suspend fun setVirtualizer(update: EqEffectUpdate<Float>, apply: Boolean) {
         val newState = update.toState()
-        if (apply) newState.apply()
         _virtualizerFlow.emit(newState)
+        if (apply) newState.apply()
     }
 
     suspend fun applyPendingStates() {

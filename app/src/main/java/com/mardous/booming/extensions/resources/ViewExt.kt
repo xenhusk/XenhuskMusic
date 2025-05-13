@@ -31,13 +31,16 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
+import android.view.inputmethod.InputMethodManager
 import android.widget.CompoundButton
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.MenuRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.animation.addListener
 import androidx.core.animation.doOnEnd
+import androidx.core.content.getSystemService
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.toColorInt
 import androidx.core.view.drawToBitmap
@@ -208,6 +211,16 @@ fun View.hitTest(x: Int, y: Int): Boolean {
     val bottom = bottom + ty
 
     return x >= left && x <= right && y >= top && y <= bottom
+}
+
+fun EditText.requestInputMethod() {
+    requestFocus()
+    post {
+        if (isAttachedToWindow) {
+            val imm = context.getSystemService<InputMethodManager>()
+            imm?.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+        }
+    }
 }
 
 fun TextView.setMarkdownText(str: String) {

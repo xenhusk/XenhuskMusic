@@ -18,6 +18,7 @@
 package com.mardous.booming.fragments.lyrics
 
 import android.app.Activity
+import android.content.ClipboardManager
 import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
@@ -31,6 +32,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
+import androidx.core.content.getSystemService
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
@@ -52,6 +54,7 @@ import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.extensions.resources.animateToggle
+import com.mardous.booming.extensions.resources.requestInputMethod
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.http.Result
 import com.mardous.booming.model.DownloadedLyrics
@@ -99,6 +102,8 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
 
         binding.search.setOnClickListener { searchLyrics() }
         binding.download.setOnClickListener { downloadLyrics() }
+        binding.selectAll.setOnClickListener { selectAllInActiveInput() }
+        binding.paste.setOnClickListener { pasteFromClipboard() }
         binding.save.setOnClickListener { saveLyrics() }
         binding.title.text = song.title
         binding.text.text = song.displayArtistName()
@@ -215,6 +220,28 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
                 }
             }
         }
+    }
+
+    private fun selectAllInActiveInput() {
+        val input = if (binding.syncedInputLayout.isVisible) {
+            binding.syncedInput
+        } else {
+            binding.plainInput
+        }
+        input.setSelection(0, input.text?.length ?: 0)
+        input.requestInputMethod()
+    }
+
+    private fun pasteFromClipboard() {
+        val clipboard = requireContext().getSystemService<ClipboardManager>()
+        val clip = clipboard?.primaryClip?.getItemAt(0)?.text ?: return
+
+        val input = if (binding.syncedInputLayout.isVisible) {
+            binding.syncedInput
+        } else {
+            binding.plainInput
+        }
+        input.setText(clip)
     }
 
     private fun showSongTagsInput(song: Song, titleRes: Int, onInput: (title: String, artistName: String) -> Unit) {

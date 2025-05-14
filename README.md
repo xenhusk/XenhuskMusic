@@ -9,9 +9,16 @@
 [![Platform](https://img.shields.io/badge/Platform-Android-green.svg?logo=android)](https://android.com/)
 [![API](https://img.shields.io/badge/API-26%2B-green.svg?style=flat&logo=android)](https://android-arsenal.com/api?level=26)
 [![Latest Release](https://img.shields.io/github/v/release/mardous/BoomingMusic?label=Release&logo=github)](https://github.com/mardous/BoomingMusic/releases/latest)
+[![F-Droid version](https://img.shields.io/f-droid/v/com.mardous.booming?label=F-Droid&logo=fdroid)](https://f-droid.org/packages/com.mardous.booming/)
 [![License: GPL v3](https://img.shields.io/github/license/mardous/BoomingMusic?color=orange&label=License&logo=gnu)](LICENSE.txt)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor_Covenant-2.1-4baaaa.svg?logo=contributorcovenant)](CODE_OF_CONDUCT.md)
 [![Telegram Group](https://img.shields.io/badge/Telegram-Join_Chat-blue?style=flat&logo=telegram)](https://t.me/mardousdev)
+
+<a href="https://github.com/mardous/BoomingMusic/releases"><img src="assets/badge-github.png" height="60"></a>
+<a href="https://f-droid.org/packages/com.mardous.booming/"><img src="assets/badge-fdroid.png" height="60"></a>
+<a href="https://www.openapk.net/boomingmusic/com.mardous.booming/"><img src="assets/badge-openapk.png" height="60"></a>
+<a href="https://www.androidfreeware.net/download-boomingmusic-apk.html"><img src="assets/badge-androidfreeware.png" height="60"></a>
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/mardous/BoomingMusic/"><img src="assets/badge-obtainium.png" height="60"></a>
 
 </div>
 

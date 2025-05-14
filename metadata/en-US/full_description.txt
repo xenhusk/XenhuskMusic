@@ -6,15 +6,15 @@ Booming Music also includes smart playlist handling and deep folder-based browsi
 
 Additional features:
 
-• Headset and Bluetooth support
-• Android Auto integration
-• Monet-themed icon on Android 13+
-• Sleep timer
-• Drag-to-sort playlists and queue
-• Smart auto playlists (Recently played, Most played, History)
-• Tag editor
-• Lock screen and home screen widgets
-• Artist images from Deezer
-• Album-artist support
-• Blacklist and whitelist
-• Browse by songs, albums, artists, genre, and year
+* Headset and Bluetooth support
+* Android Auto integration
+* Monet-themed icon on Android 13+
+* Sleep timer
+* Drag-to-sort playlists and queue
+* Smart auto playlists (Recently played, Most played, History)
+* Tag editor
+* Lock screen and home screen widgets
+* Artist images from Deezer
+* Album-artist support
+* Blacklist and whitelist
+* Browse by songs, albums, artists, genre, and year

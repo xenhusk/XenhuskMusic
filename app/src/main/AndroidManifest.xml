@@ -46,7 +46,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Booming.FollowSystem"
-        android:usesCleartextTraffic="true"
         tools:ignore="UnusedAttribute">
         <activity
             android:name=".activities.MainActivity"

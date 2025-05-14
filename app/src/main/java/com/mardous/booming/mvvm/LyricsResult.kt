@@ -17,8 +17,11 @@
 
 package com.mardous.booming.mvvm
 
+import android.content.Context
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
+import androidx.core.content.edit
+import androidx.preference.PreferenceManager
 import com.mardous.booming.R
 import com.mardous.booming.lyrics.LrcLyrics
 
@@ -41,9 +44,33 @@ enum class LyricsType(@IdRes val idRes: Int) {
     val isExternal get() = this == External
 }
 
-enum class LyricsSource(@StringRes val titleRes: Int, @StringRes val descriptionRes: Int = 0) {
-    Embedded(R.string.embedded_lyrics),
-    EmbeddedSynced(R.string.embedded_lyrics, R.string.lyrics_source_embedded_synced),
+enum class LyricsSource(
+    @StringRes val titleRes: Int,
+    @StringRes val descriptionRes: Int = 0,
+    private val helpShownKey: String = ""
+) {
     Downloaded(R.string.downloaded_lyrics),
-    Lrc(R.string.lrc_lyrics, R.string.lyrics_source_lrc_file)
+    Embedded(R.string.embedded_lyrics),
+    EmbeddedSynced(
+        R.string.embedded_lyrics,
+        R.string.lyrics_source_embedded_synced,
+        helpShownKey = "lyrics_help_embedded_synced"
+    ),
+    Lrc(
+        R.string.lrc_lyrics,
+        R.string.lyrics_source_lrc_file,
+        helpShownKey = "lyrics_help_lrc"
+    );
+
+    fun canShowHelp(context: Context): Boolean =
+        descriptionRes != 0 && helpShownKey.isNotEmpty() &&
+                !PreferenceManager.getDefaultSharedPreferences(context).getBoolean(helpShownKey, false)
+
+    fun setHelpShown(context: Context) {
+        if (helpShownKey.isNotEmpty()) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit {
+                putBoolean(helpShownKey, true)
+            }
+        }
+    }
 }

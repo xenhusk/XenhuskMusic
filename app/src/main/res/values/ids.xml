@@ -17,5 +17,4 @@
     <item name="action_multi_select_adapter_check_all" type="id"/>
 
     <item name="id_inset_consumed" type="id"/>
-    <item name="id_balloon_shown" type="id"/>
 </resources>

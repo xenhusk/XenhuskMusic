@@ -61,7 +61,6 @@ import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
 import com.mardous.booming.mvvm.LyricsResult
 import com.mardous.booming.mvvm.LyricsType
-import com.mardous.booming.util.Preferences
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import java.io.File
 
@@ -97,9 +96,6 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             }
         }
 
-        binding.embeddedButton.setTag(R.id.id_balloon_shown, savedInstanceState?.getBoolean("embedded"))
-        binding.externalButton.setTag(R.id.id_balloon_shown, savedInstanceState?.getBoolean("external"))
-
         binding.search.setOnClickListener { searchLyrics() }
         binding.download.setOnClickListener { downloadLyrics() }
         binding.selectAll.setOnClickListener { selectAllInActiveInput() }
@@ -128,12 +124,6 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean("embedded", binding.embeddedButton.getTag(R.id.id_balloon_shown) == true)
-        outState.putBoolean("external", binding.externalButton.getTag(R.id.id_balloon_shown) == true)
-    }
-
     private fun setupButtonBehavior(lyrics: LyricsResult) {
         if (lyrics.loading)
             return
@@ -155,10 +145,10 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         showLyricsInput(type, isChecked)
 
         val button = binding.toggleGroup.findViewById<Button>(checkedId)
-        if (!isChecked || !Preferences.showLyricsEditorTips || button.getTag(R.id.id_balloon_shown) == true) return
+        if (!isChecked) return
 
         val source = lyrics.sources[type]
-        if (source != null && source.descriptionRes != 0) {
+        if (source != null && source.canShowHelp(requireContext())) {
             val balloon = createBoomingMusicBalloon {
                 setDismissWhenClicked(true)
                 setText(getString(source.descriptionRes))
@@ -168,8 +158,8 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             } else {
                 balloon?.showAlignBottom(button)
             }
+            source.setHelpShown(requireContext())
         }
-        button.setTag(R.id.id_balloon_shown, true)
     }
 
     private fun showLyricsInput(type: LyricsType, isChecked: Boolean) {
@@ -329,22 +319,11 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         }
     }
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.menu_lyrics_editor, menu)
-        menu.findItem(R.id.action_show_lyrics_help)?.isChecked = Preferences.showLyricsEditorTips
-    }
-
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
         when (menuItem.itemId) {
             android.R.id.home -> {
                 findNavController().navigateUp()
-                true
-            }
-
-            R.id.action_show_lyrics_help -> {
-                val newValue = !menuItem.isChecked
-                menuItem.isChecked = newValue
-                Preferences.showLyricsEditorTips = newValue
                 true
             }
 

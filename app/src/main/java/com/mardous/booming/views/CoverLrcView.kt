@@ -32,7 +32,7 @@ import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
-import android.view.animation.LinearInterpolator
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Scroller
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.withSave
@@ -172,7 +172,7 @@ class CoverLrcView @JvmOverloads constructor(
     private fun init(attrs: AttributeSet?) {
         val ta = context.obtainStyledAttributes(attrs, R.styleable.LrcView)
         mCurrentTextSize = ta.getDimension(R.styleable.LrcView_lrcTextSize, resources.getDimension(R.dimen.lrc_text_size))
-        mNormalTextSize = ta.getDimension(R.styleable.LrcView_lrcNormalTextSize, resources.getDimension(R.dimen.lrc_text_size))
+        mNormalTextSize = ta.getDimension(R.styleable.LrcView_lrcNormalTextSize, resources.getDimension(R.dimen.lrc_current_text_size))
         if (mNormalTextSize == 0f) {
             mNormalTextSize = mCurrentTextSize
         }
@@ -350,7 +350,7 @@ class CoverLrcView @JvmOverloads constructor(
                 mCurrentTextSize = it.animatedValue as Float
                 invalidate()
             }
-            duration = 300L
+            duration = mAnimationDuration
             start()
         }
     }
@@ -426,7 +426,7 @@ class CoverLrcView @JvmOverloads constructor(
         endAnimation()
         mAnimator = ValueAnimator.ofFloat(mOffset, offset).apply {
             this.duration = duration
-            interpolator = LinearInterpolator()
+            interpolator = AccelerateDecelerateInterpolator()
             addUpdateListener { animation: ValueAnimator ->
                 mOffset = animation.animatedValue as Float
                 invalidate()

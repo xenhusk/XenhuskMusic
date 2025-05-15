@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
 import android.text.Layout;
@@ -34,7 +33,7 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Scroller;
 
 import androidx.annotation.NonNull;
@@ -44,7 +43,6 @@ import androidx.core.content.ContextCompat;
 import com.mardous.booming.R;
 import com.mardous.booming.lyrics.LrcEntry;
 import com.mardous.booming.lyrics.LrcLyrics;
-import com.mardous.booming.lyrics.LrcUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,7 +53,7 @@ import java.util.List;
  */
 @SuppressLint("StaticFieldLeak")
 public class LrcView extends View {
-    private static final long ADJUST_DURATION = 100;
+    private static final long ADJUST_DURATION = 0;
     private static final long TIMELINE_KEEP_TIME = 4 * DateUtils.SECOND_IN_MILLIS;
 
     private final List<LrcEntry> mLrcEntryList = new ArrayList<>();
@@ -136,6 +134,7 @@ public class LrcView extends View {
                         (int) getOffset(mLrcEntryList.size() - 1),
                         (int) getOffset(0));
                 isFling = true;
+                invalidate();
                 return true;
             }
             return super.onFling(e1, e2, velocityX, velocityY);
@@ -143,22 +142,39 @@ public class LrcView extends View {
 
         @Override
         public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
-            if (hasLrc()
-                    && isShowTimeline
-                    && mPlayDrawable.getBounds().contains((int) e.getX(), (int) e.getY())) {
-                int centerLine = getCenterLine();
-                long centerLineTime = mLrcEntryList.get(centerLine).getTime();
-                if (mOnPlayClickListener != null && mOnPlayClickListener.onPlayClick(centerLineTime)) {
-                    isShowTimeline = false;
-                    removeCallbacks(hideTimelineRunnable);
-                    mCurrentLine = centerLine;
-                    invalidate();
-                    return true;
+            if (hasLrc() && mOnPlayClickListener != null) {
+                float y = e.getY() - mOffset;
+                int tappedLine = getTappedLine(y);
+                if (tappedLine >= 0 && tappedLine < mLrcEntryList.size()) {
+                    long tappedLineTime = mLrcEntryList.get(tappedLine).getTime();
+                    if (mOnPlayClickListener.onPlayClick(tappedLineTime)) {
+                        isShowTimeline = false;
+                        removeCallbacks(hideTimelineRunnable);
+                        mCurrentLine = tappedLine;
+                        smoothScrollTo(mCurrentLine);
+                        invalidate();
+                        return true;
+                    }
                 }
             }
             return super.onSingleTapConfirmed(e);
         }
     };
+
+    private int getTappedLine(float y) {
+        float cumulativeHeight = 0;
+        for (int i = 0; i < mLrcEntryList.size(); i++) {
+            LrcEntry entry = mLrcEntryList.get(i);
+            float lineHeight = entry.getHeight();
+            float lineCenter = cumulativeHeight + (lineHeight / 2);
+
+            if (Math.abs(y - lineCenter) < lineHeight / 2) {
+                return i;
+            }
+            cumulativeHeight += lineHeight + mDividerHeight;
+        }
+        return -1;
+    }
 
     public LrcView(Context context) {
         this(context, null);
@@ -325,21 +341,6 @@ public class LrcView extends View {
             return;
         }
 
-        int centerLine = getCenterLine();
-
-        if (isShowTimeline) {
-            mPlayDrawable.draw(canvas);
-
-            mTimePaint.setColor(mTimelineColor);
-            canvas.drawLine(mTimeTextWidth, centerY, getWidth() - mTimeTextWidth, centerY, mTimePaint);
-
-            mTimePaint.setColor(mTimeTextColor);
-            String timeText = LrcUtils.formatTime(mLrcEntryList.get(centerLine).getTime());
-            float timeX = getWidth() - mTimeTextWidth / 2F;
-            float timeY = centerY - (mTimeFontMetrics.descent + mTimeFontMetrics.ascent) / 2;
-            canvas.drawText(timeText, timeX, timeY, mTimePaint);
-        }
-
         canvas.translate(0, mOffset);
 
         float y = 0;
@@ -347,17 +348,12 @@ public class LrcView extends View {
             if (i > 0) {
                 y += ((mLrcEntryList.get(i - 1).getHeight() + mLrcEntryList.get(i).getHeight()) >> 1) + mDividerHeight;
             }
-            if (i == mCurrentLine) {
-                mLrcPaint.setTextSize(mCurrentTextSize);
+            if (i <= mCurrentLine) {
+                mLrcPaint.setTextSize(mNormalTextSize);
                 mLrcPaint.setColor(mCurrentTextColor);
-                mLrcPaint.setTypeface(Typeface.DEFAULT_BOLD);
-            } else if (isShowTimeline && i == centerLine) {
-                mLrcPaint.setColor(mTimelineTextColor);
-                mLrcPaint.setTypeface(Typeface.DEFAULT);
             } else {
                 mLrcPaint.setTextSize(mNormalTextSize);
                 mLrcPaint.setColor(mNormalTextColor);
-                mLrcPaint.setTypeface(Typeface.DEFAULT);
             }
             drawText(canvas, mLrcEntryList.get(i).getStaticLayout(), y);
         }
@@ -380,7 +376,6 @@ public class LrcView extends View {
                 || event.getAction() == MotionEvent.ACTION_CANCEL) {
             isTouching = false;
             if (hasLrc() && !isFling) {
-                adjustCenter();
                 postDelayed(hideTimelineRunnable, TIMELINE_KEEP_TIME);
             }
         }
@@ -397,7 +392,6 @@ public class LrcView extends View {
         if (isFling && mScroller.isFinished()) {
             isFling = false;
             if (hasLrc() && !isTouching) {
-                adjustCenter();
                 postDelayed(hideTimelineRunnable, TIMELINE_KEEP_TIME);
             }
         }
@@ -439,11 +433,6 @@ public class LrcView extends View {
         mLrcEntryList.clear();
         mOffset = 0;
         mCurrentLine = 0;
-        //invalidate();
-    }
-
-    private void adjustCenter() {
-        smoothScrollTo(getCenterLine(), ADJUST_DURATION);
     }
 
     private void smoothScrollTo(int line) {
@@ -452,11 +441,10 @@ public class LrcView extends View {
 
     private void smoothScrollTo(int line, long duration) {
         float offset = getOffset(line);
-        endAnimation();
 
         mAnimator = ValueAnimator.ofFloat(mOffset, offset);
         mAnimator.setDuration(duration);
-        mAnimator.setInterpolator(new LinearInterpolator());
+        mAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         mAnimator.addUpdateListener(
                 animation -> {
                     mOffset = (float) animation.getAnimatedValue();
@@ -490,18 +478,6 @@ public class LrcView extends View {
         }
 
         return 0;
-    }
-
-    private int getCenterLine() {
-        int centerLine = 0;
-        float minDistance = Float.MAX_VALUE;
-        for (int i = 0; i < mLrcEntryList.size(); i++) {
-            if (Math.abs(mOffset - getOffset(i)) < minDistance) {
-                minDistance = Math.abs(mOffset - getOffset(i));
-                centerLine = i;
-            }
-        }
-        return centerLine;
     }
 
     private float getOffset(int line) {

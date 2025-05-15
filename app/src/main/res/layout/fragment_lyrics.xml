@@ -57,7 +57,7 @@
             android:visibility="gone"
             app:lrcLabel="@string/no_lyrics_found"
             app:lrcNormalTextSize="@dimen/lyrics_text_size"
-            app:lrcPadding="16dp"
+            app:lrcPadding="8dp"
             app:lrcTextGravity="left"
             app:lrcTextSize="@dimen/lyrics_text_size"/>
 

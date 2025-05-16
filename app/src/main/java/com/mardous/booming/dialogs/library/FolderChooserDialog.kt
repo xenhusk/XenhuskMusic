@@ -54,10 +54,14 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
     private var adapter: SimpleItemAdapter<String>? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        if (hasT() && checkSelfPermission(requireActivity(), READ_MEDIA_AUDIO) != PERMISSION_GRANTED) {
-            return permissionErrorDialog()
-        } else if (checkSelfPermission(requireActivity(), READ_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
-            return permissionErrorDialog()
+        if (hasT()) {
+            if (checkSelfPermission(requireActivity(), READ_MEDIA_AUDIO) != PERMISSION_GRANTED) {
+                return permissionErrorDialog()
+            }
+        } else {
+            if (checkSelfPermission(requireActivity(), READ_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
+                return permissionErrorDialog()
+            }
         }
 
         val mSavedInstanceState = savedInstanceState ?: Bundle()

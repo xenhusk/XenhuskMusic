@@ -208,7 +208,7 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
                 mainActivity,
                 requestManager,
                 (suggestion.items as List<Album>),
-                R.layout.item_album,
+                R.layout.item_album_gradient,
                 callback = this
             )
 

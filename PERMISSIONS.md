@@ -2,15 +2,20 @@
 
 Booming Music requests the following permissions:
 
- - **Storage**: Necessary for the basic operation of the app. Without this permission, Booming Music cannot list the music files you have stored on your device.
- - **Read media audio**: Like storage permissions, this permission is required starting with Android 13 to list music files saved on a device.
- - **Foreground service**: This permission is required due to Android policies in order to start a foreground service. Booming Music uses this type of service to keep playback active even when you use another application, as well as to show you a notification with multimedia control actions.
- - **Post notifications**: Necessary for the basic operation of the app. Booming Music needs to show a notification to provide information about what is playing.
- - **Bluetooth**: This permission is required so that Booming Music can correctly recognize Bluetooth devices as headphones. It is also required so that you can share songs via Bluetooth.
- - **Internet**: Internet-related permissions are required to download artist images, as well as obtain album/artist information.
- - **Broadcast**: Booming Music uses the sticky broadcasts permission to send information to other apps about what is playing. In other words, it is necessary for scrobbling or lyrics apps to work correctly. This behavior can be disabled from the app settings.
- - **Wake lock**: This permission is required to ensure that music playback stays active in the background for as long as possible.
- - **Schedule exact alarm**: Necessary to be able to accurately configure the Sleep Timer. This permission will be requested only when this feature is to be used on a device running Android 12 or higher.
- - **Modify audio settings**: This permission is required to be able to set a song as a ringtone directly from Booming Music. It is an optional permission.
+| Permission                   | Description                                                                                 | Android version |
+|------------------------------|---------------------------------------------------------------------------------------------|-----------------|
+| **READ\_MEDIA\_AUDIO**       | Allows access to audio files on the device. Required starting from Android 13.              | From 13         |
+| **POST\_NOTIFICATIONS**      | Required to show playback notifications on Android 13 or higher.                            | From 13         |
+| **SCHEDULE\_EXACT\_ALARM**   | Allows the sleep timer to work with precision on Android 12 and above.                      | From 12         |
+| **BLUETOOTH\_CONNECT**       | Replaces `BLUETOOTH` on Android 12+ for detecting and interacting with Bluetooth devices.   | From 12         |
+| **READ\_EXTERNAL\_STORAGE**  | Needed to list music files on devices running Android 12 or lower.                          | Up to 12        |
+| **BLUETOOTH**                | Used on Android 11 and below to detect Bluetooth devices (e.g., headphones) or share files. | Up to 11        |
+| **WRITE\_SETTINGS**          | Needed to set a song as ringtone directly from the app.                                     | Up to 10        |
+| **WRITE\_EXTERNAL\_STORAGE** | Required on older versions to fully access external storage.                                | Up to 10        |
+| **FOREGROUND\_SERVICE**      | Allows the app to run a foreground service, essential for continuous playback.              | All             |
+| **INTERNET**                 | Used to download artist images, artwork, lyrics, and check for updates.                     | All             |
+| **ACCESS\_NETWORK\_STATE**   | Checks internet connection status before downloading content.                               | All             |
+| **MODIFY\_AUDIO\_SETTINGS**  | Required to apply audio effects and control volume from within the app.                     | All             |
+| **WAKE\_LOCK**               | Prevents the device from sleeping during playback.                                          | All             |
 
 If you still have questions about the permissions requested by the app, or if we have missed placing any on this list, feel free to contact us through this email: mardous.contact@gmail.com

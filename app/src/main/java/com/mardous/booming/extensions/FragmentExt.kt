@@ -35,6 +35,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.NavHostFragment
 import androidx.transition.Fade
+import com.mardous.booming.R
 import com.google.android.material.transition.MaterialSharedAxis
 import com.mardous.booming.extensions.resources.createBoomingMusicBalloon
 import com.skydoves.balloon.Balloon
@@ -58,6 +59,9 @@ fun AlertDialog.onShow(onShow: (AlertDialog) -> Unit) = apply {
 }
 
 fun Fragment.isLandscape() = resources.isLandscape
+
+fun Fragment.defaultGridColumns() =
+    if (resources.isLandscape) intRes(R.integer.default_grid_columns_land) else intRes(R.integer.default_grid_columns)
 
 inline fun <R> Fragment.requestActivity(crossinline consumer: (AppCompatActivity) -> R) =
     (activity as? AppCompatActivity)?.let(consumer)

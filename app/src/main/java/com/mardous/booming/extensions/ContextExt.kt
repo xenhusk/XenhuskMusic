@@ -92,7 +92,11 @@ val Context.isNightMode: Boolean
 
 fun Fragment.dip(id: Int) = resources.getDimensionPixelSize(id)
 
+fun Fragment.intRes(id: Int) = resources.getInteger(id)
+
 fun Context.dip(id: Int) = resources.getDimensionPixelSize(id)
+
+fun Context.intRes(id: Int) = resources.getInteger(id)
 
 fun Context.openUrl(url: String) {
     try {

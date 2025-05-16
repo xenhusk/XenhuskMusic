@@ -256,14 +256,7 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
     private fun gridLayoutManager(): GridLayoutManager =
-        GridLayoutManager(requireContext(), gridCount(), GridLayoutManager.VERTICAL, false)
-
-    private fun gridCount(): Int {
-        if (resources.isTablet) {
-            return if (resources.isLandscape) 6 else 4
-        }
-        return if (resources.isLandscape) 4 else 2
-    }
+        GridLayoutManager(requireContext(), defaultGridColumns(), GridLayoutManager.VERTICAL, false)
 
     override fun onMediaStoreChanged() {
         super.onMediaStoreChanged()

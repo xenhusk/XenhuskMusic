@@ -5,7 +5,6 @@ Booming Music requests the following permissions:
  - **Storage**: Necessary for the basic operation of the app. Without this permission, Booming Music cannot list the music files you have stored on your device.
  - **Read media audio**: Like storage permissions, this permission is required starting with Android 13 to list music files saved on a device.
  - **Foreground service**: This permission is required due to Android policies in order to start a foreground service. Booming Music uses this type of service to keep playback active even when you use another application, as well as to show you a notification with multimedia control actions.
- - **Record audio**: Due to Android policies, it is necessary to request this permission to be able to use the [Visualizer API](https://developer.android.com/reference/android/media/audiofx/Visualizer), which allows us to display wave bar effects according to the playback. It is an optional permission.
  - **Post notifications**: Necessary for the basic operation of the app. Booming Music needs to show a notification to provide information about what is playing.
  - **Bluetooth**: This permission is required so that Booming Music can correctly recognize Bluetooth devices as headphones. It is also required so that you can share songs via Bluetooth.
  - **Internet**: Internet-related permissions are required to download artist images, as well as obtain album/artist information.

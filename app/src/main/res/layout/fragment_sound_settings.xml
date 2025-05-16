@@ -15,41 +15,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <FrameLayout
-            android:id="@+id/visualizer_container"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:background="@android:color/transparent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <SurfaceView
-                android:id="@+id/visualizer"
-                android:layout_width="match_parent"
-                android:layout_height="64dp"
-                android:visibility="gone"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/activate_visualizer"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="@string/activate_visualizer"
-                app:shapeAppearanceOverlay="?shapeAppearanceCornerLarge"/>
-
-        </FrameLayout>
-
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/volume_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?textAppearanceTitleMedium"
             android:text="@string/volume_label"
-            app:layout_constraintTop_toBottomOf="@+id/visualizer_container"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
 
         <com.mardous.booming.views.AnimSlider

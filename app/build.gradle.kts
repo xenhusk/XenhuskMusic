@@ -216,9 +216,6 @@ dependencies {
     implementation(libs.material.components)
 
     implementation(libs.balloon)
-    implementation(libs.niervisualizer) {
-        exclude(group = "com.android.support")
-    }
     implementation(libs.fastscroll)
     implementation(libs.fadingedgelayout)
     implementation(libs.advrecyclerview) {

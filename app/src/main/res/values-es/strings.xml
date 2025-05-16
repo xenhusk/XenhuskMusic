@@ -155,8 +155,6 @@
     <string name="added_to_favorites_label">Agregada a Favoritas</string>
     <string name="removed_from_favorites_label">Removida de Favoritas</string>
     <string name="toggle_favorite">Agregar/Remover de Favoritas</string>
-    <string name="visualizer_permission_request">El visualizador requiere el permiso para grabar audio</string>
-    <string name="activate_visualizer">Activar Visualizador</string>
     <string name="action_add_to_playlist">Agregar a playlist</string>
     <string name="action_remove_from_playlist">Remover de la playlist</string>
     <string name="action_add_to_playing_queue">Agregar a la cola</string>

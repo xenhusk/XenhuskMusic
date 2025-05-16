@@ -83,12 +83,6 @@
 - License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - URL: [Sources](https://github.com/bosphere/Android-FadingEdgeLayout)
 
-### Nier-Visualizer
-
-- Author: Boger Chan
-- License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
-- URL: [Sources](https://github.com/bogerchan/Nier-Visualizer)
-
 ### Custom Activity on Crash
 
 - Author: Eduard Ereza Martínez

@@ -7,6 +7,49 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/albumTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="@string/albums_label"
+        android:textAppearance="?textAppearanceTitleMedium"
+        android:textColor="?android:textColorSecondary"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@+id/albumSortOrder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/albumSortOrder"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        app:icon="@drawable/ic_sort_24dp"
+        app:iconTint="?colorControlNormal"
+        app:layout_constraintBottom_toBottomOf="@+id/albumTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/albumTitle"
+        app:layout_constraintTop_toTopOf="@id/albumTitle"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/albumRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/grid_item_horizontal_margin"
+        android:paddingEnd="@dimen/grid_item_horizontal_margin"
+        android:clipToPadding="false"
+        android:nestedScrollingEnabled="false"
+        android:overScrollMode="@integer/overScrollMode"
+        app:barrierDirection="bottom"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/albumTitle"
+        tools:itemCount="3"
+        tools:listitem="@layout/item_grid"
+        tools:spanCount="3"/>
+
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/songTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -17,7 +60,7 @@
         app:layout_constrainedWidth="true"
         app:layout_constraintEnd_toStartOf="@id/songSortOrder"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@+id/albumRecyclerView"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/songSortOrder"
@@ -44,49 +87,6 @@
         tools:listitem="@layout/item_song"/>
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/albumTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="@string/albums_label"
-        android:textAppearance="?textAppearanceTitleMedium"
-        android:textColor="?android:textColorSecondary"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintEnd_toStartOf="@+id/albumSortOrder"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recyclerView"/>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/albumSortOrder"
-        style="@style/Widget.Material3.Button.IconButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        app:icon="@drawable/ic_sort_24dp"
-        app:iconTint="?colorControlNormal"
-        app:layout_constraintBottom_toBottomOf="@+id/albumTitle"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/albumTitle"
-        app:layout_constraintTop_toTopOf="@id/albumTitle"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/albumRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:clipToPadding="false"
-        android:nestedScrollingEnabled="false"
-        android:overScrollMode="@integer/overScrollMode"
-        app:barrierDirection="bottom"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/albumTitle"
-        tools:itemCount="3"
-        tools:listitem="@layout/item_grid"
-        tools:spanCount="3"/>
-
-    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/similarArtistTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -97,7 +97,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/albumRecyclerView"
+        app:layout_constraintTop_toBottomOf="@id/recyclerView"
         tools:visibility="visible"/>
 
     <androidx.recyclerview.widget.RecyclerView

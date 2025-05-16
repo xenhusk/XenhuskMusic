@@ -266,6 +266,21 @@ fun RecyclerView.useLinearLayout() {
     layoutManager = LinearLayoutManager(context)
 }
 
+fun RecyclerView.safeUpdateWithRetry(
+    maxRetries: Int = 5,
+    delayMillis: Long = 16L, // ~1 frame on 60fps
+    block: RecyclerView.() -> Unit
+) {
+    fun tryUpdate(attempt: Int) {
+        if (!isAnimating && !isComputingLayout) {
+            block()
+        } else if (attempt < maxRetries) {
+            postDelayed({ tryUpdate(attempt + 1) }, delayMillis)
+        }
+    }
+    tryUpdate(0)
+}
+
 fun RecyclerView.destroyOnDetach() {
     layoutManager?.let {
         if (it is LinearLayoutManager) {

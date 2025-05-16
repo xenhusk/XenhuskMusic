@@ -26,4 +26,8 @@
     <item
         android:id="@+id/action_play_info"
         android:title="@string/play_info"/>
+    <item
+        android:id="@+id/action_horizontal_albums"
+        android:title="@string/horizontal_albums"
+        android:checkable="true"/>
 </menu>

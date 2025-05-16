@@ -26,16 +26,20 @@ import android.view.View
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
+import androidx.core.view.updatePaddingRelative
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.mardous.booming.R
 import com.mardous.booming.adapters.album.AlbumAdapter
+import com.mardous.booming.adapters.album.SimpleAlbumAdapter
 import com.mardous.booming.adapters.artist.ArtistAdapter
 import com.mardous.booming.adapters.song.SimpleSongAdapter
 import com.mardous.booming.databinding.FragmentArtistDetailBinding
@@ -60,6 +64,7 @@ import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Song
 import com.mardous.booming.search.searchFilter
 import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
@@ -147,16 +152,19 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
     private fun getArtist() = detailViewModel.getArtist()
 
     private fun setupRecyclerView() {
-        albumAdapter =
-            AlbumAdapter(requireActivity(), requestManager, arrayListOf(), R.layout.item_image, callback = this)
+        setupAlbumGrid()
         binding.albumRecyclerView.apply {
-            layoutManager = LinearLayoutManager(this.context, LinearLayoutManager.HORIZONTAL, false)
             itemAnimator = DefaultItemAnimator()
-            adapter = albumAdapter
             destroyOnDetach()
         }
-        songAdapter =
-            SimpleSongAdapter(requireActivity(), requestManager, arrayListOf(), R.layout.item_song, SortOrder.artistSongSortOrder, this)
+        songAdapter = SimpleSongAdapter(
+            requireActivity(),
+            requestManager,
+            arrayListOf(),
+            R.layout.item_song,
+            SortOrder.artistSongSortOrder,
+            this
+        )
         binding.songRecyclerView.apply {
             layoutManager = LinearLayoutManager(this.context)
             itemAnimator = DefaultItemAnimator()
@@ -172,6 +180,39 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
         binding.albumSortOrder.setOnClickListener {
             createSortOrderMenu(it, R.menu.menu_artist_album_sort_order, SortOrder.artistAlbumSortOrder)
         }
+    }
+
+    private fun setupAlbumGrid() {
+        val horizontalAlbums = Preferences.horizontalArtistAlbums
+        val padding = if (horizontalAlbums) {
+            dip(R.dimen.grid_item_horizontal_margin)
+        } else {
+            dip(R.dimen.grid_item_album_margin)
+        }
+        binding.albumRecyclerView.safeUpdateWithRetry {
+            updatePaddingRelative(start = padding, end = padding)
+            layoutManager = createAlbumLayout(horizontalAlbums)
+            adapter = createAlbumAdapter(horizontalAlbums)
+        }
+    }
+
+    private fun createAlbumLayout(horizontal: Boolean): RecyclerView.LayoutManager {
+        return if (horizontal) {
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        } else {
+            GridLayoutManager(requireContext(), defaultGridColumns())
+        }
+    }
+
+    private fun createAlbumAdapter(horizontal: Boolean): AlbumAdapter {
+        albumAdapter = SimpleAlbumAdapter(
+            requireActivity(),
+            requestManager,
+            getArtist().sortedAlbums,
+            if (horizontal) R.layout.item_image else R.layout.item_album,
+            callback = this
+        )
+        return albumAdapter
     }
 
     private fun createSortOrderMenu(view: View, sortMenuRes: Int, sortOrder: SortOrder) {
@@ -332,6 +373,7 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
         if (!isLandscape()) {
             menu.removeItem(R.id.action_search)
         }
+        menu.findItem(R.id.action_horizontal_albums)?.isChecked = Preferences.horizontalArtistAlbums
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -348,6 +390,14 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
 
             R.id.action_play_info -> {
                 goToPlayInfo()
+                true
+            }
+
+            R.id.action_horizontal_albums -> {
+                val isChecked = !menuItem.isChecked
+                Preferences.horizontalArtistAlbums = isChecked
+                menuItem.isChecked = isChecked
+                setupAlbumGrid()
                 true
             }
 

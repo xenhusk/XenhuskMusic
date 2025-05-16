@@ -125,6 +125,10 @@ object Preferences : KoinComponent {
             else -> NavigationBarView.LABEL_VISIBILITY_AUTO
         }
 
+    var horizontalArtistAlbums: Boolean
+        get() = preferences.getBoolean(HORIZONTAL_ARTIST_ALBUMS, true)
+        set(value) = preferences.edit { putBoolean(HORIZONTAL_ARTIST_ALBUMS, value) }
+
     var queueQuickAction: QueueQuickAction
         get() = preferences.enumValue(QUEUE_QUICK_ACTION, QueueQuickAction.Save)
         set(value) = preferences.edit { putString(QUEUE_QUICK_ACTION, value.name) }
@@ -526,6 +530,7 @@ const val LIBRARY_CATEGORIES = "library_categories"
 const val REMEMBER_LAST_PAGE = "remember_last_page"
 const val TAB_TITLES_MODE = "tab_titles_mode"
 const val LAST_PAGE = "last_page"
+const val HORIZONTAL_ARTIST_ALBUMS = "horizontal_artist_albums"
 const val QUEUE_QUICK_ACTION = "play_queue_action"
 const val NOW_PLAYING_SCREEN = "now_playing_screen"
 const val OPEN_ON_PLAY = "open_on_play"

@@ -182,6 +182,7 @@
     <string name="various_artists">Varios Artistas</string>
     <string name="unknown_artist">Artista desconocido</string>
     <string name="unknown_genre">Género desconocido</string>
+    <string name="unknown_year">Año desconocido</string>
     <string name="no_songs_label">No hay canciones</string>
     <string name="no_albums_label">No hay álbumes</string>
     <string name="no_artists_label">No hay artistas</string>
@@ -211,6 +212,7 @@
     <string name="song_stat_never_label">nunca escuchada</string>
     <string name="song_stat_one_time_label">escuchada una vez el %s</string>
     <string name="song_stat_label">escuchada %1$d veces, la última fue el %2$s</string>
+    <string name="horizontal_albums">Álbumes horizontales</string>
     <string name="action_view_type">Tipo de vista</string>
     <string name="view_type_normal">Normal</string>
     <string name="view_type_card">Tarjeta</string>

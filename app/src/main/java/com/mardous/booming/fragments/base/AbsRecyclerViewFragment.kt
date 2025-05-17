@@ -33,6 +33,7 @@ import com.mardous.booming.databinding.FragmentMainRecyclerBinding
 import com.mardous.booming.dialogs.playlists.CreatePlaylistDialog
 import com.mardous.booming.dialogs.playlists.ImportPlaylistDialog
 import com.mardous.booming.extensions.resources.createFastScroller
+import com.mardous.booming.extensions.resources.onVerticalScroll
 import com.mardous.booming.extensions.resources.shake
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.topLevelTransition
@@ -74,21 +75,13 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
 
         // Add listeners when shuffle is visible
         if (isShuffleVisible) {
-            binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    if (dy > 0) {
-                        binding.shuffleButton.hide()
-                    } else if (dy < 0) {
-                        binding.shuffleButton.show()
-                    }
-
-                }
-            })
-            binding.shuffleButton.apply {
-                setOnClickListener {
-                    onShuffleClicked()
-                }
+            binding.recyclerView.onVerticalScroll(
+                viewLifecycleOwner,
+                onScrollDown = { binding.shuffleButton.hide() },
+                onScrollUp = { binding.shuffleButton.show() }
+            )
+            binding.shuffleButton.setOnClickListener {
+                onShuffleClicked()
             }
         } else {
             binding.shuffleButton.isVisible = false
@@ -201,7 +194,6 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
     }
 
     override fun onDestroyView() {
-        binding.recyclerView.clearOnScrollListeners()
         super.onDestroyView()
         _binding = null
     }

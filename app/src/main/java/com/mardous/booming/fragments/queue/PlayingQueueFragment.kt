@@ -43,6 +43,7 @@ import com.mardous.booming.extensions.applyScrollableContentInsets
 import com.mardous.booming.extensions.media.songCountStr
 import com.mardous.booming.extensions.resources.createFastScroller
 import com.mardous.booming.extensions.resources.inflateMenu
+import com.mardous.booming.extensions.resources.onVerticalScroll
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.helper.menu.onSongMenu
@@ -136,12 +137,11 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
         dragDropManager!!.attachRecyclerView(_binding!!.recyclerView)
         linearLayoutManager!!.scrollToPositionWithOffset(queuePosition + 1, 0)
 
-        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (dy > 0) _binding?.quickActionButton?.shrink()
-                else _binding?.quickActionButton?.extend()
-            }
-        })
+        binding.recyclerView.onVerticalScroll(
+            viewLifecycleOwner,
+            onScrollDown = { binding.quickActionButton.hide() },
+            onScrollUp = { binding.quickActionButton.show() }
+        )
         binding.recyclerView.createFastScroller()
 
         toolbar.isTitleCentered = false
@@ -293,7 +293,6 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
         wrappedAdapter = null
         playingQueueAdapter = null
 
-        binding.recyclerView.clearOnScrollListeners()
         binding.recyclerView.itemAnimator = null
         binding.recyclerView.adapter = null
         binding.recyclerView.layoutManager = null

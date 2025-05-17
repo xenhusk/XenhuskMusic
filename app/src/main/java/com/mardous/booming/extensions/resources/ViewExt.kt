@@ -47,6 +47,8 @@ import androidx.core.view.drawToBitmap
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.updatePaddingRelative
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -287,6 +289,33 @@ fun RecyclerView.destroyOnDetach() {
             it.recycleChildrenOnDetach = true
         }
     }
+}
+
+fun RecyclerView.onVerticalScroll(
+    lifecycleOwner: LifecycleOwner,
+    stopOnEvent: Lifecycle.Event = Lifecycle.Event.ON_STOP,
+    onScrollUp: () -> Unit = {},
+    onScrollDown: () -> Unit = {}
+) {
+    val scrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            if (dy > 0) {
+                onScrollDown()
+            } else if (dy < 0) {
+                onScrollUp()
+            }
+        }
+    }
+
+    addOnScrollListener(scrollListener)
+
+    lifecycleOwner.lifecycle.addObserver(object : LifecycleEventObserver {
+        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+            if (event == stopOnEvent) {
+                removeOnScrollListener(scrollListener)
+            }
+        }
+    })
 }
 
 fun ViewGroup.createFastScroller(): FastScroller {

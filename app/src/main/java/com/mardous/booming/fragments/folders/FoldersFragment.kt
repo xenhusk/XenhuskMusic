@@ -108,6 +108,8 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
         setUpRecyclerView()
         setUpAdapter()
         setUpTitle()
+        setUpShuffleButton()
+
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
@@ -126,6 +128,12 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
                 BundleCompat.getParcelable(savedInstanceState, CRUMBS, BreadCrumbLayout.SavedStateWrapper::class.java)
             )
             LoaderManager.getInstance(this).initLoader(LOADER_ID, null, this)
+        }
+
+        libraryViewModel.getFabMargin().observe(viewLifecycleOwner) {
+            binding.shuffleButton.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = it
+            }
         }
     }
 
@@ -391,6 +399,20 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
         }
     }
 
+    private fun setUpShuffleButton() {
+        binding.shuffleButton.setOnClickListener {
+            binding.shuffleButton.shake()
+            activeCrumb?.let {
+                val file = it.file
+                lifecycleScope.launch(Dispatchers.IO) {
+                    listSongs(listOf(file), AUDIO_FILE_FILTER, fileComparator) {
+                        MusicPlayer.openQueueShuffle(it)
+                    }
+                }
+            }
+        }
+    }
+
     private fun setUpAdapter() {
         switchToFileAdapter()
     }
@@ -404,6 +426,11 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
     private fun setUpRecyclerView() {
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.createFastScroller()
+        binding.recyclerView.onVerticalScroll(
+            viewLifecycleOwner,
+            onScrollDown = { binding.shuffleButton.hide() },
+            onScrollUp = { binding.shuffleButton.show() }
+        )
     }
 
     private fun updateAdapter(files: List<File>) {

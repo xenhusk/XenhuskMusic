@@ -26,33 +26,68 @@ import com.mardous.booming.appContext
 import com.mardous.booming.extensions.hasR
 import com.mardous.booming.model.StorageDevice
 import com.mardous.booming.recordException
+import kotlinx.io.IOException
+import java.io.File
 import java.lang.reflect.InvocationTargetException
 
 object StorageUtil {
 
-    val storageVolumes: List<StorageDevice> by lazy {
-        arrayListOf<StorageDevice>().also { newList ->
-            try {
-                val storageManager = appContext().getSystemService<StorageManager>()!!
-                for (sv in storageManager.storageVolumes) {
-                    val icon = if (sv.isRemovable && !sv.isPrimary) {
-                        R.drawable.ic_sd_card_24dp
-                    } else {
-                        R.drawable.ic_phone_android_24dp
-                    }
-                    newList.add(StorageDevice(sv.getPath(), sv.getDescription(appContext()), icon))
+    private val _storageVolumes = mutableListOf<StorageDevice>()
+
+    val storageVolumes: List<StorageDevice>
+        get() = _storageVolumes
+
+    init {
+        refreshStorageVolumes()
+    }
+
+    fun refreshStorageVolumes(): List<StorageDevice> {
+        _storageVolumes.clear()
+        try {
+            val context = appContext()
+            val storageManager = context.getSystemService<StorageManager>()
+                ?: return emptyList()
+
+            for (sv in storageManager.storageVolumes) {
+                val path = try {
+                    sv.getPathCompat()
+                } catch (e: Exception) {
+                    recordException(e)
+                    continue
                 }
-            } catch (t: Throwable) {
-                recordException(t)
+
+                val description = sv.getDescription(context) ?: File(path).name
+                val icon = if (sv.isRemovable && !sv.isPrimary) {
+                    R.drawable.ic_sd_card_24dp
+                } else {
+                    R.drawable.ic_phone_android_24dp
+                }
+                _storageVolumes.add(StorageDevice(path, description, icon))
             }
+        } catch (t: Throwable) {
+            recordException(t)
+        }
+        return _storageVolumes
+    }
+
+    fun getStorageDevice(directory: File): StorageDevice? {
+        if (!directory.isDirectory)
+            return null
+
+        return try {
+            val canonicalPath = directory.canonicalPath
+            storageVolumes.firstOrNull { File(it.path).canonicalPath == canonicalPath }
+        } catch (e: IOException) {
+            recordException(e)
+            null
         }
     }
 
     @Throws(NoSuchMethodException::class, InvocationTargetException::class, IllegalAccessException::class)
     @SuppressLint("DiscouragedPrivateApi")
-    private fun StorageVolume.getPath(): String {
+    private fun StorageVolume.getPathCompat(): String {
         return if (hasR()) {
-            this.directory!!.absolutePath
+            this.directory?.absolutePath ?: throw IllegalStateException("StorageVolume has no directory")
         } else {
             StorageVolume::class.java.getDeclaredMethod("getPath").invoke(this) as String
         }

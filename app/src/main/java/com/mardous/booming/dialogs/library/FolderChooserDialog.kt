@@ -25,6 +25,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Bundle
 import android.os.Environment.getExternalStorageDirectory
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.fragment.app.DialogFragment
@@ -35,6 +36,7 @@ import com.mardous.booming.databinding.DialogRecyclerViewBinding
 import com.mardous.booming.extensions.create
 import com.mardous.booming.extensions.hasT
 import com.mardous.booming.extensions.resources.useLinearLayout
+import com.mardous.booming.util.StorageUtil
 import java.io.File
 
 /**
@@ -49,7 +51,7 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
     private var callback: FolderCallback? = null
 
     private var _binding: DialogRecyclerViewBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = requireNotNull(_binding)
 
     private var adapter: SimpleItemAdapter<String>? = null
 
@@ -102,6 +104,23 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
             .setPositiveButton(android.R.string.ok, null)
             .create()
 
+    override fun bindData(itemView: View, position: Int, item: String): Boolean {
+        val textView = itemView.findViewById<TextView>(android.R.id.text1)
+        if (parentFolder?.absolutePath == "/storage/emulated") {
+            val folder = parentContents?.getOrNull(if (canGoUp) position - 1 else position)
+            if (folder != null) {
+                val device = StorageUtil.getStorageDevice(folder)
+                if (device != null) {
+                    textView.text = device.name
+                    textView.setCompoundDrawablesRelativeWithIntrinsicBounds(device.iconRes, 0, 0, 0)
+                    return true
+                }
+            }
+        }
+        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_folder_24dp, 0, 0, 0)
+        return false
+    }
+
     override fun itemClick(itemView: View, position: Int, item: String) {
         onSelection(position)
     }
@@ -109,16 +128,10 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
     private fun onSelection(i: Int) {
         if (canGoUp && i == 0) {
             parentFolder = parentFolder?.parentFile
-            if (parentFolder?.absolutePath == "/storage/emulated") {
-                parentFolder = parentFolder?.parentFile
-            }
             checkIfCanGoUp()
         } else {
             parentFolder = parentContents?.getOrNull(if (canGoUp) i - 1 else i)
             canGoUp = true
-            if (parentFolder?.absolutePath == "/storage/emulated") {
-                parentFolder = getExternalStorageDirectory()
-            }
         }
         reload()
     }
@@ -138,6 +151,9 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
     }
 
     private fun listFiles(): Array<File>? {
+        if (isEmulatedDir(parentFolder)) {
+            return StorageUtil.storageVolumes.map { File(it.path) }.toTypedArray()
+        }
         val results = mutableListOf<File>()
         parentFolder?.listFiles()?.let { files ->
             files.forEach { file -> if (file.isDirectory) results.add(file) }
@@ -147,12 +163,25 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
     }
 
     private fun checkIfCanGoUp() {
-        canGoUp = parentFolder?.parent != null
+        val parent = parentFolder?.parentFile
+        canGoUp = parent != null && !isRootStorage(parent)
+    }
+
+    private fun isEmulatedDir(folder: File?): Boolean {
+        return folder != null && folder.absolutePath.equals("/storage/emulated", ignoreCase = true)
+    }
+
+    private fun isRootStorage(folder: File): Boolean {
+        return folder.absolutePath.equals("/storage", ignoreCase = true)
     }
 
     private fun reload() {
         parentContents = listFiles()
-        dialog?.setTitle(parentFolder?.name)
+        if (isEmulatedDir(parentFolder)) {
+            dialog?.setTitle(R.string.select_storage_title)
+        } else {
+            dialog?.setTitle(parentFolder?.name)
+        }
         adapter?.items = getSelectionContents()
     }
 
@@ -161,8 +190,8 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
         outState.putString("current_path", parentFolder?.absolutePath)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         _binding = null
     }
 

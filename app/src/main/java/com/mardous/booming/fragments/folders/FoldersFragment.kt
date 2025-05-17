@@ -138,7 +138,7 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
 
     private fun setUpTitle() {
         toolbar.setNavigationOnClickListener {
-            findNavController().navigate(R.id.action_search, null, navOptions)
+            findNavController().navigate(R.id.nav_search, null, navOptions)
         }
         binding.appBarLayout.title = resources.getString(R.string.folders_label)
     }

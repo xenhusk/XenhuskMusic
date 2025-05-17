@@ -137,7 +137,7 @@ fun List<Song>.onSongsMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
         return false
     }
     return when (menuItem.itemId) {
-        R.id.action_shuffle_all -> {
+        R.id.action_shuffle_play -> {
             MusicPlayer.openQueueShuffle(this, true)
             true
         }

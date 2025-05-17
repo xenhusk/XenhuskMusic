@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/action_shuffle_all"
-        android:title="@string/shuffle_all_label"/>
+        android:id="@+id/action_shuffle_play"
+        android:title="@string/action_shuffle_play"/>
 	<item
         android:id="@+id/action_play_next"
         android:title="@string/action_queue_next"/>

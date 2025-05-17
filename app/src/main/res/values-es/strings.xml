@@ -2,6 +2,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Reproducir</string>
     <string name="action_play_all">Reproducir todo</string>
+    <string name="action_shuffle_play">Reproducir en aleatorio</string>
     <string name="action_queue_next">Añadir a continuación</string>
     <string name="shuffle_all_label">Todo aleatorio</string>
     <string name="action_play_pause">Reproducir/Pausar</string>

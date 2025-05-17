@@ -2,6 +2,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Play</string>
     <string name="action_play_all">Play all</string>
+    <string name="action_shuffle_play">Shuffle play</string>
     <string name="action_queue_next">Queue next</string>
     <string name="shuffle_all_label">Shuffle all</string>
     <string name="action_play_pause">Play/Pause</string>

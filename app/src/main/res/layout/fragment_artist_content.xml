@@ -21,7 +21,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/albumSortOrder"
-        style="@style/Widget.Material3.Button.IconButton"
+        style="?materialIconButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -64,7 +64,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/songSortOrder"
-        style="@style/Widget.Material3.Button.IconButton"
+        style="?materialIconButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"

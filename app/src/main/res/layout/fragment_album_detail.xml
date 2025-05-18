@@ -89,7 +89,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/playAction"
-                    style="@style/Widget.Material3.Button.IconButton.Filled"
+                    style="?materialIconButtonFilledStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -101,7 +101,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/shuffleAction"
-                    style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                    style="?materialIconButtonFilledTonalStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -113,7 +113,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/searchAction"
-                    style="@style/Widget.Material3.Button.IconButton"
+                    style="?materialIconButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:insetLeft="0dp"

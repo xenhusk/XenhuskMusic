@@ -78,7 +78,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/speed_icon"
-            style="@style/Widget.Material3.Button.IconButton"
+            style="?materialIconButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:icon="@drawable/ic_speed_24dp"
@@ -98,7 +98,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/pitch_icon"
-            style="@style/Widget.Material3.Button.IconButton"
+            style="?materialIconButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:icon="@drawable/ic_graphic_eq_24dp"

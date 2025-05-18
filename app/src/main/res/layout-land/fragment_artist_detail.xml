@@ -121,7 +121,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/shuffleAction"
-                    style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                    style="?materialIconButtonFilledTonalStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/shuffle_action"

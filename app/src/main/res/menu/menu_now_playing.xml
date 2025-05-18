@@ -25,6 +25,10 @@
 		android:title="@string/sound_settings"
 		app:showAsAction="never"/>
 	<item
+		android:id="@+id/action_add_to_playlist"
+		android:title="@string/action_add_to_playlist"
+		app:showAsAction="never"/>
+	<item
 		android:id="@+id/menu_go_to"
 		android:title="@string/go_to_label"
 		app:showAsAction="never">

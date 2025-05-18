@@ -12,6 +12,7 @@
 [![F-Droid version](https://img.shields.io/f-droid/v/com.mardous.booming?label=F-Droid&logo=fdroid)](https://f-droid.org/packages/com.mardous.booming/)
 [![License: GPL v3](https://img.shields.io/github/license/mardous/BoomingMusic?color=orange&label=License&logo=gnu)](LICENSE.txt)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor_Covenant-2.1-4baaaa.svg?logo=contributorcovenant)](CODE_OF_CONDUCT.md)
+[![Crowdin](https://badges.crowdin.net/booming-music/localized.svg)](https://crowdin.com/project/booming-music)
 [![Telegram Group](https://img.shields.io/badge/Telegram-Join_Chat-blue?style=flat&logo=telegram)](https://t.me/mardousdev)
 
 <a href="https://github.com/mardous/BoomingMusic/releases"><img src="assets/badge-github.png" height="60"></a>
@@ -71,9 +72,7 @@ Booming Music is an open-source project, and contributions are always welcome!
 See the [Contributing](CONTRIBUTING.md) document. It will be a good starting point if you are interested
 in contributing to this project, thank you very much in advance.
 
-## 🌎 Translation
-For now, pull requests are the only available way to help translate Booming Music.
-We'll be uploading the project to Crowdin soon.
+**Translations**: [Crowdin](https://crowdin.com/project/booming-music)
 
 ## 💬 Social
 Join the [Telegram chat](https://t.me/mardousdev) to stay up-to-date on new releases, discuss new features,

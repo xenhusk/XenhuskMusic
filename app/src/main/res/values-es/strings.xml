@@ -502,6 +502,8 @@
     <string name="follow_on_telegram">DM en Telegram</string>
     <string name="write_an_email">Enviar email</string>
     <string name="support_development">Soporte al desarrollo</string>
+    <string name="help_with_translations">Ayudar con las traducciones</string>
+    <string name="help_with_translations_summary">Puedes contribuir al proyecto ayudando a traducir Booming Music a otros idiomas.</string>
     <string name="report_bugs">Reportar errores</string>
     <string name="report_bugs_summary">Reportar bugs o pedir nuevas funciones</string>
     <string name="share_app">Compartir Booming Music</string>

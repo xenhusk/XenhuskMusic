@@ -72,6 +72,7 @@ class AboutFragment : Fragment(R.layout.fragment_about), View.OnClickListener {
         binding.cardAuthor.github.setOnClickListener(this)
         binding.cardAuthor.email.setOnClickListener(this)
 
+        binding.cardSupport.translateApp.setOnClickListener(this)
         binding.cardSupport.telegram.setOnClickListener(this)
         binding.cardSupport.reportBugs.setOnClickListener(this)
         binding.cardSupport.shareApp.setOnClickListener(this)
@@ -109,6 +110,10 @@ class AboutFragment : Fragment(R.layout.fragment_about), View.OnClickListener {
                     putExtra(Intent.EXTRA_SUBJECT, "${getString(R.string.app_name)} - Support & questions")
                 }
                 startActivity(Intent.createChooser(emailIntent, getString(R.string.write_an_email)))
+            }
+
+            binding.cardSupport.translateApp -> {
+                openUrl(CROWDIN_PROJECT_LINK)
             }
 
             binding.cardSupport.telegram -> {
@@ -164,5 +169,6 @@ class AboutFragment : Fragment(R.layout.fragment_about), View.OnClickListener {
         private const val ISSUE_TRACKER_LINK = "$GITHUB_URL/issues"
         private const val AUTHOR_TELEGRAM_LINK = "https://t.me/mardeez"
         private const val APP_TELEGRAM_LINK = "https://t.me/mardousdev"
+        private const val CROWDIN_PROJECT_LINK = "https://crowdin.com/project/booming-music"
     }
 }

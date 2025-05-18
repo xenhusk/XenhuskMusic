@@ -235,6 +235,7 @@
     <string name="sort_order_last_played_date">Last played date</string>
     <string name="sort_order_track_list">Track list</string>
     <string name="sort_order_descending">Descending</string>
+    <string name="sort_order_ignore_articles">Ignore articles</string>
     <string name="action_set_as_ringtone">Set as ringtone</string>
     <string name="x_will_be_set_as_ringtone"><![CDATA[Will set <b>%s</b> as your ringtone]]></string>
     <string name="x_has_been_set_as_ringtone">Set %s as your ringtone</string>

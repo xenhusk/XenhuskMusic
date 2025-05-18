@@ -23,84 +23,119 @@ import com.mardous.booming.R
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.model.*
 import java.text.Collator
+import java.util.Locale
 
-fun List<Song>.sortedSongs(sortOrder: SortOrder): List<Song> {
-    return sortedSongs(sortOrder.value, sortOrder.isDescending)
+private val collator: Collator by lazy {
+    Collator.getInstance(Locale.getDefault()).apply { strength = Collator.PRIMARY }
 }
 
-fun List<Song>.sortedSongs(sortOrder: String, descending: Boolean): List<Song> {
-    val collator = Collator.getInstance()
+private val articlesByLanguage = mapOf(
+    "en" to listOf("the", "a", "an"),
+    "es" to listOf("el", "la", "los", "las", "un", "una"),
+    "fr" to listOf("le", "la", "les", "un", "une"),
+    "de" to listOf("der", "die", "das", "ein", "eine"),
+    "it" to listOf("il", "lo", "la", "l’", "i", "gli", "un", "una"),
+    "pt" to listOf("o", "a", "os", "as", "um", "uma"),
+    "nl" to listOf("de", "het", "een")
+)
+
+private fun String.stripLeadingArticles(language: String): String {
+    val articles = articlesByLanguage[language] ?: return this
+    val regex = Regex("^(${articles.joinToString("|")})\\s+", RegexOption.IGNORE_CASE)
+    return trim().replace(regex, "")
+}
+
+private fun String.normalizeForSorting(language: String, ignoreArticles: Boolean): String {
+    return if (ignoreArticles) stripLeadingArticles(language) else this
+}
+
+private fun <T> List<T>.applyOrder(descending: Boolean): List<T> =
+    if (descending) this.reversed() else this
+
+fun List<Song>.sortedSongs(sortOrder: SortOrder): List<Song> {
+    return sortedSongs(sortOrder.value, sortOrder.isDescending, sortOrder.ignoreArticles)
+}
+
+fun List<Song>.sortedSongs(
+    sortOrder: String,
+    descending: Boolean,
+    ignoreArticles: Boolean
+): List<Song> {
+    val langCode = Locale.getDefault().language
     val songs = when (sortOrder) {
-        SortKeys.AZ -> sortedWith { a: Song, b: Song -> collator.compare(a.title, b.title) }
-        SortKeys.ARTIST -> sortedWith { a: Song, b: Song -> collator.compare(a.artistName, b.artistName) }
-        SortKeys.ALBUM -> sortedWith { a: Song, b: Song -> collator.compare(a.albumName, b.albumName) }
-        SortKeys.TRACK_NUMBER -> sortedWith { a: Song, b: Song -> a.trackNumber.compareTo(b.trackNumber) }
-        SortKeys.DURATION -> sortedWith { a: Song, b: Song -> a.duration.compareTo(b.duration) }
-        SortKeys.YEAR -> sortedWith { a: Song, b: Song -> a.year.compareTo(b.year) }
-        SortKeys.DATE_ADDED -> sortedWith { a: Song, b: Song -> a.dateAdded.compareTo(b.dateAdded) }
+        SortKeys.AZ -> sortedWith(compareBy(collator) {
+            it.title.normalizeForSorting(langCode, ignoreArticles)
+        })
+
+        SortKeys.ARTIST -> sortedWith(compareBy(collator) {
+            it.artistName.normalizeForSorting(langCode, ignoreArticles)
+        })
+
+        SortKeys.ALBUM -> sortedWith(compareBy(collator) {
+            it.albumName.normalizeForSorting(langCode, ignoreArticles)
+        })
+
+        SortKeys.TRACK_NUMBER -> sortedWith(compareBy { it.trackNumber })
+        SortKeys.DURATION -> sortedWith(compareBy { it.duration })
+        SortKeys.YEAR -> sortedWith(compareBy { it.year })
+        SortKeys.DATE_ADDED -> sortedWith(compareBy { it.dateAdded })
         else -> this
     }
-    if (descending) {
-        return songs.reversed()
-    }
-    return songs
+    return songs.applyOrder(descending)
 }
 
 fun List<Artist>.sortedArtists(sortOrder: SortOrder): List<Artist> {
-    val collator = Collator.getInstance()
+    val langCode = Locale.getDefault().language
     val artists = when (sortOrder.value) {
-        SortKeys.AZ -> sortedWith { a: Artist, b: Artist -> collator.compare(a.name, b.name) }
-        SortKeys.NUMBER_OF_SONGS -> sortedWith { a: Artist, b: Artist -> a.songCount.compareTo(b.songCount) }
-        SortKeys.NUMBER_OF_ALBUMS -> sortedWith { a: Artist, b: Artist -> a.albumCount.compareTo(b.albumCount) }
+        SortKeys.AZ -> sortedWith(compareBy(collator) {
+            it.name.normalizeForSorting(langCode, sortOrder.ignoreArticles)
+        })
+
+        SortKeys.NUMBER_OF_SONGS -> sortedWith(compareBy { it.songCount })
+        SortKeys.NUMBER_OF_ALBUMS -> sortedWith(compareBy { it.albumCount })
         else -> this
     }
-    if (sortOrder.isDescending) {
-        return artists.reversed()
-    }
-    return artists
+    return artists.applyOrder(sortOrder.isDescending)
 }
 
 fun List<Album>.sortedAlbums(sortOrder: SortOrder): List<Album> {
-    val collator = Collator.getInstance()
+    val langCode = Locale.getDefault().language
     val albums = when (sortOrder.value) {
-        SortKeys.AZ -> sortedWith { a: Album, b: Album -> collator.compare(a.name, b.name) }
-        SortKeys.ARTIST -> sortedWith { a: Album, b: Album ->
-            collator.compare(a.albumArtistName(), b.albumArtistName())
-        }
+        SortKeys.AZ -> sortedWith(compareBy(collator) {
+            it.name.normalizeForSorting(langCode, sortOrder.ignoreArticles)
+        })
 
-        SortKeys.YEAR -> sortedWith { a: Album, b: Album -> a.year.compareTo(b.year) }
-        SortKeys.NUMBER_OF_SONGS -> sortedWith { a: Album, b: Album -> a.songCount.compareTo(b.songCount) }
+        SortKeys.ARTIST -> sortedWith(compareBy(collator) {
+            it.albumArtistName().normalizeForSorting(langCode, sortOrder.ignoreArticles)
+        })
+
+        SortKeys.YEAR -> sortedWith(compareBy { it.year })
+        SortKeys.NUMBER_OF_SONGS -> sortedWith(compareBy { it.songCount })
         else -> this
     }
-    if (sortOrder.isDescending) {
-        return albums.reversed()
-    }
-    return albums
+    return albums.applyOrder(sortOrder.isDescending)
 }
 
 fun List<Genre>.sortedGenres(sortOrder: SortOrder): List<Genre> {
-    val collator = Collator.getInstance()
+    val langCode = Locale.getDefault().language
     val genres = when (sortOrder.value) {
-        SortKeys.AZ -> sortedWith { a: Genre, b: Genre -> collator.compare(a.name, b.name) }
-        SortKeys.NUMBER_OF_SONGS -> sortedWith { a: Genre, b: Genre -> a.songCount.compareTo(b.songCount) }
+        SortKeys.AZ -> sortedWith(compareBy(collator) {
+            it.name.normalizeForSorting(langCode, sortOrder.ignoreArticles)
+        })
+
+        SortKeys.NUMBER_OF_SONGS -> sortedWith(compareBy { it.songCount })
         else -> this
     }
-    if (sortOrder.isDescending) {
-        return genres.reversed()
-    }
-    return genres
+    return genres.applyOrder(sortOrder.isDescending)
 }
 
 fun List<ReleaseYear>.sortedYears(sortOrder: SortOrder): List<ReleaseYear> {
     val years = when (sortOrder.value) {
-        SortKeys.YEAR -> sortedWith { a: ReleaseYear, b: ReleaseYear -> a.year.compareTo(b.year) }
-        SortKeys.NUMBER_OF_SONGS -> sortedWith { a: ReleaseYear, b: ReleaseYear -> a.songCount.compareTo(b.songCount) }
+        SortKeys.YEAR -> sortedWith(compareBy { it.year })
+        SortKeys.NUMBER_OF_SONGS -> sortedWith(compareBy { it.songCount })
         else -> this
     }
-    if (sortOrder.isDescending) {
-        return years.reversed()
-    }
-    return years
+    return years.applyOrder(sortOrder.isDescending)
 }
 
 fun Menu.prepareSortOrder(sortOrder: SortOrder) {
@@ -108,6 +143,10 @@ fun Menu.prepareSortOrder(sortOrder: SortOrder) {
     menu.findItem(R.id.action_sort_order_descending)?.apply {
         isCheckable = true
         isChecked = sortOrder.isDescending
+    }
+    menu.findItem(R.id.action_sort_order_ignore_articles)?.apply {
+        isCheckable = true
+        isChecked = sortOrder.ignoreArticles
     }
     when (sortOrder.value) {
         SortKeys.AZ -> menu.findItem(R.id.action_sort_order_az)?.isChecked = true
@@ -180,6 +219,12 @@ fun MenuItem.selectedSortOrder(sortOrder: SortOrder): Boolean {
 
         R.id.action_sort_order_descending -> {
             sortOrder.isDescending = !isChecked
+            isChecked = !isChecked
+            true
+        }
+
+        R.id.action_sort_order_ignore_articles -> {
+            sortOrder.ignoreArticles = !isChecked
             isChecked = !isChecked
             true
         }

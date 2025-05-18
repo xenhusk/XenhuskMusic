@@ -235,6 +235,7 @@
     <string name="sort_order_last_played_date">Fecha de última reproducción</string>
     <string name="sort_order_track_list">Número de pista</string>
     <string name="sort_order_descending">Descendente</string>
+    <string name="sort_order_ignore_articles">Ignorar artículos</string>
     <string name="action_set_as_ringtone">Usar como tono de llamada</string>
     <string name="x_will_be_set_as_ringtone"><![CDATA[Se usará <b>%s</b> como tono de llamada]]></string>
     <string name="x_has_been_set_as_ringtone">Se configuró %s como tono</string>

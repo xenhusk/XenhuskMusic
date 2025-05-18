@@ -38,6 +38,10 @@ class SortOrder(
         get() = sharedPreferences.getBoolean("${id}_descending", defaultDescending)
         set(value) = sharedPreferences.edit { putBoolean("${id}_descending", value) }
 
+    var ignoreArticles: Boolean
+        get() = sharedPreferences.getBoolean("${id}_sort_order_ignore_articles", true)
+        set(value) = sharedPreferences.edit { putBoolean("${id}_sort_order_ignore_articles", value) }
+
     companion object : KoinComponent {
         private val preferences: SharedPreferences by inject()
         private val sortOrderMap = hashMapOf<String, SortOrder>()

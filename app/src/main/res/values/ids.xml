@@ -10,6 +10,7 @@
     <item name="action_sort_order_number_of_albums" type="id"/>
     <item name="action_sort_order_number_of_songs" type="id"/>
     <item name="action_sort_order_descending" type="id"/>
+    <item name="action_sort_order_ignore_articles" type="id"/>
 
     <item name="action_album_artist" type="id"/>
     <item name="action_new_playlist" type="id"/>

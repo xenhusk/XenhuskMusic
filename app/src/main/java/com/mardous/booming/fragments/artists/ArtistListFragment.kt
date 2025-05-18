@@ -114,7 +114,8 @@ class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, 
             sortOrderSubmenu.add(0, R.id.action_sort_order_az, 0, R.string.sort_order_az)
             sortOrderSubmenu.add(0, R.id.action_sort_order_number_of_songs, 1, R.string.sort_order_number_of_songs)
             sortOrderSubmenu.add(0, R.id.action_sort_order_number_of_albums, 2, R.string.sort_order_number_of_albums)
-            sortOrderSubmenu.add(1, R.id.action_sort_order_descending, 4, R.string.sort_order_descending)
+            sortOrderSubmenu.add(1, R.id.action_sort_order_descending, 3, R.string.sort_order_descending)
+            sortOrderSubmenu.add(1, R.id.action_sort_order_ignore_articles, 4, R.string.sort_order_ignore_articles)
             sortOrderSubmenu.setGroupCheckable(0, true, true)
             sortOrderSubmenu.prepareSortOrder(SortOrder.artistSortOrder)
         }

@@ -21,4 +21,8 @@
         android:id="@+id/action_sort_order_descending"
         android:title="@string/sort_order_descending"
         android:checkable="true"/>
+    <item
+        android:id="@+id/action_sort_order_ignore_articles"
+        android:title="@string/sort_order_ignore_articles"
+        android:checkable="true"/>
 </menu>

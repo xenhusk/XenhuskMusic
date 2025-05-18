@@ -30,6 +30,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -115,7 +116,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         coverFragment?.setCallbacks(this)
     }
 
-    internal fun inflateMenuInView(view: View?) {
+    internal fun inflateMenuInView(view: View?): PopupMenu? {
         if (view != null) {
             if (view is Toolbar) {
                 view.inflateMenu(R.menu.menu_now_playing, this) {
@@ -130,8 +131,10 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                 view.setOnClickListener {
                     popupMenu.show()
                 }
+                return popupMenu
             }
         }
+        return null
     }
 
     @CallSuper

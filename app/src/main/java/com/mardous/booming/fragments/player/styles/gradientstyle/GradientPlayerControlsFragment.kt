@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type
@@ -59,13 +60,14 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
         get() = binding.songInfo
 
     private var isFavorite: Boolean = false
+    private var popupMenu: PopupMenu? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentGradientPlayerPlaybackControlsBinding.bind(view)
         setupListeners()
         setViewAction(binding.favorite, NowPlayingAction.ToggleFavoriteState)
-        playerFragment?.inflateMenuInView(binding.menu)
+        popupMenu = playerFragment?.inflateMenuInView(binding.menu)
         ViewCompat.setOnApplyWindowInsetsListener(view) { v: View, insets: WindowInsetsCompat ->
             val displayCutout = insets.getInsets(Type.displayCutout())
             v.updatePadding(left = displayCutout.left, right = displayCutout.right)
@@ -154,6 +156,16 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
     override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
     override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+
+    internal fun setLyricsVisible(lyricsVisible: Boolean) {
+        popupMenu?.menu?.findItem(R.id.action_show_lyrics)?.let {
+            if (lyricsVisible) {
+                it.setTitle(R.string.action_hide_lyrics)
+            } else {
+                it.setTitle(R.string.action_show_lyrics)
+            }
+        }
+    }
 
     internal fun setFavorite(isFavorite: Boolean, withAnimation: Boolean) {
         if (this.isFavorite != isFavorite) {

@@ -146,6 +146,7 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
     }
 
     override fun onLyricsVisibilityChange(animatorSet: AnimatorSet, lyricsVisible: Boolean) {
+        controlsFragment.setLyricsVisible(lyricsVisible)
         if (lyricsVisible) {
             animatorSet.play(ObjectAnimator.ofFloat(binding.mask, View.ALPHA, 0f))
         } else {

@@ -111,7 +111,7 @@ object ShuffleHelper {
 
     private fun addSongsToList(songs: List<Song>, destination: MutableList<Song>, sortKey: String?) {
         val songList = when {
-            sortKey != null -> songs.sortedSongs(sortKey, false)
+            sortKey != null -> songs.sortedSongs(sortKey, descending = false, ignoreArticles = true)
             else -> songs.shuffled()
         }
         destination.addAll(songList)

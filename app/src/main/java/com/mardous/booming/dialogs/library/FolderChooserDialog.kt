@@ -38,6 +38,7 @@ import com.mardous.booming.extensions.hasT
 import com.mardous.booming.extensions.resources.useLinearLayout
 import com.mardous.booming.util.StorageUtil
 import java.io.File
+import java.io.IOException
 
 /**
  * @author Christians M. A. (mardous)
@@ -85,7 +86,7 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
         binding.recyclerView.useLinearLayout()
         binding.recyclerView.adapter = adapter
         return MaterialAlertDialogBuilder(requireContext())
-            .setTitle(parentFolder?.name)
+            .setTitle(getTitle(parentFolder))
             .setView(binding.root)
             .setPositiveButton(R.string.add_action, null)
             .setNegativeButton(android.R.string.cancel, null)
@@ -106,17 +107,19 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
 
     override fun bindData(itemView: View, position: Int, item: String): Boolean {
         val textView = itemView.findViewById<TextView>(android.R.id.text1)
-        if (parentFolder?.absolutePath == "/storage/emulated") {
-            val folder = parentContents?.getOrNull(if (canGoUp) position - 1 else position)
-            if (folder != null) {
-                val device = StorageUtil.getStorageDevice(folder)
-                if (device != null) {
-                    textView.text = device.name
-                    textView.setCompoundDrawablesRelativeWithIntrinsicBounds(device.iconRes, 0, 0, 0)
-                    return true
+        try {
+            if (isEmulatedDir(parentFolder)) {
+                val folder = parentContents?.getOrNull(if (canGoUp) position - 1 else position)
+                if (folder != null) {
+                    val device = StorageUtil.getStorageDevice(folder)
+                    if (device != null) {
+                        textView.text = device.name
+                        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(device.iconRes, 0, 0, 0)
+                        return true
+                    }
                 }
             }
-        }
+        } catch (_: IOException) {}
         textView.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_folder_24dp, 0, 0, 0)
         return false
     }
@@ -163,16 +166,21 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
     }
 
     private fun checkIfCanGoUp() {
+        if (isEmulatedDir(parentFolder)) {
+            canGoUp = false
+            return
+        }
         val parent = parentFolder?.parentFile
-        canGoUp = parent != null && !isRootStorage(parent)
+        canGoUp = parent != null && !parent.absolutePath.equals("/storage", ignoreCase = true)
     }
 
     private fun isEmulatedDir(folder: File?): Boolean {
-        return folder != null && folder.absolutePath.equals("/storage/emulated", ignoreCase = true)
-    }
+        if (folder == null)
+            return false
 
-    private fun isRootStorage(folder: File): Boolean {
-        return folder.absolutePath.equals("/storage", ignoreCase = true)
+        return StorageUtil.storageVolumes.any {
+            File(it.path).parent == folder.canonicalPath
+        }
     }
 
     private fun reload() {
@@ -180,9 +188,16 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
         if (isEmulatedDir(parentFolder)) {
             dialog?.setTitle(R.string.select_storage_title)
         } else {
-            dialog?.setTitle(parentFolder?.name)
+            dialog?.setTitle(getTitle(parentFolder))
         }
         adapter?.items = getSelectionContents()
+    }
+
+    private fun getTitle(folder: File?): CharSequence? {
+        val device = folder?.let {
+            StorageUtil.getStorageDevice(it)
+        }
+        return device?.name ?: folder?.name
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

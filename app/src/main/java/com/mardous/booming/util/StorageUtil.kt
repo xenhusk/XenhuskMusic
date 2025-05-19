@@ -18,6 +18,7 @@
 package com.mardous.booming.util
 
 import android.annotation.SuppressLint
+import android.os.Environment
 import android.os.storage.StorageManager
 import android.os.storage.StorageVolume
 import androidx.core.content.getSystemService
@@ -49,6 +50,9 @@ object StorageUtil {
                 ?: return emptyList()
 
             for (sv in storageManager.storageVolumes) {
+                if (sv.state != Environment.MEDIA_MOUNTED)
+                    continue
+
                 val path = try {
                     sv.getPathCompat()
                 } catch (e: Exception) {
@@ -71,9 +75,6 @@ object StorageUtil {
     }
 
     fun getStorageDevice(directory: File): StorageDevice? {
-        if (!directory.isDirectory)
-            return null
-
         return try {
             val canonicalPath = directory.canonicalPath
             storageVolumes.firstOrNull { File(it.path).canonicalPath == canonicalPath }

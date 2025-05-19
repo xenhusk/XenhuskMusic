@@ -445,6 +445,10 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         }
     }
 
+    fun setViewAction(view: View, action: NowPlayingAction) {
+        view.setOnClickListener { onQuickActionEvent(action) }
+    }
+
     fun getSongArtist(song: Song): String {
         val artistName = if (Preferences.preferAlbumArtistName)
             song.albumArtistName() else song.artistName

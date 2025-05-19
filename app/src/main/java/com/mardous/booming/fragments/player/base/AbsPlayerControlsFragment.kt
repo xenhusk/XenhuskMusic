@@ -250,11 +250,8 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
      */
     abstract fun setColors(backgroundColor: Int, primaryControlColor: Int, secondaryControlColor: Int)
 
-    protected fun setViewAction(view: View, action: NowPlayingAction) {
-        view.setOnClickListener {
-            playerFragment?.onQuickActionEvent(action)
-        }
-    }
+    protected fun setViewAction(view: View, action: NowPlayingAction) =
+        playerFragment?.setViewAction(view, action)
 
     protected fun getSongArtist(song: Song) =
         playerFragment?.getSongArtist(song)

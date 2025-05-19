@@ -64,10 +64,10 @@
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/previousButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:background="?attr/roundSelector"
-        android:padding="16dp"
+        android:padding="10dp"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_previous_24dp"
         app:layout_constraintBottom_toBottomOf="@+id/playPauseButton"
@@ -78,10 +78,10 @@
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/nextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:background="?attr/roundSelector"
-        android:padding="16dp"
+        android:padding="10dp"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_next_24dp"
         app:layout_constraintBottom_toBottomOf="@+id/playPauseButton"

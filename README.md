@@ -58,6 +58,15 @@
 <img src="metadata/en-US/images/phoneScreenshots/8.jpg" width="30%" />
 </div>
 
+## ✅ Planned
+- [ ] 📦 Custom music library scanner (fully independent from MediaStore)
+- [ ] 🎨 Multiple artist support (splitting and indexing songs with multiple artists)
+- [ ] 🎵 Improved genre handling (same logic as multiple artists)
+- [ ] 💬 Word-by-word synced lyrics (enhanced lyric display)
+- [ ] 🔁 Last.fm integration (import most played songs, possibly export support too)
+- [ ] 💿 Artist page improvements (differentiate albums and singles visually)
+- [ ] 📺 Experimental Android TV support (maybe... if there's enough interest!)
+
 ## 💿 Supported formats
 Booming Music relies on native [MediaPlayer API](https://developer.android.com/guide/topics/media/mediaplayer) for audio files reproduction.
 You can visit [this page](https://developer.android.com/guide/topics/media/media-formats) for detailed
@@ -71,6 +80,12 @@ to obtain more details about each permission and why it is required.
 Booming Music is an open-source project, and contributions are always welcome!
 See the [Contributing](CONTRIBUTING.md) document. It will be a good starting point if you are interested
 in contributing to this project, thank you very much in advance.
+
+If you enjoy using Booming Music or like where it's heading, consider leaving a ⭐ on the
+repository — it helps the project grow and motivates continued development.
+
+Feel free to open issues, submit pull requests, or just share your ideas. Every bit of feedback
+is appreciated!
 
 **Translations**: [Crowdin](https://crowdin.com/project/booming-music)
 

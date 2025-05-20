@@ -47,6 +47,7 @@ import androidx.core.view.drawToBitmap
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.updatePaddingRelative
+import androidx.core.widget.ImageViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -55,6 +56,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.shape.MaterialShapeDrawable
@@ -213,6 +216,48 @@ fun View.hitTest(x: Int, y: Int): Boolean {
     val bottom = bottom + ty
 
     return x >= left && x <= right && y >= top && y <= bottom
+}
+
+fun View.animateBackgroundColor(
+    toColor: Int,
+    duration: Long = 300,
+    onCompleted: AnimationCompleted? = null
+): Animator {
+    val fromColor = backgroundColor
+    return ObjectAnimator.ofArgb(this, "backgroundColor", fromColor, toColor).apply {
+        this.doOnEnd { onCompleted?.invoke() }
+        this.duration = duration
+    }
+}
+
+fun View.animateTintColor(
+    fromColor: Int,
+    toColor: Int,
+    duration: Long = 300,
+    isIconButton: Boolean = false
+): Animator {
+    return ValueAnimator.ofArgb(fromColor, toColor).apply {
+        this.duration = duration
+        addUpdateListener { animation ->
+            val animatedColor = animation.animatedValue as Int
+            val colorStateList = animatedColor.toColorStateList()
+
+            when (this@animateTintColor) {
+                is Slider -> applyColor(animatedColor)
+                is FloatingActionButton -> applyColor(animatedColor)
+                is MaterialButton -> {
+                    if (isIconButton) {
+                        iconTint = colorStateList
+                    } else {
+                        applyColor(animatedColor)
+                    }
+                }
+
+                is ImageView -> ImageViewCompat.setImageTintList(this@animateTintColor, colorStateList)
+                is TextView -> setTextColor(animatedColor)
+            }
+        }
+    }
 }
 
 fun EditText.requestInputMethod() {

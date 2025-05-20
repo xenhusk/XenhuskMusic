@@ -26,6 +26,7 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.extensions.hasS
@@ -123,6 +124,12 @@ fun MaterialButton.applyColor(color: Int) {
     backgroundTintList = backgroundColorStateList
     setTextColor(textColorColorStateList)
     iconTint = textColorColorStateList
+}
+
+fun FloatingActionButton.applyColor(color: Int) {
+    val textColor = getPrimaryTextColor(context, color.isColorLight)
+    backgroundTintList = ColorStateList.valueOf(color)
+    imageTintList = ColorStateList.valueOf(textColor)
 }
 
 fun getPrimaryTextColor(context: Context, isDark: Boolean = !context.isNightMode, isDisabled: Boolean = false): Int {

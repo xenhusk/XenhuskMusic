@@ -136,12 +136,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         if (nps == NowPlayingScreen.Peek)
             return
 
-        if (nps == NowPlayingScreen.FullCover) {
-            val transformer = ParallaxPagerTransformer(R.id.player_image)
-            transformer.setSpeed(0.3f)
-            viewPager.offscreenPageLimit = 2
-            viewPager.setPageTransformer(false, transformer)
-        } else if (nps == NowPlayingScreen.Default && Preferences.isCarousalEffect && !resources.isLandscape) {
+        if (nps.supportsCarouselEffect && Preferences.isCarousalEffect && !resources.isLandscape) {
             val metrics = resources.displayMetrics
             val ratio = metrics.heightPixels.toFloat() / metrics.widthPixels.toFloat()
             val padding = if (ratio >= 1.777f) 40 else 100
@@ -149,6 +144,11 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
             viewPager.setPadding(padding, 0, padding, 0)
             viewPager.pageMargin = 0
             viewPager.setPageTransformer(false, CarousalPagerTransformer(requireContext()))
+        } else if (nps == NowPlayingScreen.FullCover) {
+            val transformer = ParallaxPagerTransformer(R.id.player_image)
+            transformer.setSpeed(0.3f)
+            viewPager.offscreenPageLimit = 2
+            viewPager.setPageTransformer(false, transformer)
         } else {
             viewPager.offscreenPageLimit = 2
             viewPager.setPageTransformer(true, Preferences.coverSwipingEffect)

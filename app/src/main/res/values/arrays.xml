@@ -191,14 +191,48 @@
 
     <string-array name="pref_language_names">
         <item>@string/system_default</item>
+        <item>Arabic</item>
+        <item>Chinese Simplified</item>
+        <item>Czech</item>
+        <item>Danish</item>
         <item>English (US)</item>
+        <item>Finnish</item>
+        <item>German</item>
+        <item>Greek</item>
+        <item>Italian</item>
+        <item>Japanese</item>
+        <item>Norwegian</item>
+        <item>Polish</item>
+        <item>Portuguese</item>
+        <item>Romanian</item>
+        <item>Russian</item>
+        <item>Spanish</item>
         <item>Spanish (Latin America)</item>
+        <item>Swedish</item>
+        <item>Ukrainian</item>
     </string-array>
 
     <string-array name="pref_language_codes">
         <item>auto</item>
+        <item>ar</item>
+        <item>zh-CN</item>
+        <item>cs</item>
+        <item>da</item>
         <item>en</item>
+        <item>fi</item>
+        <item>de</item>
+        <item>el</item>
+        <item>it</item>
+        <item>ja</item>
+        <item>no</item>
+        <item>pl</item>
+        <item>pt</item>
+        <item>ro</item>
+        <item>ru</item>
         <item>es</item>
+        <item>es-419</item>
+        <item>sv</item>
+        <item>uk</item>
     </string-array>
 
 </resources>

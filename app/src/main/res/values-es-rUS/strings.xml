@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">escuchada una vez el %s</string>
     <string name="song_stat_label">escuchada %1$d veces, la última fue el %2$s</string>
     <string name="horizontal_albums">Álbumes horizontales</string>
+    <string name="ignore_singles">Ignorar sencillos</string>
     <string name="action_view_type">Tipo de vista</string>
     <string name="view_type_normal">Normal</string>
     <string name="view_type_card">Tarjeta</string>

@@ -25,19 +25,21 @@ import java.util.Objects
 /**
  * @author Christians M. A. (mardous)
  */
-data class Artist(val id: Long, val albums: List<Album>, val isAlbumArtist: Boolean = false) {
+data class Artist(
+    val id: Long,
+    val albums: List<Album>,
+    val filterSingles: Boolean,
+    val isAlbumArtist: Boolean = false
+) {
 
-    constructor(artistName: String, albums: List<Album>, isAlbumArtist: Boolean = false) :
-            this(albums.firstOrNull()?.artistId ?: -1, albums, isAlbumArtist) {
-        name = artistName
-    }
+    constructor(artistName: String, albums: List<Album>, filterSingles: Boolean, isAlbumArtist: Boolean = true) :
+            this(albums.firstOrNull()?.artistId ?: -1, albums, filterSingles, true)
 
-    var name: String = "-"
-        private set
-        get() = if (isAlbumArtist) getAlbumArtistName()!! else getArtistName()
+    val name: String
+        get() = if (isAlbumArtist) getAlbumArtistName() ?: "-" else getArtistName()
 
     val albumCount: Int
-        get() = albums.size
+        get() = if (filterSingles) albums.count { !it.isSingle } else albums.size
 
     val songCount: Int
         get() = songs.size
@@ -49,7 +51,8 @@ data class Artist(val id: Long, val albums: List<Album>, val isAlbumArtist: Bool
         get() = songs.sortedSongs(SortOrder.artistSongSortOrder)
 
     val sortedAlbums: List<Album>
-        get() = albums.sortedAlbums(SortOrder.artistAlbumSortOrder)
+        get() = albums.let { if (filterSingles) it.filterNot { it.isSingle } else it }
+            .sortedAlbums(SortOrder.artistAlbumSortOrder)
 
     val duration: Long
         get() = albums.sumOf { it.duration }
@@ -70,21 +73,24 @@ data class Artist(val id: Long, val albums: List<Album>, val isAlbumArtist: Bool
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
         val artist = other as Artist
-        return id == artist.id && songs == artist.songs && isAlbumArtist == artist.isAlbumArtist
+        return id == artist.id &&
+                songs == artist.songs &&
+                isAlbumArtist == artist.isAlbumArtist &&
+                filterSingles == artist.filterSingles
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(id, songs, isAlbumArtist)
+        return Objects.hash(id, songs, isAlbumArtist, filterSingles)
     }
 
     override fun toString(): String {
-        return "Artist{id=$id, albums=$albums, isAlbumArtist=$isAlbumArtist}"
+        return "Artist{id=$id, albums=$albums, isAlbumArtist=$isAlbumArtist, filterSingles=$filterSingles}"
     }
 
     companion object {
         const val VARIOUS_ARTISTS_DISPLAY_NAME = "Various Artists"
         const val VARIOUS_ARTISTS_ID: Long = -2
 
-        val empty = Artist(-1, arrayListOf())
+        val empty = Artist(-1, arrayListOf(), false)
     }
 }

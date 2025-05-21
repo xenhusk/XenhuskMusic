@@ -46,12 +46,10 @@ import com.mardous.booming.databinding.FragmentArtistDetailBinding
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.glide.artistOptions
 import com.mardous.booming.extensions.glide.getArtistGlideModel
-import com.mardous.booming.extensions.media.albumCountStr
+import com.mardous.booming.extensions.media.artistInfo
 import com.mardous.booming.extensions.media.displayName
-import com.mardous.booming.extensions.media.songCountStr
 import com.mardous.booming.extensions.navigation.*
 import com.mardous.booming.extensions.resources.*
-import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.helper.menu.*
 import com.mardous.booming.http.Result
@@ -240,17 +238,19 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
             loadBiography(artist.name)
         }
         binding.artistTitle.text = artist.displayName()
-        binding.artistText.text = buildInfoString(
-            artist.albumCountStr(requireContext()),
-            artist.songCountStr(requireContext())
-        )
+        binding.artistText.text = artist.artistInfo(requireContext())
 
         val songText = plurals(R.plurals.songs, artist.songCount)
         val albumText = plurals(R.plurals.albums, artist.albumCount)
         binding.songTitle.text = songText
         binding.albumTitle.text = albumText
         songAdapter.dataSet = artist.sortedSongs
+
+        val albums = artist.sortedAlbums
         albumAdapter.dataSet = artist.sortedAlbums
+        binding.albumTitle.isVisible = albums.isNotEmpty()
+        binding.albumSortOrder.isVisible = albums.isNotEmpty()
+        binding.albumRecyclerView.isVisible = albums.isNotEmpty()
 
         if (artist.isAlbumArtist) {
             loadSimilarArtists(artist)
@@ -398,6 +398,14 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
                 Preferences.horizontalArtistAlbums = isChecked
                 menuItem.isChecked = isChecked
                 setupAlbumGrid()
+                true
+            }
+
+            R.id.action_ignore_singles -> {
+                val isChecked = !menuItem.isChecked
+                Preferences.ignoreSingles = isChecked
+                menuItem.isChecked = isChecked
+                detailViewModel.loadArtistDetail()
                 true
             }
 

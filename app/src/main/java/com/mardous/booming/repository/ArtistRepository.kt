@@ -17,10 +17,10 @@
 
 package com.mardous.booming.repository
 
-import android.annotation.TargetApi
 import android.os.Build
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.AudioColumns
+import androidx.annotation.RequiresApi
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.providers.MediaQueryDispatcher
@@ -43,6 +43,9 @@ class RealArtistRepository(
     private val albumRepository: RealAlbumRepository
 ) : ArtistRepository {
 
+    private val filterSingles: Boolean
+        get() = Preferences.ignoreSingles
+
     override fun artists(): List<Artist> {
         val songs = songRepository.songs(
             songRepository.makeSongCursor(null, null, DEFAULT_SORT_ORDER)
@@ -62,7 +65,7 @@ class RealArtistRepository(
             )
             val albums = albumRepository.splitIntoAlbums(songs)
                 .filter { it.albumArtistName == Artist.VARIOUS_ARTISTS_DISPLAY_NAME }
-            return Artist(Artist.VARIOUS_ARTISTS_ID, albums)
+            return Artist(Artist.VARIOUS_ARTISTS_ID, albums, filterSingles)
         }
 
         val songs = songRepository.songs(
@@ -72,7 +75,7 @@ class RealArtistRepository(
                 DEFAULT_SORT_ORDER
             )
         )
-        return Artist(artistId, albumRepository.splitIntoAlbums(songs))
+        return Artist(artistId, albumRepository.splitIntoAlbums(songs), filterSingles)
     }
 
     override fun artists(query: String): List<Artist> {
@@ -102,13 +105,13 @@ class RealArtistRepository(
             )
             val albums = albumRepository.splitIntoAlbums(songs)
                 .filter { it.albumArtistName == Artist.VARIOUS_ARTISTS_DISPLAY_NAME }
-            return Artist(Artist.VARIOUS_ARTISTS_ID, albums, true)
+            return Artist(Artist.VARIOUS_ARTISTS_ID, albums, filterSingles, isAlbumArtist = true)
         }
 
         val songs = songRepository.songs(
             songRepository.makeSongCursor("${AudioColumns.ALBUM_ARTIST}=?", arrayOf(artistName), DEFAULT_SORT_ORDER)
         )
-        return Artist(artistName, albumRepository.splitIntoAlbums(songs), true)
+        return Artist(artistName, albumRepository.splitIntoAlbums(songs), filterSingles)
     }
 
     override fun albumArtists(query: String): List<Artist> {
@@ -123,7 +126,7 @@ class RealArtistRepository(
         return sortArtists(artists)
     }
 
-    @TargetApi(Build.VERSION_CODES.R)
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun similarAlbumArtists(artist: Artist): List<Artist> {
         val genreNames = artist.songs.mapNotNull { it.genreName }.distinct()
         if (genreNames.isEmpty()) {
@@ -148,11 +151,13 @@ class RealArtistRepository(
     }
 
     private fun splitIntoArtists(albums: List<Album>): List<Artist> {
+        val filterSingles = this.filterSingles
         return albums.groupBy { it.artistId }
-            .map { Artist(it.key, it.value) }
+            .map { Artist(it.key, it.value, filterSingles) }
     }
 
     fun splitIntoAlbumArtists(albums: List<Album>): List<Artist> {
+        val filterSingles = this.filterSingles
         return albums.groupBy { it.albumArtistName }
             .filter {
                 !it.key.isNullOrEmpty()
@@ -161,9 +166,9 @@ class RealArtistRepository(
                 val currentAlbums = it.value
                 if (currentAlbums.isNotEmpty()) {
                     if (currentAlbums[0].albumArtistName == Artist.VARIOUS_ARTISTS_DISPLAY_NAME) {
-                        Artist(Artist.VARIOUS_ARTISTS_ID, currentAlbums, true)
+                        Artist(Artist.VARIOUS_ARTISTS_ID, currentAlbums, filterSingles, isAlbumArtist = true)
                     } else {
-                        Artist(currentAlbums[0].artistId, currentAlbums, true)
+                        Artist(currentAlbums[0].artistId, currentAlbums, filterSingles, isAlbumArtist = true)
                     }
                 } else {
                     Artist.empty

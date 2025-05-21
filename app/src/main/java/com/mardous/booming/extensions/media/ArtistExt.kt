@@ -34,8 +34,13 @@ fun String.displayArtistName(): String =
 
 fun Artist.isNameUnknown() = name.isArtistNameUnknown()
 
-fun Artist.artistInfo(context: Context) =
-    buildInfoString(albumCountStr(context), songCountStr(context))
+fun Artist.artistInfo(context: Context): String {
+    return if (albumCount > 0) {
+        buildInfoString(albumCountStr(context), songCountStr(context))
+    } else {
+        buildInfoString(songCountStr(context))
+    }
+}
 
 fun Artist.albumCountStr(context: Context) = context.plurals(R.plurals.x_albums, albumCount)
 

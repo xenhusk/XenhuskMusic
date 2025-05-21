@@ -41,6 +41,9 @@ data class Album(val id: Long, val songs: List<Song>) {
     val duration: Long
         get() = songs.sumOf { it.duration }
 
+    val isSingle: Boolean
+        get() = songCount == 1
+
     fun safeGetFirstSong(): Song {
         return songs.firstOrNull() ?: Song.emptySong
     }

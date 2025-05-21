@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">played one time on %s</string>
     <string name="song_stat_label">played %1$d times, last was on %2$s</string>
     <string name="horizontal_albums">Horizontal albums</string>
+    <string name="ignore_singles">Ignore singles</string>
     <string name="action_view_type">View type</string>
     <string name="view_type_normal">Normal</string>
     <string name="view_type_card">Card</string>

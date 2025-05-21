@@ -674,6 +674,8 @@
     <string name="full_cover">Full forside</string>
     <string name="gradient">Gradert</string>
     <string name="peek">Pekeppe</string>
+    <string name="plain">Plain</string>
+    <string name="m3_style">M3</string>
     <string name="normal">Vanlig</string>
     <string name="cascading">Cascading</string>
     <string name="depth">Dybde</string>

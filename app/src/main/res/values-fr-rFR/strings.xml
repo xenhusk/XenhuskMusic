@@ -11,8 +11,8 @@
     <string name="action_previous">Précédent</string>
     <string name="action_cancel">Abandonner</string>
     <string name="action_cycle_repeat">Mode de répétition du cycle</string>
-    <string name="action_toggle_shuffle">Toggle shuffle mode</string>
-    <string name="reset_action">Reset</string>
+    <string name="action_toggle_shuffle">Activer la lecture aléatoire</string>
+    <string name="reset_action">Réinitialiser</string>
     <string name="action_more">En savoir plus</string>
     <string name="import_action">Importation</string>
     <string name="create_action">Créer</string>
@@ -38,7 +38,7 @@
     <string name="could_not_create_the_story">Impossible de créer l\'histoire.</string>
     <string name="rename_action">Renommer</string>
     <string name="add_action">Ajouter</string>
-    <string name="delete_action">Supprimez</string>
+    <string name="delete_action">Supprimer</string>
     <string name="remove_action">Retirer</string>
     <string name="clear_action">Nettoyer</string>
     <string name="close_action">Fermer</string>
@@ -81,7 +81,7 @@
     <string name="created_playlist_x">Liste de lecture \'%1$s\' créée.</string>
     <string name="could_not_create_playlist">Impossible de créer la liste de lecture.</string>
     <string name="inserted_one_song_into_playlist_x">Un morceau a été ajouté à la playlist %s.</string>
-    <string name="inserted_x_songs_into_playlist_x">Inserted %1$d songs into playlist %2$s.</string>
+    <string name="inserted_x_songs_into_playlist_x">%1$d titres ajoutés à la playlist %2$s.</string>
     <string name="playlist_exists">La playlist %s existe déjà.</string>
     <string name="remove_song_from_playlist_title">Supprimer la chanson de la playlist</string>
     <string name="remove_songs_from_playlist_title">Supprimer les chansons de la playlist</string>
@@ -213,7 +213,7 @@
     <string name="track_play_counts">Nombre de pistes de lecture</string>
     <string name="song_stat_never_label">Jamais joué</string>
     <string name="song_stat_one_time_label">joué une fois sur %s</string>
-    <string name="song_stat_label">played %1$d times, last was on %2$s</string>
+    <string name="song_stat_label">joué %1$d fois, dernière fois le %2$s</string>
     <string name="horizontal_albums">Albums horizontaux</string>
     <string name="action_view_type">Type de vue</string>
     <string name="view_type_normal">Normale</string>
@@ -251,7 +251,7 @@
     <string name="update_image">Mettre à jour l\'image</string>
     <string name="restore_default">Restaurer les valeurs par défaut</string>
     <string name="remove_cover">Retirer la couverture</string>
-    <string name="could_not_download_album_cover">"Couldn\u2019t download a matching album cover."</string>
+    <string name="could_not_download_album_cover">"Impossible de trouver une pochette d'album correspondante"</string>
     <string name="download_image">Télécharger l\'image</string>
     <string name="pick_from_local_storage">Choisir depuis le stockage local</string>
     <string name="about_x_title">A propos de %s</string>
@@ -349,24 +349,24 @@
         <item quantity="other">Albums</item>
     </plurals>
     <plurals name="x_songs">
-        <item quantity="one">%d song</item>
-        <item quantity="other">%d songs</item>
+        <item quantity="one">%d morceau</item>
+        <item quantity="other">%d morceaux</item>
     </plurals>
     <plurals name="x_albums">
         <item quantity="one">%d album</item>
         <item quantity="other">%d albums</item>
     </plurals>
     <plurals name="x_artists">
-        <item quantity="one">%d artist</item>
+        <item quantity="one">%d artiste</item>
         <item quantity="other">%d artistes</item>
     </plurals>
     <plurals name="x_times">
-        <item quantity="one">%d time</item>
-        <item quantity="other">%d times</item>
+        <item quantity="one">%d fois</item>
+        <item quantity="other">%d fois</item>
     </plurals>
     <plurals name="x_plays">
-        <item quantity="one">%d play</item>
-        <item quantity="other">%d plays</item>
+        <item quantity="one">%d lecture</item>
+        <item quantity="other">%d lectures</item>
     </plurals>
     <!-- Listen now -->
     <string name="for_you_label">Pour vous</string>
@@ -464,7 +464,7 @@
     <string name="sleep_timer_cancel_current_timer_x">Annuler le minuteur actuel (%s)</string>
     <string name="sleep_timer_canceled">La minuterie de sommeil a été annulée.</string>
     <string name="sleep_timer_set_action">Régler</string>
-    <string name="sleep_timer_set">Sleep timer set for %d minutes from now.</string>
+    <string name="sleep_timer_set">Arrêt de la musique dans %d minutes.</string>
     <string name="sleep_timer_finish_current_music">Terminer la dernière chanson</string>
     <string name="sleep_timer_stop_after_this_track">Arrêter après cette piste</string>
     <string name="sleep_timer_stop_after_x">Arrêter après %s</string>
@@ -674,7 +674,7 @@
     <string name="full_cover">Couverture complète</string>
     <string name="gradient">Dégradé</string>
     <string name="peek">Coup d\'œil</string>
-    <string name="plain">Plain</string>
+    <string name="plain">Texte</string>
     <string name="m3_style">M3</string>
     <string name="normal">Normale</string>
     <string name="cascading">Cascading</string>
@@ -724,7 +724,7 @@
     <string name="receive_experimental_updates_summary">Veuillez noter que ces mises à jour sont souvent très instables et sont destinées aux utilisateurs expérimentés.</string>
     <string name="search_for_update_title">Rechercher une mise à jour</string>
     <string name="last_update_search_x">Dernière vérification : %s</string>
-    <string name="checking_please_wait">Checking, please wait…</string>
+    <string name="checking_please_wait">Vérification, veuillez patienter…</string>
     <string name="could_not_check_for_updates">Impossible de vérifier les mises à jour.</string>
     <string name="the_app_is_up_to_date">L\'application est à jour</string>
     <string name="update_available_title">Mise à jour disponible</string>

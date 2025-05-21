@@ -134,7 +134,7 @@
     <string name="hello_there">Bonjour !</string>
     <string name="welcome_to_x">Bienvenue sur %s</string>
     <string name="get_started">Commencer</string>
-    <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> n\'est pas répertorié dans le magasin de médias.]]></string>
+    <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> n'est pas répertorié dans le magasin de médias.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Certains fichiers ne sont pas répertoriés dans le magasin de médias.</string>
     <string name="nothing_to_scan">Rien à analyser</string>
     <string name="scanned_x_of_x_files">%1$d de fichiers %2$d scannés.</string>
@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">joué une fois sur %s</string>
     <string name="song_stat_label">joué %1$d fois, dernière fois le %2$s</string>
     <string name="horizontal_albums">Albums horizontaux</string>
+    <string name="ignore_singles">Ignore singles</string>
     <string name="action_view_type">Type de vue</string>
     <string name="view_type_normal">Normale</string>
     <string name="view_type_card">Cartes</string>

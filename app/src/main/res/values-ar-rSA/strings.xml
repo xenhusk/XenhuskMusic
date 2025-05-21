@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">لعب مرة واحدة على %s</string>
     <string name="song_stat_label">لعب %1$d مرات، آخر مرة في %2$s</string>
     <string name="horizontal_albums">ألبومات أفقية</string>
+    <string name="ignore_singles">Ignore singles</string>
     <string name="action_view_type">نوع العرض</string>
     <string name="view_type_normal">عادي</string>
     <string name="view_type_card">بطاقة</string>

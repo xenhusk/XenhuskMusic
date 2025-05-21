@@ -54,6 +54,8 @@ import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import androidx.core.view.size
+import com.mardous.booming.fragments.player.styles.m3style.M3PlayerFragment
+import com.mardous.booming.fragments.player.styles.plainstyle.PlainPlayerFragment
 
 /**
  * @author Christians M. A. (mardous)
@@ -333,6 +335,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             val isColorLight = paletteColor.isColorLight
             when (nowPlayingScreen) {
                 NowPlayingScreen.Default,
+                NowPlayingScreen.Plain,
+                NowPlayingScreen.M3,
                 NowPlayingScreen.Peek-> {
                     setLightStatusBar(navigationbarColor.isColorLight)
                     setLightNavigationBar(navigationbarColor.isColorLight)
@@ -410,6 +414,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             NowPlayingScreen.FullCover -> FullCoverPlayerFragment()
             NowPlayingScreen.Gradient -> GradientPlayerFragment()
             NowPlayingScreen.Peek -> PeekPlayerFragment()
+            NowPlayingScreen.Plain -> PlainPlayerFragment()
+            NowPlayingScreen.M3 -> M3PlayerFragment()
             else -> DefaultPlayerFragment()
         }
 

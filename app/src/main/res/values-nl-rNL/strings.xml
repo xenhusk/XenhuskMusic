@@ -674,6 +674,8 @@
     <string name="full_cover">Volledige omslag</string>
     <string name="gradient">Kleurovergang</string>
     <string name="peek">Piek</string>
+    <string name="plain">Plain</string>
+    <string name="m3_style">M3</string>
     <string name="normal">normaal</string>
     <string name="cascading">Cascading</string>
     <string name="depth">Diepte</string>

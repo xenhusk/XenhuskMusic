@@ -42,7 +42,7 @@ public class LrcUtils {
 
     private static final Pattern LRC_LINE_PATTERN = Pattern.compile("((?:\\[.*?])+)(.*)");
     private static final Pattern LRC_TIME_PATTERN = Pattern.compile("\\[(\\d+):(\\d{2}(?:\\.\\d+)?)]");
-    private static final Pattern LRC_ATTRIBUTE_PATTERN = Pattern.compile("\\[(\\D+):(.+)]");
+    private static final Pattern LRC_ATTRIBUTE_PATTERN = Pattern.compile("\\[(offset|ti|ar|al|length):(.+)]", Pattern.CASE_INSENSITIVE);
 
     private static final float LRC_SECONDS_TO_MS_MULTIPLIER = 1000f;
     private static final int LRC_MINUTES_TO_MS_MULTIPLIER = 60 * 1000;
@@ -98,6 +98,8 @@ public class LrcUtils {
                     if (matcher.find()) {
                         String time = matcher.group(1).trim();
                         String text = matcher.group(2).trim();
+
+                        if (text.isEmpty()) continue;
 
                         final Matcher timeMatcher = LRC_TIME_PATTERN.matcher(time);
                         while (timeMatcher.find()) {

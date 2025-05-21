@@ -117,6 +117,7 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
 
     override fun onMenuInflated(menu: Menu) {
         super.onMenuInflated(menu)
+        menu.removeItem(R.id.action_playing_queue)
         menu.removeItem(R.id.action_sound_settings)
         menu.removeItem(R.id.action_favorite)
     }

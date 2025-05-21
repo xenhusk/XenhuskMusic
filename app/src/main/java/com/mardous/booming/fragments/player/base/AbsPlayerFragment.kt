@@ -140,6 +140,10 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     @CallSuper
     protected open fun onMenuInflated(menu: Menu) {}
 
+    protected fun Menu.setShowAsAction(itemId: Int, mode: Int = MenuItem.SHOW_AS_ACTION_IF_ROOM) {
+        findItem(itemId)?.setShowAsAction(mode)
+    }
+
     override fun onMenuItemClick(menuItem: MenuItem): Boolean {
         val currentSong = MusicPlayer.currentSong
         return when (menuItem.itemId) {

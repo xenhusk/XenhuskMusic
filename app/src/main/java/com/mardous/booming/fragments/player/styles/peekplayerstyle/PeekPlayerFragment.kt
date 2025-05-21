@@ -72,7 +72,8 @@ class PeekPlayerFragment : AbsPlayerFragment(R.layout.fragment_peek_player) {
 
     override fun onMenuInflated(menu: Menu) {
         super.onMenuInflated(menu)
-        menu.findItem(R.id.action_playing_queue)?.isVisible = true
+        menu.setShowAsAction(R.id.action_playing_queue)
+        menu.setShowAsAction(R.id.action_favorite)
     }
 
     override fun onCreateChildFragments() {

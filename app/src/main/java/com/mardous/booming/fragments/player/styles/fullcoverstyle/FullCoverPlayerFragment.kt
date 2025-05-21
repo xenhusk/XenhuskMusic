@@ -143,6 +143,7 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
     override fun onMenuInflated(menu: Menu) {
         super.onMenuInflated(menu)
         menu.removeItem(R.id.action_favorite)
+        menu.removeItem(R.id.action_playing_queue)
     }
 
     override fun onCreateChildFragments() {

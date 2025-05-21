@@ -19,6 +19,7 @@ package com.mardous.booming.fragments.player.styles.defaultstyle
 
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.appcompat.widget.Toolbar
@@ -87,7 +88,10 @@ class DefaultPlayerFragment : AbsPlayerFragment(R.layout.fragment_default_player
 
     override fun onMenuInflated(menu: Menu) {
         super.onMenuInflated(menu)
+        menu.removeItem(R.id.action_playing_queue)
         menu.removeItem(R.id.action_sound_settings)
+        menu.setShowAsAction(R.id.action_favorite)
+        menu.setShowAsAction(R.id.action_show_lyrics)
     }
 
     override fun onCreateChildFragments() {

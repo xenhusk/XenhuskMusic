@@ -674,6 +674,8 @@
     <string name="full_cover">Voller Cover</string>
     <string name="gradient">Farbverlauf</string>
     <string name="peek">Spau</string>
+    <string name="plain">Plain</string>
+    <string name="m3_style">M3</string>
     <string name="normal">Normal</string>
     <string name="cascading">Cascading</string>
     <string name="depth">Tiefe</string>

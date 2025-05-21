@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">spillede én gang på %s</string>
     <string name="song_stat_label">spillede %1$d gange, sidst var på %2$s</string>
     <string name="horizontal_albums">Vandrette albummer</string>
+    <string name="ignore_singles">Ignore singles</string>
     <string name="action_view_type">Vis type</string>
     <string name="view_type_normal">Normal</string>
     <string name="view_type_card">Kort</string>

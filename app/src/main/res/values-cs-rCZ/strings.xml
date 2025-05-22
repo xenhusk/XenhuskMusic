@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">hrál/a jednou na %s</string>
     <string name="song_stat_label">přehrál %1$d krát, naposledy byl na %2$s</string>
     <string name="horizontal_albums">Horizontální alba</string>
+    <string name="ignore_singles">Ignore singles</string>
     <string name="action_view_type">Typ zobrazení</string>
     <string name="view_type_normal">Normální</string>
     <string name="view_type_card">Karta</string>

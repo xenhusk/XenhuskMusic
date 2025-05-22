@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">έπαιξε μία φορά στο %s</string>
     <string name="song_stat_label">έπαιξε %1$d φορές, τελευταία ήταν στο %2$s</string>
     <string name="horizontal_albums">Οριζόντια άλμπουμ</string>
+    <string name="ignore_singles">Ignore singles</string>
     <string name="action_view_type">Τύπος προβολής</string>
     <string name="view_type_normal">Κανονικό</string>
     <string name="view_type_card">Κάρτα</string>

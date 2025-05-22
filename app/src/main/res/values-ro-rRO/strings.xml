@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">a jucat o dată pe %s</string>
     <string name="song_stat_label">played %1$d times, last was on %2$s</string>
     <string name="horizontal_albums">Albume orizontale</string>
+    <string name="ignore_singles">Ignore singles</string>
     <string name="action_view_type">Tip de vizualizare</string>
     <string name="view_type_normal">Normală</string>
     <string name="view_type_card">Card</string>

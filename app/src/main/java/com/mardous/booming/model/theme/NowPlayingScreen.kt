@@ -58,7 +58,7 @@ enum class NowPlayingScreen(
         R.drawable.np_plain,
         R.layout.fragment_album_cover_default,
         supportsCoverLyrics = true,
-        supportsCarouselEffect = true
+        supportsCarouselEffect = false
     ),
     M3(
         R.string.m3_style,

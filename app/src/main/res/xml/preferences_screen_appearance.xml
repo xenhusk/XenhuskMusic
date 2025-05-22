@@ -68,7 +68,7 @@
             app:useSimpleSummaryProvider="true"
             app:defaultValue="auto"
             app:layout="@layout/list_item_view"
-            app:key="bottom_titles_mode"/>
+            app:key="tab_titles_mode"/>
 
     </PreferenceCategory>
 

@@ -36,6 +36,10 @@ abstract class PlayingNotification(protected val context: Context) :
 
     abstract fun setPlaying(isPlaying: Boolean)
 
+    init {
+        setSmallIcon(R.drawable.ic_stat_music_playback)
+    }
+
     @Synchronized
     protected fun getExtraTextString(song: Song): String? {
         if (context is MusicService) {

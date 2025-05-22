@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">在 %s 上玩过一次</string>
     <string name="song_stat_label">播放了 %1$d 次，最后一次在 %2$s</string>
     <string name="horizontal_albums">水平相册</string>
+    <string name="ignore_singles">Ignore singles</string>
     <string name="action_view_type">查看类型</string>
     <string name="view_type_normal">普通的</string>
     <string name="view_type_card">卡</string>

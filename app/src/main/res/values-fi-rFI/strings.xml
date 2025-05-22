@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">pelasi yhden kerran %s</string>
     <string name="song_stat_label">Pelattu %1$d kertaa, viimeinen oli %2$s</string>
     <string name="horizontal_albums">Vaakasuorat albumit</string>
+    <string name="ignore_singles">Ignore singles</string>
     <string name="action_view_type">Näytä tyyppi</string>
     <string name="view_type_normal">Normaali</string>
     <string name="view_type_card">Kortti</string>

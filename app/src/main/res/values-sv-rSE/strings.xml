@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">spelade en gång på %s</string>
     <string name="song_stat_label">spelade %1$d gånger, senast var %2$s</string>
     <string name="horizontal_albums">Horisontella album</string>
+    <string name="ignore_singles">Ignore singles</string>
     <string name="action_view_type">Visa typ</string>
     <string name="view_type_normal">Normal</string>
     <string name="view_type_card">Kort</string>

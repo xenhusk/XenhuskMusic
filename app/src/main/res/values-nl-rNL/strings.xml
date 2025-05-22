@@ -215,6 +215,7 @@
     <string name="song_stat_one_time_label">speelde één keer op %s</string>
     <string name="song_stat_label">%1$d keer afgespeeld, laatst op %2$s</string>
     <string name="horizontal_albums">Horizontale albums</string>
+    <string name="ignore_singles">Ignore singles</string>
     <string name="action_view_type">Bekijk type</string>
     <string name="view_type_normal">normaal</string>
     <string name="view_type_card">Creditcard</string>

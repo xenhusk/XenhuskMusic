@@ -46,7 +46,7 @@ interface PlaylistDao {
 
     @Transaction
     @Query("SELECT * FROM PlaylistEntity WHERE playlist_id = :playlistId")
-    fun getPlaylist(playlistId: Long): LiveData<PlaylistWithSongs>
+    fun getPlaylist(playlistId: Long): LiveData<PlaylistWithSongs?>
 
     @Transaction
     @Query("SELECT * FROM PlaylistEntity WHERE playlist_name LIKE :playlistName")

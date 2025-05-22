@@ -21,8 +21,8 @@ import android.content.Context
 import android.database.Cursor
 import android.provider.MediaStore
 import android.util.Log
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import com.mardous.booming.R
 import com.mardous.booming.database.PlaylistDao
 import com.mardous.booming.database.PlaylistEntity
@@ -93,25 +93,21 @@ class RealPlaylistRepository(
         return songRepository.songs(sortedCursor)
     }
 
-    @WorkerThread
     override suspend fun createPlaylist(playlistEntity: PlaylistEntity): Long =
         playlistDao.createPlaylist(playlistEntity)
 
-    @WorkerThread
     override suspend fun checkPlaylistExists(playlistName: String): List<PlaylistEntity> =
         playlistDao.playlist(playlistName)
 
     override fun checkPlaylistExists(playListId: Long): LiveData<Boolean> =
         playlistDao.checkPlaylistExists(playListId)
 
-    @WorkerThread
     override suspend fun playlists(): List<PlaylistEntity> = playlistDao.playlists()
 
-    @WorkerThread
     override suspend fun playlistWithSongs(): List<PlaylistWithSongs> = playlistDao.playlistsWithSongs()
 
-    @WorkerThread
-    override fun playlistWithSongsObservable(playlistId: Long): LiveData<PlaylistWithSongs> = playlistDao.getPlaylist(playlistId)
+    override fun playlistWithSongsObservable(playlistId: Long): LiveData<PlaylistWithSongs> =
+        playlistDao.getPlaylist(playlistId).map { result -> result ?: PlaylistWithSongs.Empty }
 
     override suspend fun searchPlaylists(searchQuery: String): List<PlaylistWithSongs> =
         playlistDao.searchPlaylists("%$searchQuery%")
@@ -119,7 +115,6 @@ class RealPlaylistRepository(
     override suspend fun searchPlaylistSongs(playlistId: Long, searchQuery: String): List<SongEntity> =
         playlistDao.searchSongs(playlistId, "%$searchQuery%")
 
-    @WorkerThread
     override suspend fun insertSongs(songs: List<SongEntity>) {
         playlistDao.insertSongsToPlaylist(songs)
     }

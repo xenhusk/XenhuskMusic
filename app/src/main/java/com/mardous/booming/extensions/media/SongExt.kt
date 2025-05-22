@@ -25,7 +25,6 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.text.SpannableString
 import android.util.Log
-import androidx.core.content.contentValuesOf
 import androidx.core.text.buildSpannedString
 import com.mardous.booming.R
 import com.mardous.booming.extensions.files.toAudioFile
@@ -161,17 +160,6 @@ fun Song.replayGainStr(context: Context): String? {
 fun Song.configureRingtone(context: Context, isAlarm: Boolean): Boolean {
     val resolver = context.contentResolver
     val uri = mediaStoreUri
-
-    try {
-        contentValuesOf(
-            MediaStore.Audio.AudioColumns.IS_RINGTONE to "1",
-            MediaStore.Audio.AudioColumns.IS_ALARM to if (isAlarm) "1" else "0"
-        ).also { values ->
-            resolver.update(uri, values, null, null)
-        }
-    } catch (ignored: UnsupportedOperationException) {
-        return false
-    }
 
     try {
         resolver.query(

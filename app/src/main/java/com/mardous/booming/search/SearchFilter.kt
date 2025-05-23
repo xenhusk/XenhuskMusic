@@ -25,6 +25,7 @@ import com.mardous.booming.database.PlaylistEntity
 import com.mardous.booming.extensions.media.displayName
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
+import com.mardous.booming.model.Folder
 import com.mardous.booming.model.Genre
 import com.mardous.booming.model.ReleaseYear
 import com.mardous.booming.search.SearchQuery.FilterMode
@@ -91,6 +92,9 @@ fun Artist.searchFilter(context: Context): SmartSearchFilter {
         )
     }
 }
+
+fun Folder.searchFilter(context: Context): SearchFilter =
+    BasicSearchFilter(context.getString(R.string.search_in_folder_x, name), this)
 
 fun Genre.searchFilter(context: Context): SearchFilter =
     BasicSearchFilter(context.getString(R.string.search_from_x_label, name), this)

@@ -25,6 +25,7 @@
     <string name="search_list_x_label">Buscar lista: %s</string>
     <string name="search_from_x_label">Buscar desde \"%s\"</string>
     <string name="search_year_x_label">Buscar del año: %s</string>
+    <string name="search_in_folder_x">Buscar en carpeta: %s</string>
     <string name="search_last_added">Buscar contenido reciente</string>
     <string name="shuffle_mode_album">Mezcla de álbumes</string>
     <string name="shuffle_mode_artist">Mezcla de artistas</string>
@@ -199,6 +200,7 @@
     <string name="album_artists_label">Artistas del álbum</string>
     <string name="genres_label">Géneros</string>
     <string name="folders_label">Carpetas</string>
+    <string name="files_label">Archivos</string>
     <string name="playlists_label">Playlists</string>
     <string name="playlist_label">Playlist</string>
     <string name="composers_label">Compositores</string>

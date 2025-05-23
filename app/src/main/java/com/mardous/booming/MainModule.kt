@@ -27,6 +27,7 @@ import com.mardous.booming.fragments.LibraryViewModel
 import com.mardous.booming.fragments.albums.AlbumDetailViewModel
 import com.mardous.booming.fragments.artists.ArtistDetailViewModel
 import com.mardous.booming.fragments.equalizer.EqualizerViewModel
+import com.mardous.booming.fragments.folders.FolderDetailViewModel
 import com.mardous.booming.fragments.genres.GenreDetailViewModel
 import com.mardous.booming.fragments.info.InfoViewModel
 import com.mardous.booming.fragments.lyrics.LyricsViewModel
@@ -177,7 +178,7 @@ private val dataModule = module {
 
 private val viewModule = module {
     viewModel {
-        LibraryViewModel(get(), get())
+        LibraryViewModel(get(), get(), get(), get())
     }
 
     viewModel {
@@ -202,6 +203,10 @@ private val viewModule = module {
 
     viewModel { (year: Int) ->
         YearDetailViewModel(get(), year)
+    }
+
+    viewModel { (path: String) ->
+        FolderDetailViewModel(get(), path)
     }
 
     viewModel {

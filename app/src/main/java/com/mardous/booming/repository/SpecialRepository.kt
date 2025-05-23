@@ -18,16 +18,21 @@
 package com.mardous.booming.repository
 
 import android.provider.MediaStore.Audio.AudioColumns
+import com.mardous.booming.model.Folder
 import com.mardous.booming.model.ReleaseYear
 import com.mardous.booming.model.Song
 import com.mardous.booming.util.sort.SortOrder
+import com.mardous.booming.util.sort.sortedFolders
 import com.mardous.booming.util.sort.sortedSongs
 import com.mardous.booming.util.sort.sortedYears
 
 interface SpecialRepository {
     suspend fun releaseYears(): List<ReleaseYear>
     suspend fun releaseYear(year: Int): ReleaseYear
-    suspend fun songs(year: Int, query: String): List<Song>
+    suspend fun songsByYear(year: Int, query: String): List<Song>
+    suspend fun musicFolders(): List<Folder>
+    suspend fun folderByPath(path: String): Folder
+    suspend fun songsByFolder(path: String, query: String): List<Song>
 }
 
 class RealSpecialRepository(private val songRepository: RealSongRepository) : SpecialRepository {
@@ -50,7 +55,7 @@ class RealSpecialRepository(private val songRepository: RealSongRepository) : Sp
         return ReleaseYear(year, songs.sortedSongs(SortOrder.yearSongSortOrder))
     }
 
-    override suspend fun songs(year: Int, query: String): List<Song> {
+    override suspend fun songsByYear(year: Int, query: String): List<Song> {
         return songRepository.songs(
             songRepository.makeSongCursor(
                 selection = "${AudioColumns.YEAR}=? AND ${AudioColumns.TITLE} LIKE ?",
@@ -58,4 +63,35 @@ class RealSpecialRepository(private val songRepository: RealSongRepository) : Sp
             )
         )
     }
+
+    override suspend fun musicFolders(): List<Folder> {
+        val allSongs = songRepository.songs()
+        val songsByFolder = allSongs.groupBy { song ->
+            song.folderPath()
+        }.filter {
+            it.key.isNotEmpty()
+        }
+        return songsByFolder.map { (folderPath, songs) ->
+            Folder(folderPath, songs)
+        }.sortedFolders(SortOrder.folderSortOrder)
+    }
+
+    override suspend fun folderByPath(path: String): Folder {
+        val songs = songRepository.songs().filter { song ->
+            path == song.folderPath()
+        }
+        return Folder(path, songs.sortedSongs(SortOrder.folderSongSortOrder))
+    }
+
+    override suspend fun songsByFolder(path: String, query: String): List<Song> {
+        val cursor = songRepository.makeSongCursor(
+            selection = "${AudioColumns.TITLE} LIKE ?",
+            selectionValues = arrayOf("%$query%")
+        )
+        return songRepository.songs(cursor).filter { song ->
+            path == song.folderPath()
+        }
+    }
+
+    private fun Song.folderPath() = data.substringBeforeLast("/", missingDelimiterValue = "")
 }

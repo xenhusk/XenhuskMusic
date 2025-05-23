@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Christians Martínez Alvarado
+ * Copyright (c) 2025 Christians Martínez Alvarado
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.fragments.years
+package com.mardous.booming.fragments.folders
 
 import android.os.Bundle
 import android.view.Menu
@@ -24,15 +24,13 @@ import android.view.MenuItem
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.mardous.booming.R
-import com.mardous.booming.adapters.extension.isNullOrEmpty
 import com.mardous.booming.adapters.song.SongAdapter
 import com.mardous.booming.databinding.FragmentDetailListBinding
+import com.mardous.booming.extensions.applyScrollableContentInsets
 import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.extensions.media.songCountStr
 import com.mardous.booming.extensions.media.songsDurationStr
@@ -43,7 +41,7 @@ import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.helper.menu.onSongMenu
 import com.mardous.booming.helper.menu.onSongsMenu
 import com.mardous.booming.interfaces.ISongCallback
-import com.mardous.booming.model.ReleaseYear
+import com.mardous.booming.model.Folder
 import com.mardous.booming.model.Song
 import com.mardous.booming.search.searchFilter
 import com.mardous.booming.service.MusicPlayer
@@ -53,11 +51,11 @@ import com.mardous.booming.util.sort.selectedSortOrder
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-class YearDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_list), ISongCallback {
+class FolderDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_list), ISongCallback {
 
-    private val arguments by navArgs<YearDetailFragmentArgs>()
-    private val detailViewModel: YearDetailViewModel by viewModel {
-        parametersOf(arguments.extraYear)
+    private val arguments by navArgs<FolderDetailFragmentArgs>()
+    private val detailViewModel: FolderDetailViewModel by viewModel {
+        parametersOf(arguments.extraFolderPath)
     }
 
     private var _binding: FragmentDetailListBinding? = null
@@ -66,8 +64,8 @@ class YearDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
     private lateinit var songAdapter: SongAdapter
     private lateinit var requestManager: RequestManager
 
-    private val year: ReleaseYear
-        get() = detailViewModel.getYear().value ?: ReleaseYear.Empty
+    private val folder: Folder
+        get() = detailViewModel.getFolder().value ?: Folder.empty
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -76,13 +74,14 @@ class YearDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
 
         materialSharedAxis(view)
         setSupportActionBar(binding.toolbar)
+        view.applyScrollableContentInsets(binding.recyclerView)
 
         setupButtons()
         setupRecyclerView()
-        detailViewModel.getYear().observe(viewLifecycleOwner) { year ->
-            binding.collapsingAppBarLayout.title = year.name
-            binding.title.text = year.name
-            songs(year.songs)
+        detailViewModel.getFolder().observe(viewLifecycleOwner) {
+            binding.collapsingAppBarLayout.title = it.name
+            binding.title.text = it.name
+            songs(it.songs)
         }
     }
 
@@ -96,30 +95,28 @@ class YearDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
     }
 
     private fun setupRecyclerView() {
-        songAdapter = SongAdapter(requireActivity(), requestManager, ArrayList(), R.layout.item_list, callback = this)
+        songAdapter = SongAdapter(
+            requireActivity(),
+            requestManager,
+            ArrayList(),
+            R.layout.item_list,
+            callback = this
+        )
         binding.recyclerView.apply {
-            itemAnimator = DefaultItemAnimator()
             layoutManager = LinearLayoutManager(requireContext())
             adapter = songAdapter
         }
-        songAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-            override fun onChanged() {
-                super.onChanged()
-                checkIsEmpty()
-            }
-        })
     }
 
     fun songs(songs: List<Song>) {
-        binding.progressIndicator.hide()
-        binding.subtitle.text = buildInfoString(songs.songCountStr(requireContext()), songs.songsDurationStr())
-        songAdapter.dataSet = songs
-    }
-
-    private fun checkIsEmpty() {
-        if (songAdapter.isNullOrEmpty) {
-            findNavController().navigateUp()
+        if (songs.isEmpty()) {
+            findNavController().popBackStack()
+            return
         }
+        binding.progressIndicator.hide()
+        binding.subtitle.text =
+            buildInfoString(songs.songCountStr(requireContext()), songs.songsDurationStr())
+        songAdapter.dataSet = songs
     }
 
     override fun songMenuItemClick(
@@ -133,27 +130,33 @@ class YearDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_genre_detail, menu)
+        inflater.inflate(R.menu.menu_folder_detail, menu)
     }
 
     override fun onPrepareMenu(menu: Menu) {
-        menu.prepareSortOrder(SortOrder.yearSongSortOrder)
+        menu.prepareSortOrder(SortOrder.folderSongSortOrder)
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         return when {
-            item.selectedSortOrder(SortOrder.yearSongSortOrder) -> {
+            item.selectedSortOrder(SortOrder.folderSongSortOrder) -> {
                 detailViewModel.loadDetail()
                 true
             }
+
             item.itemId == R.id.action_search -> {
-                findNavController().navigate(R.id.nav_search, searchArgs(year.searchFilter(requireContext())))
+                findNavController().navigate(
+                    R.id.nav_search,
+                    searchArgs(folder.searchFilter(requireContext()))
+                )
                 true
             }
+
             item.itemId == android.R.id.home -> {
                 findNavController().navigateUp()
                 true
             }
+
             else -> songAdapter.dataSet.onSongsMenu(this, item)
         }
     }

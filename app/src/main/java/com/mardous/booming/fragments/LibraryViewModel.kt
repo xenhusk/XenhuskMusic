@@ -26,6 +26,7 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.*
 import com.mardous.booming.database.*
 import com.mardous.booming.extensions.dp
+import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.http.github.GitHubRelease
 import com.mardous.booming.http.github.GitHubService
 import com.mardous.booming.model.*
@@ -45,6 +46,7 @@ import java.util.Date
 
 class LibraryViewModel(
     private val repository: Repository,
+    private val inclExclDao: InclExclDao,
     private val updateService: GitHubService
 ) : ViewModel() {
 
@@ -62,6 +64,7 @@ class LibraryViewModel(
     private val playlists = MutableLiveData<List<PlaylistWithSongs>>()
     private val genres = MutableLiveData<List<Genre>>()
     private val years = MutableLiveData<List<ReleaseYear>>()
+    private val folders = MutableLiveData<List<Folder>>()
     private val fabMargin = MutableLiveData(0)
     private val songHistory = MutableLiveData<List<Song>>()
     private val paletteColor = MutableLiveData<Int>()
@@ -74,6 +77,7 @@ class LibraryViewModel(
     fun getPlaylists(): LiveData<List<PlaylistWithSongs>> = playlists
     fun getGenres(): LiveData<List<Genre>> = genres
     fun getYears(): LiveData<List<ReleaseYear>> = years
+    fun getFolders(): LiveData<List<Folder>> = folders
     fun getFabMargin(): LiveData<Int> = fabMargin
     fun getPaletteColor(): LiveData<Int> = paletteColor
     fun getUpdateSearchEvent(): LiveData<Event<UpdateSearchResult>> = updateSearch
@@ -116,6 +120,7 @@ class LibraryViewModel(
             ReloadType.Artists -> fetchArtists()
             ReloadType.Playlists -> fetchPlaylists()
             ReloadType.Genres -> fetchGenres()
+            ReloadType.Folders -> fetchFolders()
             ReloadType.Years -> fetchYears()
             ReloadType.Suggestions -> fetchSuggestions()
         }
@@ -158,8 +163,24 @@ class LibraryViewModel(
         years.postValue(repository.allYears())
     }
 
+    private suspend fun fetchFolders() {
+        folders.postValue(repository.allFolders())
+    }
+
+    fun blacklistPath(file: File) = viewModelScope.launch(IO) {
+        inclExclDao.insertPath(InclExclEntity(file.getCanonicalPathSafe(), InclExclDao.BLACKLIST))
+        forceReload(ReloadType.Folders)
+    }
+
+    @JvmName("songsFromYear")
     fun songs(years: List<ReleaseYear>): LiveData<List<Song>> = liveData(IO) {
         val songs = years.flatMap { it.songs }
+        emit(songs)
+    }
+
+    @JvmName("songsFromFolder")
+    fun songs(folders: List<Folder>): LiveData<List<Song>> = liveData(IO) {
+        val songs = folders.flatMap { it.songs }
         emit(songs)
     }
 
@@ -399,6 +420,7 @@ enum class ReloadType {
     Artists,
     Playlists,
     Genres,
+    Folders,
     Years,
     Suggestions
 }

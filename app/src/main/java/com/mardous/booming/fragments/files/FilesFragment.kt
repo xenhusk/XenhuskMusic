@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.fragments.folders
+package com.mardous.booming.fragments.files
 
 import android.media.MediaScannerConnection
 import android.os.Bundle
@@ -39,7 +39,7 @@ import com.mardous.booming.adapters.SongFileAdapter
 import com.mardous.booming.adapters.StorageAdapter
 import com.mardous.booming.database.InclExclDao
 import com.mardous.booming.database.InclExclEntity
-import com.mardous.booming.databinding.FragmentFoldersBinding
+import com.mardous.booming.databinding.FragmentFilesBinding
 import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.files.*
 import com.mardous.booming.extensions.resources.*
@@ -73,10 +73,10 @@ import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.LinkedList
 
-class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), SelectionCallback, IFileCallbacks,
+class FilesFragment : AbsMainActivityFragment(R.layout.fragment_files), SelectionCallback, IFileCallbacks,
     LoaderManager.LoaderCallbacks<List<File>>, IStorageDeviceCallback, IScrollHelper {
 
-    private var _binding: FragmentFoldersBinding? = null
+    private var _binding: FragmentFilesBinding? = null
     private val binding get() = _binding!!
     private val inclExclDao: InclExclDao by inject<InclExclDao>()
 
@@ -99,7 +99,7 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
         super.onViewCreated(view, savedInstanceState)
         applyWindowInsetsFromView(view)
 
-        _binding = FragmentFoldersBinding.bind(view)
+        _binding = FragmentFilesBinding.bind(view)
         mainActivity.setSupportActionBar(toolbar)
         mainActivity.supportActionBar?.title = null
         topLevelTransition(view)
@@ -149,7 +149,7 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
         toolbar.setNavigationOnClickListener {
             findNavController().navigate(R.id.nav_search, null, navOptions)
         }
-        binding.appBarLayout.title = resources.getString(R.string.folders_label)
+        binding.appBarLayout.title = resources.getString(R.string.files_label)
     }
 
     override fun onPause() {
@@ -204,7 +204,7 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
                         lifecycleScope.launch(Dispatchers.IO) {
                             listSongs(listOf(file), AUDIO_FILE_FILTER, fileComparator) { songs ->
                                 if (songs.isNotEmpty()) {
-                                    songs.onSongsMenu(this@FoldersFragment, item)
+                                    songs.onSongsMenu(this@FilesFragment, item)
                                 }
                             }
                         }
@@ -228,7 +228,7 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
                             listSongs(listOf(file), AUDIO_FILE_FILTER, fileComparator) { songs ->
                                 if (songs.isNotEmpty()) {
                                     val song = songs.first()
-                                    song.onSongMenu(this@FoldersFragment, item)
+                                    song.onSongMenu(this@FilesFragment, item)
                                 }
                             }
                         }
@@ -290,7 +290,7 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
         lifecycleScope.launch(Dispatchers.IO) {
             listSongs(files, AUDIO_FILE_FILTER, fileComparator) { songs ->
                 if (songs.isNotEmpty()) {
-                    songs.onSongsMenu(this@FoldersFragment, item)
+                    songs.onSongsMenu(this@FilesFragment, item)
                 }
             }
         }
@@ -476,22 +476,22 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
         }
     }
 
-    private class AsyncFileLoader(foldersFragment: FoldersFragment) :
-        WrappedAsyncTaskLoader<List<File>>(foldersFragment.requireActivity()) {
+    private class AsyncFileLoader(filesFragment: FilesFragment) :
+        WrappedAsyncTaskLoader<List<File>>(filesFragment.requireActivity()) {
 
-        private val fragmentWeakReference: WeakReference<FoldersFragment> =
-            WeakReference(foldersFragment)
+        private val fragmentWeakReference: WeakReference<FilesFragment> =
+            WeakReference(filesFragment)
 
         override fun loadInBackground(): List<File> {
-            val foldersFragment = fragmentWeakReference.get()
+            val filesFragment = fragmentWeakReference.get()
             var directory: File? = null
-            if (foldersFragment != null) {
-                val crumb = foldersFragment.activeCrumb
+            if (filesFragment != null) {
+                val crumb = filesFragment.activeCrumb
                 if (crumb != null) {
                     directory = crumb.file
                 }
             }
-            return directory?.listFilesAsList(AUDIO_FILE_FILTER)?.sortedWith(foldersFragment!!.fileComparator)
+            return directory?.listFilesAsList(AUDIO_FILE_FILTER)?.sortedWith(filesFragment!!.fileComparator)
                 ?: LinkedList()
         }
     }
@@ -546,7 +546,7 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
     }
 
     companion object {
-        val TAG: String = FoldersFragment::class.java.simpleName
+        val TAG: String = FilesFragment::class.java.simpleName
 
         val AUDIO_FILE_FILTER = FileFilter { file: File ->
             (!file.isHidden && (file.isDirectory

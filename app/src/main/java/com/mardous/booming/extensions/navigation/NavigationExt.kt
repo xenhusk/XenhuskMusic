@@ -28,6 +28,7 @@ import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.mardous.booming.fragments.albums.AlbumDetailFragmentArgs
 import com.mardous.booming.fragments.artists.ArtistDetailFragmentArgs
+import com.mardous.booming.fragments.folders.FolderDetailFragmentArgs
 import com.mardous.booming.fragments.genres.GenreDetailFragmentArgs
 import com.mardous.booming.fragments.info.PlayInfoFragmentArgs
 import com.mardous.booming.fragments.info.SongDetailFragmentArgs
@@ -66,6 +67,11 @@ fun songDetailArgs(song: Song) =
 
 fun genreDetailArgs(genre: Genre) =
     GenreDetailFragmentArgs.Builder(genre)
+        .build()
+        .toBundle()
+
+fun folderDetailArgs(folder: Folder) =
+    FolderDetailFragmentArgs.Builder(folder.path)
         .build()
         .toBundle()
 

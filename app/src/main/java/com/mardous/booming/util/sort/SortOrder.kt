@@ -68,6 +68,10 @@ class SortOrder(
 
         val yearSongSortOrder get() = sortOrder("year_song", SortKeys.AZ, false)
 
+        val folderSortOrder get() = sortOrder("folder", SortKeys.AZ, false)
+
+        val folderSongSortOrder get() = sortOrder("folder_song", SortKeys.DATE_ADDED, true)
+
         private fun sortOrder(key: String, defOrder: String, defDescending: Boolean) =
             sortOrderMap.getOrPut(key) { SortOrder(preferences, key, defOrder, defDescending) }
     }

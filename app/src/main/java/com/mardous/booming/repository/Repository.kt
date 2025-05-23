@@ -44,6 +44,7 @@ interface Repository {
     suspend fun allAlbumArtists(): List<Artist>
     suspend fun allGenres(): List<Genre>
     suspend fun allYears(): List<ReleaseYear>
+    suspend fun allFolders(): List<Folder>
     suspend fun playlists(): List<PlaylistEntity>
     fun playlistSongs(playListId: Long): LiveData<List<SongEntity>>
     suspend fun playlistSongs(playlistWithSongs: PlaylistWithSongs): List<Song>
@@ -81,6 +82,7 @@ interface Repository {
     fun songByGenre(genreId: Long): Song
     suspend fun genreBySong(song: Song): Genre
     suspend fun yearById(year: Int): ReleaseYear
+    suspend fun folderByPath(path: String): Folder
     suspend fun homeSuggestions(): List<Suggestion>
     suspend fun topArtistsSuggestion(): Suggestion
     suspend fun topAlbumsSuggestion(): Suggestion
@@ -142,6 +144,8 @@ class RealRepository(
     override suspend fun allGenres(): List<Genre> = genreRepository.genres()
 
     override suspend fun allYears(): List<ReleaseYear> = specialRepository.releaseYears()
+
+    override suspend fun allFolders(): List<Folder> = specialRepository.musicFolders()
 
     override suspend fun playlists(): List<PlaylistEntity> = playlistRepository.playlists()
 
@@ -267,6 +271,8 @@ class RealRepository(
     override suspend fun genreBySong(song: Song): Genre = genreRepository.genre(song)
 
     override suspend fun yearById(year: Int): ReleaseYear = specialRepository.releaseYear(year)
+
+    override suspend fun folderByPath(path: String): Folder = specialRepository.folderByPath(path)
 
     override suspend fun homeSuggestions(): List<Suggestion> {
         return listOf(

@@ -21,6 +21,7 @@ import android.content.Context
 import com.mardous.booming.R
 import com.mardous.booming.database.PlaylistEntity
 import com.mardous.booming.database.toSongs
+import com.mardous.booming.model.Folder
 import com.mardous.booming.model.Genre
 import com.mardous.booming.model.ReleaseYear
 import com.mardous.booming.model.Song
@@ -33,6 +34,7 @@ interface SearchRepository {
     suspend fun searchGenreSongs(genre: Genre, query: String): List<Song>
     suspend fun searchPlaylistSongs(playlist: PlaylistEntity, query: String): List<Song>
     suspend fun searchYearSongs(year: ReleaseYear, query: String): List<Song>
+    suspend fun searchFolderSongs(folder: Folder, query: String): List<Song>
 }
 
 class RealSearchRepository(
@@ -88,7 +90,10 @@ class RealSearchRepository(
         playlistRepository.searchPlaylistSongs(playlist.playListId, query).toSongs()
 
     override suspend fun searchYearSongs(year: ReleaseYear, query: String): List<Song> =
-        specialRepository.songs(year.year, query)
+        specialRepository.songsByYear(year.year, query)
+
+    override suspend fun searchFolderSongs(folder: Folder, query: String): List<Song> =
+        specialRepository.songsByFolder(folder.path, query)
 
     private fun getSongs(query: String) = songRepository.songs(query)
     private fun getAlbums(query: String) = albumRepository.albums(query)

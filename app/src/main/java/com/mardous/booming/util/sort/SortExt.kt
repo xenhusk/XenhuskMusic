@@ -138,6 +138,15 @@ fun List<ReleaseYear>.sortedYears(sortOrder: SortOrder): List<ReleaseYear> {
     return years.applyOrder(sortOrder.isDescending)
 }
 
+fun List<Folder>.sortedFolders(sortOrder: SortOrder): List<Folder> {
+    val folders = when (sortOrder.value) {
+        SortKeys.AZ -> sortedWith(compareBy { it.name })
+        SortKeys.NUMBER_OF_SONGS -> sortedWith(compareBy { it.songCount })
+        else -> this
+    }
+    return folders.applyOrder(sortOrder.isDescending)
+}
+
 fun Menu.prepareSortOrder(sortOrder: SortOrder) {
     val menu = findItem(R.id.action_sort_order)?.subMenu ?: this
     menu.findItem(R.id.action_sort_order_descending)?.apply {

@@ -42,14 +42,19 @@
 
     <fragment
         android:id="@+id/nav_file_explorer"
-        android:name="com.mardous.booming.fragments.folders.FoldersFragment"
-        android:label="FoldersFragment">
+        android:name="com.mardous.booming.fragments.files.FilesFragment"
+        android:label="FilesFragment">
         <argument
             android:name="path"
             app:argType="java.io.File"
             app:nullable="true"
             android:defaultValue="@null"/>
     </fragment>
+
+    <fragment
+        android:id="@+id/nav_folders"
+        android:name="com.mardous.booming.fragments.folders.FoldersListFragment"
+        android:label="FoldersFragment"/>
 
     <fragment
         android:id="@+id/nav_search"
@@ -117,6 +122,15 @@
         <argument
             android:name="extraYear"
             app:argType="integer"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_folder_detail"
+        android:name="com.mardous.booming.fragments.folders.FolderDetailFragment"
+        android:label="FolderDetailFragment">
+        <argument
+            android:name="extraFolderPath"
+            app:argType="string"/>
     </fragment>
 
     <fragment

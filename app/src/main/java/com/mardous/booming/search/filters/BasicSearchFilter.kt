@@ -19,8 +19,10 @@ package com.mardous.booming.search.filters
 
 import android.os.Parcelable
 import com.mardous.booming.database.PlaylistEntity
+import com.mardous.booming.model.Folder
 import com.mardous.booming.model.Genre
 import com.mardous.booming.model.ReleaseYear
+import com.mardous.booming.repository.RealAlbumRepository
 import com.mardous.booming.repository.SearchRepository
 import com.mardous.booming.search.SearchFilter
 import com.mardous.booming.search.SearchQuery.FilterMode
@@ -38,17 +40,30 @@ class BasicSearchFilter<T : Parcelable>(private val name: String, private val ar
 
     @IgnoredOnParcel
     private val searchRepository: SearchRepository by inject()
+    @IgnoredOnParcel
+    private val albumRepository: RealAlbumRepository by inject()
 
     override fun getName(): CharSequence {
         return name
     }
 
     override fun getCompatibleModes(): List<FilterMode> {
-        return listOf(FilterMode.Songs)
+        val modes = mutableListOf(FilterMode.Songs)
+        if (argument is Folder) {
+            modes.add(FilterMode.Albums)
+        }
+        return modes
     }
 
     override suspend fun getResults(searchMode: FilterMode, query: String): List<Any> {
         return when (argument) {
+            is Folder -> {
+                val songs = searchRepository.searchFolderSongs(argument, query)
+                if (searchMode == FilterMode.Albums) {
+                    return albumRepository.splitIntoAlbums(songs, sorted = false)
+                }
+                return songs
+            }
             is Genre -> searchRepository.searchGenreSongs(argument, query)
             is ReleaseYear -> searchRepository.searchYearSongs(argument, query)
             is PlaylistEntity -> searchRepository.searchPlaylistSongs(argument, query)

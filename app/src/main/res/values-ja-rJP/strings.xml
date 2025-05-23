@@ -25,6 +25,7 @@
     <string name="search_list_x_label">検索リスト: %s</string>
     <string name="search_from_x_label">\"%s\"から検索</string>
     <string name="search_year_x_label">検索年: %s</string>
+    <string name="search_in_folder_x">Search in folder: %s</string>
     <string name="search_last_added">最新の音楽を検索</string>
     <string name="shuffle_mode_album">アルバムシャッフル</string>
     <string name="shuffle_mode_artist">アーティストシャッフル</string>
@@ -199,6 +200,7 @@
     <string name="album_artists_label">アルバムアーティスト</string>
     <string name="genres_label">Genres</string>
     <string name="folders_label">フォルダ</string>
+    <string name="files_label">Files</string>
     <string name="playlists_label">プレイリスト</string>
     <string name="playlist_label">プレイリスト</string>
     <string name="composers_label">作曲者</string>

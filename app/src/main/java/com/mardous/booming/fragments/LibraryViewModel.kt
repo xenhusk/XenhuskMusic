@@ -158,6 +158,11 @@ class LibraryViewModel(
         years.postValue(repository.allYears())
     }
 
+    fun songs(years: List<ReleaseYear>): LiveData<List<Song>> = liveData(IO) {
+        val songs = years.flatMap { it.songs }
+        emit(songs)
+    }
+
     fun artists(type: ContentType): LiveData<List<Artist>> = liveData(IO) {
         when (type) {
             ContentType.TopArtists -> emit(repository.topArtists())

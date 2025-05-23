@@ -23,7 +23,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.content.edit
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
@@ -38,10 +37,6 @@ import com.mardous.booming.model.ReleaseYear
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class YearsListFragment : AbsRecyclerViewCustomGridSizeFragment<YearAdapter, GridLayoutManager>(),
     IYearCallback {
@@ -92,11 +87,8 @@ class YearsListFragment : AbsRecyclerViewCustomGridSizeFragment<YearAdapter, Gri
     }
 
     override fun yearsMenuItemClick(selection: List<ReleaseYear>, menuItem: MenuItem): Boolean {
-        lifecycleScope.launch(IO) {
-            val songs = selection.flatMap { it.songs }
-            withContext(Main) {
-                songs.onSongsMenu(this@YearsListFragment, menuItem)
-            }
+        libraryViewModel.songs(selection).observe(viewLifecycleOwner) { songs ->
+            songs.onSongsMenu(this@YearsListFragment, menuItem)
         }
         return true
     }

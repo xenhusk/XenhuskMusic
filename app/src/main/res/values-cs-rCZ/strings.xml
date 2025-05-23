@@ -25,6 +25,7 @@
     <string name="search_list_x_label">Vyhledávací seznam: %s</string>
     <string name="search_from_x_label">Hledat z \"%s\"</string>
     <string name="search_year_x_label">Rok hledání: %s</string>
+    <string name="search_in_folder_x">Search in folder: %s</string>
     <string name="search_last_added">Hledat nejnovější hudbu</string>
     <string name="shuffle_mode_album">Zamíchání alb</string>
     <string name="shuffle_mode_artist">Zamíchání umělce</string>
@@ -199,6 +200,7 @@
     <string name="album_artists_label">Umělec alba</string>
     <string name="genres_label">Genres</string>
     <string name="folders_label">Složky</string>
+    <string name="files_label">Files</string>
     <string name="playlists_label">Seznamy stop</string>
     <string name="playlist_label">Seznam skladeb</string>
     <string name="composers_label">Skladatelé</string>

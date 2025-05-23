@@ -17,13 +17,10 @@
 
 package com.mardous.booming.model
 
-import android.annotation.SuppressLint
 import android.content.ContentUris
-import android.database.Cursor
 import android.net.Uri
 import android.os.Parcelable
 import android.provider.MediaStore
-import com.mardous.booming.extensions.utilities.getStringSafe
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 import java.util.Objects
@@ -49,25 +46,6 @@ open class Song(
 
     val mediaStoreUri: Uri
         get() = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
-
-    @SuppressLint("InlinedApi")
-    constructor(cursor: Cursor) : this(
-        cursor.getLong(0),
-        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)),
-        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)),
-        cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)),
-        cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)),
-        cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)),
-        cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)),
-        cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)),
-        cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)),
-        cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)),
-        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)),
-        cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID)),
-        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)),
-        cursor.getStringSafe(MediaStore.Audio.Media.ALBUM_ARTIST),
-        cursor.getStringSafe(MediaStore.Audio.Media.GENRE)
-    )
 
     protected constructor(song: Song) : this(
         song.id,

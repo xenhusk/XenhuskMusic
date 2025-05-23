@@ -64,6 +64,8 @@ data class Album(val id: Long, val songs: List<Song>) {
     }
 
     companion object {
+        const val UNKNOWN_ALBUM_DISPLAY_NAME = "Unknown Album"
+
         val empty = Album(-1, arrayListOf())
     }
 }

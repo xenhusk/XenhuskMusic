@@ -29,8 +29,10 @@ import com.mardous.booming.database.InclExclEntity
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.extensions.hasR
+import com.mardous.booming.extensions.utilities.getStringSafe
 import com.mardous.booming.extensions.utilities.mapIfValid
 import com.mardous.booming.extensions.utilities.takeOrDefault
+import com.mardous.booming.model.Album
 import com.mardous.booming.model.Song
 import com.mardous.booming.providers.MediaQueryDispatcher
 import com.mardous.booming.util.Preferences
@@ -69,7 +71,7 @@ class RealSongRepository(private val inclExclDao: InclExclDao) : SongRepository 
 
     override fun songs(cursor: Cursor?): List<Song> {
         return cursor.use {
-            it.mapIfValid { Song(this) }
+            it.mapIfValid { getSongFromCursorImpl(this) }
         }
     }
 
@@ -80,8 +82,43 @@ class RealSongRepository(private val inclExclDao: InclExclDao) : SongRepository 
 
     override fun song(cursor: Cursor?): Song {
         return cursor.use {
-            it.takeOrDefault(Song.emptySong) { Song(this) }
+            it.takeOrDefault(Song.emptySong) { getSongFromCursorImpl(this) }
         }
+    }
+
+    private fun getSongFromCursorImpl(cursor: Cursor): Song {
+        val id = cursor.getLong(0)
+        val data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
+        val title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))
+        val trackNumber = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK))
+        val year = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR))
+        val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE))
+        val duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
+        val dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED))
+        val dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED))
+        val albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID))
+        val albumName = cursor.getStringSafe(MediaStore.Audio.Media.ALBUM) ?: Album.UNKNOWN_ALBUM_DISPLAY_NAME
+        val artistId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID))
+        val artistName = cursor.getStringSafe(MediaStore.Audio.Media.ARTIST) ?: ""
+        val albumArtistName = cursor.getStringSafe(MediaStore.Audio.Media.ALBUM_ARTIST)
+        val genreName = cursor.getStringSafe(MediaStore.Audio.Media.GENRE)
+        return Song(
+            id,
+            data,
+            title,
+            trackNumber,
+            year,
+            size,
+            duration,
+            dateAdded,
+            dateModified,
+            albumId,
+            albumName,
+            artistId,
+            artistName,
+            albumArtistName,
+            genreName
+        )
     }
 
     override fun song(songId: Long): Song {

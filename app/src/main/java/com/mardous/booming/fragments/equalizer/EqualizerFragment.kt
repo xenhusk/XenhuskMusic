@@ -122,7 +122,7 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
             viewBinding.equalizerEffects.reverbSwitch.setOnCheckedChangeListener(this)
         }
 
-        presetAdapter = EQPresetAdapter(requireContext(), emptyList(), this)
+        presetAdapter = EQPresetAdapter(emptyList(), this)
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             viewModel.eqStateFlow.collect { state ->

@@ -21,7 +21,6 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.animation.AnimationUtils
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -48,11 +47,7 @@ class AddToPlaylistDialog : DialogFragment(), AddToPlaylistAdapter.IAddToPlaylis
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = AddToPlaylistAdapter(
-            requireActivity() as AppCompatActivity,
-            Glide.with(this),
-            this
-        )
+        adapter = AddToPlaylistAdapter(Glide.with(this), this)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

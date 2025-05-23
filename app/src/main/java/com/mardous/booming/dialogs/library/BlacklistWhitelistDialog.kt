@@ -67,7 +67,7 @@ class BlacklistWhitelistDialog : DialogFragment(), FolderCallback, SimpleItemAda
         val folderChooserDialog = childFragmentManager.findFragmentByTag("FOLDER_CHOOSER") as FolderChooserDialog?
         folderChooserDialog?.setCallback(this)
         _binding = DialogProgressRecyclerViewBinding.inflate(layoutInflater)
-        adapter = SimpleItemAdapter(requireContext(), R.layout.item_folder, callback = this)
+        adapter = SimpleItemAdapter(R.layout.item_folder, callback = this)
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
         val titleRes = if (isBlacklist) {

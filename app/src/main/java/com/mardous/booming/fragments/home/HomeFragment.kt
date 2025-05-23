@@ -84,7 +84,7 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
         setupListeners()
         checkForMargins()
 
-        homeAdapter = HomeAdapter(requireActivity(), arrayListOf(), this).also {
+        homeAdapter = HomeAdapter(arrayListOf(), this).also {
             it.registerAdapterDataObserver(adapterDataObserver)
         }
         binding.toolbar.setOnClickListener {

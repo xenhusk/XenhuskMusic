@@ -157,7 +157,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupRecyclerView() {
-        searchAdapter = SearchAdapter(mainActivity, Glide.with(this), emptyList(), this).apply {
+        searchAdapter = SearchAdapter(Glide.with(this), emptyList(), this).apply {
             registerAdapterDataObserver(adapterDataObserver)
         }
         binding.recyclerView.apply {

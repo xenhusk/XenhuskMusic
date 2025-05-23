@@ -48,7 +48,7 @@ import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
 open class ArtistAdapter(
-    protected val activity: FragmentActivity,
+    activity: FragmentActivity,
     protected val requestManager: RequestManager,
     dataSet: List<Artist>,
     @LayoutRes protected val itemLayoutRes: Int,
@@ -68,7 +68,7 @@ open class ArtistAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view: View = LayoutInflater.from(activity).inflate(itemLayoutRes, parent, false)
+        val view: View = LayoutInflater.from(parent.context).inflate(itemLayoutRes, parent, false)
         return createArtistHolder(view, viewType)
     }
 
@@ -78,7 +78,7 @@ open class ArtistAdapter(
         holder.isActivated = isChecked
         holder.menu?.isGone = isChecked
         holder.title?.text = getArtistTitle(artist)
-        holder.text?.text = getArtistText(artist)
+        holder.text?.text = getArtistText(holder, artist)
         val transitionName = if (albumArtistsOnly) artist.name else artist.id.toString()
         if (holder.imageContainer != null) {
             holder.imageContainer.transitionName = transitionName
@@ -106,8 +106,8 @@ open class ArtistAdapter(
         return artist.displayName()
     }
 
-    private fun getArtistText(artist: Artist): String {
-        return artist.artistInfo(activity)
+    private fun getArtistText(holder: ViewHolder, artist: Artist): String {
+        return artist.artistInfo(holder.itemView.context)
     }
 
     override fun getItemCount(): Int {

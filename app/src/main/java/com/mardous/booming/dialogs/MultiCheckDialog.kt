@@ -62,7 +62,6 @@ open class MultiCheckDialog : DialogFragment(), SimpleItemAdapter.Callback<Strin
             binding.message.text = actualConfig.message
         }
         adapter = SimpleItemAdapter(
-            requireContext(),
             R.layout.item_checkable,
             items = actualConfig.items,
             callback = this

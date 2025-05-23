@@ -73,7 +73,7 @@ class GenresListFragment : AbsRecyclerViewCustomGridSizeFragment<GenreAdapter, G
     override fun createAdapter(): GenreAdapter {
         notifyLayoutResChanged(itemLayoutRes)
         val dataSet = adapter?.dataSet ?: ArrayList()
-        return GenreAdapter(mainActivity, Glide.with(this), dataSet, itemLayoutRes, lifecycleScope, this)
+        return GenreAdapter(Glide.with(this), dataSet, itemLayoutRes, lifecycleScope, this)
     }
 
     override fun genreClick(genre: Genre) {

@@ -22,7 +22,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
@@ -36,7 +35,6 @@ import kotlin.reflect.KProperty
  */
 @SuppressLint("NotifyDataSetChanged")
 class HomeAdapter(
-    private val activity: FragmentActivity,
     dataSet: List<Suggestion>,
     private val callback: IHomeCallback
 ) : RecyclerView.Adapter<HomeAdapter.ViewHolder>() {
@@ -50,7 +48,7 @@ class HomeAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val itemView = LayoutInflater.from(activity).inflate(R.layout.item_suggestion, parent, false)
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_suggestion, parent, false)
         return ViewHolder(itemView)
     }
 
@@ -58,7 +56,7 @@ class HomeAdapter(
         val suggestion = dataSet[position]
         holder.headingTitle?.setText(suggestion.type.titleRes)
         if (holder.recyclerView != null) {
-            holder.recyclerView.layoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
+            holder.recyclerView.layoutManager = LinearLayoutManager(holder.itemView.context, RecyclerView.HORIZONTAL, false)
             holder.recyclerView.adapter = callback.createSuggestionAdapter(suggestion)
             holder.recyclerView.setItemViewCacheSize(0)
         }

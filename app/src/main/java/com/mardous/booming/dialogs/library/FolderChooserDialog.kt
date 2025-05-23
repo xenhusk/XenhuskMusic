@@ -78,7 +78,6 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
 
         _binding = DialogRecyclerViewBinding.inflate(layoutInflater)
         adapter = SimpleItemAdapter(
-            requireContext(),
             R.layout.item_folder,
             items = getSelectionContents(),
             callback = this

@@ -18,14 +18,12 @@
 package com.mardous.booming.adapters.preference
 
 import android.annotation.SuppressLint
-import android.content.Context
 import com.mardous.booming.R
 import com.mardous.booming.adapters.DraggableItemAdapter
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.model.CategoryInfo
 
 class CategoryInfoAdapter(
-    private val context: Context,
     categoryInfos: MutableList<CategoryInfo>
 ) : DraggableItemAdapter<CategoryInfo>(categoryInfos) {
 
@@ -39,7 +37,7 @@ class CategoryInfoAdapter(
 
         holder.itemView.setOnClickListener {
             if (!canCheckCategory(categoryInfo)) {
-                context.showToast(R.string.you_cannot_select_more_than_five_categories)
+                holder.itemView.context.showToast(R.string.you_cannot_select_more_than_five_categories)
                 return@setOnClickListener
             }
 
@@ -47,7 +45,7 @@ class CategoryInfoAdapter(
                 categoryInfo.visible = !categoryInfo.visible
                 holder.checkBox.isChecked = categoryInfo.visible
             } else {
-                context.showToast(R.string.you_have_to_select_at_least_one_category)
+                holder.itemView.context.showToast(R.string.you_have_to_select_at_least_one_category)
             }
         }
     }

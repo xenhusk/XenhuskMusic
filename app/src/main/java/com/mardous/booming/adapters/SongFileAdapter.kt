@@ -24,7 +24,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
-import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.signature.MediaStoreSignature
 import com.mardous.booming.R
@@ -40,7 +40,8 @@ import me.zhanghai.android.fastscroll.PopupTextProvider
 import java.io.File
 
 class SongFileAdapter(
-    private val activity: AppCompatActivity,
+    activity: AppCompatActivity,
+    private val requestManager: RequestManager,
     private var dataSet: List<File>,
     private val itemLayoutRes: Int,
     private val callbacks: IFileCallbacks?
@@ -64,7 +65,7 @@ class SongFileAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(activity).inflate(itemLayoutRes, parent, false))
+        return ViewHolder(LayoutInflater.from(parent.context).inflate(itemLayoutRes, parent, false))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, index: Int) {
@@ -102,8 +103,7 @@ class SongFileAdapter(
             holder.image.scaleType = ImageView.ScaleType.CENTER
             holder.image.setImageResource(R.drawable.ic_folder_24dp)
         } else {
-            Glide.with(activity)
-                .load(AudioFileCover(file.path, true))
+            requestManager.load(AudioFileCover(file.path, true))
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .error(DEFAULT_SONG_IMAGE)
                 .placeholder(DEFAULT_SONG_IMAGE)

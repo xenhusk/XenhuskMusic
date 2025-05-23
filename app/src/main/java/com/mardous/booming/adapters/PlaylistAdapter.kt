@@ -47,7 +47,7 @@ import kotlin.reflect.KProperty
  * @author Christians M. A. (mardous)
  */
 class PlaylistAdapter(
-    private val activity: AppCompatActivity,
+    activity: AppCompatActivity,
     private val requestManager: RequestManager,
     dataSet: List<PlaylistWithSongs>,
     @LayoutRes
@@ -64,7 +64,7 @@ class PlaylistAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return LayoutInflater.from(activity).inflate(itemLayoutRes, parent, false).let { itemView ->
+        return LayoutInflater.from(parent.context).inflate(itemLayoutRes, parent, false).let { itemView ->
             createViewHolder(itemView)
         }
     }
@@ -80,7 +80,7 @@ class PlaylistAdapter(
         holder.menu?.isGone = isChecked
         holder.title?.text = playlist.playlistEntity.playlistName
         if (holder.text != null) {
-            holder.text.text = playlist.songCount.songsStr(activity)
+            holder.text.text = playlist.songCount.songsStr(holder.itemView.context)
         }
         if (holder.imageContainer != null) {
             holder.imageContainer.transitionName = playlist.playlistEntity.playlistName
@@ -95,13 +95,16 @@ class PlaylistAdapter(
                     .transition(getDefaultGlideTransition())
                     .into(holder.image)
             } else {
-                holder.image.setImageDrawable(getIconRes())
+                holder.image.setImageDrawable(getIconRes(holder))
             }
         }
     }
 
-    private fun getIconRes(): Drawable {
-        return activity.getTintedDrawable(R.drawable.ic_playlist_play_24dp, activity.controlColorNormal())!!
+    private fun getIconRes(holder: ViewHolder): Drawable {
+        return holder.itemView.context.getTintedDrawable(
+            R.drawable.ic_playlist_play_24dp,
+            holder.itemView.context.controlColorNormal()
+        )!!
     }
 
     override fun getItemId(position: Int): Long {

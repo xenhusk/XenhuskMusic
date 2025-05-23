@@ -21,7 +21,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
@@ -55,7 +54,6 @@ import kotlin.reflect.KProperty
  * @author Christians M. A. (mardous)
  */
 class GenreAdapter(
-    private val activity: AppCompatActivity,
     private val requestManager: RequestManager,
     dataSet: List<Genre>,
     @LayoutRes
@@ -87,7 +85,7 @@ class GenreAdapter(
             holder.text?.text = genre.songCount.toString()
         } else {
             holder.image?.setImageResource(R.drawable.ic_radio_24dp)
-            holder.text?.text = genre.songCount.songsStr(activity)
+            holder.text?.text = genre.songCount.songsStr(holder.itemView.context)
         }
     }
 

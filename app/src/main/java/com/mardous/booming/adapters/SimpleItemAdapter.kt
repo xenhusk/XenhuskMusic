@@ -18,7 +18,6 @@
 package com.mardous.booming.adapters
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +29,6 @@ import androidx.recyclerview.widget.RecyclerView
  */
 @SuppressLint("NotifyDataSetChanged")
 class SimpleItemAdapter<T>(
-    private val context: Context,
     private val layoutRes: Int = android.R.layout.simple_list_item_1,
     private val textViewId: Int = android.R.id.text1,
     items: List<T> = listOf(),
@@ -44,7 +42,7 @@ class SimpleItemAdapter<T>(
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return LayoutInflater.from(context).inflate(layoutRes, parent, false).let {
+        return LayoutInflater.from(parent.context).inflate(layoutRes, parent, false).let {
             ViewHolder(it)
         }
     }

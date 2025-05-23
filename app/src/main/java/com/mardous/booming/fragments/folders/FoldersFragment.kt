@@ -32,6 +32,7 @@ import androidx.loader.content.Loader
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.mardous.booming.R
 import com.mardous.booming.adapters.SongFileAdapter
@@ -523,7 +524,7 @@ class FoldersFragment : AbsMainActivityFragment(R.layout.fragment_folders), Sele
     }
 
     private fun switchToFileAdapter() {
-        adapter = SongFileAdapter(mainActivity, LinkedList(), R.layout.item_list, this)
+        adapter = SongFileAdapter(mainActivity, Glide.with(this), LinkedList(), R.layout.item_list, this)
         adapter!!.registerAdapterDataObserver(
             object : RecyclerView.AdapterDataObserver() {
                 override fun onChanged() {

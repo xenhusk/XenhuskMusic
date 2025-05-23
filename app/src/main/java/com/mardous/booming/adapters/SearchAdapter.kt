@@ -21,7 +21,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
@@ -40,7 +39,6 @@ import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
 class SearchAdapter(
-    private val activity: AppCompatActivity,
     private val requestManager: RequestManager,
     dataSet: List<Any>,
     private val callback: ISearchCallback? = null
@@ -61,14 +59,14 @@ class SearchAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         if (viewType == HEADER) {
             return ViewHolder(
-                LayoutInflater.from(activity).inflate(R.layout.sub_header, parent, false), viewType
+                LayoutInflater.from(parent.context).inflate(R.layout.sub_header, parent, false), viewType
             )
         } else if (viewType == PLAYLIST) {
             return ViewHolder(
-                LayoutInflater.from(activity).inflate(R.layout.item_list_single_row, parent, false), viewType
+                LayoutInflater.from(parent.context).inflate(R.layout.item_list_single_row, parent, false), viewType
             )
         }
-        return ViewHolder(LayoutInflater.from(activity).inflate(R.layout.item_list, parent, false), viewType)
+        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_list, parent, false), viewType)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -90,7 +88,7 @@ class SearchAdapter(
             ARTIST -> {
                 val artist = dataSet[position] as Artist
                 holder.title?.text = artist.displayName()
-                holder.text?.text = artist.artistInfo(activity)
+                holder.text?.text = artist.artistInfo(holder.itemView.context)
                 holder.image?.let {
                     it.transitionName = if (artist.isAlbumArtist) artist.name else artist.id.toString()
                     requestManager.asBitmap()
@@ -115,7 +113,7 @@ class SearchAdapter(
             GENRE -> {
                 val genre = dataSet[position] as Genre
                 holder.title?.text = genre.name
-                holder.text?.text = genre.songCount.songsStr(activity)
+                holder.text?.text = genre.songCount.songsStr(holder.itemView.context)
             }
 
             else -> holder.title?.text = dataSet[position].toString()

@@ -47,11 +47,11 @@ class SimpleAlbumAdapter(
         }
     }
 
-    override fun getAlbumText(album: Album): String? {
+    override fun getAlbumText(holder: ViewHolder, album: Album): String? {
         return if (album.year > 0) {
             return album.year.toString()
         } else {
-            return activity.getString(R.string.unknown_year)
+            return holder.itemView.resources.getString(R.string.unknown_year)
         }
     }
 }

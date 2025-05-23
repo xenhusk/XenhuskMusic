@@ -17,7 +17,6 @@
 
 package com.mardous.booming.adapters
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,7 +30,7 @@ import com.mardous.booming.model.EQPreset
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
-class EQPresetAdapter(val context: Context, presets: List<EQPreset>, val callback: IEQPresetCallback) :
+class EQPresetAdapter(presets: List<EQPreset>, val callback: IEQPresetCallback) :
     RecyclerView.Adapter<EQPresetAdapter.ViewHolder>() {
 
     var presets: List<EQPreset> by Delegates.observable(presets) { _: KProperty<*>, _: List<EQPreset>, _: List<EQPreset> ->
@@ -39,7 +38,7 @@ class EQPresetAdapter(val context: Context, presets: List<EQPreset>, val callbac
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return LayoutInflater.from(context).inflate(R.layout.item_equalizer_preset, parent, false).let { itemView ->
+        return LayoutInflater.from(parent.context).inflate(R.layout.item_equalizer_preset, parent, false).let { itemView ->
             ViewHolder(itemView)
         }
     }
@@ -47,7 +46,7 @@ class EQPresetAdapter(val context: Context, presets: List<EQPreset>, val callbac
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val preset = presets[position]
 
-        holder.title?.text = preset.getName(context)
+        holder.title?.text = preset.getName(holder.itemView.context)
         holder.edit?.isVisible = !preset.isCustom
         holder.delete?.isVisible = !preset.isCustom
     }

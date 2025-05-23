@@ -45,7 +45,7 @@ import kotlin.reflect.KProperty
 
 @SuppressLint("NotifyDataSetChanged")
 class YearAdapter(
-    private val activity: AppCompatActivity,
+    activity: AppCompatActivity,
     private val requestManager: RequestManager,
     dataSet: List<ReleaseYear>,
     @LayoutRes
@@ -76,7 +76,7 @@ class YearAdapter(
             holder.text?.text = year.songCount.toString()
             loadImage(holder, year)
         } else {
-            holder.text?.text = year.songCount.songsStr(activity)
+            holder.text?.text = year.songCount.songsStr(holder.itemView.context)
             holder.image?.setImageResource(R.drawable.ic_event_24dp)
         }
     }

@@ -24,7 +24,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -43,7 +42,6 @@ import com.mardous.booming.interfaces.IPlaylistCallback
  */
 @SuppressLint("NotifyDataSetChanged")
 class AddToPlaylistAdapter(
-    private val activity: FragmentActivity,
     private val requestManager: RequestManager,
     private val callback: IAddToPlaylistCallback? = null
 ) : RecyclerView.Adapter<AddToPlaylistAdapter.ViewHolder>() {
@@ -71,7 +69,7 @@ class AddToPlaylistAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return LayoutInflater.from(activity).inflate(R.layout.item_dialog_playlist, parent, false).let { itemView ->
+        return LayoutInflater.from(parent.context).inflate(R.layout.item_dialog_playlist, parent, false).let { itemView ->
             ViewHolder(itemView, viewType)
         }
     }

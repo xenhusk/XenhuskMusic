@@ -50,7 +50,7 @@ import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
 open class AlbumAdapter(
-    protected val activity: FragmentActivity,
+    activity: FragmentActivity,
     protected val requestManager: RequestManager,
     dataSet: List<Album>,
     @LayoutRes
@@ -79,7 +79,7 @@ open class AlbumAdapter(
         holder.isActivated = isChecked
         holder.menu?.isGone = isChecked
         holder.title?.text = getAlbumTitle(album)
-        holder.text?.text = getAlbumText(album)
+        holder.text?.text = getAlbumText(holder, album)
         // Check if imageContainer exists, so we can have a smooth transition without
         // CardView clipping, if it doesn't exist in current layout set transition name to image instead.
         if (holder.imageContainer != null) {
@@ -108,9 +108,9 @@ open class AlbumAdapter(
         return album.name
     }
 
-    protected open fun getAlbumText(album: Album): String? {
+    protected open fun getAlbumText(holder: ViewHolder, album: Album): String? {
         if (sortOrder?.value == SortKeys.NUMBER_OF_SONGS) {
-            return buildInfoString(album.displayArtistName(), album.songCountStr(activity))
+            return buildInfoString(album.displayArtistName(), album.songCountStr(holder.itemView.context))
         }
         return album.albumInfo()
     }

@@ -47,7 +47,7 @@ class CategoriesPreferenceDialog : DialogFragment() {
             )!!
         }
 
-        adapter = CategoryInfoAdapter(requireContext(), categoryInfos.toMutableList())
+        adapter = CategoryInfoAdapter(categoryInfos.toMutableList())
 
         binding.recyclerView.layoutManager = LinearLayoutManager(activity)
         binding.recyclerView.adapter = adapter

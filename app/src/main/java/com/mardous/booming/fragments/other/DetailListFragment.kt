@@ -44,6 +44,7 @@ import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.artistDetailArgs
 import com.mardous.booming.extensions.navigation.asFragmentExtras
 import com.mardous.booming.extensions.navigation.searchArgs
+import com.mardous.booming.extensions.resources.createFastScroller
 import com.mardous.booming.extensions.resources.hide
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
@@ -155,6 +156,7 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         binding.recyclerView.apply {
             adapter = songAdapter
             layoutManager = linearLayoutManager()
+            createFastScroller(disablePopup = true)
         }
         libraryViewModel.lastAddedSongs().observe(viewLifecycleOwner) { songs ->
             songAdapter.dataSet = songs
@@ -167,6 +169,7 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         binding.recyclerView.apply {
             adapter = songAdapter
             layoutManager = linearLayoutManager()
+            createFastScroller(disablePopup = true)
         }
         libraryViewModel.topTracks().observe(viewLifecycleOwner) { songs ->
             songAdapter.dataSet = songs
@@ -179,6 +182,7 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         binding.recyclerView.apply {
             adapter = songAdapter
             layoutManager = linearLayoutManager()
+            createFastScroller(disablePopup = true)
         }
         libraryViewModel.observableHistorySongs().observe(viewLifecycleOwner) { songs ->
             songAdapter.dataSet = songs
@@ -191,6 +195,7 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         binding.recyclerView.apply {
             adapter = songAdapter
             layoutManager = linearLayoutManager()
+            createFastScroller(disablePopup = true)
         }
         libraryViewModel.notRecentlyPlayedSongs().observe(viewLifecycleOwner) { songs ->
             songAdapter.dataSet = songs
@@ -203,6 +208,7 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         binding.recyclerView.apply {
             adapter = songAdapter
             layoutManager = linearLayoutManager()
+            createFastScroller(disablePopup = true)
         }
         libraryViewModel.favorites().observe(viewLifecycleOwner) { songEntities ->
             val songs = songEntities.toSongs()

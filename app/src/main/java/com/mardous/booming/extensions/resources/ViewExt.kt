@@ -363,11 +363,11 @@ fun RecyclerView.onVerticalScroll(
     })
 }
 
-fun ViewGroup.createFastScroller(): FastScroller {
+fun ViewGroup.createFastScroller(disablePopup: Boolean = false): FastScroller {
     val fastScrollerBuilder = FastScrollerBuilder(this)
     fastScrollerBuilder.useMd2Style()
-    fastScrollerBuilder.setPopupStyle { popupText ->
-        PopupStyles.MD2.accept(popupText)
+    if (disablePopup) {
+        fastScrollerBuilder.setPopupTextProvider { _, _ -> "" }
     }
     return fastScrollerBuilder.build()
 }

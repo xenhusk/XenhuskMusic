@@ -21,6 +21,13 @@ import android.content.Context
 import com.mardous.booming.R
 import com.mardous.booming.model.Song
 
+data class AddToPlaylistResult(
+    val playlistName: String,
+    val isWorking: Boolean = false,
+    val playlistCreated: Boolean = false,
+    val insertedSongs: Int = 0
+)
+
 class ImportablePlaylistResult(val playlistName: String, val songs: List<Song>)
 
 class ImportResult(val resultMessage: String) {

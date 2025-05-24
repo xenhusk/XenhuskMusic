@@ -17,6 +17,8 @@
 
 package com.mardous.booming.mvvm
 
+import java.io.File
+
 data class TagEditorResult(
     val title: String? = null,
     val album: String? = null,
@@ -34,4 +36,10 @@ data class TagEditorResult(
     val lyrics: String? = null,
     val lyricist: String? = null,
     val comment: String? = null
+)
+
+class SaveTagsResult(
+    val isLoading: Boolean,
+    val isSuccess: Boolean,
+    val cacheFiles: List<File>? = null
 )

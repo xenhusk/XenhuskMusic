@@ -18,12 +18,20 @@
 package com.mardous.booming.mvvm
 
 import android.content.Context
+import android.net.Uri
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.mardous.booming.R
 import com.mardous.booming.lyrics.LrcLyrics
+import java.io.File
+
+class SaveLyricsResult(
+    val isPending: Boolean,
+    val isSuccess: Boolean,
+    val pendingWrite: List<Pair<File, Uri>>? = null
+)
 
 class LyricsResult(
     val id: Long,

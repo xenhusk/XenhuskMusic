@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Christians Martínez Alvarado
+ * Copyright (c) 2025 Christians Martínez Alvarado
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,19 @@
 
 package com.mardous.booming.mvvm
 
-/**
- * @author Christians M. A. (mardous)
- */
+import com.mardous.booming.database.PlayCountEntity
+import com.mardous.booming.http.github.GitHubRelease
+import com.mardous.booming.model.Suggestion
+
+data class HandleIntentResult(val handled: Boolean, val failed: Boolean = false)
+
+data class PlayInfoResult(
+    val playCount: Int,
+    val skipCount: Int,
+    val lastPlayDate: Long,
+    val mostPlayedTracks: List<PlayCountEntity>
+)
+
 data class SongDetailResult(
     val playCount: String? = null,
     val skipCount: String? = null,
@@ -45,5 +55,41 @@ data class SongDetailResult(
 ) {
     companion object {
         val Empty = SongDetailResult()
+    }
+}
+
+data class SuggestedResult(val state: State = State.Idle, val data: List<Suggestion> = arrayListOf()) {
+
+    val isLoading: Boolean
+        get() = state == State.Loading
+
+    enum class State {
+        Ready,
+        Loading,
+        Idle
+    }
+
+    companion object {
+        val Idle = SuggestedResult(State.Idle)
+    }
+}
+
+data class UpdateSearchResult(
+    val state: State = State.Idle,
+    val data: GitHubRelease? = null,
+    val executedAtMillis: Long = -1,
+    val wasFromUser: Boolean = false,
+    val wasExperimentalQuery: Boolean = true,
+) {
+    fun shouldStartNewSearchFor(fromUser: Boolean, allowExperimental: Boolean): Boolean {
+        return when (state) {
+            State.Idle -> true
+            State.Completed, State.Failed -> fromUser || wasExperimentalQuery != allowExperimental
+            State.Searching -> false
+        }
+    }
+
+    enum class State {
+        Idle, Searching, Completed, Failed
     }
 }

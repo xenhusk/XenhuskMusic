@@ -19,18 +19,14 @@ package com.mardous.booming.fragments.player.styles.defaultstyle
 
 import android.os.Bundle
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type
-import androidx.core.view.marginTop
 import androidx.core.view.updatePadding
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentDefaultPlayerBinding
-import com.mardous.booming.extensions.dp
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
@@ -57,20 +53,6 @@ class DefaultPlayerFragment : AbsPlayerFragment(R.layout.fragment_default_player
         _binding = FragmentDefaultPlayerBinding.bind(view)
         setupToolbar()
         inflateMenuInView(playerToolbar)
-        if (binding.albumCoverFragmentContainer != null) {
-            val coverContainer = binding.albumCoverFragmentContainer!!
-            coverContainer.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-                    val availablePanelHeight = view.height - coverContainer.height + coverContainer.marginTop
-                    val minPanelHeight = (64 + 56 + 32 + 16 + (48 * 2)).dp(resources)
-                    if (availablePanelHeight < minPanelHeight) {
-                        coverContainer.layoutParams.height = coverContainer.height - (minPanelHeight - availablePanelHeight)
-                        coverContainer.forceSquare(false)
-                    }
-                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                }
-            })
-        }
         ViewCompat.setOnApplyWindowInsetsListener(view) { v: View, insets: WindowInsetsCompat ->
             val systemBars = insets.getInsets(Type.systemBars())
             v.updatePadding(top = systemBars.top, bottom = systemBars.bottom)

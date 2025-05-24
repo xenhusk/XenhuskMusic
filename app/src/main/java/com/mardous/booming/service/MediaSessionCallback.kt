@@ -17,15 +17,18 @@
 
 package com.mardous.booming.service
 
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import com.mardous.booming.androidauto.AutoMediaIDHelper
 import com.mardous.booming.database.fromHistoryToSongs
+import com.mardous.booming.database.toSongs
 import com.mardous.booming.extensions.media.indexOfSong
 import com.mardous.booming.extensions.utilities.toMutableListIfRequired
 import com.mardous.booming.helper.ShuffleHelper
+import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.model.Song
 import com.mardous.booming.providers.databases.PlaybackQueueStore
 import com.mardous.booming.repository.Repository
@@ -39,6 +42,7 @@ class MediaSessionCallback(private val musicService: MusicService, private val c
     MediaSessionCompat.Callback(), KoinComponent {
 
     private val repository by inject<Repository>()
+    private val uriSongResolver by inject<UriSongResolver>()
 
     override fun onPrepare() {
         super.onPrepare()
@@ -162,6 +166,7 @@ class MediaSessionCallback(private val musicService: MusicService, private val c
     /**
      * Inspired by https://developer.android.com/guide/topics/media-apps/interacting-with-assistant
      */
+    @Suppress("DEPRECATION")
     override fun onPlayFromSearch(query: String, extras: Bundle) {
         coroutineScope.launch(IO) {
             val songs = ArrayList<Song>()
@@ -170,20 +175,43 @@ class MediaSessionCallback(private val musicService: MusicService, private val c
             } else {
                 // Build a queue based on songs that match "query" or "extras" param
                 val mediaFocus = extras.getString(MediaStore.EXTRA_MEDIA_FOCUS)
-                if (mediaFocus.equals(MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE)) {
-                    val artistQuery = extras.getString(MediaStore.EXTRA_MEDIA_ARTIST)
-                    if (artistQuery != null) {
-                        val artists = repository.searchArtists(artistQuery)
-                        if (artists.isNotEmpty()) {
-                            songs.addAll(artists.first().songs)
+                when (mediaFocus) {
+                    MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE -> {
+                        val artistQuery = extras.getString(MediaStore.EXTRA_MEDIA_ARTIST)
+                        if (artistQuery != null) {
+                            val artists = repository.searchArtists(artistQuery)
+                            if (artists.isNotEmpty()) {
+                                songs.addAll(artists.first().songs)
+                            }
                         }
                     }
-                } else if (mediaFocus.equals(MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE)) {
-                    val albumQuery = extras.getString(MediaStore.EXTRA_MEDIA_ALBUM)
-                    if (albumQuery != null) {
-                        val albums = repository.searchAlbums(albumQuery)
-                        if (albums.isNotEmpty()) {
-                            songs.addAll(albums.first().songs)
+                    MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE -> {
+                        val albumQuery = extras.getString(MediaStore.EXTRA_MEDIA_ALBUM)
+                        if (albumQuery != null) {
+                            val albums = repository.searchAlbums(albumQuery)
+                            if (albums.isNotEmpty()) {
+                                songs.addAll(albums.first().songs)
+                            }
+                        }
+                    }
+                    MediaStore.Audio.Playlists.ENTRY_CONTENT_TYPE -> {
+                        val playlistQuery = extras.getString(MediaStore.EXTRA_MEDIA_PLAYLIST)
+                        if (playlistQuery != null) {
+                            val playlists = repository.searchPlaylists(playlistQuery)
+                            if (playlists.isNotEmpty()) {
+                                songs.addAll(playlists.first().songs.toSongs())
+                            }
+                        }
+                    }
+                    MediaStore.Audio.Genres.ENTRY_CONTENT_TYPE -> {
+                        val genresQuery = extras.getString(MediaStore.EXTRA_MEDIA_GENRE)
+                        if (genresQuery != null) {
+                            val genres = repository.searchGenres(genresQuery)
+                            if (genres.isNotEmpty()) {
+                                songs.addAll(
+                                    genres.flatMap { repository.songsByGenre(it.id) }
+                                )
+                            }
                         }
                     }
                 }
@@ -196,6 +224,16 @@ class MediaSessionCallback(private val musicService: MusicService, private val c
 
             musicService.openQueue(songs, 0, true)
             musicService.play()
+        }
+    }
+
+    override fun onPlayFromUri(uri: Uri, extras: Bundle) {
+        coroutineScope.launch(IO) {
+            val songs = uriSongResolver.resolve(uri)
+            if (songs.isNotEmpty()) {
+                musicService.openQueue(songs, 0, true)
+                musicService.play()
+            }
         }
     }
 }

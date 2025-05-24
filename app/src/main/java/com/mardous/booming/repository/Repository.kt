@@ -113,6 +113,8 @@ interface Repository {
     suspend fun searchSongs(query: String): List<Song>
     suspend fun searchArtists(query: String): List<Artist>
     suspend fun searchAlbums(query: String): List<Album>
+    suspend fun searchPlaylists(query: String): List<PlaylistWithSongs>
+    suspend fun searchGenres(query: String): List<Genre>
     suspend fun deezerTrack(artist: String, title: String): Result<DeezerTrack>
     suspend fun deezerAlbum(artist: String, name: String): Result<DeezerAlbum>
     suspend fun artistInfo(name: String, lang: String?, cache: String?): Result<LastFmArtist>
@@ -380,6 +382,10 @@ class RealRepository(
         artistRepository.artists(query)
 
     override suspend fun searchAlbums(query: String): List<Album> = albumRepository.albums(query)
+
+    override suspend fun searchPlaylists(query: String): List<PlaylistWithSongs> = playlistRepository.searchPlaylists(query)
+
+    override suspend fun searchGenres(query: String): List<Genre> = genreRepository.genres(query)
 
     override suspend fun deezerTrack(artist: String, title: String): Result<DeezerTrack> {
         return try {

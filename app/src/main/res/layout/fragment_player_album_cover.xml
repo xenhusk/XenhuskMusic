@@ -55,7 +55,7 @@
                 android:paddingBottom="64dp"
                 app:lrcLabel="@string/no_lyrics_found"
                 app:lrcNormalTextSize="24sp"
-                app:lrcPadding="24dp"
+                app:lrcPadding="32dp"
                 app:lrcTextGravity="center"
                 app:lrcTextSize="28sp"
                 app:lrcTimelineColor="@android:color/transparent" />

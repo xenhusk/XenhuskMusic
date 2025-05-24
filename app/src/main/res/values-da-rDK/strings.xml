@@ -25,6 +25,7 @@
     <string name="search_list_x_label">Søgeliste: %s</string>
     <string name="search_from_x_label">Søg fra \"%s\"</string>
     <string name="search_year_x_label">Søgeår: %s</string>
+    <string name="search_in_folder_x">Search in folder: %s</string>
     <string name="search_last_added">Søg i seneste musik</string>
     <string name="shuffle_mode_album">Albumblanding</string>
     <string name="shuffle_mode_artist">Kunstner shuffle</string>
@@ -199,6 +200,7 @@
     <string name="album_artists_label">Albumkunstnere</string>
     <string name="genres_label">Genres</string>
     <string name="folders_label">Mapper</string>
+    <string name="files_label">Files</string>
     <string name="playlists_label">Afspilningslister</string>
     <string name="playlist_label">Afspilningsliste</string>
     <string name="composers_label">Komponister</string>

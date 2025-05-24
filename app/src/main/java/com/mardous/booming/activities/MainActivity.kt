@@ -19,8 +19,6 @@ package com.mardous.booming.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.MediaStore
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.mardous.booming.R
@@ -32,18 +30,11 @@ import com.mardous.booming.extensions.navigation.isValidCategory
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.lyrics.LyricsViewModel
-import com.mardous.booming.helper.SearchQueryHelper
 import com.mardous.booming.http.github.isAbleToUpdate
 import com.mardous.booming.interfaces.IScrollHelper
 import com.mardous.booming.model.CategoryInfo
-import com.mardous.booming.model.Playlist
 import com.mardous.booming.mvvm.UpdateSearchResult
-import com.mardous.booming.service.MusicPlayer
-import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.Preferences
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -196,60 +187,14 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun handlePlaybackIntent(intent: Intent) {
-        lifecycleScope.launch(IO) {
-            val uri = intent.data
-            val mimeType = intent.type
-            var handled = false
-            if (intent.action == MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH && intent.extras != null) {
-                val songs = SearchQueryHelper.getSongs(intent.extras!!)
-                if (MusicPlayer.shuffleMode == Playback.ShuffleMode.ON) {
-                    MusicPlayer.openQueueShuffle(songs)
-                } else {
-                    MusicPlayer.openQueue(songs)
-                }
-                handled = true
+        libraryViewModel.handleIntent(intent).observe(this) { result ->
+            if (result.handled) {
+                setIntent(Intent())
             }
-            if (uri?.toString()?.isNotEmpty() == true) {
-                MusicPlayer.playFromUri(uri)
-                handled = true
-            } else if (MediaStore.Audio.Playlists.CONTENT_TYPE == mimeType) {
-                val id = parseIdFromIntent(intent, "playlistId", "playlist")
-                if (id >= 0) {
-                    val position = intent.getIntExtra("position", 0)
-                    val playlist = libraryViewModel.devicePlaylistById(id)
-                    if (playlist != Playlist.EmptyPlaylist && isActive) {
-                        MusicPlayer.openQueue(playlist.getSongs(), position)
-                    }
-                    handled = true
-                }
-            } else if (MediaStore.Audio.Albums.CONTENT_TYPE == mimeType) {
-                val id = parseIdFromIntent(intent, "albumId", "album")
-                if (id >= 0) {
-                    val position = intent.getIntExtra("position", 0)
-                    MusicPlayer.openQueue(libraryViewModel.albumById(id).songs, position)
-                    handled = true
-                }
-            } else if (MediaStore.Audio.Artists.CONTENT_TYPE == mimeType) {
-                val id = parseIdFromIntent(intent, "artistId", "artist")
-                if (id >= 0) {
-                    val position = intent.getIntExtra("position", 0)
-                    MusicPlayer.openQueue(libraryViewModel.artistById(id).songs, position)
-                    handled = true
-                }
-            }
-            if (handled) {
-                setIntent(Intent())  // Make sure to process intent only once
+            if (result.failed) {
+                showToast(R.string.unplayable_file)
             }
         }
-    }
-
-    private fun parseIdFromIntent(intent: Intent, longKey: String, stringKey: String): Long {
-        var id = intent.getLongExtra(longKey, -1)
-        if (id < 0) {
-            id = intent.getStringExtra(stringKey)?.toLongOrNull() ?: -1
-        }
-        return id
     }
 }

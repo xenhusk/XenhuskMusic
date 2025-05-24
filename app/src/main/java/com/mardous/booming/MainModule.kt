@@ -35,6 +35,7 @@ import com.mardous.booming.fragments.playlists.PlaylistDetailViewModel
 import com.mardous.booming.fragments.search.SearchViewModel
 import com.mardous.booming.fragments.sound.SoundSettingsViewModel
 import com.mardous.booming.fragments.years.YearDetailViewModel
+import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.http.deezer.DeezerService
 import com.mardous.booming.http.github.GitHubService
 import com.mardous.booming.http.jsonHttpClient
@@ -174,6 +175,10 @@ private val dataModule = module {
     single {
         RealSpecialRepository(get())
     } bind SpecialRepository::class
+
+    single {
+        UriSongResolver(androidContext(), get(), get())
+    }
 }
 
 private val viewModule = module {

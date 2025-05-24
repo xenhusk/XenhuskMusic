@@ -20,6 +20,8 @@ package com.mardous.booming.fragments
 import android.animation.ValueAnimator
 import android.app.DownloadManager
 import android.content.Context
+import android.content.Intent
+import android.provider.MediaStore
 import android.util.Log
 import androidx.core.animation.doOnEnd
 import androidx.core.content.getSystemService
@@ -27,6 +29,7 @@ import androidx.lifecycle.*
 import com.mardous.booming.database.*
 import com.mardous.booming.extensions.dp
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
+import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.http.github.GitHubRelease
 import com.mardous.booming.http.github.GitHubService
 import com.mardous.booming.model.*
@@ -47,6 +50,7 @@ import java.util.Date
 class LibraryViewModel(
     private val repository: Repository,
     private val inclExclDao: InclExclDao,
+    private val uriSongResolver: UriSongResolver,
     private val updateService: GitHubService
 ) : ViewModel() {
 
@@ -408,6 +412,67 @@ class LibraryViewModel(
                 }
             }
         }
+
+    @Suppress("DEPRECATION")
+    fun handleIntent(intent: Intent): LiveData<HandleIntentResult> = liveData(IO) {
+        val result = HandleIntentResult(handled = true)
+        val uri = intent.data
+        if (uri == null) {
+            emit(result.copy(handled = false))
+        } else {
+            if (uri.toString().isNotEmpty()) {
+                val songs = uriSongResolver.resolve(uri)
+                if (songs.isNotEmpty()) {
+                    withContext(Main) {
+                        MusicPlayer.openQueue(songs)
+                    }
+                    emit(result)
+                } else {
+                    emit(result.copy(failed = true))
+                }
+            } else {
+                when (intent.type) {
+                    MediaStore.Audio.Playlists.CONTENT_TYPE -> {
+                        val id = parseIdFromIntent(intent, "playlistId", "playlist")
+                        if (id >= 0) {
+                            val position = intent.getIntExtra("position", 0)
+                            val playlist = devicePlaylistById(id)
+                            if (playlist != Playlist.EmptyPlaylist) {
+                                MusicPlayer.openQueue(playlist.getSongs(), position)
+                            }
+                            emit(result)
+                        }
+                    }
+
+                    MediaStore.Audio.Albums.CONTENT_TYPE -> {
+                        val id = parseIdFromIntent(intent, "albumId", "album")
+                        if (id >= 0) {
+                            val position = intent.getIntExtra("position", 0)
+                            MusicPlayer.openQueue(albumById(id).songs, position)
+                            emit(result)
+                        }
+                    }
+
+                    MediaStore.Audio.Artists.CONTENT_TYPE -> {
+                        val id = parseIdFromIntent(intent, "artistId", "artist")
+                        if (id >= 0) {
+                            val position = intent.getIntExtra("position", 0)
+                            MusicPlayer.openQueue(artistById(id).songs, position)
+                            emit(result)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun parseIdFromIntent(intent: Intent, longKey: String, stringKey: String): Long {
+        var id = intent.getLongExtra(longKey, -1)
+        if (id < 0) {
+            id = intent.getStringExtra(stringKey)?.toLongOrNull() ?: -1
+        }
+        return id
+    }
 
     private val ioHandler = CoroutineExceptionHandler { _, throwable ->
         Log.e("Coroutines", "An unexpected error occurred", throwable)

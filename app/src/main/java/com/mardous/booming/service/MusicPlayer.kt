@@ -19,11 +19,7 @@ package com.mardous.booming.service
 
 import android.content.*
 import android.media.audiofx.AudioEffect
-import android.net.Uri
 import android.os.IBinder
-import android.provider.DocumentsContract
-import android.provider.MediaStore.Audio.AudioColumns
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.mardous.booming.R
 import com.mardous.booming.audio.AudioDevice
@@ -32,22 +28,14 @@ import com.mardous.booming.extensions.hasPie
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.isInRange
 import com.mardous.booming.model.Song
-import com.mardous.booming.repository.RealSongRepository
 import com.mardous.booming.service.MusicService.MusicBinder
 import com.mardous.booming.service.playback.Playback
-import com.mardous.booming.util.FileUtil
 import com.mardous.booming.util.Preferences
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import java.io.File
 import java.util.WeakHashMap
 import kotlin.random.Random
 
-object MusicPlayer : KoinComponent {
+object MusicPlayer {
 
-    private const val TAG = "MediaManager"
-
-    private val songRepository by inject<RealSongRepository>()
     private val mConnectionMap = WeakHashMap<Context, ServiceBinder>()
     internal var musicService: MusicService? = null
         private set
@@ -314,70 +302,6 @@ object MusicPlayer : KoinComponent {
             }
         }
         return false
-    }
-
-    fun playFromUri(uri: Uri): Boolean {
-        if (musicService != null) {
-            var song = Song.emptySong
-            if (uri.scheme != null && uri.authority != null) {
-                if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
-                    var songId: String? = null
-                    if (uri.authority == "com.android.providers.media.documents") {
-                        songId = getSongIdFromMediaProvider(uri)
-                    } else if (uri.authority == "media") {
-                        songId = uri.lastPathSegment
-                    }
-                    if (songId != null) {
-                        song = songRepository.song(songId.toLong())
-                    }
-                }
-            }
-            if (song === Song.emptySong) {
-                var songFile: File? = null
-                if (uri.authority != null && uri.authority == "com.android.externalstorage.documents") {
-                    songFile =
-                        File(FileUtil.externalStorageDirectory(), uri.path!!.split(":", limit = 2).toTypedArray()[1])
-                }
-                if (songFile == null) {
-                    val path = getFilePathFromUri(musicService, uri)
-                    if (path != null) songFile = File(path)
-                }
-                if (songFile == null && uri.path != null) {
-                    songFile = File(uri.path!!)
-                }
-                if (songFile != null) {
-                    song = songRepository.song(
-                        songRepository.makeSongCursor(AudioColumns.DATA + "=?", arrayOf(songFile.absolutePath))
-                    )
-                }
-            }
-            if (song !== Song.emptySong) {
-                openQueue(listOf(song))
-                return true
-            } else {
-                Log.e(TAG, "No song found for URI: $uri")
-            }
-        }
-        return false
-    }
-
-    private fun getFilePathFromUri(context: Context?, uri: Uri): String? {
-        val column = AudioColumns.DATA
-        val projection = arrayOf(column)
-        try {
-            context!!.contentResolver.query(uri, projection, null, null, null).use { cursor ->
-                if (cursor != null && cursor.moveToFirst()) {
-                    return cursor.getString(cursor.getColumnIndexOrThrow(column))
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Couldn't get file path from uri $uri", e)
-        }
-        return null
-    }
-
-    private fun getSongIdFromMediaProvider(uri: Uri): String {
-        return DocumentsContract.getDocumentId(uri).split(":").toTypedArray()[1]
     }
 
     fun bindToService(context: Context, callback: ServiceConnection): ServiceToken? {

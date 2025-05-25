@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">Audio-Fokus abgelehnt.</string>
     <string name="no_audio_ID">Falsche Audio-ID.</string>
     <string name="unplayable_file">Dieses Lied konnte nicht abgespielt werden.</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">Speicherzugriff</string>
     <string name="permission_external_storage_description">Die App benötigt die Berechtigung auf Ihren Gerätespeicher zuzugreifen, um Musik abzuspielen</string>
     <string name="permission_external_storage_denied">Sie müssen die Berechtigung zum Zugriff auf externen Speicher erteilen.</string>

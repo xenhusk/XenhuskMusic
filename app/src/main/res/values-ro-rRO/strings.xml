@@ -513,7 +513,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Veţi fi redirecţionat către site-ul de urmărire a problemelor.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Acces la stocare necesar</string>
-    <string name="saf_access_required_message">Booming-ul necesită permisiunea de a accesa aceste fișiere. Vă rugăm să alegeți directorul rădăcină al cardului SD.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Afișare fișiere</string>
     <string name="saf_error_uri">Nu se poate obține URL-ul SAF</string>
     <string name="saf_write_failed">Scrierea fișierului a eșuat: %s</string>

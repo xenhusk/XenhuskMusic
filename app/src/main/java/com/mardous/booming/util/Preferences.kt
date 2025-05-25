@@ -410,6 +410,10 @@ object Preferences : KoinComponent {
     private fun appBool(resid: Int): Boolean = appContext().resources.getBoolean(resid)
 
     private fun appStr(resid: Int): String = appContext().getString(resid)
+
+    fun migratePreferences() {
+        PreferenceMigrations.LIBRARY_CATEGORIES(preferences, "library_categories", LIBRARY_CATEGORIES)
+    }
 }
 
 interface GeneralTheme {
@@ -530,7 +534,7 @@ const val MATERIAL_YOU = "material_you"
 const val USE_CUSTOM_FONT = "use_custom_font"
 const val APPBAR_MODE = "appbar_mode"
 const val GENERAL_THEME = "general_theme"
-const val LIBRARY_CATEGORIES = "library_categories"
+const val LIBRARY_CATEGORIES = "library_categories_v2"
 const val REMEMBER_LAST_PAGE = "remember_last_page"
 const val TAB_TITLES_MODE = "tab_titles_mode"
 const val LAST_PAGE = "last_page"

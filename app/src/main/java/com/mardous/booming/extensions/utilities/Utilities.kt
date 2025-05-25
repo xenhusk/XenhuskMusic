@@ -17,6 +17,7 @@
 
 package com.mardous.booming.extensions.utilities
 
+import com.mardous.booming.recordException
 import kotlinx.serialization.json.Json
 import java.text.DecimalFormat
 import java.util.Locale
@@ -77,8 +78,15 @@ inline fun <reified T : Enum<T>> String.toEnum() =
     enumValues<T>().firstOrNull { it.name.equals(this, ignoreCase = true) }
 
 inline fun <reified T> String?.deserialize(defaultValue: T): T {
+    val lenientJson = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        coerceInputValues = true
+    }
     return if (!isNullOrEmpty())
-        runCatching<T> { Json.decodeFromString(this) }.getOrDefault(defaultValue)
+        runCatching<T> { lenientJson.decodeFromString(this) }
+            .onFailure { recordException(it) }
+            .getOrDefault(defaultValue)
     else defaultValue
 }
 

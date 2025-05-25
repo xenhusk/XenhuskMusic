@@ -36,10 +36,13 @@ class CascadingPageTransformer : ViewPager.PageTransformer {
                 else -> {
                     alpha = 1f
                     rotation = 0f
-                    val scale = (width - mScaleOffset * position) / width.toFloat()
 
-                    scaleX = scale
-                    scaleY = scale
+                    val safeWidth = if (width == 0) 1 else width
+                    val scale = (safeWidth - mScaleOffset * position) / safeWidth.toFloat()
+                    val safeScale = if (scale.isFinite() && scale > 0f) scale else 1f
+
+                    scaleX = safeScale
+                    scaleY = safeScale
 
                     translationX = -width * position
                     translationY = mScaleOffset * 0.8f * position

@@ -506,7 +506,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Você será encaminhado para o site de registro de erros.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Acesso ao armazenamento necessário</string>
-    <string name="saf_access_required_message">Boomings requer permissão para acessar esses arquivos. Por favor, escolha o diretório raiz do cartão SD.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Mostrar arquivos</string>
     <string name="saf_error_uri">Não é possível obter URI SAF</string>
     <string name="saf_write_failed">Falha ao escrever arquivo: %s</string>

@@ -534,7 +534,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">سيتم إعادة توجيهك إلى موقع تتبع المشكلة.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">مطلوب الوصول إلى التخزين</string>
-    <string name="saf_access_required_message">حالات الازدحام تتطلب الإذن للوصول إلى هذه الملفات. الرجاء اختيار دليل جذر بطاقة الذاكرة.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">إظهار الملفات</string>
     <string name="saf_error_uri">لا يمكن الحصول على URI SAF</string>
     <string name="saf_write_failed">فشل كتابة الملف: %s</string>

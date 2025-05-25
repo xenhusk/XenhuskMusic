@@ -22,7 +22,6 @@ import android.animation.TimeInterpolator
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.view.animation.BounceInterpolator
 import android.widget.TextView
 import androidx.core.view.isVisible
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -112,23 +111,6 @@ class M3PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_m3_
 
     override fun onUpdateShuffleMode(shuffleMode: Int) {
         _binding?.shuffleButton?.setShuffleMode(shuffleMode)
-    }
-
-    override fun onShow() {
-        super.onShow()
-        binding.playPauseButton.animate()
-            .scaleX(1f)
-            .scaleY(1f)
-            .setInterpolator(BounceInterpolator())
-            .start()
-    }
-
-    override fun onHide() {
-        super.onHide()
-        binding.playPauseButton.apply {
-            scaleX = 0f
-            scaleY = 0f
-        }
     }
 
     override fun onClick(view: View) {

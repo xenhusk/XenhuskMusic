@@ -520,7 +520,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">תועברו לאתר האינטרנט למעקב הבעיות.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">נדרש גישה לאחסון</string>
-    <string name="saf_access_required_message">Boomings requires permission to access these files. Please pick the SD card root directory.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Show files</string>
     <string name="saf_error_uri">Can\'t get SAF URI</string>
     <string name="saf_write_failed">File write failed: %s</string>

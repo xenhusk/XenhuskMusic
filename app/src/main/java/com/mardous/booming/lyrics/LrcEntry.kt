@@ -17,7 +17,7 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.text.TextUtils
-import com.mardous.booming.extensions.utilities.formatTime
+import java.util.Locale
 
 /**
  * 一行歌词实体
@@ -70,6 +70,14 @@ class LrcEntry(
         }
         return (time - other.time).toInt()
     }
+
+    private fun Long.formatTime() = String.format(
+        Locale.getDefault(),
+        "%d:%02d.%03d",
+        this / 1000 / 60, //minutes
+        this / 1000 % 60, //seconds
+        this % 100
+    )
 
     companion object {
         const val GRAVITY_CENTER: Int = 0

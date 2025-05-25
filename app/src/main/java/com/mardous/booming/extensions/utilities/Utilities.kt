@@ -19,7 +19,6 @@ package com.mardous.booming.extensions.utilities
 
 import com.mardous.booming.recordException
 import kotlinx.serialization.json.Json
-import java.util.Locale
 
 const val DEFAULT_INFO_DELIMITER = " • "
 
@@ -46,19 +45,6 @@ fun StringBuilder.appendWithDelimiter(text: CharSequence, delimiter: String = DE
         }
         append(text)
     }
-
-fun Int.formatTime() = toLong().formatTime()
-
-fun Long.formatTime() = String.format(
-    Locale.getDefault(),
-    "%d:%02d.%03d",
-    this / 1000 / 60, //minutes
-    this / 1000 % 60, //seconds
-    this % 100
-)
-
-fun Int.isInRange(from: Int, to: Int): Boolean = this in from until to
-
 
 inline fun <reified T : Enum<T>> String.toEnum() =
     enumValues<T>().firstOrNull { it.name.equals(this, ignoreCase = true) }

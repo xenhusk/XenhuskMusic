@@ -28,7 +28,6 @@ import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemViewHold
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
 import com.mardous.booming.R
 import com.mardous.booming.extensions.resources.hitTest
-import com.mardous.booming.extensions.utilities.isInRange
 import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.Song
 import com.mardous.booming.service.MusicPlayer
@@ -130,7 +129,7 @@ class PlayingQueueSongAdapter(
 
         override fun onClick(view: View) {
             val songPosition = layoutPosition
-            if (songPosition.isInRange(0, MusicPlayer.playingQueue.size)) {
+            if (MusicPlayer.playingQueue.indices.contains(songPosition)) {
                 if (songPosition != current) {
                     MusicPlayer.playSongAt(songPosition)
                 }

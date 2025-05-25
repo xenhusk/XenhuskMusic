@@ -26,7 +26,6 @@ import com.mardous.booming.audio.AudioDevice
 import com.mardous.booming.audio.getDeviceType
 import com.mardous.booming.extensions.hasPie
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.extensions.utilities.isInRange
 import com.mardous.booming.model.Song
 import com.mardous.booming.service.MusicService.MusicBinder
 import com.mardous.booming.service.playback.Playback
@@ -257,7 +256,8 @@ object MusicPlayer {
         }
     }
 
-    private fun areValidPositions(vararg positions: Int) = positions.all { it.isInRange(0, playingQueue.size) }
+    private fun areValidPositions(vararg positions: Int) =
+        positions.all { playingQueue.indices.contains(it) }
 
     fun moveSong(from: Int, to: Int) {
         if (areValidPositions(from, to)) {
@@ -282,7 +282,7 @@ object MusicPlayer {
      */
     fun setStopPosition(stopPosition: Int): Boolean {
         if (musicService != null) {
-            if (stopPosition.isInRange(position, playingQueue.size)) {
+            if ((position..playingQueue.lastIndex).contains(stopPosition)) {
                 var canceled = false
                 if (musicService!!.stopPosition == stopPosition) {
                     musicService!!.setStopPosition(-1)

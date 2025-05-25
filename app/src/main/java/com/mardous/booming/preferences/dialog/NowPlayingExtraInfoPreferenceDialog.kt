@@ -28,7 +28,6 @@ import com.mardous.booming.R
 import com.mardous.booming.adapters.preference.ExtraInfoAdapter
 import com.mardous.booming.databinding.DialogRecyclerViewBinding
 import com.mardous.booming.extensions.create
-import com.mardous.booming.extensions.utilities.toMutableListIfRequired
 import com.mardous.booming.model.NowPlayingInfo
 import com.mardous.booming.util.Preferences
 
@@ -59,7 +58,7 @@ class NowPlayingExtraInfoPreferenceDialog : DialogFragment() {
             .setNeutralButton(R.string.reset_action, null)
             .create { dialog ->
                 dialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener {
-                    adapter.items = Preferences.getDefaultNowPlayingInfo().toMutableListIfRequired()
+                    adapter.items = Preferences.getDefaultNowPlayingInfo().toMutableList()
                 }
             }
     }

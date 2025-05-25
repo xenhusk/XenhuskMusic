@@ -28,7 +28,6 @@ import com.mardous.booming.R
 import com.mardous.booming.adapters.preference.CategoryInfoAdapter
 import com.mardous.booming.databinding.DialogRecyclerViewBinding
 import com.mardous.booming.extensions.create
-import com.mardous.booming.extensions.utilities.toMutableListIfRequired
 import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.util.LIBRARY_CATEGORIES
 import com.mardous.booming.util.Preferences
@@ -63,7 +62,7 @@ class CategoriesPreferenceDialog : DialogFragment() {
             .create { dialog ->
                 dialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener {
                     adapter.items = Preferences.getDefaultLibraryCategoryInfos()
-                        .toMutableListIfRequired()
+                        .toMutableList()
                 }
             }
     }

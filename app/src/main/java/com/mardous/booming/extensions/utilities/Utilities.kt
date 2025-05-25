@@ -19,7 +19,6 @@ package com.mardous.booming.extensions.utilities
 
 import com.mardous.booming.recordException
 import kotlinx.serialization.json.Json
-import java.text.DecimalFormat
 import java.util.Locale
 
 const val DEFAULT_INFO_DELIMITER = " • "
@@ -60,19 +59,6 @@ fun Long.formatTime() = String.format(
 
 fun Int.isInRange(from: Int, to: Int): Boolean = this in from until to
 
-fun <T> List<T>.toMutableListIfRequired(): MutableList<T> = if (this is MutableList) this else toMutableList()
-
-fun Float.formatted(): String {
-    var value = this
-    val arr = arrayOf("", "K", "M", "B", "T", "P", "E")
-    var index = 0
-    while (value / 1000 >= 1) {
-        value /= 1000
-        index++
-    }
-    val decimalFormat = DecimalFormat("#.##")
-    return String.format("%s %s", decimalFormat.format(value.toDouble()), arr[index])
-}
 
 inline fun <reified T : Enum<T>> String.toEnum() =
     enumValues<T>().firstOrNull { it.name.equals(this, ignoreCase = true) }

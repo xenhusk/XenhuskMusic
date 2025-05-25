@@ -26,7 +26,6 @@ import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.mardous.booming.R
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.extensions.utilities.toMutableListIfRequired
 import com.mardous.booming.model.Song
 import com.mardous.booming.util.Preferences
 import org.jaudiotagger.audio.AudioFile
@@ -109,7 +108,7 @@ fun Context.writeUsingSAF(audio: AudioFile) {
         if (isTreeUriSaved()) {
             val sdcard = Preferences.sAFSDCardUri!!.toUri()
             val pathSegments = listOf(*audio.file.absolutePath.split("/").toTypedArray())
-                .toMutableListIfRequired()
+                .toMutableList()
 
             uri = DocumentFile.fromTreeUri(this, sdcard)?.findDocument(pathSegments)
         }
@@ -166,7 +165,7 @@ fun Context.deleteUsingSAF(path: String): Boolean {
         if (isTreeUriSaved()) {
             val sdcard = Preferences.sAFSDCardUri!!.toUri()
             val pathSegments = listOf(*path.split("/").toTypedArray())
-                .toMutableListIfRequired()
+                .toMutableList()
 
             uri = DocumentFile.fromTreeUri(this, sdcard)?.findDocument(pathSegments)
         }

@@ -26,7 +26,6 @@ import com.mardous.booming.androidauto.AutoMediaIDHelper
 import com.mardous.booming.database.fromHistoryToSongs
 import com.mardous.booming.database.toSongs
 import com.mardous.booming.extensions.media.indexOfSong
-import com.mardous.booming.extensions.utilities.toMutableListIfRequired
 import com.mardous.booming.helper.ShuffleHelper
 import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.model.Song
@@ -154,7 +153,7 @@ class MediaSessionCallback(private val musicService: MusicService, private val c
                 }
 
                 AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_SHUFFLE -> {
-                    val allSongs = repository.allSongs().toMutableListIfRequired()
+                    val allSongs = repository.allSongs().toMutableList()
                     ShuffleHelper.makeShuffleList(allSongs, -1)
                     musicService.openQueue(allSongs, 0, true)
                 }

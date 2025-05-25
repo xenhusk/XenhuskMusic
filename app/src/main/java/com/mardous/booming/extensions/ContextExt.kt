@@ -66,12 +66,6 @@ fun Int.dp(resources: Resources): Int = (this * resources.displayMetrics.density
 private val Resources.isNightMode: Boolean
     get() = configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
 
-/**
- * Indicates if the device is landscaped.
- *
- * Currently, the app *does not support* landscape mode, but
- * it might do it in the future.
- */
 val Resources.isLandscape: Boolean
     get() = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 

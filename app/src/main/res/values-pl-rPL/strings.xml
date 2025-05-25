@@ -520,7 +520,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Zostaniesz przekazany na stronę śledzenia problemów.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Wymagany dostęp do pamięci</string>
-    <string name="saf_access_required_message">Boomings wymaga uprawnień dostępu do tych plików. Proszę wybrać katalog karty SD.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Pokaż pliki</string>
     <string name="saf_error_uri">Nie można uzyskać URI SAF</string>
     <string name="saf_write_failed">Błąd zapisu pliku: %s</string>

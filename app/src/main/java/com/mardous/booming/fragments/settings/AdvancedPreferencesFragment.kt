@@ -62,10 +62,11 @@ class AdvancedPreferencesFragment : PreferencesScreenFragment() {
             }
 
         findPreference<Preference>(LANGUAGE_NAME)?.setOnPreferenceChangeListener { _, newValue ->
-            if (newValue as? String == "auto") {
+            val languageTag = (newValue as? String)
+            if (languageTag == null || languageTag == "auto") {
                 AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
             } else {
-                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(newValue as? String))
+                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(languageTag))
             }
             true
         }

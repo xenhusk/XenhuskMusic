@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">音频焦点被拒绝。</string>
     <string name="no_audio_ID">错误的音频ID。</string>
     <string name="unplayable_file">无法播放这首歌曲。</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">存储访问</string>
     <string name="permission_external_storage_description">该应用需要权限才能访问您的设备存储空间来播放音乐</string>
     <string name="permission_external_storage_denied">您必须授予访问外部存储的权限。</string>

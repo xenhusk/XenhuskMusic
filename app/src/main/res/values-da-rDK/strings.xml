@@ -506,7 +506,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Du vil blive videresendt til issue tracker hjemmeside.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Lagerplads Påkrævet</string>
-    <string name="saf_access_required_message">Boomings kræver tilladelse til at få adgang til disse filer. Vælg venligst hovedmappen på SD-kortet.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Vis filer</string>
     <string name="saf_error_uri">Kan ikke hente SAF URI</string>
     <string name="saf_write_failed">Filskrivning mislykkedes: %s</string>

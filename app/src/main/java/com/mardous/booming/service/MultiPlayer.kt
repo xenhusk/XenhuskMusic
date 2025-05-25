@@ -377,7 +377,7 @@ open class MultiPlayer(private val context: Context) : Playback,
      */
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
         if (mp === mCurrentMediaPlayer) {
-            context.showToast(R.string.unplayable_file)
+            context.showToast(context.getString(R.string.unplayable_file_code_x, what))
             mIsInitialized = false
             mCurrentMediaPlayer.release()
             if (mNextMediaPlayer != null) {
@@ -395,7 +395,7 @@ open class MultiPlayer(private val context: Context) : Playback,
             mCurrentMediaPlayer.release()
             mCurrentMediaPlayer = MediaPlayer()
             mCurrentMediaPlayer.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
-            context.showToast(R.string.unplayable_file)
+            context.showToast(context.getString(R.string.unplayable_file_code_x, what))
         }
         return false
     }

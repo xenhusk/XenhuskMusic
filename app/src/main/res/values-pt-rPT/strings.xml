@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">Foco de áudio negado.</string>
     <string name="no_audio_ID">Áudio de ID ruim.</string>
     <string name="unplayable_file">Não foi possível reproduzir esta música.</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">Acesso ao armazenamento</string>
     <string name="permission_external_storage_description">O aplicativo precisa de permissão para acessar seu dispositivo de armazenamento para reproduzir músicas</string>
     <string name="permission_external_storage_denied">Você deve conceder permissão para acessar o armazenamento externo.</string>

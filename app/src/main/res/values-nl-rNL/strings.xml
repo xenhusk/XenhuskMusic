@@ -506,7 +506,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">U wordt doorgestuurd naar de issue tracker website.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Opslagtoegang vereist</string>
-    <string name="saf_access_required_message">Boomings vereist toestemming voor toegang tot deze bestanden. Kies de hoofdmap van de SD kaart.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Bestanden weergeven</string>
     <string name="saf_error_uri">Kan geen SAF URI verkrijgen</string>
     <string name="saf_write_failed">Bestand schrijven mislukt: %s</string>

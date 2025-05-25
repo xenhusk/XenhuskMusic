@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">تم رفض التركيز الصوتي.</string>
     <string name="no_audio_ID">معرف صوتي سيئ.</string>
     <string name="unplayable_file">تعذر تشغيل هذه الأغنية.</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">الوصول إلى التخزين</string>
     <string name="permission_external_storage_description">يحتاج التطبيق إلى إذن للوصول إلى وحدة تخزين جهازك لتشغيل الموسيقى</string>
     <string name="permission_external_storage_denied">يجب عليك منح الإذن للوصول إلى وحدة التخزين الخارجية.</string>

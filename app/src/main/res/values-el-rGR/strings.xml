@@ -506,7 +506,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Θα μεταφερθείτε στην ιστοσελίδα του ανιχνευτή προβλημάτων.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Απαιτείται Πρόσβαση Χώρου Αποθήκευσης</string>
-    <string name="saf_access_required_message">Τα Boomings απαιτούν άδεια πρόσβασης σε αυτά τα αρχεία. Παρακαλώ επιλέξτε τον ριζικό κατάλογο της κάρτας SD.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Εμφάνιση αρχείων</string>
     <string name="saf_error_uri">Αδύνατη η λήψη του URI SAF</string>
     <string name="saf_write_failed">Αποτυχία εγγραφής αρχείου: %s</string>

@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">Аудиофокус отклонен.</string>
     <string name="no_audio_ID">Неверный ID аудио.</string>
     <string name="unplayable_file">Не удалось воспроизвести эту песню.</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">Доступ к памяти</string>
     <string name="permission_external_storage_description">Приложению требуется разрешение на доступ к хранилищу вашего устройства для воспроизведения музыки</string>
     <string name="permission_external_storage_denied">Вы должны предоставить разрешение на доступ к внешнему накопителю.</string>

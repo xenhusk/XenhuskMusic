@@ -499,7 +499,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">您将被转发到问题跟踪网站。</string>
     <!-- SAF -->
     <string name="saf_access_required_title">需要存储访问</string>
-    <string name="saf_access_required_message">升降需要权限才能访问这些文件。请选择 SD 卡根目录。</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">显示文件</string>
     <string name="saf_error_uri">无法获取 SAF URI</string>
     <string name="saf_write_failed">文件写入失败： %s</string>

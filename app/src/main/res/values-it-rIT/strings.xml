@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">Focus audio negato.</string>
     <string name="no_audio_ID">Id audio errato.</string>
     <string name="unplayable_file">Impossibile riprodurre questa canzone.</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">Accesso Archiviazione</string>
     <string name="permission_external_storage_description">L\'app ha bisogno dell\'autorizzazione per accedere alla memoria del tuo dispositivo per riprodurre musica</string>
     <string name="permission_external_storage_denied">È necessario concedere l\'autorizzazione per accedere alla memoria esterna.</string>

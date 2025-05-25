@@ -506,7 +506,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Sinut välitetään edelleen ongelman seurannan verkkosivuille.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Tallennustilan Käyttö Vaaditaan</string>
-    <string name="saf_access_required_message">Boomings vaatii oikeuden käyttää näitä tiedostoja. Ole hyvä ja valitse SD-kortin juurihakemisto.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Näytä tiedostot</string>
     <string name="saf_error_uri">SAF URI ei saa</string>
     <string name="saf_write_failed">Tiedoston kirjoittaminen epäonnistui: %s</string>

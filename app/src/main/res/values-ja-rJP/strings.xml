@@ -499,7 +499,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">課題追跡サイトに転送されます。</string>
     <!-- SAF -->
     <string name="saf_access_required_title">ストレージアクセスが必要です</string>
-    <string name="saf_access_required_message">ブームはこれらのファイルにアクセスするには許可が必要です。SDカードのルートディレクトリを選択してください。</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">ファイルを表示</string>
     <string name="saf_error_uri">SAF URIを取得できません</string>
     <string name="saf_write_failed">ファイルの書き込みに失敗しました: %s</string>

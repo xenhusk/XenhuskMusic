@@ -520,7 +520,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Вас буде направлено на веб-сайт відстеження проблем.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Необхідний доступ до сховища даних</string>
-    <string name="saf_access_required_message">Бумінг потребує дозволу на доступ до цих файлів. Будь ласка, оберіть кореневу папку SD-карти.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Показати файли</string>
     <string name="saf_error_uri">Неможливо отримати URI SAF</string>
     <string name="saf_write_failed">Не вдалося записати файл: %s</string>

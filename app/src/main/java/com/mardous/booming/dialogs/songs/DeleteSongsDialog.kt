@@ -38,7 +38,7 @@ import com.mardous.booming.databinding.DialogDeleteSongsBinding
 import com.mardous.booming.dialogs.SAFDialog
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.files.isSAFRequiredForSongs
-import com.mardous.booming.extensions.files.isSDCardAccessGranted
+import com.mardous.booming.extensions.files.isSAFAccessGranted
 import com.mardous.booming.extensions.media.isPlayingSong
 import com.mardous.booming.model.Song
 import com.mardous.booming.recordException
@@ -147,7 +147,7 @@ class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
         if (!songsToDelete.isSAFRequiredForSongs()) {
             onDeleteSongs(songsToDelete)
         } else {
-            if (requireContext().isSDCardAccessGranted()) {
+            if (requireContext().isSAFAccessGranted()) {
                 onDeleteSongs(songsToDelete)
             } else {
                 SAFDialog.show(this)

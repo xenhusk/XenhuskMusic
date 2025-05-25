@@ -30,7 +30,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.extensions.create
 import com.mardous.booming.extensions.files.saveTreeUri
-import com.mardous.booming.util.Preferences
 
 class SAFDialog : DialogFragment() {
 
@@ -59,10 +58,7 @@ class SAFDialog : DialogFragment() {
             .setPositiveButton(R.string.saf_show_files_button, null)
             .create { dialog ->
                 dialog.getButton(DialogInterface.BUTTON_POSITIVE)?.setOnClickListener {
-                    val sdcardUri = Preferences.sAFSDCardUri
-                    if (!sdcardUri.isNullOrEmpty()) {
-                        documentTreeLauncher.launch(Uri.parse(sdcardUri))
-                    } else documentTreeLauncher.launch(null)
+                    documentTreeLauncher.launch(null)
                 }
             }
     }

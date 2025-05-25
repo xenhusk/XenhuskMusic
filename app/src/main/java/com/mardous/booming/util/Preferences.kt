@@ -383,10 +383,6 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(INITIALIZED_BLACKLIST, false)
         set(value) = preferences.edit { putBoolean(INITIALIZED_BLACKLIST, value) }
 
-    var sAFSDCardUri: String?
-        get() = preferences.nullString(SAF_SDCARD_URI)
-        set(uri) = preferences.edit { putString(SAF_SDCARD_URI, uri) }
-
     var lastSleepTimerValue: Int
         get() = preferences.getInt(LAST_SLEEP_TIMER_VALUE, 30)
         set(value) = preferences.edit { putInt(LAST_SLEEP_TIMER_VALUE, value) }
@@ -612,7 +608,6 @@ const val EXPERIMENTAL_UPDATES = "experimental_updates"
 const val START_DIRECTORY = "start_directory"
 const val SAVED_ARTWORK_COPYRIGHT_NOTICE_SHOWN = "saved_artwork_copyright_notice_shown"
 const val INITIALIZED_BLACKLIST = "initialized_blacklist"
-const val SAF_SDCARD_URI = "saf_sdcard_uri"
 const val LAST_SLEEP_TIMER_VALUE = "last_sleep_timer_value"
 const val NEXT_SLEEP_TIMER_ELAPSED_REALTIME = "next_sleep_timer_elapsed_real_time"
 const val SLEEP_TIMER_FINISH_SONG = "sleep_timer_finish_music"

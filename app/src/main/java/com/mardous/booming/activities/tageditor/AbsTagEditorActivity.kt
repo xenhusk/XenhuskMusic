@@ -46,7 +46,7 @@ import com.mardous.booming.databinding.ActivityTagEditorBinding
 import com.mardous.booming.dialogs.SAFDialog
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.files.isSAFRequiredForPaths
-import com.mardous.booming.extensions.files.isSDCardAccessGranted
+import com.mardous.booming.extensions.files.isSAFAccessGranted
 import com.mardous.booming.extensions.resources.getResized
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
 import com.mardous.booming.misc.TagWriter
@@ -217,7 +217,7 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
             if (!getSongPaths().isSAFRequiredForPaths()) {
                 writeTags(getSongPaths())
             } else {
-                if (isSDCardAccessGranted()) {
+                if (isSAFAccessGranted()) {
                     writeTags(getSongPaths())
                 } else {
                     SAFDialog.show(this)

@@ -523,7 +523,7 @@
 
     <!-- SAF -->
     <string name="saf_access_required_title">Acceso al almacenamiento requerido</string>
-    <string name="saf_access_required_message">Booming Music necesita permiso para acceder a esos archivos. Por favor, seleccione el directorio raíz de la tarjeta SD.</string>
+    <string name="saf_access_required_message">Booming Music requiere permiso para acceder a tus archivos. Selecciona la carpeta raíz donde están almacenadas tus canciones.</string>
     <string name="saf_show_files_button">Mostrar archivos</string>
     <string name="saf_error_uri">No se puede obtener la URI de SAF</string>
     <string name="saf_write_failed">Error al escribir archivo: %s</string>

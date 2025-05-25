@@ -14,14 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package com.mardous.booming.service.equalizer
 
-package com.mardous.booming.service.equalizer;
-
-import android.media.audiofx.BassBoost;
-import android.media.audiofx.Equalizer;
-import android.media.audiofx.LoudnessEnhancer;
-import android.media.audiofx.PresetReverb;
-import android.media.audiofx.Virtualizer;
+import android.media.audiofx.*
+import android.util.Log
 
 /**
  * Helper class representing the full complement of effects attached to one
@@ -29,136 +25,145 @@ import android.media.audiofx.Virtualizer;
  *
  * @author alankila
  */
-public class EffectSet {
-    /**
-     * Session-specific equalizer
-     */
-    final Equalizer equalizer;
-    private final BassBoost bassBoost;
-    private final Virtualizer virtualizer;
-    private final PresetReverb presetReverb;
-    private final LoudnessEnhancer loudnessEnhancer;
+@Suppress("DEPRECATION")
+class EffectSet(sessionId: Int) {
 
-    private short mEqNumPresets = -1;
-    private short mEqNumBands = -1;
+    private var eqNumPresets: Short = -1
+    private var eqNumBands: Short = -1
 
-    EffectSet(int sessionId) {
-        equalizer = new Equalizer(1, sessionId);
-        bassBoost = new BassBoost(1, sessionId);
-        virtualizer = new Virtualizer(1, sessionId);
-        presetReverb = new PresetReverb(1, sessionId);
-        loudnessEnhancer = new LoudnessEnhancer(sessionId);
+    val equalizer: Equalizer? =
+        createEffect("Equalizer") { Equalizer(1, sessionId) }
+
+    private val bassBoost: BassBoost? =
+        createEffect("BassBoost") { BassBoost(1, sessionId) }
+
+    private val virtualizer: Virtualizer? =
+        createEffect("Virtualizer") { Virtualizer(1, sessionId) }
+
+    private val loudnessEnhancer: LoudnessEnhancer? =
+        createEffect("LoudnessEnhancer") { LoudnessEnhancer(sessionId) }
+
+    private val presetReverb: PresetReverb? = null
+
+    private inline fun <T> createEffect(tag: String, block: () -> T): T? {
+        return try {
+            block()
+        } catch (t: Throwable) {
+            Log.e("EffectSet", "$tag init failed", t)
+            null
+        }
     }
 
-    /*
-     * Take lots of care to not poke values that don't need
-     * to be poked- this can cause audible pops.
-     */
-    void enableEqualizer(boolean enable) {
-        if (enable != equalizer.getEnabled()) {
-            if (!enable) {
-                for (short i = 0; i < getNumEqualizerBands(); i++) {
-                    equalizer.setBandLevel(i, (short) 0);
+    fun enableEqualizer(enable: Boolean) {
+        equalizer?.let {
+            if (enable != it.enabled) {
+                if (!enable) {
+                    for (i in 0 until getNumEqualizerBands()) {
+                        it.setBandLevel(i.toShort(), 0)
+                    }
+                }
+                it.enabled = enable
+            }
+        }
+    }
+
+    fun setEqualizerLevels(levels: ShortArray) {
+        equalizer?.takeIf { it.enabled }?.let {
+            levels.forEachIndexed { i, level ->
+                if (it.getBandLevel(i.toShort()) != level) {
+                    it.setBandLevel(i.toShort(), level)
                 }
             }
-            equalizer.setEnabled(enable);
         }
     }
 
-    void setEqualizerLevels(short[] levels) {
-        if (equalizer.getEnabled()) {
-            for (short i = 0; i < levels.length; i++) {
-                if (equalizer.getBandLevel(i) != levels[i]) {
-                    equalizer.setBandLevel(i, levels[i]);
+    fun getNumEqualizerBands(): Short {
+        if (equalizer == null) return 0
+        if (eqNumBands < 0) {
+            eqNumBands = equalizer.numberOfBands
+            if (eqNumBands > 6) eqNumBands = 6
+        }
+        return eqNumBands
+    }
+
+    fun getNumEqualizerPresets(): Short {
+        if (equalizer == null) return 0
+        if (eqNumPresets < 0) {
+            eqNumPresets = equalizer.numberOfPresets
+        }
+        return eqNumPresets
+    }
+
+    fun enableBassBoost(enable: Boolean) {
+        bassBoost?.let {
+            if (enable != it.enabled) {
+                if (!enable) {
+                    it.setStrength(0)
                 }
+                it.enabled = enable
             }
         }
     }
 
-    short getNumEqualizerBands() {
-        if (mEqNumBands < 0) {
-            mEqNumBands = equalizer.getNumberOfBands();
-        }
-        if (mEqNumBands > 6) {
-            mEqNumBands = 6;
-        }
-        return mEqNumBands;
+    fun setBassBoostStrength(strength: Short) {
+        bassBoost?.takeIf { it.enabled && it.roundedStrength != strength }
+            ?.setStrength(strength)
     }
 
-    short getNumEqualizerPresets() {
-        if (mEqNumPresets < 0) {
-            mEqNumPresets = equalizer.getNumberOfPresets();
-        }
-        return mEqNumPresets;
-    }
-
-    void enableBassBoost(boolean enable) {
-        if (enable != bassBoost.getEnabled()) {
-            if (!enable) {
-                bassBoost.setStrength((short) 1);
-                bassBoost.setStrength((short) 0);
+    fun enableVirtualizer(enable: Boolean) {
+        virtualizer?.let {
+            if (enable != it.enabled) {
+                if (!enable) {
+                    it.setStrength(0)
+                }
+                it.enabled = enable
             }
-            bassBoost.setEnabled(enable);
         }
     }
 
-    void setBassBoostStrength(short strength) {
-        if (bassBoost.getEnabled() && bassBoost.getRoundedStrength() != strength) {
-            bassBoost.setStrength(strength);
-        }
+    fun setVirtualizerStrength(strength: Short) {
+        virtualizer?.takeIf { it.enabled && it.roundedStrength != strength }
+            ?.setStrength(strength)
     }
 
-    void enableVirtualizer(boolean enable) {
-        if (enable != virtualizer.getEnabled()) {
-            if (!enable) {
-                virtualizer.setStrength((short) 1);
-                virtualizer.setStrength((short) 0);
+    fun enablePresetReverb(enable: Boolean) {
+        presetReverb?.let {
+            if (enable != it.enabled) {
+                if (!enable) {
+                    it.preset = PresetReverb.PRESET_NONE
+                }
+                it.enabled = enable
             }
-            virtualizer.setEnabled(enable);
         }
     }
 
-    void setVirtualizerStrength(short strength) {
-        if (virtualizer.getEnabled() && virtualizer.getRoundedStrength() != strength) {
-            virtualizer.setStrength(strength);
-        }
+    fun setReverbPreset(preset: Short) {
+        presetReverb?.takeIf { it.enabled && it.preset != preset }
+            ?.preset = preset
     }
 
-    void enablePresetReverb(boolean enable) {
-        if (enable != presetReverb.getEnabled()) {
-            if (!enable) {
-                presetReverb.setPreset(PresetReverb.PRESET_NONE);
+    fun enableLoudness(enable: Boolean) {
+        loudnessEnhancer?.let {
+            if (enable != it.enabled) {
+                if (!enable) {
+                    it.setTargetGain(0)
+                }
+                it.enabled = enable
             }
-            presetReverb.setEnabled(enable);
         }
     }
 
-    void setReverbPreset(short preset) {
-        if (presetReverb.getEnabled() && presetReverb.getPreset() != preset) {
-            presetReverb.setPreset(preset);
-        }
+    fun setLoudnessGain(gainmDB: Int) {
+        loudnessEnhancer?.takeIf { it.enabled && it.targetGain != gainmDB.toFloat() }
+            ?.setTargetGain(gainmDB)
     }
 
-    void enableLoudness(boolean enable) {
-        if (enable != loudnessEnhancer.getEnabled()) {
-            if (!enable) {
-                loudnessEnhancer.setTargetGain(0);
-            }
-            loudnessEnhancer.setEnabled(enable);
-        }
-    }
-
-    void setLoudnessGain(int gainmDB) {
-        if (loudnessEnhancer.getEnabled() && loudnessEnhancer.getTargetGain() != gainmDB) {
-            loudnessEnhancer.setTargetGain(gainmDB);
-        }
-    }
-
-    public void release() {
-        equalizer.release();
-        bassBoost.release();
-        virtualizer.release();
-        presetReverb.release();
-        loudnessEnhancer.release();
+    fun release() {
+        equalizer?.release()
+        bassBoost?.release()
+        virtualizer?.release()
+        presetReverb?.release()
+        loudnessEnhancer?.release()
     }
 }
+

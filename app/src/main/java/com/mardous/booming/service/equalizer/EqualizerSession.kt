@@ -33,7 +33,7 @@ class EqualizerSession(
     /**
      * Known audio sessions and their associated audioeffect suites.
      */
-    private val mAudioSessions: MutableMap<Int?, EffectSet?> = ConcurrentHashMap<Int?, EffectSet?>()
+    private val mAudioSessions = ConcurrentHashMap<Int, EffectSet?>()
 
     /**
      * Receive new broadcast intents for adding DSP to session

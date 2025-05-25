@@ -20,6 +20,7 @@ package com.mardous.booming.service.equalizer
 import android.annotation.SuppressLint
 import android.content.Context
 import android.media.audiofx.AudioEffect
+import android.media.audiofx.Equalizer
 import androidx.core.content.edit
 import com.mardous.booming.extensions.files.getFormattedFileName
 import com.mardous.booming.model.EQPreset
@@ -110,11 +111,13 @@ class EqualizerManager internal constructor(context: Context) {
             val result = runCatching { EffectSet(0) }
             if (result.isSuccess) {
                 val temp = result.getOrThrow()
+                if (temp.equalizer == null)
+                    return
 
-                setDefaultPresets(temp)
+                setDefaultPresets(temp, temp.equalizer)
                 numberOfBands = temp.getNumEqualizerBands().toInt()
                 setBandLevelRange(temp.equalizer.getBandLevelRange())
-                setCenterFreqs(temp)
+                setCenterFreqs(temp.equalizer)
 
                 temp.release()
             }
@@ -256,24 +259,24 @@ class EqualizerManager internal constructor(context: Context) {
     }
 
     @SuppressLint("KotlinPropertyAccess")
-    fun setDefaultPresets(effectSet: EffectSet) {
+    fun setDefaultPresets(effectSet: EffectSet, equalizer: Equalizer) {
         val presets = arrayListOf<EQPreset>()
 
-        val numPresets = effectSet.numEqualizerPresets.toInt()
-        val numBands = effectSet.numEqualizerBands.toInt()
+        val numPresets = effectSet.getNumEqualizerPresets().toInt()
+        val numBands = effectSet.getNumEqualizerBands().toInt()
 
         for (i in 0 until numPresets) {
-            val name = effectSet.equalizer.getPresetName(i.toShort())
+            val name = equalizer.getPresetName(i.toShort())
 
             val levels = IntArray(numBands)
             try {
-                effectSet.equalizer.usePreset(i.toShort())
+                equalizer.usePreset(i.toShort())
             } catch (e: RuntimeException) {
                 e.printStackTrace()
             }
 
             for (j in 0 until numBands) {
-                levels[j] = effectSet.equalizer.getBandLevel(j.toShort()).toInt()
+                levels[j] = equalizer.getBandLevel(j.toShort()).toInt()
             }
 
             presets.add(EQPreset(name, levels, isCustom = false))
@@ -505,8 +508,8 @@ class EqualizerManager internal constructor(context: Context) {
             return values
         }
 
-    fun setBandLevelRange(bandLevelRange: ShortArray?) {
-        if (bandLevelRange?.size == 2) {
+    fun setBandLevelRange(bandLevelRange: ShortArray) {
+        if (bandLevelRange.size == 2) {
             mPreferences.edit {
                 putString(
                     Keys.BAND_LEVEL_RANGE,
@@ -526,11 +529,11 @@ class EqualizerManager internal constructor(context: Context) {
                 frequencies
             }
 
-    fun setCenterFreqs(effectSet: EffectSet) {
+    fun setCenterFreqs(equalizer: Equalizer) {
         val numBands = numberOfBands
         val centerFreqs = StringBuilder()
         for (i in 0 until numBands) {
-            centerFreqs.append(effectSet.equalizer.getCenterFreq(i.toShort()))
+            centerFreqs.append(equalizer.getCenterFreq(i.toShort()))
             if (i < numBands - 1) {
                 centerFreqs.append(DEFAULT_DELIMITER)
             }

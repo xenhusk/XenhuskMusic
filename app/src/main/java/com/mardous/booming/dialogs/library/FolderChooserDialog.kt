@@ -169,8 +169,7 @@ class FolderChooserDialog : DialogFragment(), SimpleItemAdapter.Callback<String>
             canGoUp = false
             return
         }
-        val parent = parentFolder?.parentFile
-        canGoUp = parent != null && !parent.absolutePath.equals("/storage", ignoreCase = true)
+        canGoUp = parentFolder?.parentFile != null
     }
 
     private fun isEmulatedDir(folder: File?): Boolean {

@@ -506,7 +506,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Du videresendes til nettsiden for feilmeldingsspor.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Lagringstilgang kreves</string>
-    <string name="saf_access_required_message">Boomings krever tillatelse til å få tilgang til disse filene. Velg rotmappen for SD-kort.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Vis filer</string>
     <string name="saf_error_uri">Kan ikke motta AF-URI</string>
     <string name="saf_write_failed">Filskrivingen mislyktes: %s</string>

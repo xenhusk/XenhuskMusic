@@ -520,7 +520,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Budete přesměrováni na webovou stránku pro sledování problémů.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Vyžadován přístup k úložišti</string>
-    <string name="saf_access_required_message">Booming vyžaduje oprávnění pro přístup k těmto souborům. Vyberte kořenový adresář SD karty.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Zobrazit soubory</string>
     <string name="saf_error_uri">Nelze získat SAF URI</string>
     <string name="saf_write_failed">Zápis souboru se nezdařil: %s</string>

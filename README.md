@@ -97,5 +97,11 @@ report bugs, and engage with other community users.
 Booming Music is built upon the open-source project [Retro Music](https://github.com/RetroMusicPlayer/RetroMusicPlayer),
 which served as a starting point for many features and functionality in this app.
 
+It is also important to mention:
+
+- [LRCLib](https://lrclib.net/)
+- [spotify-lyrics-api](https://github.com/akashrchandran/spotify-lyrics-api) by [Akash R Chandran](https://github.com/akashrchandran)
+- [Alex](https://github.com/Paxsenix0)
+
 ## ⚖️ License
 Booming Music is released under the GNU General Public License, which can be found [here](LICENSE.txt).

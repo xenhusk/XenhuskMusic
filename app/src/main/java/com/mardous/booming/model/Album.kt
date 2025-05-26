@@ -18,7 +18,7 @@ package com.mardous.booming.model
 
 import java.util.Objects
 
-data class Album(val id: Long, val songs: List<Song>) {
+data class Album(val id: Long, override val songs: List<Song>) : SongProvider {
 
     val name: String
         get() = safeGetFirstSong().albumName

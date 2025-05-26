@@ -30,7 +30,7 @@ data class Artist(
     val albums: List<Album>,
     val filterSingles: Boolean,
     val isAlbumArtist: Boolean = false
-) {
+) : SongProvider {
 
     constructor(artistName: String, albums: List<Album>, filterSingles: Boolean, isAlbumArtist: Boolean = true) :
             this(albums.firstOrNull()?.artistId ?: -1, albums, filterSingles, true)
@@ -44,18 +44,18 @@ data class Artist(
     val songCount: Int
         get() = songs.size
 
-    val songs: List<Song>
-        get() = albums.flatMap { it.songs }
-
-    val sortedSongs: List<Song>
-        get() = songs.sortedSongs(SortOrder.artistSongSortOrder)
+    val duration: Long
+        get() = albums.sumOf { it.duration }
 
     val sortedAlbums: List<Album>
         get() = albums.let { if (filterSingles) it.filterNot { it.isSingle } else it }
             .sortedAlbums(SortOrder.artistAlbumSortOrder)
 
-    val duration: Long
-        get() = albums.sumOf { it.duration }
+    val sortedSongs: List<Song>
+        get() = songs.sortedSongs(SortOrder.artistSongSortOrder)
+
+    override val songs: List<Song>
+        get() = albums.flatMap { it.songs }
 
     fun safeGetFirstAlbum(): Album {
         return albums.firstOrNull() ?: Album.empty

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Christians Martínez Alvarado
+ * Copyright (c) 2025 Christians Martínez Alvarado
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,21 +17,6 @@
 
 package com.mardous.booming.model
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
-
-@Parcelize
-class ReleaseYear(val year: Int, override val songs: List<Song>) : Parcelable, SongProvider {
-
-    val name: String
-        get() = year.toString()
-
-    val songCount: Int
-        get() = songs.size
-
-    fun safeGetFirstSong(): Song = songs.firstOrNull() ?: Song.emptySong
-
-    companion object {
-        val Empty = ReleaseYear(-1, emptyList())
-    }
+interface SongProvider {
+    val songs: List<Song>
 }

@@ -25,7 +25,7 @@ import java.io.File
  * @author Christians M. A. (mardous)
  */
 @Parcelize
-class Folder(val path: String, val songs: List<Song>) : Parcelable {
+class Folder(val path: String, override val songs: List<Song>) : Parcelable, SongProvider {
 
     companion object {
         val empty = Folder("", emptyList())

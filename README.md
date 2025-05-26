@@ -9,6 +9,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Android-green.svg?logo=android)](https://android.com/)
 [![API](https://img.shields.io/badge/API-26%2B-green.svg?style=flat&logo=android)](https://android-arsenal.com/api?level=26)
 [![Latest Release](https://img.shields.io/github/v/release/mardous/BoomingMusic?label=Release&logo=github)](https://github.com/mardous/BoomingMusic/releases/latest)
+[![Pre-Release](https://img.shields.io/github/v/release/mardous/BoomingMusic?include_prereleases&logo=github&label=Pre-release)](https://github.com/mardous/BoomingMusic/releases)
 [![F-Droid version](https://img.shields.io/f-droid/v/com.mardous.booming?label=F-Droid&logo=fdroid)](https://f-droid.org/packages/com.mardous.booming/)
 [![License: GPL v3](https://img.shields.io/github/license/mardous/BoomingMusic?color=orange&label=License&logo=gnu)](LICENSE.txt)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor_Covenant-2.1-4baaaa.svg?logo=contributorcovenant)](CODE_OF_CONDUCT.md)

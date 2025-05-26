@@ -19,7 +19,6 @@ package com.mardous.booming.service.queue
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.mardous.booming.helper.ShuffleHelper
 import com.mardous.booming.model.Song
 import com.mardous.booming.providers.databases.PlaybackQueueStore
 import com.mardous.booming.service.MusicService
@@ -80,7 +79,7 @@ class SmartPlayingQueue(
             this.playingQueue = ArrayList(originalPlayingQueue)
             var position = startPosition
             if (shuffleMode == Playback.ShuffleMode.ON) {
-                ShuffleHelper.makeShuffleList(playingQueue, startPosition)
+                makeShuffleList(playingQueue, startPosition)
                 position = 0
             }
             onCompleted(position)
@@ -407,7 +406,7 @@ class SmartPlayingQueue(
 
         when (mode) {
             Playback.ShuffleMode.ON -> {
-                ShuffleHelper.makeShuffleList(playingQueue, position)
+                makeShuffleList(playingQueue, position)
                 position = 0
             }
 
@@ -425,6 +424,17 @@ class SmartPlayingQueue(
         }
         removeAllRanges()
         onCompleted()
+    }
+
+    private fun <T : Song> makeShuffleList(listToShuffle: MutableList<T>, current: Int) {
+        if (listToShuffle.isEmpty()) return
+        if (current >= 0) {
+            val song = listToShuffle.removeAt(current)
+            listToShuffle.shuffle()
+            listToShuffle.add(0, song)
+        } else {
+            listToShuffle.shuffle()
+        }
     }
 
     internal fun saveQueues() {

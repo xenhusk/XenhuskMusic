@@ -376,6 +376,7 @@ open class MultiPlayer(private val context: Context) : Playback,
      * {@inheritDoc}
      */
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
+        Log.e(TAG, "onError(): what=$what, extra=$extra")
         if (mp === mCurrentMediaPlayer) {
             context.showToast(context.getString(R.string.unplayable_file_code_x, what))
             mIsInitialized = false

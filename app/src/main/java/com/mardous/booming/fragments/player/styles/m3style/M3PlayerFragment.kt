@@ -106,6 +106,10 @@ class M3PlayerFragment : AbsPlayerFragment(R.layout.fragment_m3_player) {
         }
     }
 
+    override fun onIsFavoriteChanged(isFavorite: Boolean, withAnimation: Boolean) {
+        popupMenu?.menu?.onIsFavoriteChanged(isFavorite, false)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

@@ -226,8 +226,8 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         }
     }
 
-    override fun onLyricsVisibilityChange(animatorSet: AnimatorSet, lyricsVisible: Boolean) {
-        val lyricsItem = playerToolbar?.menu?.findItem(R.id.action_show_lyrics)
+    protected fun Menu.onLyricsVisibilityChang(lyricsVisible: Boolean) {
+        val lyricsItem = findItem(R.id.action_show_lyrics)
         if (lyricsItem != null) {
             if (lyricsVisible) {
                 lyricsItem.setIcon(R.drawable.ic_lyrics_24dp)
@@ -237,6 +237,10 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                     .setTitle(R.string.action_show_lyrics)
             }
         }
+    }
+
+    override fun onLyricsVisibilityChange(animatorSet: AnimatorSet, lyricsVisible: Boolean) {
+        playerToolbar?.menu?.onLyricsVisibilityChang(lyricsVisible)
     }
 
     protected open fun onSongInfoChanged(song: Song) {
@@ -393,27 +397,27 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         playerControlsFragment.onHide()
     }
 
-    protected open fun onIsFavoriteChanged(isFavorite: Boolean, withAnimation: Boolean) {
+    protected fun Menu.onIsFavoriteChanged(isFavorite: Boolean, withAnimation: Boolean) {
         val iconRes = if (withAnimation) {
             if (isFavorite) R.drawable.avd_favorite else R.drawable.avd_unfavorite
         } else {
             if (isFavorite) R.drawable.ic_favorite_24dp else R.drawable.ic_favorite_outline_24dp
         }
-        val titleRes =
-            if (isFavorite) R.string.action_remove_from_favorites else R.string.action_add_to_favorites
+        val titleRes = if (isFavorite) R.string.action_remove_from_favorites else R.string.action_add_to_favorites
 
-        val playerToolbar = playerToolbar
-        if (playerToolbar != null) {
-            playerToolbar.menu.findItem(R.id.action_favorite)?.apply {
-                setIcon(iconRes)
-                setTitle(titleRes)
-                icon.also {
-                    if (it is AnimatedVectorDrawable) {
-                        it.start()
-                    }
+        findItem(R.id.action_favorite)?.apply {
+            setIcon(iconRes)
+            setTitle(titleRes)
+            icon.also {
+                if (it is AnimatedVectorDrawable) {
+                    it.start()
                 }
             }
         }
+    }
+
+    protected open fun onIsFavoriteChanged(isFavorite: Boolean, withAnimation: Boolean) {
+        playerToolbar?.menu?.onIsFavoriteChanged(isFavorite, withAnimation)
     }
 
     protected open fun onToggleFavorite(song: Song, isFavorite: Boolean) {

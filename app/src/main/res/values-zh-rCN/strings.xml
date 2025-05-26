@@ -373,6 +373,23 @@
     <string name="recent_artists">最近的艺人</string>
     <string name="recent_albums">最近的专辑</string>
     <string name="no_suggestions">没有对您的建议</string>
+    <!-- Shuffle modes -->
+    <string name="shuffle_mode_pure_random">Pure random</string>
+    <string name="shuffle_mode_most_played">Most played</string>
+    <string name="shuffle_mode_most_played_artists">Most played artists</string>
+    <string name="shuffle_mode_most_played_albums">Most played albums</string>
+    <string name="shuffle_mode_favorite_songs">Favorites first</string>
+    <string name="shuffle_mode_forgotten_songs">Forgotten songs</string>
+    <string name="shuffle_mode_recently_added">Recently added</string>
+    <string name="shuffle_mode_combined">Smart mix</string>
+    <string name="shuffle_mode_pure_random_description">Completely random shuffle.</string>
+    <string name="shuffle_mode_most_played_description">Favors your most played songs.</string>
+    <string name="shuffle_mode_most_played_artists_description">Favors songs from your top artists.</string>
+    <string name="shuffle_mode_most_played_albums_description">Favors songs from your most played albums.</string>
+    <string name="shuffle_mode_favorite_songs_description">Gives priority to your favorite songs.</string>
+    <string name="shuffle_mode_forgotten_songs_description">Prioritizes songs you haven\'t played in a while.</string>
+    <string name="shuffle_mode_recently_added_description">Favors songs recently added to your library.</string>
+    <string name="shuffle_mode_combined_description">Mix based on favorites, plays, and recency.</string>
     <!-- Equalizer -->
     <string name="equalizer_label">均衡器</string>
     <string name="share_eq_configuration">分享 EQ 配置</string>
@@ -684,6 +701,8 @@
     <string name="stack">堆栈...</string>
     <string name="add_after_playing_track">播放曲目后添加</string>
     <string name="add_tracks_sequentially">按顺序添加曲目</string>
+    <string name="albums_shuffle">Albums shuffle</string>
+    <string name="artists_shuffle">Artists shuffle</string>
     <string name="shuffle_albums_ordered_songs">随机播放相册，排序歌曲</string>
     <string name="ordered_albums_shuffle_songs">已排序专辑，随机播放歌曲</string>
     <string name="shuffle_artists_ordered_songs">随机播放艺术家，订购歌曲</string>

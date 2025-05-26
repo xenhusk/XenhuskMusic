@@ -38,7 +38,10 @@ import com.mardous.booming.mvvm.event.Event
 import com.mardous.booming.repository.RealSmartRepository
 import com.mardous.booming.repository.Repository
 import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.service.queue.ShuffleManager
+import com.mardous.booming.service.queue.ShuffleManager.GroupShuffleMode
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.sort.SortKeys
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -51,6 +54,7 @@ class LibraryViewModel(
     private val repository: Repository,
     private val inclExclDao: InclExclDao,
     private val uriSongResolver: UriSongResolver,
+    private val shuffleManager: ShuffleManager,
     private val updateService: GitHubService
 ) : ViewModel() {
 
@@ -246,6 +250,24 @@ class LibraryViewModel(
 
     fun notRecentlyPlayedSongs(): LiveData<List<Song>> = liveData(IO) {
         emit(repository.notRecentlyPlayedSongs())
+    }
+
+    fun albumsShuffle(
+        albums: List<Album>?,
+        mode: GroupShuffleMode = Preferences.albumShuffleMode
+    ): LiveData<Boolean> = liveData(IO) {
+        val shuffledSongs = shuffleManager.shuffleByProvider(albums, mode, SortKeys.TRACK_NUMBER)
+        MusicPlayer.openQueue(shuffledSongs, keepShuffleMode = false)
+        emit(shuffledSongs.isNotEmpty())
+    }
+
+    fun artistsShuffle(
+        artists: List<Artist>?,
+        mode: GroupShuffleMode = Preferences.artistShuffleMode
+    ): LiveData<Boolean> = liveData(IO) {
+        val shuffledSongs = shuffleManager.shuffleByProvider(artists, mode, SortKeys.AZ)
+        MusicPlayer.openQueue(shuffledSongs, keepShuffleMode = false)
+        emit(shuffledSongs.isNotEmpty())
     }
 
     fun renamePlaylist(playListId: Long, name: String) = viewModelScope.launch(IO) {

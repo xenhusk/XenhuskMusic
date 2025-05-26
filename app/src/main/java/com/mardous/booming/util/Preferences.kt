@@ -34,6 +34,7 @@ import com.mardous.booming.extensions.utilities.*
 import com.mardous.booming.model.*
 import com.mardous.booming.model.theme.AppTheme
 import com.mardous.booming.model.theme.NowPlayingScreen
+import com.mardous.booming.service.queue.ShuffleManager
 import com.mardous.booming.transform.*
 import com.mardous.booming.views.TopAppBarLayout
 import org.koin.core.component.KoinComponent
@@ -245,11 +246,19 @@ object Preferences : KoinComponent {
     val rememberShuffleMode: Boolean
         get() = preferences.getBoolean(REMEMBER_SHUFFLE_MODE, true)
 
-    val albumShuffleMode: String
-        get() = preferences.requireString(ALBUM_SHUFFLE_MODE, SelectedShuffleMode.SHUFFLE_ALBUMS)
+    val albumShuffleMode: ShuffleManager.GroupShuffleMode
+        get() = getGroupShuffleMode(ALBUM_SHUFFLE_MODE, SelectedShuffleMode.SHUFFLE_ALBUMS)
 
-    val artistShuffleMode: String
-        get() = preferences.requireString(ARTIST_SHUFFLE_MODE, SelectedShuffleMode.SHUFFLE_ALL)
+    val artistShuffleMode: ShuffleManager.GroupShuffleMode
+        get() = getGroupShuffleMode(ARTIST_SHUFFLE_MODE, SelectedShuffleMode.SHUFFLE_ALL)
+
+    private fun getGroupShuffleMode(key: String, default: String) =
+        when(preferences.requireString(key, default)) {
+            SelectedShuffleMode.SHUFFLE_ARTISTS,
+            SelectedShuffleMode.SHUFFLE_ALBUMS -> ShuffleManager.GroupShuffleMode.ByGroup
+            SelectedShuffleMode.SHUFFLE_SONGS -> ShuffleManager.GroupShuffleMode.BySong
+            else -> ShuffleManager.GroupShuffleMode.FullRandom
+        }
 
     fun isResumeOnConnect(bluetooth: Boolean) = when {
         bluetooth -> preferences.getBoolean(RESUME_ON_BLUETOOTH_CONNECT, false)

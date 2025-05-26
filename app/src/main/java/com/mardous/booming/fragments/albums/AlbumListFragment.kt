@@ -23,7 +23,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.content.edit
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
@@ -31,20 +30,17 @@ import com.mardous.booming.R
 import com.mardous.booming.adapters.album.AlbumAdapter
 import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.asFragmentExtras
+import com.mardous.booming.extensions.showToast
 import com.mardous.booming.fragments.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
-import com.mardous.booming.helper.ShuffleHelper
 import com.mardous.booming.helper.menu.onAlbumMenu
 import com.mardous.booming.helper.menu.onAlbumsMenu
 import com.mardous.booming.interfaces.IAlbumCallback
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.GridViewType
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, GridLayoutManager>(),
     IAlbumCallback {
@@ -63,8 +59,10 @@ class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, Gr
 
     override fun onShuffleClicked() {
         super.onShuffleClicked()
-        lifecycleScope.launch(Dispatchers.IO) {
-            MusicPlayer.openQueue(ShuffleHelper.shuffleAlbums(adapter?.dataSet), keepShuffleMode = false)
+        libraryViewModel.albumsShuffle(adapter?.dataSet).observe(viewLifecycleOwner) { success ->
+            if (success) {
+                showToast(R.string.albums_shuffle)
+            }
         }
     }
 

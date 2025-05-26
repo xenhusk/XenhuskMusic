@@ -391,6 +391,25 @@
     <string name="recent_albums">Álbumes recientes</string>
     <string name="no_suggestions">Aún no hay sugerencias para ti</string>
 
+    <!-- Shuffle modes -->
+    <string name="shuffle_mode_pure_random">Aleatorio puro</string>
+    <string name="shuffle_mode_most_played">Más reproducidas</string>
+    <string name="shuffle_mode_most_played_artists">Artistas más escuchados</string>
+    <string name="shuffle_mode_most_played_albums">Álbumes más escuchados</string>
+    <string name="shuffle_mode_favorite_songs">Favoritas primero</string>
+    <string name="shuffle_mode_forgotten_songs">Canciones olvidadas</string>
+    <string name="shuffle_mode_recently_added">Añadidas recientemente</string>
+    <string name="shuffle_mode_combined">Mezcla inteligente</string>
+
+    <string name="shuffle_mode_pure_random_description">Mezcla completamente aleatoria.</string>
+    <string name="shuffle_mode_most_played_description">Prioriza las canciones que más escuchas.</string>
+    <string name="shuffle_mode_most_played_artists_description">Prioriza canciones de tus artistas más escuchados.</string>
+    <string name="shuffle_mode_most_played_albums_description">Prioriza canciones de tus álbumes más reproducidos.</string>
+    <string name="shuffle_mode_favorite_songs_description">Da prioridad a tus canciones favoritas.</string>
+    <string name="shuffle_mode_forgotten_songs_description">Prioriza canciones que no escuchas desde hace tiempo.</string>
+    <string name="shuffle_mode_recently_added_description">Favorece las canciones más nuevas en tu biblioteca.</string>
+    <string name="shuffle_mode_combined_description">Mezcla con múltiples factores: favoritas, uso, antigüedad.</string>
+
     <!-- Equalizer -->
     <string name="equalizer_label">Ecualizador</string>
     <string name="share_eq_configuration">Compartir configuración EQ</string>
@@ -717,6 +736,8 @@
     <string name="stack">Pila</string>
     <string name="add_after_playing_track">Añadir después de la pista en reproducción</string>
     <string name="add_tracks_sequentially">Añadir pistas de forma secuencial</string>
+    <string name="albums_shuffle">Mezcla de álbumes</string>
+    <string name="artists_shuffle">Mezcla de artistas</string>
     <string name="shuffle_albums_ordered_songs">Mezclar álbumes, canciones en orden</string>
     <string name="ordered_albums_shuffle_songs">Álbumes en orden, mezclar canciones</string>
     <string name="shuffle_artists_ordered_songs">Mezclar artistas, canciones en orden</string>

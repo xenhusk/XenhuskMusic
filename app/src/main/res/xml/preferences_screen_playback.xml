@@ -38,7 +38,7 @@
             app:entries="@array/pref_album_shuffle_mode_entries"
             app:entryValues="@array/pref_album_shuffle_mode_values"
             app:useSimpleSummaryProvider="true"
-            app:defaultValue="shuffle_songs"
+            app:defaultValue="shuffle_albums"
             app:layout="@layout/list_item_view"
             app:key="album_shuffle_mode"/>
 
@@ -48,7 +48,7 @@
             app:entries="@array/pref_artist_shuffle_mode_entries"
             app:entryValues="@array/pref_artist_shuffle_mode_values"
             app:useSimpleSummaryProvider="true"
-            app:defaultValue="shuffle_songs"
+            app:defaultValue="shuffle_all"
             app:layout="@layout/list_item_view"
             app:key="artist_shuffle_mode"/>
 

@@ -246,10 +246,10 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(REMEMBER_SHUFFLE_MODE, true)
 
     val albumShuffleMode: String
-        get() = preferences.requireString(ALBUM_SHUFFLE_MODE, SelectedShuffleMode.SHUFFLE_SONGS)
+        get() = preferences.requireString(ALBUM_SHUFFLE_MODE, SelectedShuffleMode.SHUFFLE_ALBUMS)
 
     val artistShuffleMode: String
-        get() = preferences.requireString(ARTIST_SHUFFLE_MODE, SelectedShuffleMode.SHUFFLE_SONGS)
+        get() = preferences.requireString(ARTIST_SHUFFLE_MODE, SelectedShuffleMode.SHUFFLE_ALL)
 
     fun isResumeOnConnect(bluetooth: Boolean) = when {
         bluetooth -> preferences.getBoolean(RESUME_ON_BLUETOOTH_CONNECT, false)

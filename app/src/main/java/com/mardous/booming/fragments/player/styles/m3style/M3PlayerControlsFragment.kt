@@ -99,9 +99,9 @@ class M3PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_m3_
 
     override fun onUpdatePlayPause(isPlaying: Boolean) {
         if (isPlaying) {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_pause_24dp)
+            _binding?.playPauseButton?.setImageResource(R.drawable.ic_pause_m3_24dp)
         } else {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_play_24dp)
+            _binding?.playPauseButton?.setImageResource(R.drawable.ic_play_m3_24dp)
         }
     }
 

@@ -662,7 +662,7 @@
     <string name="delete_downloaded_lyrics_summary">Tylko teksty pobrane przez Booming Music. Nie ma wpływu na teksty osadzone w tagach ID3v2 lub plikach LRC.</string>
     <string name="lyrics_cleared">Tekst został wyczyszczony.</string>
     <!-- Library preferences -->
-    <string name="trash_music_title">Wyślij do kosza</string>
+    <string name="trash_music_title">Przenieś do kosza</string>
     <string name="trash_music_summary">Przenieś usunięte pliki do kosza.</string>
     <string name="enable_history_title">Włącz historię</string>
     <string name="enable_history_summary">Pozwala aplikacji na zapisywanie utworów, które słuchałeś. Jeśli wyłączysz, cała historia zostanie wyczyszczona.</string>

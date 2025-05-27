@@ -73,7 +73,6 @@ import io.noties.markwon.html.HtmlPlugin
 import io.noties.markwon.image.glide.GlideImagesPlugin
 import me.zhanghai.android.fastscroll.FastScroller
 import me.zhanghai.android.fastscroll.FastScrollerBuilder
-import me.zhanghai.android.fastscroll.PopupStyles
 
 const val BOOMING_ANIM_TIME = 350L
 
@@ -245,14 +244,7 @@ fun View.animateTintColor(
             when (this@animateTintColor) {
                 is Slider -> applyColor(animatedColor)
                 is FloatingActionButton -> applyColor(animatedColor)
-                is MaterialButton -> {
-                    if (isIconButton) {
-                        iconTint = colorStateList
-                    } else {
-                        applyColor(animatedColor)
-                    }
-                }
-
+                is MaterialButton -> applyColor(animatedColor, isIconButton)
                 is ImageView -> ImageViewCompat.setImageTintList(this@animateTintColor, colorStateList)
                 is TextView -> setTextColor(animatedColor)
             }

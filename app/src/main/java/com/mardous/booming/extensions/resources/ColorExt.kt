@@ -118,12 +118,18 @@ fun Slider.applyColor(@ColorInt color: Int) {
     }
 }
 
-fun MaterialButton.applyColor(color: Int) {
-    val backgroundColorStateList = color.toColorStateList()
-    val textColorColorStateList = getPrimaryTextColor(context, color.isColorLight).toColorStateList()
-    backgroundTintList = backgroundColorStateList
-    setTextColor(textColorColorStateList)
-    iconTint = textColorColorStateList
+fun MaterialButton.applyColor(color: Int, isIconButton: Boolean = false) {
+    if (isIconButton) {
+        val colorTintList = color.toColorStateList()
+        setTextColor(colorTintList)
+        iconTint = colorTintList
+    } else {
+        val backgroundColorStateList = color.toColorStateList()
+        val textColorColorStateList = getPrimaryTextColor(context, color.isColorLight).toColorStateList()
+        backgroundTintList = backgroundColorStateList
+        setTextColor(textColorColorStateList)
+        iconTint = textColorColorStateList
+    }
 }
 
 fun FloatingActionButton.applyColor(color: Int) {

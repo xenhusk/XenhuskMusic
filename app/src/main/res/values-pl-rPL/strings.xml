@@ -212,12 +212,12 @@
     <string name="top_tracks_label">Najlepsze utwory</string>
     <string name="history_label">Historia</string>
     <string name="not_recently_played">Ostatnio nieodtwarzane</string>
-    <string name="play_info">Szczegóły odtwarzania.</string>
+    <string name="play_info">Szczegóły odtwarzania</string>
     <string name="track_play_counts">Liczba odtworzeń</string>
     <string name="song_stat_never_label">nigdy nie odtwarzano</string>
     <string name="song_stat_one_time_label">zagrał jeden raz na %s</string>
     <string name="song_stat_label">odtwarzane %1$d razy, ostatni był na %2$s</string>
-    <string name="horizontal_albums">Albumy poziome</string>
+    <string name="horizontal_albums">Albumy poziomo</string>
     <string name="ignore_singles">Ignoruj single</string>
     <string name="action_view_type">Typ widoku</string>
     <string name="view_type_normal">Normalny</string>
@@ -714,7 +714,7 @@
     <string name="normal">Normalny</string>
     <string name="cascading">Kaskadowe</string>
     <string name="depth">Głębia</string>
-    <string name="hinge">Hinge</string>
+    <string name="hinge">Zawias</string>
     <string name="horizontal_flip">Odwrócenie poziome</string>
     <string name="vertical_flip">Pionowe odwrócenie</string>
     <string name="zoom_out">Pomniejsz</string>
@@ -735,8 +735,8 @@
     <string name="this_month">W tym miesiącu</string>
     <string name="past_three_months">Ostatnie trzy miesiące</string>
     <string name="this_year">W tym roku</string>
-    <string name="priority_maximum">Maksymalnie</string>
-    <string name="priority_high">Wysoka</string>
+    <string name="priority_maximum">Maksymalny</string>
+    <string name="priority_high">Wysoki</string>
     <string name="priority_normal">Normalny</string>
     <string name="priority_low">Niski</string>
     <string name="always">Zawsze</string>

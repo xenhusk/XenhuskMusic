@@ -36,7 +36,7 @@
     <string name="i_am_listening">Słucham…</string>
     <string name="currently_listening_to_x_by_x">Słucham %1$s przez %2$s</string>
     <string name="share_to_stories">Udostępnij opowieściom</string>
-    <string name="could_not_create_the_story">Nie można utworzyć opowieści.</string>
+    <string name="could_not_create_the_story">Nie można utworzyć relacji.</string>
     <string name="rename_action">Zmień nazwę</string>
     <string name="add_action">Dodaj</string>
     <string name="delete_action">Usuń</string>
@@ -147,7 +147,7 @@
     <string name="app_widget_small_name">Mały</string>
     <string name="now_playing">Teraz odtwarzane</string>
     <string name="playing_queue_label">Kolejka odtwarzania</string>
-    <string name="list_start">Rozpoczęcie listy.</string>
+    <string name="list_start">Początek listy.</string>
     <string name="list_end">Koniec listy.</string>
     <string name="empty_play_queue">Pusta kolejka odtwarzania.</string>
     <string name="save_queue">Zapisz kolejkę</string>
@@ -201,7 +201,7 @@
     <string name="album_artists_label">Artyści albumów</string>
     <string name="genres_label">Gatunki</string>
     <string name="folders_label">Foldery</string>
-    <string name="files_label">Files</string>
+    <string name="files_label">Pliki</string>
     <string name="playlists_label">Listy odtwarzania</string>
     <string name="playlist_label">Lista odtwarzania</string>
     <string name="composers_label">Kompozytorzy</string>
@@ -218,7 +218,7 @@
     <string name="song_stat_one_time_label">zagrał jeden raz na %s</string>
     <string name="song_stat_label">odtwarzane %1$d razy, ostatni był na %2$s</string>
     <string name="horizontal_albums">Albumy poziome</string>
-    <string name="ignore_singles">Ignore singles</string>
+    <string name="ignore_singles">Ignoruj single</string>
     <string name="action_view_type">Typ widoku</string>
     <string name="view_type_normal">Normalny</string>
     <string name="view_type_card">Karta</string>
@@ -395,21 +395,21 @@
     <string name="recent_albums">Najnowsze albumy</string>
     <string name="no_suggestions">Brak sugestii dla Ciebie</string>
     <!-- Shuffle modes -->
-    <string name="shuffle_mode_pure_random">Pure random</string>
+    <string name="shuffle_mode_pure_random">W pełni losowo</string>
     <string name="shuffle_mode_most_played">Najczęściej odtwarzane</string>
     <string name="shuffle_mode_most_played_artists">Najczęściej odtwarzani artyści</string>
     <string name="shuffle_mode_most_played_albums">Najczęściej odtwarzane albumy</string>
     <string name="shuffle_mode_favorite_songs">Wpierw ulubione</string>
-    <string name="shuffle_mode_forgotten_songs">Forgotten songs</string>
+    <string name="shuffle_mode_forgotten_songs">Zapomniane utwory</string>
     <string name="shuffle_mode_recently_added">Ostatnio dodane</string>
-    <string name="shuffle_mode_combined">Smart mix</string>
-    <string name="shuffle_mode_pure_random_description">Completely random shuffle.</string>
-    <string name="shuffle_mode_most_played_description">Favors your most played songs.</string>
-    <string name="shuffle_mode_most_played_artists_description">Favors songs from your top artists.</string>
-    <string name="shuffle_mode_most_played_albums_description">Favors songs from your most played albums.</string>
-    <string name="shuffle_mode_favorite_songs_description">Gives priority to your favorite songs.</string>
-    <string name="shuffle_mode_forgotten_songs_description">Prioritizes songs you haven\'t played in a while.</string>
-    <string name="shuffle_mode_recently_added_description">Favors songs recently added to your library.</string>
+    <string name="shuffle_mode_combined">Inteligentny mix</string>
+    <string name="shuffle_mode_pure_random_description">Całkowicie losowe tasowanie.</string>
+    <string name="shuffle_mode_most_played_description">Faworyzuje najczęściej odtwarzane utwory.</string>
+    <string name="shuffle_mode_most_played_artists_description">Faworyzuje utwory ulubionych artystów.</string>
+    <string name="shuffle_mode_most_played_albums_description">Faworyzuje utwory z najczęściej odtwarzanych albumów.</string>
+    <string name="shuffle_mode_favorite_songs_description">Nadaje priorytet Twoim ulubionym utworom.</string>
+    <string name="shuffle_mode_forgotten_songs_description">Faworyzuje utwory, których ostatnio nie odtwarzałeś.</string>
+    <string name="shuffle_mode_recently_added_description">Faworyzuje utwory ostatnio dodane do biblioteki.</string>
     <string name="shuffle_mode_combined_description">Mix based on favorites, plays, and recency.</string>
     <!-- Equalizer -->
     <string name="equalizer_label">Korektor</string>
@@ -523,7 +523,7 @@
     <string name="write_an_email">Napisz e-mail</string>
     <string name="support_development">Wesprzyj rozwój</string>
     <string name="help_with_translations">Pomóż z tłumaczeniem</string>
-    <string name="help_with_translations_summary">Możesz przyczynić się do projektu pomagając w tłumaczeniu muzyki Booming na inne języki.</string>
+    <string name="help_with_translations_summary">Możesz przyczynić się do projektu pomagając w tłumaczeniu Booming music na inne języki.</string>
     <string name="report_bugs">Zgłoś błędy</string>
     <string name="report_bugs_summary">Zgłoś błędy lub poproś o nowe funkcje.</string>
     <string name="share_app">Udostępnij tę aplikację</string>
@@ -592,8 +592,8 @@
     <string name="now_playing_screen_title">Styl</string>
     <string name="open_on_play_title">Otwórz przy odtwarzaniu</string>
     <string name="open_on_play_summary">Rozwiń panel Teraz odtwarzany automatycznie po rozpoczęciu odtwarzania piosenki.</string>
-    <string name="extra_controls_title">Dodatkowe ustawienia</string>
-    <string name="extra_controls_summary">Dodaj dodatkowe klawisze dla mini gracza</string>
+    <string name="extra_controls_title">Dodatkowe klawisze</string>
+    <string name="extra_controls_summary">Dodatkowe klawisze dla mini odtwarzacza</string>
     <string name="swipe_to_dismiss_title">Przesuń, aby odrzucić</string>
     <string name="swipe_to_dismiss_summary">Przesuń palcem w dół, aby zatrzymać odtwarzanie i wyczyścić kolejki odtwarzania.</string>
     <string name="circle_button_title">Okrągły przycisk odtwarzania</string>
@@ -605,22 +605,22 @@
     <string name="album_cover_effect_title">Efekt okładki albumu</string>
     <string name="lyrics_on_album_cover_title">Tekst na okładce</string>
     <string name="lyrics_on_album_cover_summary">Pokaż teksty piosenki zamiast okładki, gdy są dostępne.</string>
-    <string name="animate_controls_title">Animacja sterowania</string>
-    <string name="animate_controls_summary">Odtwarza się podczas otwierania panelu graczy.</string>
+    <string name="animate_controls_title">Animacja klawiszy</string>
+    <string name="animate_controls_summary">Pojawia się podczas otwierania panelu odtwarzacza.</string>
     <string name="display_album_name_title">Wyświetl nazwę albumu</string>
     <string name="display_extra_info_title">Wyświetl dodatkowe informacje</string>
     <string name="display_extra_info_summary">Wyświetl dodatkowe informacje o piosence, takie jak bitrate, format, częstotliwość próbkowania itp.</string>
     <string name="select_extra_info_title">Extra info</string>
-    <string name="select_extra_info_summary">Wybierz dodatkowe informacje do wyświetlenia w panelu graczy.</string>
+    <string name="select_extra_info_summary">Wybierz dodatkowe informacje do wyświetlenia w panelu odtwarzacza.</string>
     <string name="prefer_remaining_time_title">Preferuj pozostały czas</string>
     <string name="prefer_remaining_time_summary">Wyświetlaj pozostały czas zamiast czasu trwania utworu.</string>
     <string name="prefer_album_artist_name_title">"Preferuj imię wykonawcy Albumu"</string>
     <string name="prefer_album_artist_name_summary">Pokazuje nazwę wykonawcy Albumu, zamiast nazwy wykonawcy utworu (jeśli jest dostępny).</string>
     <!-- Playback preferences -->
-    <string name="gapless_playback_title">Bezproblemowe odtwarzanie</string>
+    <string name="gapless_playback_title">Odtwarzanie bez przerw</string>
     <string name="gapless_playback_summary">Gładkie przejście między utworami. Może powodować problemy z odtwarzaniem na niektórych urządzeniach.</string>
     <string name="replaygain_source_mode_title">Tryb źródłowy</string>
-    <string name="replaygain_preamp_title">Poziom Amp</string>
+    <string name="replaygain_preamp_title">Poziom przedwzmacniacza</string>
     <string name="replaygain_preamp_summary">Ustaw poziom głośności, gdy ReplayGain jest włączony.</string>
     <string name="queue_next_mode_title">Tryb \"Kolejka dalej\"</string>
     <string name="remember_shuffle_mode_title">Zapamiętaj losowo</string>
@@ -702,7 +702,7 @@
     <string name="follow_system">Śledź system</string>
     <string name="label_auto">Auto</string>
     <string name="labeled">Etykiety</string>
-    <string name="unlabeled">Nieoznaczony</string>
+    <string name="unlabeled">Bez etykiety</string>
     <string name="selected">Wybrane</string>
     <string name="compact">Kompaktowy</string>
     <string name="expanded">Rozszerzone</string>
@@ -724,8 +724,8 @@
     <string name="add_tracks_sequentially">Dodaj ścieżki kolejno</string>
     <string name="albums_shuffle">Albums shuffle</string>
     <string name="artists_shuffle">Artists shuffle</string>
-    <string name="shuffle_albums_ordered_songs">Losuj albumy, zamówione utwory</string>
-    <string name="ordered_albums_shuffle_songs">Zamówione albumy, losowe utwory</string>
+    <string name="shuffle_albums_ordered_songs">Losuj albumy, zachowaj kolejność utworów</string>
+    <string name="ordered_albums_shuffle_songs">Zachowaj kolejność albumów, losuj utwory</string>
     <string name="shuffle_artists_ordered_songs">Losuj artystów, zamówione utwory</string>
     <string name="ordered_artists_shuffle_songs">Zamówieni artyści, losowe utwory</string>
     <string name="album_or_artist_shuffle_all">Losuj wszystkie</string>

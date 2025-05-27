@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="action_play">Odtwórz</string>
-    <string name="action_play_all">Odtwórz wszystkie</string>
+    <string name="action_play_all">Odtwórz wszystko</string>
     <string name="action_shuffle_play">Odtwarzaj losowo</string>
     <string name="action_queue_next">Dodaj jako następny</string>
     <string name="shuffle_all_label">Losuj wszystkie</string>
@@ -17,25 +17,25 @@
     <string name="import_action">Importuj</string>
     <string name="create_action">Utwórz</string>
     <string name="search_label">Szukaj</string>
-    <string name="search_hint">Szukaj swojej biblioteki…</string>
+    <string name="search_hint">Przeszukaj swoją bibliotekę…</string>
     <string name="action_voice_search">Wyszukiwanie głosowe</string>
     <string name="speech_not_supported">Twoje urządzenie nie obsługuje wprowadzania mowy</string>
     <string name="search_artist_x_label">Szukaj artysty: %s</string>
     <string name="search_album_x_label">Szukaj albumu: %s</string>
     <string name="search_list_x_label">Lista wyszukiwania: %s</string>
     <string name="search_from_x_label">Szukaj z \"%s\"</string>
-    <string name="search_year_x_label">Rok wyszukiwania: %s</string>
+    <string name="search_year_x_label">Szukaj roku: %s</string>
     <string name="search_in_folder_x">Szukaj w folderze: %s</string>
     <string name="search_last_added">Szukaj najnowszej muzyki</string>
     <string name="shuffle_mode_album">Przetasowanie albumu</string>
-    <string name="shuffle_mode_artist">Wykonawca losowo</string>
+    <string name="shuffle_mode_artist">Losuj wykonawcę</string>
     <string name="action_share">Udostępnij</string>
     <string name="action_save">Zapisz</string>
     <string name="what_do_you_want_to_share">Co chcesz udostępnić?</string>
     <string name="the_audio_file">Plik audio</string>
     <string name="i_am_listening">Słucham…</string>
     <string name="currently_listening_to_x_by_x">Słucham %1$s przez %2$s</string>
-    <string name="share_to_stories">Udostępnij opowieściom</string>
+    <string name="share_to_stories">Udostępnij w relacji</string>
     <string name="could_not_create_the_story">Nie można utworzyć relacji.</string>
     <string name="rename_action">Zmień nazwę</string>
     <string name="add_action">Dodaj</string>
@@ -82,7 +82,7 @@
     <string name="created_playlist_x">Utworzono playlistę \'%1$s\'.</string>
     <string name="could_not_create_playlist">Nie można utworzyć listy odtwarzania.</string>
     <string name="inserted_one_song_into_playlist_x">Wstawiono jeden utwór do listy odtwarzania %s.</string>
-    <string name="inserted_x_songs_into_playlist_x">Wstawiono utwory %1$d do playlisty %2$s. .</string>
+    <string name="inserted_x_songs_into_playlist_x">Wstawiono utwory %1$d do playlisty %2$s.</string>
     <string name="playlist_exists">Lista odtwarzania %s już istnieje.</string>
     <string name="remove_song_from_playlist_title">Usuń utwór z listy odtwarzania</string>
     <string name="remove_songs_from_playlist_title">Usuń utwory z listy odtwarzania</string>
@@ -110,7 +110,7 @@
     <string name="delete_x_songs">Usunąć %d utwory?</string>
     <string name="delete_the_song_x">Usunąć utwór %s?</string>
     <string name="deleting_songs">Usuwanie utworów, czekaj…</string>
-    <string name="song_x_of_x">%1$d of %2$d • %3$s</string>
+    <string name="song_x_of_x">%1$d z %2$d • %3$s</string>
     <string name="by_artist_x">przez %s</string>
     <string name="no_equalizer">Nie znaleziono korektora.</string>
     <string name="audio_focus_denied">Odmowa skupienia dźwięku.</string>
@@ -212,8 +212,8 @@
     <string name="top_tracks_label">Najlepsze utwory</string>
     <string name="history_label">Historia</string>
     <string name="not_recently_played">Ostatnio nieodtwarzane</string>
-    <string name="play_info">Odtwarzaj informacje.</string>
-    <string name="track_play_counts">Liczba odtwarzania utworu</string>
+    <string name="play_info">Szczegóły odtwarzania.</string>
+    <string name="track_play_counts">Liczba odtworzeń</string>
     <string name="song_stat_never_label">nigdy nie odtwarzano</string>
     <string name="song_stat_one_time_label">zagrał jeden raz na %s</string>
     <string name="song_stat_label">odtwarzane %1$d razy, ostatni był na %2$s</string>
@@ -410,7 +410,7 @@
     <string name="shuffle_mode_favorite_songs_description">Nadaje priorytet Twoim ulubionym utworom.</string>
     <string name="shuffle_mode_forgotten_songs_description">Faworyzuje utwory, których ostatnio nie odtwarzałeś.</string>
     <string name="shuffle_mode_recently_added_description">Faworyzuje utwory ostatnio dodane do biblioteki.</string>
-    <string name="shuffle_mode_combined_description">Mix based on favorites, plays, and recency.</string>
+    <string name="shuffle_mode_combined_description">Mix na podstawie ulubionych, popularności oraz ostatnich odtworzeń.</string>
     <!-- Equalizer -->
     <string name="equalizer_label">Korektor</string>
     <string name="share_eq_configuration">Udostępnij konfigurację EQ</string>
@@ -478,8 +478,8 @@
     <string name="action_import_synchronized_lyrics">Importuj zsynchronizowane teksty</string>
     <string name="action_share_synchronized_lyrics">Udostępnij zsynchronizowane teksty</string>
     <string name="do_you_want_to_import_lrc_lyrics_for_song_x"><![CDATA[Czy chcesz zaimportować zsynchronizowane teksty piosenek LRC dla <b>%s</b>?]]></string>
-    <string name="import_lyrics_for_song_x">Imported lyrics for %s</string>
-    <string name="could_not_import_lyrics_for_song_x">Couldn\'t import lyrics for %s</string>
+    <string name="import_lyrics_for_song_x">Zaimportowano tekst utworu dla %s</string>
+    <string name="could_not_import_lyrics_for_song_x">Nie udało się zaimportować tekstu dla %s</string>
     <string name="select_a_file_containing_synchronized_lyrics">Wybierz plik LRC zawierający zsynchronizowane teksty.</string>
     <string name="cannot_download_lyrics">Booming Music nie mógł znaleźć tekstu dla tej piosenki. Czy chcesz wyszukać ręcznie?</string>
     <string name="search_lyrics">Szukaj tekstu piosenki</string>
@@ -537,7 +537,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Zostaniesz przekierowany na stronę śledzenia problemów.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Wymagany dostęp do pamięci</string>
-    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
+    <string name="saf_access_required_message">Booming Music potrzebuje uprawnień, by mieć dostęp do plików. Proszę wybrać główny folder z Twoją muzyką.</string>
     <string name="saf_show_files_button">Pokaż pliki</string>
     <string name="saf_error_uri">Nie można uzyskać URI SAF</string>
     <string name="saf_write_failed">Błąd zapisu pliku: %s</string>
@@ -706,13 +706,13 @@
     <string name="selected">Wybrane</string>
     <string name="compact">Kompaktowy</string>
     <string name="expanded">Rozszerzone</string>
-    <string name="full_cover">Pełna osłona</string>
+    <string name="full_cover">Pełna okładka</string>
     <string name="gradient">Gradient</string>
     <string name="peek">Podgląd</string>
     <string name="plain">Plain</string>
     <string name="m3_style">M3</string>
     <string name="normal">Normalny</string>
-    <string name="cascading">Cascading</string>
+    <string name="cascading">Kaskadowe</string>
     <string name="depth">Głębia</string>
     <string name="hinge">Hinge</string>
     <string name="horizontal_flip">Odwrócenie poziome</string>
@@ -722,8 +722,8 @@
     <string name="stack">Stos</string>
     <string name="add_after_playing_track">Dodaj po odtwarzaniu utworu</string>
     <string name="add_tracks_sequentially">Dodaj ścieżki kolejno</string>
-    <string name="albums_shuffle">Albums shuffle</string>
-    <string name="artists_shuffle">Artists shuffle</string>
+    <string name="albums_shuffle">Losowe albumy</string>
+    <string name="artists_shuffle">Losowi artyści</string>
     <string name="shuffle_albums_ordered_songs">Losuj albumy, zachowaj kolejność utworów</string>
     <string name="ordered_albums_shuffle_songs">Zachowaj kolejność albumów, losuj utwory</string>
     <string name="shuffle_artists_ordered_songs">Losuj artystów, zamówione utwory</string>

@@ -25,7 +25,7 @@
     <string name="search_list_x_label">Lista de pesquisa: %s</string>
     <string name="search_from_x_label">Pesquisa de \"%s\"</string>
     <string name="search_year_x_label">Pesquisar ano: %s</string>
-    <string name="search_in_folder_x">Search in folder: %s</string>
+    <string name="search_in_folder_x">Pesquisar na pasta: %s</string>
     <string name="search_last_added">Buscar música mais recente</string>
     <string name="shuffle_mode_album">Álbum aleatório</string>
     <string name="shuffle_mode_artist">Artista aleatório</string>

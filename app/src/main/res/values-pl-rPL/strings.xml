@@ -45,7 +45,7 @@
     <string name="close_action">Zamknij</string>
     <string name="continue_action">Kontynuuj</string>
     <string name="select_all_title">Zaznacz wszystkie</string>
-    <string name="x_selected">%d zaznaczone</string>
+    <string name="x_selected">%d Zaznaczonych</string>
     <string name="playing_notification_description">Powiadomienie o odtwarzaniu zapewnia akcje dla odtwarzania/pauzy itp.</string>
     <string name="playing_notification_name">Powiadomienie o odtwarzaniu</string>
     <string name="action_scan_directory">Skanuj katalog</string>
@@ -663,7 +663,7 @@
     <string name="lyrics_cleared">Tekst został wyczyszczony.</string>
     <!-- Library preferences -->
     <string name="trash_music_title">Wyślij do kosza</string>
-    <string name="trash_music_summary">Wyślij usunięte pliki do kosza.</string>
+    <string name="trash_music_summary">Przenieś usunięte pliki do kosza.</string>
     <string name="enable_history_title">Włącz historię</string>
     <string name="enable_history_summary">Pozwala aplikacji na zapisywanie utworów, które słuchałeś. Jeśli wyłączysz, cała historia zostanie wyczyszczona.</string>
     <string name="history_interval_title">Przedział czasowy</string>

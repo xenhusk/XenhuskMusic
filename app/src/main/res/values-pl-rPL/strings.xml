@@ -239,7 +239,7 @@
     <string name="sort_order_last_played_date">Data ostatniego odtwarzania</string>
     <string name="sort_order_track_list">Lista ścieżek</string>
     <string name="sort_order_descending">Malejąco</string>
-    <string name="sort_order_ignore_articles">Ignoruj artykuły</string>
+    <string name="sort_order_ignore_articles">Ignoruj rodzajniki</string>
     <string name="action_set_as_ringtone">Ustaw jako dzwonek</string>
     <string name="x_will_be_set_as_ringtone"><![CDATA[Ustawia <b>%s</b> jako dzwonek]]></string>
     <string name="x_has_been_set_as_ringtone">Ustaw %s jako dzwonek</string>
@@ -599,7 +599,7 @@
     <string name="circle_button_title">Okrągły przycisk odtwarzania</string>
     <string name="swipe_album_cover_title">Przesuń palcem okładkę albumu</string>
     <string name="swipe_album_cover_summary">Przesuń palcem w lewo i w prawo na okładce albumu, aby pominąć piosenki.</string>
-    <string name="double_tap_on_album_cover_title">Dwukrotnie dotknij okładki</string>
+    <string name="double_tap_on_album_cover_title">Dwukrotne dotknięcie okładki</string>
     <string name="long_press_on_album_cover_title">Długie przytrzymanie na okładce</string>
     <string name="carousal_effect_title">Efekt karuzeli</string>
     <string name="album_cover_effect_title">Efekt okładki albumu</string>
@@ -691,7 +691,7 @@
     <string name="blurred_album_art_summary">Rozmywa okładkę albumu na ekranie blokady. Może powodować problemy z aplikacjami i widżetami firm trzecich.</string>
     <string name="app_language_title">Język aplikacji</string>
     <string name="backup_data_title">Kopia zapasowa danych aplikacji</string>
-    <string name="backup_app_data_summary">Utwórz plik zawierający podstawowe dane aplikacji i zapisz go do pamięci zewnętrznej.</string>
+    <string name="backup_app_data_summary">Utwórz plik zawierający podstawowe dane aplikacji i zapisz go w pamięci zewnętrznej.</string>
     <string name="restore_backup_title">Przywróć kopię zapasową</string>
     <string name="restore_backup_summary">Przywróć dane aplikacji (i stan) z poprzedniej kopii zapasowej.</string>
     <!-- Preference values -->

@@ -124,7 +124,7 @@
     <string name="permission_bluetooth_description">Aplikacja potrzebuje uprawnień w pobliżu urządzeń do sprawdzania urządzeń bluetooth</string>
     <string name="permission_bluetooth_denied">Odmowa dostępu do urządzeń w pobliżu.</string>
     <string name="permission_exact_alarms_title">Zaplanuj dokładne alarmy (opcjonalnie)</string>
-    <string name="permission_exact_alarms_description">Pozwolenie na zaplanowanie dokładnych alarmów jest wymagane, aby czasomierz uśpienia działał poprawnie</string>
+    <string name="permission_exact_alarms_description">Pozwolenie na zaplanowanie dokładnych alarmów jest wymagane, aby wyłącznik czasowy działał poprawnie</string>
     <string name="permission_ringtone_title">Dzwonek (opcjonalnie)</string>
     <string name="permission_ringtone_description">Aplikacja potrzebuje uprawnień dostępu do ustawień urządzenia, aby ustawić muzykę jako dzwonek</string>
     <string name="permission_request_write_settings"><![CDATA[Musisz zezwolić Booming Music na modyfikację ustawień systemowych, aby ustawić <b>%s</b> jako dzwonek]]></string>
@@ -211,7 +211,7 @@
     <string name="last_added_label">Ostatnio dodane</string>
     <string name="top_tracks_label">Najlepsze utwory</string>
     <string name="history_label">Historia</string>
-    <string name="not_recently_played">Nie ostatnio odtwarzane</string>
+    <string name="not_recently_played">Ostatnio nieodtwarzane</string>
     <string name="play_info">Odtwarzaj informacje.</string>
     <string name="track_play_counts">Liczba odtwarzania utworu</string>
     <string name="song_stat_never_label">nigdy nie odtwarzano</string>
@@ -231,7 +231,7 @@
     <string name="sort_order_az">A-Z</string>
     <string name="sort_order_artist">Artysta</string>
     <string name="sort_order_album">Album</string>
-    <string name="sort_order_year">W związku z tym Komisja stwierdza, że środek 1 stanowi pomoc państwa w rozumieniu art. 107 ust. 1 Traktatu.</string>
+    <string name="sort_order_year">Rok</string>
     <string name="sort_order_duration">Czas trwania</string>
     <string name="sort_order_date_added">Data dodania</string>
     <string name="sort_order_number_of_songs">Liczba utworów</string>
@@ -255,7 +255,7 @@
     <string name="update_image">Aktualizuj obraz</string>
     <string name="restore_default">Przywróć domyślne</string>
     <string name="remove_cover">Usuń okładkę</string>
-    <string name="could_not_download_album_cover">"Nie można pobrać dopasowanej okładki albumu\u2019t."</string>
+    <string name="could_not_download_album_cover">"Nie można pobrać odpowiedniej okładki albumu\u2019t."</string>
     <string name="download_image">Pobierz obraz</string>
     <string name="pick_from_local_storage">Wybierz z pamięci lokalnej</string>
     <string name="about_x_title">O %s</string>
@@ -277,7 +277,7 @@
     <string name="label_file_format">Formatowanie</string>
     <string name="title_and_artist">Tytuł i wykonawca</string>
     <string name="song">Utwór</string>
-    <string name="title">Rozporządzenie Rady (EWG) nr 2658/87 z dnia 23 lipca 1987 r. w sprawie nomenklatury taryfowej i statystycznej oraz w sprawie Wspólnej Taryfy Celnej (Dz.U. L 256 z 7.9.1987, s. 1).</string>
+    <string name="title">Tytuł</string>
     <string name="album">Album</string>
     <string name="artist">Artysta</string>
     <string name="album_artist">Album-artysta</string>

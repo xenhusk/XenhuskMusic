@@ -119,7 +119,7 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
         binding.previousButton.applyColor(primaryControlColor, isIconButton = true)
 
         updateRepeatMode()
-        updateRepeatMode()
+        updateShuffleMode()
     }
 
     override fun onSongInfoChanged(song: Song) {

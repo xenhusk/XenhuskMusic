@@ -34,7 +34,6 @@ import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Genre
 import com.mardous.booming.model.Song
-import com.mardous.booming.service.MusicPlayer
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
@@ -135,7 +134,7 @@ class SearchAdapter(
             when (itemViewType) {
                 ALBUM -> callback?.albumClick(item as Album, sharedElements)
                 ARTIST -> callback?.artistClick(item as Artist, sharedElements)
-                SONG -> MusicPlayer.openQueue(listOf(item as Song))
+                SONG -> callback?.songClick(item as Song, dataSet)
                 GENRE -> callback?.genreClick(item as Genre)
                 PLAYLIST -> callback?.playlistClick(item as PlaylistWithSongs)
             }

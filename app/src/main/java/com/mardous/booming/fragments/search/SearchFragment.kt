@@ -79,7 +79,8 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     private lateinit var searchAdapter: SearchAdapter
     private lateinit var voiceSearchLauncher: ActivityResultLauncher<Intent>
 
-    private var job: Job? = null
+    private var searchJob: Job? = null
+    private var playSongJob: Job? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -200,6 +201,11 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         }
     }
 
+    override fun songClick(song: Song, results: List<Any>) {
+        playSongJob?.cancel()
+        playSongJob = libraryViewModel.playFromSearch(song, results)
+    }
+
     override fun songMenuItemClick(song: Song, menuItem: MenuItem): Boolean {
         return song.onSongMenu(this, menuItem)
     }
@@ -255,8 +261,8 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         TransitionManager.beginDelayedTransition(binding.appBar)
         binding.voiceSearch.isGone = query.isNotEmpty()
         binding.clearText.isVisible = query.isNotEmpty()
-        job?.cancel()
-        job = viewModel.submit(query)
+        searchJob?.cancel()
+        searchJob = viewModel.submit(query)
     }
 
     private fun startVoiceSearch() {
@@ -287,6 +293,8 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     }
 
     override fun onDestroyView() {
+        searchJob?.cancel()
+        playSongJob?.cancel()
         super.onDestroyView()
         searchAdapter.unregisterAdapterDataObserver(adapterDataObserver)
         binding.searchView.setOnKeyListener(null)

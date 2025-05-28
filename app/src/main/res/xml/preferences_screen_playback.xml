@@ -10,15 +10,28 @@
         app:layout="@layout/list_item_view_switch"
         app:key="gapless_playback"/>
 
-    <ListPreference
-        app:icon="@drawable/ic_queue_next_24dp"
-        app:title="@string/queue_next_mode_title"
-        app:entries="@array/queue_next_mode_entries"
-        app:entryValues="@array/queue_next_mode_values"
-        app:useSimpleSummaryProvider="true"
-        app:defaultValue="1"
-        app:layout="@layout/list_item_view"
-        app:key="queue_next_mode"/>
+    <PreferenceCategory
+        app:title="@string/playing_queue_label"
+        app:layout="@layout/preference_category_title">
+
+        <ListPreference
+            app:icon="@drawable/ic_queue_next_24dp"
+            app:title="@string/queue_next_mode_title"
+            app:entries="@array/queue_next_mode_entries"
+            app:entryValues="@array/queue_next_mode_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="1"
+            app:layout="@layout/list_item_view"
+            app:key="queue_next_mode"/>
+
+        <SwitchPreferenceCompat
+            app:title="@string/search_auto_queue_title"
+            app:summary="@string/search_auto_queue_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view_switch"
+            app:key="search_auto_queue"/>
+
+    </PreferenceCategory>
 
     <PreferenceCategory
         app:title="@string/shuffle_mode_header"

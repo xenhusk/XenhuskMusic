@@ -29,6 +29,7 @@ import androidx.lifecycle.*
 import com.mardous.booming.database.*
 import com.mardous.booming.extensions.dp
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
+import com.mardous.booming.extensions.media.indexOfSong
 import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.http.github.GitHubRelease
 import com.mardous.booming.http.github.GitHubService
@@ -45,6 +46,7 @@ import com.mardous.booming.util.sort.SortKeys
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -205,6 +207,22 @@ class LibraryViewModel(
             ContentType.TopAlbums -> emit(repository.topAlbums())
             ContentType.RecentAlbums -> emit(repository.recentAlbums())
             else -> emit(arrayListOf())
+        }
+    }
+
+    fun playFromSearch(
+        song: Song,
+        results: List<Any>,
+        autoQueue: Boolean = Preferences.searchAutoQueue
+    ) = viewModelScope.launch(IO) {
+        if (autoQueue) {
+            val songs = results.filterIsInstance<Song>()
+            val startPos = songs.indexOfSong(song.id).coerceAtLeast(0)
+            if (isActive) {
+                MusicPlayer.openQueue(songs, position = startPos)
+            }
+        } else {
+            MusicPlayer.openQueue(listOf(song))
         }
     }
 

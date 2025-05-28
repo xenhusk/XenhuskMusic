@@ -26,6 +26,7 @@ import com.mardous.booming.model.Genre
 import com.mardous.booming.model.Song
 
 interface ISearchCallback {
+    fun songClick(song: Song, results: List<Any>)
     fun songMenuItemClick(song: Song, menuItem: MenuItem): Boolean
     fun albumClick(album: Album, sharedElements: Array<Pair<View, String>>)
     fun albumMenuItemClick(album: Album, menuItem: MenuItem, sharedElements: Array<Pair<View, String>>): Boolean

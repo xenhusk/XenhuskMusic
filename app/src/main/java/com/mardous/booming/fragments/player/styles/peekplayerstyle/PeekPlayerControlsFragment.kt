@@ -20,10 +20,10 @@ package com.mardous.booming.fragments.player.styles.peekplayerstyle
 import android.animation.Animator
 import android.animation.TimeInterpolator
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentPeekPlayerPlaybackControlsBinding
@@ -45,6 +45,12 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
     private var _binding: FragmentPeekPlayerPlaybackControlsBinding? = null
     private val binding get() = _binding!!
 
+    override val repeatButton: MaterialButton?
+        get() = _binding?.repeatButton
+
+    override val shuffleButton: MaterialButton?
+        get() = _binding?.shuffleButton
+
     override val progressSlider: Slider
         get() = binding.progressSlider
 
@@ -54,25 +60,16 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
     override val songTotalTime: TextView
         get() = binding.songTotalTime
 
-    private var playbackControlsColor = 0
-    private var disabledPlaybackControlsColor = 0
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentPeekPlayerPlaybackControlsBinding.bind(view)
-        setupColors()
-        setupListeners()
-    }
 
-    private fun setupColors() {
-        playbackControlsColor = controlColorNormal()
-        disabledPlaybackControlsColor = getPrimaryTextColor(requireContext(), isDisabled = true)
-        setColors(Color.TRANSPARENT, playbackControlsColor, disabledPlaybackControlsColor)
-    }
+        setColors(
+            primaryControlColor = controlColorNormal(),
+            secondaryControlColor = getPrimaryTextColor(requireContext(), isDisabled = true)
+        )
 
-    @SuppressLint("ClickableViewAccessibility")
-    private fun setupListeners() {
         binding.playPauseButton.setOnClickListener(this)
         binding.nextButton.setOnTouchListener(
             PrevNextButtonOnTouchHandler(
@@ -96,18 +93,10 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
 
     override fun onUpdatePlayPause(isPlaying: Boolean) {
         if (isPlaying) {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_pause_24dp)
+            _binding?.playPauseButton?.setIconResource(R.drawable.ic_pause_24dp)
         } else {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_play_24dp)
+            _binding?.playPauseButton?.setIconResource(R.drawable.ic_play_24dp)
         }
-    }
-
-    override fun onUpdateRepeatMode(repeatMode: Int) {
-        _binding?.repeatButton?.setRepeatMode(repeatMode)
-    }
-
-    override fun onUpdateShuffleMode(shuffleMode: Int) {
-        _binding?.shuffleButton?.setShuffleMode(shuffleMode)
     }
 
     override fun onClick(view: View) {
@@ -117,11 +106,6 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
             binding.shuffleButton -> MusicPlayer.toggleShuffleMode()
             binding.playPauseButton -> MusicPlayer.togglePlayPause()
         }
-    }
-
-    override fun setColors(backgroundColor: Int, primaryControlColor: Int, secondaryControlColor: Int) {
-        _binding?.shuffleButton?.setColors(secondaryControlColor, primaryControlColor)
-        _binding?.repeatButton?.setColors(secondaryControlColor, primaryControlColor)
     }
 
     override fun onDestroyView() {

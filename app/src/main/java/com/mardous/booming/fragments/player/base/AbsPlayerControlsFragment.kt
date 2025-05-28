@@ -19,6 +19,7 @@ package com.mardous.booming.fragments.player.base
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -26,18 +27,21 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
 import com.google.android.material.snackbar.Snackbar
 import com.mardous.booming.R
 import com.mardous.booming.extensions.getShapeAppearanceModel
 import com.mardous.booming.extensions.media.durationStr
+import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.fragments.player.PlayerAnimator
 import com.mardous.booming.helper.MusicProgressViewUpdateHelper
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
 import com.mardous.booming.preferences.dialog.NowPlayingExtraInfoPreferenceDialog
 import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.Preferences
 
 /**
@@ -56,9 +60,14 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
     protected open val playPauseFab: FloatingActionButton? = null
     protected open val progressSlider: Slider? = null
     protected open val seekBar: SeekBar? = null
+    protected open val repeatButton: MaterialButton? = null
+    protected open val shuffleButton: MaterialButton? = null
     protected open val songTotalTime: TextView? = null
     protected open val songCurrentProgress: TextView? = null
     protected open val songInfoView: TextView? = null
+
+    private var lastPlaybackControlsColor: Int = 0
+    private var lastDisabledPlaybackControlsColor: Int = 0
 
     private var isSeeking = false
     private var progressAnimator: ObjectAnimator? = null
@@ -206,9 +215,13 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     abstract fun onUpdatePlayPause(isPlaying: Boolean)
 
-    abstract fun onUpdateRepeatMode(repeatMode: Int)
+    open fun onUpdateRepeatMode(repeatMode: Int) {
+        updateRepeatMode(repeatMode = repeatMode)
+    }
 
-    abstract fun onUpdateShuffleMode(shuffleMode: Int)
+    open fun onUpdateShuffleMode(shuffleMode: Int) {
+        updateShuffleMode(shuffleMode = shuffleMode)
+    }
 
     /**
      * Called to notify that the player has been expanded.
@@ -241,14 +254,14 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         progressViewUpdateHelper.stop()
     }
 
-    /**
-     * Called to initialize style-UI colors.
-     *
-     * This method will not be called automatically by the base [AbsPlayerFragment] or its presenter.
-     * Is responsibility of the player fragment to call this method manually according to its color
-     * styling preferences.
-     */
-    abstract fun setColors(backgroundColor: Int, primaryControlColor: Int, secondaryControlColor: Int)
+    open fun setColors(
+        backgroundColor: Int = Color.TRANSPARENT,
+        primaryControlColor: Int,
+        secondaryControlColor: Int
+    ) {
+        lastPlaybackControlsColor = primaryControlColor
+        lastDisabledPlaybackControlsColor = secondaryControlColor
+    }
 
     protected fun setViewAction(view: View, action: NowPlayingAction) =
         playerFragment?.setViewAction(view, action)
@@ -261,6 +274,43 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     protected fun getExtraInfoString(song: Song) =
         playerFragment?.getExtraInfoString(song)
+
+    protected fun updateShuffleMode(
+        shuffleMode: Int = MusicPlayer.shuffleMode,
+        controlColor: Int = lastPlaybackControlsColor,
+        disabledControlColor: Int = lastDisabledPlaybackControlsColor
+    ) {
+        val newColor = when (shuffleMode) {
+            Playback.ShuffleMode.ON -> controlColor
+            else -> disabledControlColor
+        }
+        shuffleButton?.applyColor(newColor, isIconButton = true)
+    }
+
+    protected fun updateRepeatMode(
+        repeatMode: Int = MusicPlayer.repeatMode,
+        controlColor: Int = lastPlaybackControlsColor,
+        disabledControlColor: Int = lastDisabledPlaybackControlsColor
+    ) {
+        repeatButton?.let {
+            when (repeatMode) {
+                Playback.RepeatMode.OFF -> {
+                    it.setIconResource(R.drawable.ic_repeat_24dp)
+                    it.applyColor(disabledControlColor, isIconButton = true)
+                }
+
+                Playback.RepeatMode.ALL -> {
+                    it.setIconResource(R.drawable.ic_repeat_24dp)
+                    it.applyColor(controlColor, isIconButton = true)
+                }
+
+                Playback.RepeatMode.CURRENT -> {
+                    it.setIconResource(R.drawable.ic_repeat_one_24dp)
+                    it.applyColor(controlColor, isIconButton = true)
+                }
+            }
+        }
+    }
 
     companion object {
         const val SLIDER_ANIMATION_TIME: Long = 400

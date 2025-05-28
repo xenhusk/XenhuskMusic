@@ -79,6 +79,19 @@
         <item name="android:gravity">start|center_vertical</item>
     </style>
 
+    <style name="PlayerIconButton" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">?colorControlNormal</item>
+        <item name="rippleColor">?colorControlHighlight</item>
+    </style>
+
+    <style name="PlayerIconButton.Medium">
+        <item name="iconSize">28dp</item>
+    </style>
+
+    <style name="PlayerIconButton.Large">
+        <item name="iconSize">64dp</item>
+    </style>
+
     <style name="SearchChipStyle" parent="Widget.Material3.Chip.Filter">
         <item name="android:checked">false</item>
         <item name="android:textSize">16sp</item>

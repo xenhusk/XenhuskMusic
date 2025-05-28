@@ -18,7 +18,6 @@
 package com.mardous.booming.fragments.player.styles.gradientstyle
 
 import android.annotation.SuppressLint
-import android.graphics.PorterDuff
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.view.View
@@ -30,11 +29,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentGradientPlayerPlaybackControlsBinding
 import com.mardous.booming.extensions.resources.applyColor
-import com.mardous.booming.extensions.resources.toColorStateList
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.helper.handler.PrevNextButtonOnTouchHandler
 import com.mardous.booming.model.NowPlayingAction
@@ -49,6 +48,12 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
 
     override val progressSlider: Slider
         get() = binding.progressSlider
+
+    override val repeatButton: MaterialButton
+        get() = binding.repeatButton
+
+    override val shuffleButton: MaterialButton
+        get() = binding.shuffleButton
 
     override val songCurrentProgress: TextView
         get() = binding.songCurrentProgress
@@ -79,8 +84,8 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
     private fun setupListeners() {
         binding.text.setOnClickListener(this)
         binding.playPauseButton.setOnClickListener(this)
-        binding.next.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_NEXT))
-        binding.previous.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_PREVIOUS))
+        binding.nextButton.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_NEXT))
+        binding.previousButton.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_PREVIOUS))
         binding.shuffleButton.setOnClickListener(this)
         binding.repeatButton.setOnClickListener(this)
     }
@@ -95,25 +100,26 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
     }
 
     override fun setColors(backgroundColor: Int, primaryControlColor: Int, secondaryControlColor: Int) {
+        super.setColors(backgroundColor, primaryControlColor, secondaryControlColor)
         binding.controlContainer.setBackgroundColor(backgroundColor)
 
         binding.title.setTextColor(primaryControlColor)
         binding.text.setTextColor(primaryControlColor)
         binding.songInfo.setTextColor(secondaryControlColor)
 
-        val primaryTintList = primaryControlColor.toColorStateList()
-        binding.menu.imageTintList = primaryTintList
-        binding.favorite.imageTintList = primaryTintList
+        binding.menu.applyColor(primaryControlColor, isIconButton = true)
+        binding.favorite.applyColor(primaryControlColor, isIconButton = true)
 
         binding.progressSlider.applyColor(primaryControlColor)
         binding.songCurrentProgress.setTextColor(secondaryControlColor)
         binding.songTotalTime.setTextColor(secondaryControlColor)
 
-        binding.playPauseButton.setColorFilter(primaryControlColor, PorterDuff.Mode.SRC_IN)
-        binding.shuffleButton.setColors(secondaryControlColor, primaryControlColor)
-        binding.repeatButton.setColors(secondaryControlColor, primaryControlColor)
-        binding.next.setColorFilter(primaryControlColor, PorterDuff.Mode.SRC_IN)
-        binding.previous.setColorFilter(primaryControlColor, PorterDuff.Mode.SRC_IN)
+        binding.playPauseButton.applyColor(primaryControlColor, isIconButton = true)
+        binding.nextButton.applyColor(primaryControlColor, isIconButton = true)
+        binding.previousButton.applyColor(primaryControlColor, isIconButton = true)
+
+        updateRepeatMode()
+        updateRepeatMode()
     }
 
     override fun onSongInfoChanged(song: Song) {
@@ -133,18 +139,10 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
 
     override fun onUpdatePlayPause(isPlaying: Boolean) {
         if (isPlaying) {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_pause_24dp)
+            _binding?.playPauseButton?.setIconResource(R.drawable.ic_pause_24dp)
         } else {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_play_24dp)
+            _binding?.playPauseButton?.setIconResource(R.drawable.ic_play_24dp)
         }
-    }
-
-    override fun onUpdateRepeatMode(repeatMode: Int) {
-        _binding?.repeatButton?.setRepeatMode(repeatMode)
-    }
-
-    override fun onUpdateShuffleMode(shuffleMode: Int) {
-        _binding?.shuffleButton?.setShuffleMode(shuffleMode)
     }
 
     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -175,8 +173,8 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
             } else {
                 if (isFavorite) R.drawable.ic_favorite_24dp else R.drawable.ic_favorite_outline_24dp
             }
-            binding.favorite.setImageResource(iconRes)
-            binding.favorite.drawable?.let {
+            binding.favorite.setIconResource(iconRes)
+            binding.favorite.icon?.let {
                 if (it is AnimatedVectorDrawable) {
                     it.start()
                 }

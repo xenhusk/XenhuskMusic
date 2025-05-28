@@ -20,20 +20,17 @@ package com.mardous.booming.fragments.player.styles.fullcoverstyle
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.animation.TimeInterpolator
-import android.annotation.SuppressLint
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
 import android.widget.TextView
-import androidx.annotation.ColorInt
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
@@ -62,6 +59,12 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
     override val playPauseFab: FloatingActionButton
         get() = binding.playPauseButton
 
+    override val repeatButton: MaterialButton?
+        get() = binding.repeatButton
+
+    override val shuffleButton: MaterialButton?
+        get() = binding.shuffleButton
+
     override val progressSlider: Slider
         get() = binding.progressSlider
 
@@ -76,14 +79,17 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
 
     private var isFavorite: Boolean = false
 
-    private var playbackControlsColor = 0
-    private var disabledPlaybackControlsColor = 0
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentFullCoverPlayerPlaybackControlsBinding.bind(view)
-        setupColors()
-        setupListeners()
+
+        binding.text.setOnClickListener(this)
+        binding.playPauseButton.setOnClickListener(this)
+        binding.nextButton.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_NEXT))
+        binding.previousButton.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_PREVIOUS))
+        binding.shuffleButton.setOnClickListener(this)
+        binding.repeatButton.setOnClickListener(this)
+
         setViewAction(binding.favorite, NowPlayingAction.ToggleFavoriteState)
         playerFragment?.inflateMenuInView(binding.menu)
 
@@ -94,23 +100,6 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
             v.updatePadding(left = displayCutout.left, right = displayCutout.right)
             insets
         }
-    }
-
-    private fun setupColors() {
-        if (playbackControlsColor == 0 || disabledPlaybackControlsColor == 0)
-            return
-
-        setColors(Color.TRANSPARENT, playbackControlsColor, disabledPlaybackControlsColor)
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun setupListeners() {
-        binding.text.setOnClickListener(this)
-        binding.playPauseButton.setOnClickListener(this)
-        binding.next.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_NEXT))
-        binding.previous.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_PREVIOUS))
-        binding.shuffleButton.setOnClickListener(this)
-        binding.repeatButton.setOnClickListener(this)
     }
 
     override fun onClick(view: View) {
@@ -130,28 +119,26 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
     }
 
     override fun setColors(backgroundColor: Int, primaryControlColor: Int, secondaryControlColor: Int) {
-        this.playbackControlsColor = primaryControlColor
-        this.disabledPlaybackControlsColor = secondaryControlColor
-
+        super.setColors(backgroundColor, primaryControlColor, secondaryControlColor)
         if (_binding == null) return
         binding.title.setTextColor(primaryControlColor)
         binding.text.setTextColor(primaryControlColor)
         binding.songInfo.setTextColor(secondaryControlColor)
 
-        val primaryTintList = primaryControlColor.toColorStateList()
-        binding.menu.imageTintList = primaryTintList
-        binding.favorite.imageTintList = primaryTintList
+        binding.menu.applyColor(primaryControlColor, isIconButton = true)
+        binding.favorite.applyColor(primaryControlColor, isIconButton = true)
 
         binding.progressSlider.applyColor(primaryControlColor)
         binding.songCurrentProgress.setTextColor(secondaryControlColor)
         binding.songTotalTime.setTextColor(secondaryControlColor)
 
-        binding.playPauseButton.backgroundTintList = primaryTintList
+        binding.playPauseButton.backgroundTintList = primaryControlColor.toColorStateList()
         binding.playPauseButton.imageTintList = backgroundColor.toColorStateList()
-        binding.shuffleButton.setColors(secondaryControlColor, primaryControlColor)
-        binding.repeatButton.setColors(secondaryControlColor, primaryControlColor)
-        binding.next.setColorFilter(primaryControlColor, PorterDuff.Mode.SRC_IN)
-        binding.previous.setColorFilter(primaryControlColor, PorterDuff.Mode.SRC_IN)
+        binding.nextButton.applyColor(primaryControlColor, isIconButton = true)
+        binding.previousButton.applyColor(primaryControlColor, isIconButton = true)
+
+        updateRepeatMode()
+        updateShuffleMode()
     }
 
     override fun onSongInfoChanged(song: Song) {
@@ -177,14 +164,6 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
         }
     }
 
-    override fun onUpdateRepeatMode(repeatMode: Int) {
-        _binding?.repeatButton?.setRepeatMode(repeatMode)
-    }
-
-    override fun onUpdateShuffleMode(shuffleMode: Int) {
-        _binding?.shuffleButton?.setShuffleMode(shuffleMode)
-    }
-
     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
         if (binding.progressSlider == seekBar && fromUser) {
             MusicPlayer.seekTo(progress)
@@ -203,8 +182,8 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
             } else {
                 if (isFavorite) R.drawable.ic_favorite_24dp else R.drawable.ic_favorite_outline_24dp
             }
-            binding.favorite.setImageResource(iconRes)
-            binding.favorite.drawable?.let {
+            binding.favorite.setIconResource(iconRes)
+            binding.favorite.icon?.let {
                 if (it is AnimatedVectorDrawable) {
                     it.start()
                 }
@@ -230,8 +209,8 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
 
         override fun onAddAnimation(animators: LinkedList<Animator>, interpolator: TimeInterpolator) {
             addAlphaAnimation(animators, binding.playPauseButton, interpolator)
-            addAlphaAnimation(animators, binding.next, interpolator)
-            addAlphaAnimation(animators, binding.previous, interpolator)
+            addAlphaAnimation(animators, binding.nextButton, interpolator)
+            addAlphaAnimation(animators, binding.previousButton, interpolator)
             addAlphaAnimation(animators, binding.shuffleButton, interpolator)
             addAlphaAnimation(animators, binding.repeatButton, interpolator)
             addAlphaAnimation(animators, binding.songCurrentProgress, interpolator)
@@ -241,8 +220,8 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
 
         override fun onPrepareForAnimation() {
             binding.playPauseButton.alpha = 0f
-            binding.next.alpha = 0f
-            binding.previous.alpha = 0f
+            binding.nextButton.alpha = 0f
+            binding.previousButton.alpha = 0f
             binding.shuffleButton.alpha = 0f
             binding.repeatButton.alpha = 0f
             binding.songCurrentProgress.alpha = 0f

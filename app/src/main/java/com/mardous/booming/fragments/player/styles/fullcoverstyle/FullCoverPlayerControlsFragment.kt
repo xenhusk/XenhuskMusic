@@ -74,8 +74,6 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
     override val songInfoView: TextView
         get() = binding.songInfo
 
-    @ColorInt
-    private var isFavoriteIconColor: Int = Color.TRANSPARENT
     private var isFavorite: Boolean = false
 
     private var playbackControlsColor = 0
@@ -83,7 +81,6 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        isFavoriteIconColor = requireContext().getColor(R.color.favoriteColor)
         _binding = FragmentFullCoverPlayerPlaybackControlsBinding.bind(view)
         setupColors()
         setupListeners()

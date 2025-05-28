@@ -15,7 +15,6 @@
     <color name="footerBlack">#111111</color>
     <color name="elevationOverlay">#9E9E9E</color>
     <color name="elevationOverlayBlack">@android:color/black</color>
-    <color name="favoriteColor">#FF1744</color>
     <color name="semi_transparent">#20000000</color>
 
     <color name="twenty_percent_black_overlay">#34000000</color>

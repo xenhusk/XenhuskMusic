@@ -122,7 +122,6 @@ class M3PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_m3_
 
     fun animateColors(
         primaryColor: Int,
-        controlColor: Int,
         primaryTextColor: Int,
         secondaryTextColor: Int
     ): AnimatorSet {
@@ -140,10 +139,10 @@ class M3PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_m3_
             )
 
             play(binding.playPauseButton.animateTintColor(currentPlayPauseColor, primaryColor))
-                .before(binding.nextButton.animateTintColor(currentControlColor, controlColor, isIconButton = true))
-                .before(binding.previousButton.animateTintColor(currentControlColor, controlColor, isIconButton = true))
-                .before(binding.repeatButton.animateTintColor(currentControlColor, controlColor, isIconButton = true))
-                .before(binding.shuffleButton.animateTintColor(currentControlColor, controlColor, isIconButton = true))
+                .before(binding.nextButton.animateTintColor(currentControlColor, primaryTextColor, isIconButton = true))
+                .before(binding.previousButton.animateTintColor(currentControlColor, primaryTextColor, isIconButton = true))
+                .before(binding.repeatButton.animateTintColor(currentControlColor, primaryTextColor, isIconButton = true))
+                .before(binding.shuffleButton.animateTintColor(currentControlColor, primaryTextColor, isIconButton = true))
 
             play(binding.progressSlider.animateTintColor(currentSliderColor, primaryColor))
                 .before(binding.songCurrentProgress.animateTintColor(currentSecondaryTextColor, secondaryTextColor))

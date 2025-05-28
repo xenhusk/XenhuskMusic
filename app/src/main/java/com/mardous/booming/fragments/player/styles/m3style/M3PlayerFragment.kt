@@ -122,24 +122,23 @@ class M3PlayerFragment : AbsPlayerFragment(R.layout.fragment_m3_player) {
         val primaryColor = wrappedContext.primaryColor()
         val primaryTextColor = wrappedContext.textColorPrimary()
         val secondaryTextColor = wrappedContext.textColorSecondary()
-        val controlColor = wrappedContext.controlColorNormal()
         val oldControlColor = binding.showLyricsButton.iconTint.defaultColor
 
         libraryViewModel.setPaletteColor(surfaceColor)
 
         colorAnimatorSet = AnimatorSet().apply {
-            setDuration(300)
+            setDuration(1000)
 
             play(binding.root.animateBackgroundColor(surfaceColor))
-                .with(controlsFragment.animateColors(primaryColor, controlColor, primaryTextColor, secondaryTextColor))
-                .before(binding.openQueueButton.animateTintColor(oldControlColor, controlColor, isIconButton = true))
-                .before(binding.showLyricsButton.animateTintColor(oldControlColor, controlColor, isIconButton = true))
-                .before(binding.sleepTimerAction.animateTintColor(oldControlColor, controlColor, isIconButton = true))
-                .before(binding.addToPlaylistAction.animateTintColor(oldControlColor, controlColor, isIconButton = true))
-                .before(binding.moreAction.animateTintColor(oldControlColor, controlColor, isIconButton = true))
+                .with(controlsFragment.animateColors(primaryColor, primaryTextColor, secondaryTextColor))
+                .before(binding.openQueueButton.animateTintColor(oldControlColor, primaryTextColor, isIconButton = true))
+                .before(binding.showLyricsButton.animateTintColor(oldControlColor, primaryTextColor, isIconButton = true))
+                .before(binding.sleepTimerAction.animateTintColor(oldControlColor, primaryTextColor, isIconButton = true))
+                .before(binding.addToPlaylistAction.animateTintColor(oldControlColor, primaryTextColor, isIconButton = true))
+                .before(binding.moreAction.animateTintColor(oldControlColor, primaryTextColor, isIconButton = true))
 
             doOnStart {
-                playerControlsFragment.setColors(surfaceColor, controlColor, secondaryTextColor)
+                playerControlsFragment.setColors(surfaceColor, primaryTextColor, secondaryTextColor)
             }
         }.also { animatorSet ->
             animatorSet.start()

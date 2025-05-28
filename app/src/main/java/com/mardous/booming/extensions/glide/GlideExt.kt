@@ -41,8 +41,10 @@ import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Song
 import com.mardous.booming.util.Preferences
-import kotlinx.coroutines.*
-import java.util.concurrent.Executors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.withContext
 
 
 val DEFAULT_ARTIST_IMAGE: Int = R.drawable.default_artist_art
@@ -51,10 +53,6 @@ val DEFAULT_ALBUM_IMAGE: Int = R.drawable.default_album_art
 
 private val DEFAULT_DISK_CACHE_STRATEGY_ARTIST = DiskCacheStrategy.RESOURCE
 private val DEFAULT_DISK_CACHE_STRATEGY = DiskCacheStrategy.DATA
-
-private val glideDispatcher: CoroutineDispatcher by lazy {
-    Executors.newFixedThreadPool(4).asCoroutineDispatcher()
-}
 
 suspend fun Glide.clearCache(clearDiskCache: Boolean = false) {
     clearMemory()
@@ -66,7 +64,7 @@ suspend fun Glide.clearCache(clearDiskCache: Boolean = false) {
 }
 
 @Suppress("FunctionName")
-fun GlideScope(): CoroutineScope = CoroutineScope(SupervisorJob() + glideDispatcher)
+fun GlideScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(4))
 
 @SuppressLint("CheckResult")
 fun <T> RequestBuilder<T>.blurImage(context: Context, model: Any?): RequestBuilder<T> = apply {

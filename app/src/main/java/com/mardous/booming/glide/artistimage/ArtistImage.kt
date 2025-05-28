@@ -19,15 +19,28 @@ package com.mardous.booming.glide.artistimage
 
 import com.mardous.booming.model.Artist
 
-class ArtistImage(val artist: Artist) {
+class ArtistImage(artist: Artist) {
+
+    val name = artist.name
+    val imageId = artist.safeGetFirstAlbum().id
+
+    override fun toString(): String {
+        return "ArtistImage(name='$name', imageId=$imageId)"
+    }
+
     override fun equals(other: Any?): Boolean {
-        if (other is ArtistImage){
-            return other.artist == artist
-        }
-        return false
+        if (this === other) return true
+        if (other !is ArtistImage) return false
+
+        if (name != other.name) return false
+        if (imageId != other.imageId) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        return artist.hashCode()
+        var result = name.hashCode()
+        result = 31 * result + imageId.hashCode()
+        return result
     }
 }

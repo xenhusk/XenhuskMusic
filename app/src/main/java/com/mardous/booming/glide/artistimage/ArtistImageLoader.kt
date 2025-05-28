@@ -37,7 +37,7 @@ class ArtistImageLoader private constructor(
 ) : ModelLoader<ArtistImage, InputStream> {
 
     override fun buildLoadData(model: ArtistImage, width: Int, height: Int, options: Options): LoadData<InputStream> {
-        return LoadData(ObjectKey(model.artist.name), ArtistImageFetcher(context, deezerService, httpClient, model))
+        return LoadData(ObjectKey(model.name), ArtistImageFetcher(context, deezerService, httpClient, model))
     }
 
     override fun handles(artistImage: ArtistImage): Boolean {

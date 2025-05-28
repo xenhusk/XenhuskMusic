@@ -336,10 +336,14 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             when (nowPlayingScreen) {
                 NowPlayingScreen.Default,
                 NowPlayingScreen.Plain,
-                NowPlayingScreen.M3,
                 NowPlayingScreen.Peek-> {
                     setLightStatusBar(navigationbarColor.isColorLight)
                     setLightNavigationBar(navigationbarColor.isColorLight)
+                }
+                NowPlayingScreen.M3 -> {
+                    navigationbarColor = paletteColor
+                    setLightNavigationBar(isColorLight)
+                    setLightStatusBar(isColorLight)
                 }
                 NowPlayingScreen.FullCover -> {
                     navigationbarColor = paletteColor

@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">מיקוד שמע נדחה.</string>
     <string name="no_audio_ID">מזהה אודיו שגוי.</string>
     <string name="unplayable_file">לא הצלחנו לנגן את השיר הזה.</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">גישה לאחסון</string>
     <string name="permission_external_storage_description">האפליקציה צריכה הרשאה לגשת לאחסון המכשיר שלך כדי להשמיע מוזיקה</string>
     <string name="permission_external_storage_denied">עליך להעניק הרשאת גישה לאחסון חיצוני.</string>
@@ -393,6 +394,23 @@
     <string name="recent_artists">אמנים אחרונים</string>
     <string name="recent_albums">אלבומים אחרונים</string>
     <string name="no_suggestions">אין הצעות עבורך</string>
+    <!-- Shuffle modes -->
+    <string name="shuffle_mode_pure_random">Pure random</string>
+    <string name="shuffle_mode_most_played">Most played</string>
+    <string name="shuffle_mode_most_played_artists">Most played artists</string>
+    <string name="shuffle_mode_most_played_albums">Most played albums</string>
+    <string name="shuffle_mode_favorite_songs">Favorites first</string>
+    <string name="shuffle_mode_forgotten_songs">Forgotten songs</string>
+    <string name="shuffle_mode_recently_added">Recently added</string>
+    <string name="shuffle_mode_combined">Smart mix</string>
+    <string name="shuffle_mode_pure_random_description">Completely random shuffle.</string>
+    <string name="shuffle_mode_most_played_description">Favors your most played songs.</string>
+    <string name="shuffle_mode_most_played_artists_description">Favors songs from your top artists.</string>
+    <string name="shuffle_mode_most_played_albums_description">Favors songs from your most played albums.</string>
+    <string name="shuffle_mode_favorite_songs_description">Gives priority to your favorite songs.</string>
+    <string name="shuffle_mode_forgotten_songs_description">Prioritizes songs you haven\'t played in a while.</string>
+    <string name="shuffle_mode_recently_added_description">Favors songs recently added to your library.</string>
+    <string name="shuffle_mode_combined_description">Mix based on favorites, plays, and recency.</string>
     <!-- Equalizer -->
     <string name="equalizer_label">אקולייזר</string>
     <string name="share_eq_configuration">שתף תצורת אקלוייזר</string>
@@ -519,7 +537,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">תועברו לאתר האינטרנט למעקב הבעיות.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">נדרש גישה לאחסון</string>
-    <string name="saf_access_required_message">Boomings requires permission to access these files. Please pick the SD card root directory.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Show files</string>
     <string name="saf_error_uri">Can\'t get SAF URI</string>
     <string name="saf_write_failed">File write failed: %s</string>
@@ -704,6 +722,8 @@
     <string name="stack">Stack</string>
     <string name="add_after_playing_track">Add after playing track</string>
     <string name="add_tracks_sequentially">Add tracks sequentially</string>
+    <string name="albums_shuffle">Albums shuffle</string>
+    <string name="artists_shuffle">Artists shuffle</string>
     <string name="shuffle_albums_ordered_songs">Shuffle albums, ordered songs</string>
     <string name="ordered_albums_shuffle_songs">Ordered albums, shuffle songs</string>
     <string name="shuffle_artists_ordered_songs">Shuffle artists, ordered songs</string>

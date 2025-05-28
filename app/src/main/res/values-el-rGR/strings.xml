@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">Άρνηση εστίασης ήχου.</string>
     <string name="no_audio_ID">Λάθος ID ήχου.</string>
     <string name="unplayable_file">Αδυναμία αναπαραγωγής αυτού του τραγουδιού.</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">Πρόσβαση Χώρου Αποθήκευσης</string>
     <string name="permission_external_storage_description">Η εφαρμογή χρειάζεται άδεια για πρόσβαση στον αποθηκευτικό χώρο της συσκευής σας για την αναπαραγωγή μουσικής</string>
     <string name="permission_external_storage_denied">Πρέπει να παραχωρήσετε δικαιώματα πρόσβασης στον εξωτερικό χώρο αποθήκευσης.</string>
@@ -379,6 +380,23 @@
     <string name="recent_artists">Πρόσφατοι καλλιτέχνες</string>
     <string name="recent_albums">Πρόσφατα λευκώματα</string>
     <string name="no_suggestions">Δεν υπάρχουν προτάσεις για εσάς</string>
+    <!-- Shuffle modes -->
+    <string name="shuffle_mode_pure_random">Pure random</string>
+    <string name="shuffle_mode_most_played">Most played</string>
+    <string name="shuffle_mode_most_played_artists">Most played artists</string>
+    <string name="shuffle_mode_most_played_albums">Most played albums</string>
+    <string name="shuffle_mode_favorite_songs">Favorites first</string>
+    <string name="shuffle_mode_forgotten_songs">Forgotten songs</string>
+    <string name="shuffle_mode_recently_added">Recently added</string>
+    <string name="shuffle_mode_combined">Smart mix</string>
+    <string name="shuffle_mode_pure_random_description">Completely random shuffle.</string>
+    <string name="shuffle_mode_most_played_description">Favors your most played songs.</string>
+    <string name="shuffle_mode_most_played_artists_description">Favors songs from your top artists.</string>
+    <string name="shuffle_mode_most_played_albums_description">Favors songs from your most played albums.</string>
+    <string name="shuffle_mode_favorite_songs_description">Gives priority to your favorite songs.</string>
+    <string name="shuffle_mode_forgotten_songs_description">Prioritizes songs you haven\'t played in a while.</string>
+    <string name="shuffle_mode_recently_added_description">Favors songs recently added to your library.</string>
+    <string name="shuffle_mode_combined_description">Mix based on favorites, plays, and recency.</string>
     <!-- Equalizer -->
     <string name="equalizer_label">Ισοσταθμιστής</string>
     <string name="share_eq_configuration">Κοινή χρήση παραμέτρων EQ</string>
@@ -505,7 +523,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Θα μεταφερθείτε στην ιστοσελίδα του ανιχνευτή προβλημάτων.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Απαιτείται Πρόσβαση Χώρου Αποθήκευσης</string>
-    <string name="saf_access_required_message">Τα Boomings απαιτούν άδεια πρόσβασης σε αυτά τα αρχεία. Παρακαλώ επιλέξτε τον ριζικό κατάλογο της κάρτας SD.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Εμφάνιση αρχείων</string>
     <string name="saf_error_uri">Αδύνατη η λήψη του URI SAF</string>
     <string name="saf_write_failed">Αποτυχία εγγραφής αρχείου: %s</string>
@@ -690,6 +708,8 @@
     <string name="stack">Στοίβα</string>
     <string name="add_after_playing_track">Προσθήκη μετά το κομμάτι αναπαραγωγής</string>
     <string name="add_tracks_sequentially">Προσθήκη κομματιών διαδοχικά</string>
+    <string name="albums_shuffle">Albums shuffle</string>
+    <string name="artists_shuffle">Artists shuffle</string>
     <string name="shuffle_albums_ordered_songs">Τυχαία αναπαραγωγή άλμπουμ, ταξινομημένα τραγούδια</string>
     <string name="ordered_albums_shuffle_songs">Ταξινομημένα άλμπουμ, ανακατέματα τραγουδιών</string>
     <string name="shuffle_artists_ordered_songs">Τυχαία αναπαραγωγή καλλιτεχνών, ταξινομημένων τραγουδιών</string>

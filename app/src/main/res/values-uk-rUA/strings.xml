@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">В отриманні аудіофокусу відмовлено.</string>
     <string name="no_audio_ID">Помилковий ідентифікатор аудіо.</string>
     <string name="unplayable_file">Не вдалося відтворити цю пісню.</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">Доступ до сховища</string>
     <string name="permission_external_storage_description">Додатку потрібен дозвіл на доступ до пам\'яті пристрою для відтворення музики</string>
     <string name="permission_external_storage_denied">Ви повинні надати дозвіл на доступ до зовнішнього сховища.</string>
@@ -393,6 +394,23 @@
     <string name="recent_artists">Недавні виконавці</string>
     <string name="recent_albums">Останні альбоми</string>
     <string name="no_suggestions">Там не немає пропозицій для вас</string>
+    <!-- Shuffle modes -->
+    <string name="shuffle_mode_pure_random">Pure random</string>
+    <string name="shuffle_mode_most_played">Most played</string>
+    <string name="shuffle_mode_most_played_artists">Most played artists</string>
+    <string name="shuffle_mode_most_played_albums">Most played albums</string>
+    <string name="shuffle_mode_favorite_songs">Favorites first</string>
+    <string name="shuffle_mode_forgotten_songs">Forgotten songs</string>
+    <string name="shuffle_mode_recently_added">Recently added</string>
+    <string name="shuffle_mode_combined">Smart mix</string>
+    <string name="shuffle_mode_pure_random_description">Completely random shuffle.</string>
+    <string name="shuffle_mode_most_played_description">Favors your most played songs.</string>
+    <string name="shuffle_mode_most_played_artists_description">Favors songs from your top artists.</string>
+    <string name="shuffle_mode_most_played_albums_description">Favors songs from your most played albums.</string>
+    <string name="shuffle_mode_favorite_songs_description">Gives priority to your favorite songs.</string>
+    <string name="shuffle_mode_forgotten_songs_description">Prioritizes songs you haven\'t played in a while.</string>
+    <string name="shuffle_mode_recently_added_description">Favors songs recently added to your library.</string>
+    <string name="shuffle_mode_combined_description">Mix based on favorites, plays, and recency.</string>
     <!-- Equalizer -->
     <string name="equalizer_label">Еквалайзер</string>
     <string name="share_eq_configuration">Поділитися конфігурацією EQ</string>
@@ -519,7 +537,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Вас буде направлено на веб-сайт відстеження проблем.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Необхідний доступ до сховища даних</string>
-    <string name="saf_access_required_message">Бумінг потребує дозволу на доступ до цих файлів. Будь ласка, оберіть кореневу папку SD-карти.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Показати файли</string>
     <string name="saf_error_uri">Неможливо отримати URI SAF</string>
     <string name="saf_write_failed">Не вдалося записати файл: %s</string>
@@ -704,6 +722,8 @@
     <string name="stack">Стек</string>
     <string name="add_after_playing_track">Додати після програвання маршруту</string>
     <string name="add_tracks_sequentially">Послідовно додати треки</string>
+    <string name="albums_shuffle">Albums shuffle</string>
+    <string name="artists_shuffle">Artists shuffle</string>
     <string name="shuffle_albums_ordered_songs">Перемішати альбоми, замовлені пісні</string>
     <string name="ordered_albums_shuffle_songs">Впорядковано альбом, перемішувати пісні</string>
     <string name="shuffle_artists_ordered_songs">Перемішувати виконавців, впорядковані пісні</string>

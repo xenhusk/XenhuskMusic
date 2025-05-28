@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">Zaměření na zvuk odepřeno.</string>
     <string name="no_audio_ID">Špatné audio ID.</string>
     <string name="unplayable_file">Nelze přehrát tuto skladbu.</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">Přístup k úložišti</string>
     <string name="permission_external_storage_description">Aplikace potřebuje oprávnění pro přístup k úložišti pro přehrávání hudby</string>
     <string name="permission_external_storage_denied">Musíte udělit oprávnění pro přístup k externímu úložišti.</string>
@@ -393,6 +394,23 @@
     <string name="recent_artists">Nedávní umělci</string>
     <string name="recent_albums">Nedávná alba</string>
     <string name="no_suggestions">Neexistují žádné návrhy pro vás</string>
+    <!-- Shuffle modes -->
+    <string name="shuffle_mode_pure_random">Pure random</string>
+    <string name="shuffle_mode_most_played">Most played</string>
+    <string name="shuffle_mode_most_played_artists">Most played artists</string>
+    <string name="shuffle_mode_most_played_albums">Most played albums</string>
+    <string name="shuffle_mode_favorite_songs">Favorites first</string>
+    <string name="shuffle_mode_forgotten_songs">Forgotten songs</string>
+    <string name="shuffle_mode_recently_added">Recently added</string>
+    <string name="shuffle_mode_combined">Smart mix</string>
+    <string name="shuffle_mode_pure_random_description">Completely random shuffle.</string>
+    <string name="shuffle_mode_most_played_description">Favors your most played songs.</string>
+    <string name="shuffle_mode_most_played_artists_description">Favors songs from your top artists.</string>
+    <string name="shuffle_mode_most_played_albums_description">Favors songs from your most played albums.</string>
+    <string name="shuffle_mode_favorite_songs_description">Gives priority to your favorite songs.</string>
+    <string name="shuffle_mode_forgotten_songs_description">Prioritizes songs you haven\'t played in a while.</string>
+    <string name="shuffle_mode_recently_added_description">Favors songs recently added to your library.</string>
+    <string name="shuffle_mode_combined_description">Mix based on favorites, plays, and recency.</string>
     <!-- Equalizer -->
     <string name="equalizer_label">Ekvalizér</string>
     <string name="share_eq_configuration">Sdílet konfiguraci EQ</string>
@@ -519,7 +537,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Budete přesměrováni na webovou stránku pro sledování problémů.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Vyžadován přístup k úložišti</string>
-    <string name="saf_access_required_message">Booming vyžaduje oprávnění pro přístup k těmto souborům. Vyberte kořenový adresář SD karty.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Zobrazit soubory</string>
     <string name="saf_error_uri">Nelze získat SAF URI</string>
     <string name="saf_write_failed">Zápis souboru se nezdařil: %s</string>
@@ -704,6 +722,8 @@
     <string name="stack">Zásobník</string>
     <string name="add_after_playing_track">Přidat po přehrávání skladby</string>
     <string name="add_tracks_sequentially">Přidat postupně skladby</string>
+    <string name="albums_shuffle">Albums shuffle</string>
+    <string name="artists_shuffle">Artists shuffle</string>
     <string name="shuffle_albums_ordered_songs">Zamíchat alba, objednané skladby</string>
     <string name="ordered_albums_shuffle_songs">Objednaná alba, zamíchané skladby</string>
     <string name="shuffle_artists_ordered_songs">Zamíchat umělce, objednané skladby</string>

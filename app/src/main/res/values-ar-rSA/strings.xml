@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">تم رفض التركيز الصوتي.</string>
     <string name="no_audio_ID">معرف صوتي سيئ.</string>
     <string name="unplayable_file">تعذر تشغيل هذه الأغنية.</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">الوصول إلى التخزين</string>
     <string name="permission_external_storage_description">يحتاج التطبيق إلى إذن للوصول إلى وحدة تخزين جهازك لتشغيل الموسيقى</string>
     <string name="permission_external_storage_denied">يجب عليك منح الإذن للوصول إلى وحدة التخزين الخارجية.</string>
@@ -407,6 +408,23 @@
     <string name="recent_artists">الفنانين الأخيرين</string>
     <string name="recent_albums">الألبومات الأخيرة</string>
     <string name="no_suggestions">لا توجد اقتراحات لك</string>
+    <!-- Shuffle modes -->
+    <string name="shuffle_mode_pure_random">Pure random</string>
+    <string name="shuffle_mode_most_played">Most played</string>
+    <string name="shuffle_mode_most_played_artists">Most played artists</string>
+    <string name="shuffle_mode_most_played_albums">Most played albums</string>
+    <string name="shuffle_mode_favorite_songs">Favorites first</string>
+    <string name="shuffle_mode_forgotten_songs">Forgotten songs</string>
+    <string name="shuffle_mode_recently_added">Recently added</string>
+    <string name="shuffle_mode_combined">Smart mix</string>
+    <string name="shuffle_mode_pure_random_description">Completely random shuffle.</string>
+    <string name="shuffle_mode_most_played_description">Favors your most played songs.</string>
+    <string name="shuffle_mode_most_played_artists_description">Favors songs from your top artists.</string>
+    <string name="shuffle_mode_most_played_albums_description">Favors songs from your most played albums.</string>
+    <string name="shuffle_mode_favorite_songs_description">Gives priority to your favorite songs.</string>
+    <string name="shuffle_mode_forgotten_songs_description">Prioritizes songs you haven\'t played in a while.</string>
+    <string name="shuffle_mode_recently_added_description">Favors songs recently added to your library.</string>
+    <string name="shuffle_mode_combined_description">Mix based on favorites, plays, and recency.</string>
     <!-- Equalizer -->
     <string name="equalizer_label">المعادل</string>
     <string name="share_eq_configuration">مشاركة إعدادات EQ</string>
@@ -533,7 +551,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">سيتم إعادة توجيهك إلى موقع تتبع المشكلة.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">مطلوب الوصول إلى التخزين</string>
-    <string name="saf_access_required_message">حالات الازدحام تتطلب الإذن للوصول إلى هذه الملفات. الرجاء اختيار دليل جذر بطاقة الذاكرة.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">إظهار الملفات</string>
     <string name="saf_error_uri">لا يمكن الحصول على URI SAF</string>
     <string name="saf_write_failed">فشل كتابة الملف: %s</string>
@@ -718,6 +736,8 @@
     <string name="stack">تكدس</string>
     <string name="add_after_playing_track">إضافة بعد تشغيل المسار</string>
     <string name="add_tracks_sequentially">إضافة مسارات متتالية</string>
+    <string name="albums_shuffle">Albums shuffle</string>
+    <string name="artists_shuffle">Artists shuffle</string>
     <string name="shuffle_albums_ordered_songs">خلط الألبومات، الأغاني المطلوبة</string>
     <string name="ordered_albums_shuffle_songs">ألبومات مطلوبة، خلط الأغاني</string>
     <string name="shuffle_artists_ordered_songs">خلط الفنانين، الأغاني المطلوبة</string>

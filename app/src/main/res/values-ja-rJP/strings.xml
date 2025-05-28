@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">音声フォーカスが拒否されました。</string>
     <string name="no_audio_ID">音声IDが不正です。</string>
     <string name="unplayable_file">この曲を再生できませんでした。</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">ストレージアクセス</string>
     <string name="permission_external_storage_description">音楽を再生するためにデバイスのストレージにアクセスする権限が必要です</string>
     <string name="permission_external_storage_denied">外部ストレージへのアクセス権限を付与する必要があります。</string>
@@ -372,6 +373,23 @@
     <string name="recent_artists">最近のアーティスト</string>
     <string name="recent_albums">最近のアルバム</string>
     <string name="no_suggestions">あなたに提案はありません</string>
+    <!-- Shuffle modes -->
+    <string name="shuffle_mode_pure_random">Pure random</string>
+    <string name="shuffle_mode_most_played">Most played</string>
+    <string name="shuffle_mode_most_played_artists">Most played artists</string>
+    <string name="shuffle_mode_most_played_albums">Most played albums</string>
+    <string name="shuffle_mode_favorite_songs">Favorites first</string>
+    <string name="shuffle_mode_forgotten_songs">Forgotten songs</string>
+    <string name="shuffle_mode_recently_added">Recently added</string>
+    <string name="shuffle_mode_combined">Smart mix</string>
+    <string name="shuffle_mode_pure_random_description">Completely random shuffle.</string>
+    <string name="shuffle_mode_most_played_description">Favors your most played songs.</string>
+    <string name="shuffle_mode_most_played_artists_description">Favors songs from your top artists.</string>
+    <string name="shuffle_mode_most_played_albums_description">Favors songs from your most played albums.</string>
+    <string name="shuffle_mode_favorite_songs_description">Gives priority to your favorite songs.</string>
+    <string name="shuffle_mode_forgotten_songs_description">Prioritizes songs you haven\'t played in a while.</string>
+    <string name="shuffle_mode_recently_added_description">Favors songs recently added to your library.</string>
+    <string name="shuffle_mode_combined_description">Mix based on favorites, plays, and recency.</string>
     <!-- Equalizer -->
     <string name="equalizer_label">イコライザー</string>
     <string name="share_eq_configuration">EQ の設定を共有</string>
@@ -498,7 +516,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">課題追跡サイトに転送されます。</string>
     <!-- SAF -->
     <string name="saf_access_required_title">ストレージアクセスが必要です</string>
-    <string name="saf_access_required_message">ブームはこれらのファイルにアクセスするには許可が必要です。SDカードのルートディレクトリを選択してください。</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">ファイルを表示</string>
     <string name="saf_error_uri">SAF URIを取得できません</string>
     <string name="saf_write_failed">ファイルの書き込みに失敗しました: %s</string>
@@ -683,6 +701,8 @@
     <string name="stack">スタック</string>
     <string name="add_after_playing_track">トラックを再生した後に追加</string>
     <string name="add_tracks_sequentially">トラックを順番に追加</string>
+    <string name="albums_shuffle">Albums shuffle</string>
+    <string name="artists_shuffle">Artists shuffle</string>
     <string name="shuffle_albums_ordered_songs">アルバムのシャッフル、曲の順序付け</string>
     <string name="ordered_albums_shuffle_songs">注文されたアルバム、シャッフル曲</string>
     <string name="shuffle_artists_ordered_songs">楽曲を注文したアーティストをシャッフル</string>

@@ -116,6 +116,7 @@
     <string name="audio_focus_denied">Foco de áudio negado.</string>
     <string name="no_audio_ID">Áudio de ID ruim.</string>
     <string name="unplayable_file">Não foi possível reproduzir esta música.</string>
+    <string name="unplayable_file_code_x">Couldn\'t play this song (code: %d).</string>
     <string name="permission_external_storage_title">Acesso ao armazenamento</string>
     <string name="permission_external_storage_description">O aplicativo precisa de permissão para acessar seu dispositivo de armazenamento para reproduzir músicas</string>
     <string name="permission_external_storage_denied">Você deve conceder permissão para acessar o armazenamento externo.</string>
@@ -379,6 +380,23 @@
     <string name="recent_artists">Artistas recentes</string>
     <string name="recent_albums">Álbuns recentes</string>
     <string name="no_suggestions">Não há sugestões para você</string>
+    <!-- Shuffle modes -->
+    <string name="shuffle_mode_pure_random">Pure random</string>
+    <string name="shuffle_mode_most_played">Most played</string>
+    <string name="shuffle_mode_most_played_artists">Most played artists</string>
+    <string name="shuffle_mode_most_played_albums">Most played albums</string>
+    <string name="shuffle_mode_favorite_songs">Favorites first</string>
+    <string name="shuffle_mode_forgotten_songs">Forgotten songs</string>
+    <string name="shuffle_mode_recently_added">Recently added</string>
+    <string name="shuffle_mode_combined">Smart mix</string>
+    <string name="shuffle_mode_pure_random_description">Completely random shuffle.</string>
+    <string name="shuffle_mode_most_played_description">Favors your most played songs.</string>
+    <string name="shuffle_mode_most_played_artists_description">Favors songs from your top artists.</string>
+    <string name="shuffle_mode_most_played_albums_description">Favors songs from your most played albums.</string>
+    <string name="shuffle_mode_favorite_songs_description">Gives priority to your favorite songs.</string>
+    <string name="shuffle_mode_forgotten_songs_description">Prioritizes songs you haven\'t played in a while.</string>
+    <string name="shuffle_mode_recently_added_description">Favors songs recently added to your library.</string>
+    <string name="shuffle_mode_combined_description">Mix based on favorites, plays, and recency.</string>
     <!-- Equalizer -->
     <string name="equalizer_label">Equalizador</string>
     <string name="share_eq_configuration">Compartilhar configuração do EQ</string>
@@ -505,7 +523,7 @@
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Você será encaminhado para o site de registro de erros.</string>
     <!-- SAF -->
     <string name="saf_access_required_title">Acesso ao armazenamento necessário</string>
-    <string name="saf_access_required_message">Boomings requer permissão para acessar esses arquivos. Por favor, escolha o diretório raiz do cartão SD.</string>
+    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Mostrar arquivos</string>
     <string name="saf_error_uri">Não é possível obter URI SAF</string>
     <string name="saf_write_failed">Falha ao escrever arquivo: %s</string>
@@ -690,6 +708,8 @@
     <string name="stack">Pilha</string>
     <string name="add_after_playing_track">Adicionar depois de reproduzir a música</string>
     <string name="add_tracks_sequentially">Adicionar faixas sequencialmente</string>
+    <string name="albums_shuffle">Albums shuffle</string>
+    <string name="artists_shuffle">Artists shuffle</string>
     <string name="shuffle_albums_ordered_songs">Misturar álbuns ordenados</string>
     <string name="ordered_albums_shuffle_songs">Álbuns ordenados, músicas aleatórias</string>
     <string name="shuffle_artists_ordered_songs">Artistas aleatórios, músicas ordenadas</string>

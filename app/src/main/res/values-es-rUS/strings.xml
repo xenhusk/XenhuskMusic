@@ -628,6 +628,8 @@
     <string name="prefer_album_artist_name_summary">Muestra el Artista del álbum en lugar del Artista de la canción (si está disponible).</string>
 
     <!-- Playback preferences -->
+    <string name="play_on_startup_title">Reproducir al iniciar</string>
+    <string name="play_on_startup_summary">Al abrir la app, empieza a reproducir desde donde lo dejaste la última vez.</string>
     <string name="gapless_playback_title">Reproducción sin interrupciones</string>
     <string name="gapless_playback_summary">Transición rápida entre canciones. Puede causar problemas en algunos dispositivos.</string>
     <string name="replaygain_source_mode_title">Modo de origen</string>

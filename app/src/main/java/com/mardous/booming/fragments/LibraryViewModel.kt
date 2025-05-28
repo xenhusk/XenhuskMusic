@@ -210,6 +210,12 @@ class LibraryViewModel(
         }
     }
 
+    fun restorePlayback() = viewModelScope.launch(IO) {
+        if (Preferences.playOnStartup) {
+            MusicPlayer.restorePlayback()
+        }
+    }
+
     fun playFromSearch(
         song: Song,
         results: List<Any>,
@@ -501,6 +507,8 @@ class LibraryViewModel(
                             emit(result)
                         }
                     }
+
+                    else -> emit(result.copy(handled = false))
                 }
             }
         }

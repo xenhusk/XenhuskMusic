@@ -108,6 +108,8 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     private lateinit var playingQueue: SmartPlayingQueue
     private var queuesRestored = false
+    private var playbackRestored = false
+    private var needsToRestorePlayback = false
 
     private val sharedPreferences: SharedPreferences by inject()
     private val equalizerManager: EqualizerManager by inject()
@@ -418,16 +420,21 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                             }
                             notHandledMetaChangedForCurrentTrack = true
                             sendChangeInternal(ServiceEvent.META_CHANGED)
-                        }
-                        if (receivedHeadsetConnected) {
-                            play()
-                            receivedHeadsetConnected = false
+
+                            if (needsToRestorePlayback || receivedHeadsetConnected) {
+                                play()
+                                if (receivedHeadsetConnected) {
+                                    receivedHeadsetConnected = false
+                                }
+                            }
                         }
                     }
 
                     sendChangeInternal(ServiceEvent.QUEUE_CHANGED)
                     mediaSession?.setQueueTitle(getString(R.string.playing_queue_label))
                     mediaSession?.setQueue(playingQueue.playingQueue.asQueueItems())
+                } else {
+                    needsToRestorePlayback = false
                 }
             }
             queuesRestored = true
@@ -718,6 +725,17 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         playingQueue.setRepeatMode(mode) {
             prepareNext()
             handleAndSendChangeInternal(ServiceEvent.REPEAT_MODE_CHANGED)
+        }
+    }
+
+    fun restorePlayback() {
+        if (!playbackRestored) {
+            if (queuesRestored) {
+                play()
+            } else {
+                needsToRestorePlayback = true
+            }
+            playbackRestored = true
         }
     }
 

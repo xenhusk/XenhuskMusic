@@ -243,6 +243,9 @@ object Preferences : KoinComponent {
     val queueNextSequentially: Boolean
         get() = preferences.requireString(QUEUE_NEXT_MODE, "1") == "1"
 
+    val playOnStartup: Boolean
+        get() = preferences.getBoolean(PLAY_ON_STARTUP, false)
+
     val searchAutoQueue: Boolean
         get() = preferences.getBoolean(SEARCH_AUTO_QUEUE, false)
 
@@ -577,6 +580,7 @@ const val REPLAYGAIN_PREAMP = "replaygain_preamp"
 const val REPLAYGAIN_PREAMP_WITH_TAG = "replaygain_preamp_with_tag"
 const val REPLAYGAIN_PREAMP_WITHOUT_TAG = "replaygain_preamp_without_tag"
 const val QUEUE_NEXT_MODE = "queue_next_mode"
+const val PLAY_ON_STARTUP = "play_on_startup"
 const val SEARCH_AUTO_QUEUE = "search_auto_queue"
 const val REMEMBER_SHUFFLE_MODE = "remember_shuffle_mode"
 const val ALBUM_SHUFFLE_MODE = "album_shuffle_mode"

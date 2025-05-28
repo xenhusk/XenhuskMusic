@@ -177,20 +177,20 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        handlePlaybackIntent(intent)
+        handlePlaybackIntent(intent, false)
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        intent?.let {
-            handlePlaybackIntent(it)
-        }
+        intent?.let { handlePlaybackIntent(it, true) }
     }
 
-    private fun handlePlaybackIntent(intent: Intent) {
+    private fun handlePlaybackIntent(intent: Intent, canRestorePlayback: Boolean) {
         libraryViewModel.handleIntent(intent).observe(this) { result ->
             if (result.handled) {
                 setIntent(Intent())
+            } else if (canRestorePlayback) {
+                libraryViewModel.restorePlayback()
             }
             if (result.failed) {
                 showToast(R.string.unplayable_file)

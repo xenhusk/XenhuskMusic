@@ -48,7 +48,7 @@ import com.mardous.booming.database.toSongEntity
 import com.mardous.booming.dialogs.LyricsDialog
 import com.mardous.booming.dialogs.SleepTimerDialog
 import com.mardous.booming.dialogs.WebSearchDialog
-import com.mardous.booming.dialogs.playlists.CreatePlaylistDialog
+import com.mardous.booming.dialogs.playlists.AddToPlaylistDialog
 import com.mardous.booming.dialogs.songs.ShareSongDialog
 import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.media.albumArtistName
@@ -356,7 +356,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
             }
 
             NowPlayingAction.AddToPlaylist -> {
-                CreatePlaylistDialog.create(currentSong)
+                AddToPlaylistDialog.create(currentSong)
                     .show(childFragmentManager, "ADD_TO_PLAYLIST")
                 true
             }

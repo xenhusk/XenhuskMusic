@@ -28,6 +28,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import android.os.*
 import android.os.PowerManager.WakeLock
 import android.provider.MediaStore
@@ -134,14 +135,11 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     private val songPlayCountHelper = SongPlayCountHelper()
 
+    private var bluetoothConnectedRegistered = false
     private val bluetoothConnectedIntentFilter = IntentFilter().apply {
         addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
         addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
     }
-    private var bluetoothConnectedRegistered = false
-    private val headsetReceiverIntentFilter = IntentFilter(Intent.ACTION_HEADSET_PLUG)
-    private var headsetReceiverRegistered = false
-
     private val bluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             when (intent?.action) {
@@ -153,7 +151,21 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         }
     }
 
+    private var becomingNoisyReceiverRegistered = false
+    private val becomingNoisyReceiverIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+    private val becomingNoisyReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
+                if (Preferences.isPauseOnDisconnect(false)) {
+                    pause()
+                }
+            }
+        }
+    }
+
     private var receivedHeadsetConnected = false
+    private var headsetReceiverRegistered = false
+    private val headsetReceiverIntentFilter = IntentFilter(Intent.ACTION_HEADSET_PLUG)
     private val headsetReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (Intent.ACTION_HEADSET_PLUG == intent.action && !isInitialStickyBroadcast) {
@@ -173,6 +185,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
             }
         }
     }
+
     var pendingQuit = false
 
     override fun onCreate() {
@@ -222,6 +235,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
             .sendBroadcast(Intent("${ServiceEvent.BOOMING_PACKAGE_NAME}.BOOMING_MUSIC_SERVICE_CREATED"))
         registerHeadsetEvents()
         registerBluetoothConnected()
+        registerBecomingNoisyReceiver()
 
         sharedPreferences.registerOnSharedPreferenceChangeListener(this)
     }
@@ -319,6 +333,10 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         if (bluetoothConnectedRegistered) {
             unregisterReceiver(bluetoothReceiver)
             bluetoothConnectedRegistered = false
+        }
+        if (becomingNoisyReceiverRegistered) {
+            unregisterReceiver(becomingNoisyReceiver)
+            becomingNoisyReceiverRegistered = false
         }
         mediaSession?.isActive = false
         quit()
@@ -470,6 +488,18 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
             ContextCompat.registerReceiver(this, headsetReceiver, headsetReceiverIntentFilter,
                 ContextCompat.RECEIVER_EXPORTED)
             headsetReceiverRegistered = true
+        }
+    }
+
+    private fun registerBecomingNoisyReceiver() {
+        if (!becomingNoisyReceiverRegistered) {
+            ContextCompat.registerReceiver(
+                this,
+                becomingNoisyReceiver,
+                becomingNoisyReceiverIntentFilter,
+                ContextCompat.RECEIVER_EXPORTED
+            )
+            becomingNoisyReceiverRegistered = true
         }
     }
 

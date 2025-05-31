@@ -28,7 +28,7 @@ enum class NowPlayingScreen(
     @DrawableRes
     val drawableResId: Int,
     @LayoutRes
-    val albumCoverLayoutRes: Int?,
+    val albumCoverLayoutRes: Int,
     val supportsCoverLyrics: Boolean,
     val supportsCarouselEffect: Boolean
 ) {
@@ -63,7 +63,7 @@ enum class NowPlayingScreen(
     M3(
         R.string.m3_style,
         R.drawable.np_m3,
-        R.layout.fragment_album_cover_m3,
+        R.layout.fragment_album_cover_default,
         supportsCoverLyrics = true,
         supportsCarouselEffect = false
     ),

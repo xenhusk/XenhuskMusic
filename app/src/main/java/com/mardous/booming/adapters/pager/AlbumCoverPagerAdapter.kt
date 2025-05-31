@@ -38,6 +38,7 @@ import com.mardous.booming.extensions.withArgs
 import com.mardous.booming.glide.BoomingColoredTarget
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.model.Song
+import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.util.Preferences
 
 class AlbumCoverPagerAdapter(fm: FragmentManager, private val dataSet: List<Song>) :
@@ -88,17 +89,25 @@ class AlbumCoverPagerAdapter(fm: FragmentManager, private val dataSet: List<Song
         private var target: Target<*>? = null
         private var albumCover: ImageView? = null
 
+        private val nowPlayingScreen: NowPlayingScreen
+            get() = Preferences.nowPlayingScreen
+
+        private fun getLayoutWithPlayerTheme(): Int {
+            if (nowPlayingScreen.supportsCarouselEffect) {
+                if (Preferences.isCarousalEffect) {
+                    return R.layout.fragment_album_cover_carousel
+                }
+            }
+            return nowPlayingScreen.albumCoverLayoutRes
+        }
+
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             song = BundleCompat.getParcelable(requireArguments(), EXTRA_SONG, Song::class.java)!!
         }
 
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-            var layoutRes = Preferences.nowPlayingScreen.albumCoverLayoutRes
-            if (layoutRes == null) {
-                layoutRes = R.layout.fragment_album_cover
-            }
-            return inflater.inflate(layoutRes, container, false)
+            return inflater.inflate(getLayoutWithPlayerTheme(), container, false)
         }
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

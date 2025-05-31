@@ -31,6 +31,7 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.TextViewCompat
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentGradientPlayerBinding
+import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.resources.darkenColor
 import com.mardous.booming.extensions.resources.toColorStateList
 import com.mardous.booming.extensions.whichFragment
@@ -141,7 +142,7 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
         binding.mask.backgroundTintList = lastColor.toColorStateList()
 
         controlsFragment.setColors(color.backgroundColor, color.primaryTextColor, color.secondaryTextColor)
-        binding.volumeIcon.setColorFilter(color.primaryTextColor, PorterDuff.Mode.SRC_IN)
+        binding.volumeIcon.applyColor(color.primaryTextColor, isIconButton = true)
         binding.nextSongLabel.setTextColor(color.primaryTextColor)
         TextViewCompat.setCompoundDrawableTintList(binding.nextSongLabel, color.primaryTextColor.toColorStateList())
     }

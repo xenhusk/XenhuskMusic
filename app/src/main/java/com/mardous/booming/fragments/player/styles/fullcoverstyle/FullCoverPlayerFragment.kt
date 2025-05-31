@@ -34,6 +34,7 @@ import com.mardous.booming.extensions.getOnBackPressedDispatcher
 import com.mardous.booming.extensions.glide.DEFAULT_SONG_IMAGE
 import com.mardous.booming.extensions.glide.getSongGlideModel
 import com.mardous.booming.extensions.glide.songOptions
+import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.resources.getPrimaryTextColor
 import com.mardous.booming.extensions.resources.toColorStateList
 import com.mardous.booming.extensions.whichFragment
@@ -86,7 +87,7 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
     private fun setupColors() {
         binding.nextSongLabel.setTextColor(disabledPlaybackControlsColor)
         binding.nextSongText.setTextColor(playbackControlsColor)
-        binding.close.setColorFilter(playbackControlsColor)
+        binding.close.applyColor(playbackControlsColor, isIconButton = true)
     }
 
     private fun setupListeners() {

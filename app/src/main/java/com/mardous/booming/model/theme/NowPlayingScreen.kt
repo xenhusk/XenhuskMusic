@@ -30,48 +30,55 @@ enum class NowPlayingScreen(
     @LayoutRes
     val albumCoverLayoutRes: Int,
     val supportsCoverLyrics: Boolean,
-    val supportsCarouselEffect: Boolean
+    val supportsCarouselEffect: Boolean,
+    val supportsCustomCornerRadius: Boolean
 ) {
     Default(
         R.string.normal,
         R.drawable.np_normal,
         R.layout.fragment_album_cover_default,
         supportsCoverLyrics = true,
-        supportsCarouselEffect = true
+        supportsCarouselEffect = true,
+        supportsCustomCornerRadius = true
     ),
     FullCover(
         R.string.full_cover,
         R.drawable.np_full,
         R.layout.fragment_album_cover,
         supportsCoverLyrics = false,
-        supportsCarouselEffect = false
+        supportsCarouselEffect = false,
+        supportsCustomCornerRadius = false
     ),
     Gradient(
         R.string.gradient,
         R.drawable.np_gradient,
         R.layout.fragment_album_cover,
         supportsCoverLyrics = true,
-        supportsCarouselEffect = false
+        supportsCarouselEffect = false,
+        supportsCustomCornerRadius = false
     ),
     Plain(
         R.string.plain,
         R.drawable.np_plain,
         R.layout.fragment_album_cover_default,
         supportsCoverLyrics = true,
-        supportsCarouselEffect = false
+        supportsCarouselEffect = true,
+        supportsCustomCornerRadius = true
     ),
     M3(
         R.string.m3_style,
         R.drawable.np_m3,
         R.layout.fragment_album_cover_default,
         supportsCoverLyrics = true,
-        supportsCarouselEffect = false
+        supportsCarouselEffect = true,
+        supportsCustomCornerRadius = true
     ),
     Peek(
         R.string.peek,
         R.drawable.np_peek,
         R.layout.fragment_album_cover_peek,
         supportsCoverLyrics = false,
-        supportsCarouselEffect = false
+        supportsCarouselEffect = false,
+        supportsCustomCornerRadius = false
     );
 }

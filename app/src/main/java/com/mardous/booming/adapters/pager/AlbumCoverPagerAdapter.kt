@@ -18,6 +18,7 @@
 package com.mardous.booming.adapters.pager
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,12 +29,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.shape.CornerFamily
+import com.google.android.material.shape.ShapeAppearanceModel
 import com.mardous.booming.R
 import com.mardous.booming.adapters.pager.AlbumCoverPagerAdapter.AlbumCoverFragment.ColorReceiver
 import com.mardous.booming.extensions.EXTRA_SONG
 import com.mardous.booming.extensions.glide.asBitmapPalette
 import com.mardous.booming.extensions.glide.getSongGlideModel
 import com.mardous.booming.extensions.glide.songOptions
+import com.mardous.booming.extensions.requestContext
+import com.mardous.booming.extensions.requestView
 import com.mardous.booming.extensions.withArgs
 import com.mardous.booming.glide.BoomingColoredTarget
 import com.mardous.booming.helper.color.MediaNotificationProcessor
@@ -113,7 +120,7 @@ class AlbumCoverPagerAdapter(fm: FragmentManager, private val dataSet: List<Song
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
             albumCover = view.findViewById(R.id.player_image)
-            forceSquareAlbumCover(false)
+            setupImageStyle()
             loadAlbumCover()
         }
 
@@ -121,6 +128,29 @@ class AlbumCoverPagerAdapter(fm: FragmentManager, private val dataSet: List<Song
             super.onDestroyView()
             Glide.with(this).clear(target)
             colorReceiver = null
+        }
+
+        private fun setupImageStyle() {
+            if (!nowPlayingScreen.supportsCustomCornerRadius)
+                return
+
+            val shapeModel = requestContext {
+                val cornerRadius = Preferences.getNowPlayingImageCornerRadius(requireContext())
+                val cornerRadiusPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, cornerRadius.toFloat(), resources.displayMetrics)
+                ShapeAppearanceModel.builder()
+                    .setAllCorners(CornerFamily.ROUNDED, cornerRadiusPx)
+                    .build()
+            } ?: return
+
+            when (val image = albumCover) {
+                is ShapeableImageView -> image.shapeAppearanceModel = shapeModel
+                else -> {
+                    val card = requestView { it.findViewById<View>(R.id.player_image_card) }
+                    if (card is MaterialCardView) {
+                        card.shapeAppearanceModel = shapeModel
+                    }
+                }
+            }
         }
 
         private fun loadAlbumCover() {
@@ -138,11 +168,6 @@ class AlbumCoverPagerAdapter(fm: FragmentManager, private val dataSet: List<Song
                         }
                     })
             }
-        }
-
-        private fun forceSquareAlbumCover(forceSquareAlbumCover: Boolean) {
-            albumCover?.scaleType =
-                if (forceSquareAlbumCover) ImageView.ScaleType.FIT_CENTER else ImageView.ScaleType.CENTER_CROP
         }
 
         private fun setPalette(color: MediaNotificationProcessor) {

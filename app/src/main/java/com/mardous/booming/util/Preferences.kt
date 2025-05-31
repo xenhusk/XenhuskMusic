@@ -30,6 +30,7 @@ import com.mardous.booming.appContext
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.extensions.hasS
+import com.mardous.booming.extensions.intRes
 import com.mardous.booming.extensions.utilities.*
 import com.mardous.booming.model.*
 import com.mardous.booming.model.theme.AppTheme
@@ -153,6 +154,9 @@ object Preferences : KoinComponent {
 
     val allowCoverSwiping: Boolean
         get() = preferences.getBoolean(LEFT_RIGHT_SWIPING, true)
+
+    fun getNowPlayingImageCornerRadius(context: Context): Int =
+        preferences.getInt(NOW_PLAYING_IMAGE_CORNER_RADIUS, context.intRes(R.integer.now_playing_corner_radius))
 
     val isCarousalEffect: Boolean
         get() = preferences.getBoolean(CAROUSAL_EFFECT, true)
@@ -557,6 +561,7 @@ const val ADD_EXTRA_CONTROLS = "add_extra_controls"
 const val SWIPE_TO_DISMISS = "swipe_to_dismiss"
 const val LYRICS_ON_COVER = "lyrics_on_cover"
 const val LEFT_RIGHT_SWIPING = "left_right_swiping"
+const val NOW_PLAYING_IMAGE_CORNER_RADIUS = "now_playing_corner_radius"
 const val CAROUSAL_EFFECT = "carousal_effect"
 const val COVER_SWIPING_EFFECT = "cover_swiping_effect"
 const val COVER_DOUBLE_TAP_ACTION = "cover_double_tap_action"

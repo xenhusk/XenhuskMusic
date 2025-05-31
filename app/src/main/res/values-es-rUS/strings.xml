@@ -611,6 +611,8 @@
     <string name="swipe_album_cover_summary">Deslizar a izquierda/derecha para saltar entre canciones.</string>
     <string name="double_tap_on_album_cover_title">Doble toque en portada</string>
     <string name="long_press_on_album_cover_title">Presión larga en portada</string>
+    <string name="now_playing_corner_radius_title">Radio de esquinas de la imagen</string>
+    <string name="now_playing_corner_radius_summary">Elija qué tan redondeadas deben verse las esquinas de la imagen del álbum.</string>
     <string name="carousal_effect_title">Efecto de carrusel</string>
     <string name="album_cover_effect_title">Efecto de deslizamiento de carátulas</string>
     <string name="lyrics_on_album_cover_title">Letras en portada</string>
@@ -730,6 +732,11 @@
     <string name="gradient">Gradiente</string>
     <string name="peek">Lámina</string>
     <string name="normal">Normal</string>
+    <string name="corner_size_none">Ninguno</string>
+    <string name="corner_size_small">Pequeño</string>
+    <string name="corner_size_medium">Medio</string>
+    <string name="corner_size_large">Grande</string>
+    <string name="corner_size_custom">Personalizado</string>
     <string name="cascading">En cascada</string>
     <string name="depth">Profundidad</string>
     <string name="hinge">Descartar</string>

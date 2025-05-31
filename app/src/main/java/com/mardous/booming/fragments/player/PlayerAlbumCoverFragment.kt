@@ -116,6 +116,10 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         binding.openEditor.setOnClickListener {
             goToDestination(requireActivity(), R.id.nav_lyrics)
         }
+        binding.openEditor.setOnLongClickListener {
+            hideLyrics(true)
+            true
+        }
         applyWindowInsets()
         setupPageTransformer()
         progressViewUpdateHelper = MusicProgressViewUpdateHelper(this, 500, 1000)

@@ -24,6 +24,7 @@ import android.text.style.ForegroundColorSpan
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -33,12 +34,55 @@ import com.mardous.booming.extensions.hasS
 import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.resolveColor
 import com.mardous.booming.util.Preferences
+import kotlin.math.abs
 
 val Int.isColorLight: Boolean
     get() = (1 - (0.299 * Color.red(this) + 0.587 * Color.green(this) + 0.114 * Color.blue(this)) / 255) < 0.4
 
 val Int.darkenColor: Int
     get() = shiftColor(0.9f)
+
+/**
+ * Ensures that the color has enough contrast against a given background.
+ */
+@ColorInt
+fun Int.ensureContrastAgainst(@ColorInt background: Int, minContrastRatio: Double = 2.0): Int {
+    return if (ColorUtils.calculateContrast(this, background) < minContrastRatio) {
+        if (ColorUtils.calculateLuminance(background) > 0.5)
+            ColorUtils.blendARGB(this, 0xFF000000.toInt(), 0.3f)
+        else
+            ColorUtils.blendARGB(this, 0xFFFFFFFF.toInt(), 0.3f)
+    } else {
+        this
+    }
+}
+
+/**
+ * Desaturates the color if it's too dark compared to the reference background.
+ */
+@ColorInt
+fun Int.desaturateIfTooDarkComparedTo(@ColorInt background: Int): Int {
+    val luminanceDiff = ColorUtils.calculateLuminance(background) - ColorUtils.calculateLuminance(this)
+    return if (luminanceDiff > 0.3) ColorUtils.blendARGB(this, background, 0.3f) else this
+}
+
+fun Int.adjustSaturationIfTooHigh(surfaceColor: Int, isNightMode: Boolean): Int {
+    if (isNightMode) return this
+
+    val hsl = FloatArray(3)
+    ColorUtils.colorToHSL(this, hsl)
+
+    val backgroundLuminance = ColorUtils.calculateLuminance(surfaceColor)
+    val colorLuminance = ColorUtils.calculateLuminance(this)
+
+    val delta = abs(colorLuminance - backgroundLuminance)
+
+    if (hsl[1] > 0.5f && delta < 0.3f) {
+        hsl[1] = 0.4f + (hsl[1] - 0.5f) * 0.5f
+    }
+
+    return ColorUtils.HSLToColor(hsl)
+}
 
 fun Int.shiftColor(by: Float): Int {
     if (by == 1f) return this

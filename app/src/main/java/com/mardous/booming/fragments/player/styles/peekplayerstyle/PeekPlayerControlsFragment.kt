@@ -27,9 +27,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentPeekPlayerPlaybackControlsBinding
-import com.mardous.booming.extensions.resources.controlColorNormal
-import com.mardous.booming.extensions.resources.getPrimaryTextColor
 import com.mardous.booming.fragments.player.PlayerAnimator
+import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.helper.handler.PrevNextButtonOnTouchHandler
 import com.mardous.booming.model.Song
@@ -64,12 +63,6 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentPeekPlayerPlaybackControlsBinding.bind(view)
-
-        setColors(
-            primaryControlColor = controlColorNormal(),
-            secondaryControlColor = getPrimaryTextColor(requireContext(), isDisabled = true)
-        )
-
         binding.playPauseButton.setOnClickListener(this)
         binding.nextButton.setOnTouchListener(
             PrevNextButtonOnTouchHandler(
@@ -81,6 +74,8 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
         )
         binding.shuffleButton.setOnClickListener(this)
         binding.repeatButton.setOnClickListener(this)
+
+        setColors(PlayerColorScheme.themeColorScheme(view.context))
     }
 
     override fun onCreatePlayerAnimator(): PlayerAnimator {

@@ -19,8 +19,6 @@ package com.mardous.booming.fragments.player.styles.gradientstyle
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -35,6 +33,7 @@ import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.resources.darkenColor
 import com.mardous.booming.extensions.resources.toColorStateList
 import com.mardous.booming.extensions.whichFragment
+import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
 import com.mardous.booming.helper.color.MediaNotificationProcessor
@@ -48,7 +47,6 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
     private val binding get() = _binding!!
 
     private lateinit var controlsFragment: GradientPlayerControlsFragment
-    private var lastColor: Int = Color.TRANSPARENT
 
     override val playerControlsFragment: AbsPlayerControlsFragment
         get() = controlsFragment
@@ -136,15 +134,18 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
     override fun onColorChanged(color: MediaNotificationProcessor) {
         super.onColorChanged(color)
         if (_binding == null) return
-        this.lastColor = color.backgroundColor
-        binding.colorBackground.setBackgroundColor(lastColor)
-        binding.darkColorBackground.setBackgroundColor(lastColor.darkenColor)
-        binding.mask.backgroundTintList = lastColor.toColorStateList()
 
-        controlsFragment.setColors(color.backgroundColor, color.primaryTextColor, color.secondaryTextColor)
-        binding.volumeIcon.applyColor(color.primaryTextColor, isIconButton = true)
-        binding.nextSongLabel.setTextColor(color.primaryTextColor)
-        TextViewCompat.setCompoundDrawableTintList(binding.nextSongLabel, color.primaryTextColor.toColorStateList())
+        controlsFragment.setColors(
+            PlayerColorScheme.vibrantColorScheme(color).also { scheme ->
+                binding.colorBackground.setBackgroundColor(scheme.surfaceColor)
+                binding.darkColorBackground.setBackgroundColor(scheme.surfaceColor.darkenColor)
+                binding.mask.backgroundTintList = scheme.surfaceColor.toColorStateList()
+
+                binding.volumeIcon.applyColor(scheme.primaryTextColor, isIconButton = true)
+                binding.nextSongLabel.setTextColor(scheme.primaryTextColor)
+                TextViewCompat.setCompoundDrawableTintList(binding.nextSongLabel, scheme.primaryTextColor.toColorStateList())
+            }
+        )
     }
 
     override fun onLyricsVisibilityChange(animatorSet: AnimatorSet, lyricsVisible: Boolean) {

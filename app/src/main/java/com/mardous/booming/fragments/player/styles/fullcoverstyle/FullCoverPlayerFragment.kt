@@ -38,6 +38,7 @@ import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.resources.getPrimaryTextColor
 import com.mardous.booming.extensions.resources.toColorStateList
 import com.mardous.booming.extensions.whichFragment
+import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
 import com.mardous.booming.helper.color.MediaNotificationProcessor
@@ -154,8 +155,11 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
 
     override fun onColorChanged(color: MediaNotificationProcessor) {
         super.onColorChanged(color)
-        binding.mask.backgroundTintList = color.backgroundColor.toColorStateList()
-        controlsFragment.setColors(color.backgroundColor, color.primaryTextColor, color.secondaryTextColor)
+        controlsFragment.setColors(
+            PlayerColorScheme.vibrantColorScheme(color).also {
+                binding.mask.backgroundTintList = it.surfaceColor.toColorStateList()
+            }
+        )
     }
 
     override fun onToggleFavorite(song: Song, isFavorite: Boolean) {

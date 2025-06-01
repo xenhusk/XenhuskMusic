@@ -31,10 +31,9 @@ import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentDefaultPlayerPlaybackControlsBinding
 import com.mardous.booming.extensions.resources.centerPivot
-import com.mardous.booming.extensions.resources.controlColorNormal
-import com.mardous.booming.extensions.resources.getPrimaryTextColor
 import com.mardous.booming.extensions.resources.showBounceAnimation
 import com.mardous.booming.fragments.player.PlayerAnimator
+import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.helper.handler.PrevNextButtonOnTouchHandler
 import com.mardous.booming.model.NowPlayingAction
@@ -76,12 +75,6 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentDefaultPlayerPlaybackControlsBinding.bind(view)
         binding.playPauseButton.doOnLayout { it.centerPivot() }
-
-        setColors(
-            primaryControlColor = controlColorNormal(),
-            secondaryControlColor = getPrimaryTextColor(requireContext(), isDisabled = true)
-        )
-
         binding.text.setOnClickListener(this)
         binding.playPauseButton.setOnClickListener(this)
         binding.nextButton.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_NEXT))
@@ -89,6 +82,7 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
         binding.shuffleButton.setOnClickListener(this)
         binding.repeatButton.setOnClickListener(this)
 
+        setColors(PlayerColorScheme.themeColorScheme(view.context))
         setViewAction(binding.queueInfo, NowPlayingAction.OpenPlayQueue)
     }
 

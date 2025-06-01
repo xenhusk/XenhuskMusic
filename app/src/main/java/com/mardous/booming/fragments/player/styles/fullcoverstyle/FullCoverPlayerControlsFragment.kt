@@ -39,6 +39,7 @@ import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.resources.showBounceAnimation
 import com.mardous.booming.extensions.resources.toColorStateList
 import com.mardous.booming.fragments.player.PlayerAnimator
+import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.helper.handler.PrevNextButtonOnTouchHandler
 import com.mardous.booming.model.NowPlayingAction
@@ -118,24 +119,24 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
         return FullCoverPlayerAnimator(binding, Preferences.animateControls)
     }
 
-    override fun setColors(backgroundColor: Int, primaryControlColor: Int, secondaryControlColor: Int) {
-        super.setColors(backgroundColor, primaryControlColor, secondaryControlColor)
+    override fun setColors(scheme: PlayerColorScheme) {
+        super.setColors(scheme)
         if (_binding == null) return
-        binding.title.setTextColor(primaryControlColor)
-        binding.text.setTextColor(primaryControlColor)
-        binding.songInfo.setTextColor(secondaryControlColor)
+        binding.title.setTextColor(scheme.primaryTextColor)
+        binding.text.setTextColor(scheme.secondaryTextColor)
+        binding.songInfo.setTextColor(scheme.secondaryTextColor)
 
-        binding.menu.applyColor(primaryControlColor, isIconButton = true)
-        binding.favorite.applyColor(primaryControlColor, isIconButton = true)
+        binding.menu.applyColor(scheme.primaryControlColor, isIconButton = true)
+        binding.favorite.applyColor(scheme.primaryControlColor, isIconButton = true)
 
-        binding.progressSlider.applyColor(primaryControlColor)
-        binding.songCurrentProgress.setTextColor(secondaryControlColor)
-        binding.songTotalTime.setTextColor(secondaryControlColor)
+        binding.progressSlider.applyColor(scheme.primaryControlColor)
+        binding.songCurrentProgress.setTextColor(scheme.secondaryControlColor)
+        binding.songTotalTime.setTextColor(scheme.secondaryControlColor)
 
-        binding.playPauseButton.backgroundTintList = primaryControlColor.toColorStateList()
-        binding.playPauseButton.imageTintList = backgroundColor.toColorStateList()
-        binding.nextButton.applyColor(primaryControlColor, isIconButton = true)
-        binding.previousButton.applyColor(primaryControlColor, isIconButton = true)
+        binding.playPauseButton.backgroundTintList = scheme.primaryControlColor.toColorStateList()
+        binding.playPauseButton.imageTintList = scheme.emphasisColor.toColorStateList()
+        binding.nextButton.applyColor(scheme.primaryControlColor, isIconButton = true)
+        binding.previousButton.applyColor(scheme.primaryControlColor, isIconButton = true)
 
         updateRepeatMode()
         updateShuffleMode()

@@ -235,9 +235,6 @@ object Preferences : KoinComponent {
         else -> preferences.getFloat(REPLAYGAIN_PREAMP_WITHOUT_TAG, 0f)
     }
 
-    val audioDucking: Boolean
-        get() = preferences.getBoolean(AUDIO_DUCKING, true)
-
     val pauseOnTransientFocusLoss: Boolean
         get() = preferences.getBoolean(PAUSE_ON_TRANSIENT_FOCUS_LOSS, true)
 
@@ -594,7 +591,6 @@ const val RESUME_ON_CONNECT = "resume_on_connect"
 const val PAUSE_ON_DISCONNECT = "pause_on_disconnect"
 const val RESUME_ON_BLUETOOTH_CONNECT = "resume_on_bluetooth_connect"
 const val PAUSE_ON_BLUETOOTH_DISCONNECT = "pause_on_bluetooth_disconnect"
-const val AUDIO_DUCKING = "audio_ducking"
 const val IGNORE_AUDIO_FOCUS = "ignore_audio_focus"
 const val PAUSE_ON_TRANSIENT_FOCUS_LOSS = "pause_on_transient_focus_loss"
 const val AUTO_DOWNLOAD_METADATA_POLICY = "auto_download_metadata_policy"

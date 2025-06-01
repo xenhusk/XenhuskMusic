@@ -162,14 +162,6 @@
         app:layout="@layout/preference_category_title">
 
         <SwitchPreferenceCompat
-            app:icon="@drawable/ic_volume_down_24dp"
-            app:title="@string/audio_ducking_title"
-            app:summary="@string/audio_ducking_summary"
-            app:defaultValue="true"
-            app:layout="@layout/list_item_view_switch"
-            app:key="audio_ducking"/>
-
-        <SwitchPreferenceCompat
             app:icon="@drawable/ic_pause_24dp"
             app:title="@string/ignore_audio_focus_title"
             app:summary="@string/ignore_audio_focus_summary"

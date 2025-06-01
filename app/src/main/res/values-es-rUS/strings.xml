@@ -660,8 +660,6 @@
     <string name="resume_on_bluetooth_connect_summary">Continúa con la reproducción al conectar el auricular Bluetooth A2DP.</string>
     <string name="pause_on_bluetooth_disconnect_title">Pausar al desconectar Bluetooth</string>
     <string name="pause_on_bluetooth_disconnect_summary">Pausa la reproducción cuando se desconecte el auricular Bluetooth A2DP. Recomendado.</string>
-    <string name="audio_ducking_title">Reducir volumen al perder enfoque</string>
-    <string name="audio_ducking_summary">Por ejemplo, cuando se reciban notificaciones.</string>
     <string name="ignore_audio_focus_title">Ignorar pérdida del foco</string>
     <string name="ignore_audio_focus_summary">Mantener la reproducción aún cuando otras apps estén reproduciendo audio también.</string>
     <string name="pause_on_transient_focus_loss_title">Pérdida temporal del foco de audio</string>

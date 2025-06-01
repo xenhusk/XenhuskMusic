@@ -196,7 +196,6 @@ class PlaybackManager(
                     playback?.getCallbacks()?.onPlayStateChanged()
                     isPausedByTransientLossOfFocus = false
                 }
-                playback?.setDuckingFactor(Volume.NORMAL)
             }
 
             AudioManager.AUDIOFOCUS_LOSS -> {
@@ -216,14 +215,6 @@ class PlaybackManager(
                     playback?.pause()
                     playback?.getCallbacks()?.onPlayStateChanged()
                     isPausedByTransientLossOfFocus = wasPlaying
-                }
-            }
-
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-                // Lost focus for a short time, but it's ok to keep playing
-                // at an attenuated level
-                if (Preferences.audioDucking) {
-                    playback?.setDuckingFactor(Volume.DUCK)
                 }
             }
         }

@@ -322,7 +322,7 @@ object Preferences : KoinComponent {
             PlaylistCutoff.YESTERDAY -> context.getString(R.string.yesterday)
             PlaylistCutoff.THIS_WEEK -> context.getString(R.string.this_week)
             PlaylistCutoff.PAST_THREE_MONTHS -> context.getString(R.string.past_three_months)
-            PlaylistCutoff.LAST_YEAR -> context.getString(R.string.this_year)
+            PlaylistCutoff.THIS_YEAR -> context.getString(R.string.this_year)
             PlaylistCutoff.THIS_MONTH -> context.getString(R.string.this_month)
             else -> context.getString(R.string.this_month)
         }
@@ -496,7 +496,7 @@ interface PlaylistCutoff {
         const val THIS_WEEK = "this_week"
         const val THIS_MONTH = "this_month"
         const val PAST_THREE_MONTHS = "past_three_months"
-        const val LAST_YEAR = "last_year"
+        const val THIS_YEAR = "this_year"
     }
 }
 

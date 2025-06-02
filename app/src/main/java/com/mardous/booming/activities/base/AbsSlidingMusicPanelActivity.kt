@@ -399,7 +399,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                 miniPlayerFragment?.setupExtraControls()
             }
 
-            CAROUSAL_EFFECT,
+            CAROUSEL_EFFECT,
             COVER_SWIPING_EFFECT,
             NOW_PLAYING_IMAGE_CORNER_RADIUS,
             CIRCLE_PLAY_BUTTON -> {

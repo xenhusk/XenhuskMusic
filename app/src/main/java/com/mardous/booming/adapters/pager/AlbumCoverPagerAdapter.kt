@@ -101,7 +101,7 @@ class AlbumCoverPagerAdapter(fm: FragmentManager, private val dataSet: List<Song
 
         private fun getLayoutWithPlayerTheme(): Int {
             if (nowPlayingScreen.supportsCarouselEffect) {
-                if (Preferences.isCarousalEffect) {
+                if (Preferences.isCarouselEffect) {
                     return R.layout.fragment_album_cover_carousel
                 }
             }

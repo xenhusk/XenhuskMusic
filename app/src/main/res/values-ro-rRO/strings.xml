@@ -594,7 +594,7 @@
     <string name="swipe_album_cover_summary">Glisați la stânga și la dreapta pe coperta de album pentru a sări între melodii.</string>
     <string name="double_tap_on_album_cover_title">Dublă atingere pe copertă</string>
     <string name="long_press_on_album_cover_title">Apăsare lungă pe copertă</string>
-    <string name="carousal_effect_title">Efectul de carusel</string>
+    <string name="carousel_effect_title">Efectul de carusel</string>
     <string name="album_cover_effect_title">Efect copertă album</string>
     <string name="lyrics_on_album_cover_title">Versuri pe copertă</string>
     <string name="lyrics_on_album_cover_summary">Arată versurile cântecului în loc de copertă atunci când sunt disponibile.</string>

@@ -601,7 +601,7 @@
     <string name="swipe_album_cover_summary">Przesuń palcem w lewo i w prawo na okładce albumu, aby pominąć piosenki.</string>
     <string name="double_tap_on_album_cover_title">Dwukrotne dotknięcie okładki</string>
     <string name="long_press_on_album_cover_title">Długie przytrzymanie na okładce</string>
-    <string name="carousal_effect_title">Efekt karuzeli</string>
+    <string name="carousel_effect_title">Efekt karuzeli</string>
     <string name="album_cover_effect_title">Efekt okładki albumu</string>
     <string name="lyrics_on_album_cover_title">Tekst na okładce</string>
     <string name="lyrics_on_album_cover_summary">Pokaż teksty piosenki zamiast okładki, gdy są dostępne.</string>

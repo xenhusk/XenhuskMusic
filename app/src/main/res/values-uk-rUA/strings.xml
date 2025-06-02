@@ -601,7 +601,7 @@
     <string name="swipe_album_cover_summary">Проведіть вліво і вправо на обкладинці альбому, щоб пропустити між піснями.</string>
     <string name="double_tap_on_album_cover_title">Подвійне натискання на обкладинку</string>
     <string name="long_press_on_album_cover_title">Довге натискання на обкладинку</string>
-    <string name="carousal_effect_title">Ефект Карусель</string>
+    <string name="carousel_effect_title">Ефект Карусель</string>
     <string name="album_cover_effect_title">Ефект обкладинки альбому</string>
     <string name="lyrics_on_album_cover_title">Текст на обкладинці</string>
     <string name="lyrics_on_album_cover_summary">Показувати тексти пісень замість того, коли вони доступні.</string>

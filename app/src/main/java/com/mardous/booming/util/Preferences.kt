@@ -158,8 +158,8 @@ object Preferences : KoinComponent {
     fun getNowPlayingImageCornerRadius(context: Context): Int =
         preferences.getInt(NOW_PLAYING_IMAGE_CORNER_RADIUS, context.intRes(R.integer.now_playing_corner_radius))
 
-    val isCarousalEffect: Boolean
-        get() = preferences.getBoolean(CAROUSAL_EFFECT, true)
+    val isCarouselEffect: Boolean
+        get() = preferences.getBoolean(CAROUSEL_EFFECT, true)
 
     val coverSwipingEffect: ViewPager.PageTransformer?
         get() = when (preferences.nullString(COVER_SWIPING_EFFECT)) {
@@ -559,7 +559,7 @@ const val SWIPE_TO_DISMISS = "swipe_to_dismiss"
 const val LYRICS_ON_COVER = "lyrics_on_cover"
 const val LEFT_RIGHT_SWIPING = "left_right_swiping"
 const val NOW_PLAYING_IMAGE_CORNER_RADIUS = "now_playing_corner_radius"
-const val CAROUSAL_EFFECT = "carousal_effect"
+const val CAROUSEL_EFFECT = "carousel_effect"
 const val COVER_SWIPING_EFFECT = "cover_swiping_effect"
 const val COVER_DOUBLE_TAP_ACTION = "cover_double_tap_action"
 const val COVER_LONG_PRESS_ACTION = "cover_long_press_action"

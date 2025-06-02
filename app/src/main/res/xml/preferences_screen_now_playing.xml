@@ -57,10 +57,10 @@
 
         <SwitchPreferenceCompat
             app:icon="@drawable/ic_view_carousel_24dp"
-            app:title="@string/carousal_effect_title"
+            app:title="@string/carousel_effect_title"
             app:defaultValue="true"
             app:layout="@layout/list_item_view_switch_no_title"
-            app:key="carousal_effect" />
+            app:key="carousel_effect" />
 
         <ListPreference
             app:iconSpaceReserved="true"

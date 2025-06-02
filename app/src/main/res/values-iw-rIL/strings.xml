@@ -601,7 +601,7 @@
     <string name="swipe_album_cover_summary">Swipe left and right on album cover to skip between songs.</string>
     <string name="double_tap_on_album_cover_title">Double tap on cover</string>
     <string name="long_press_on_album_cover_title">Long press on cover</string>
-    <string name="carousal_effect_title">Carousel effect</string>
+    <string name="carousel_effect_title">Carousel effect</string>
     <string name="album_cover_effect_title">Album cover effect</string>
     <string name="lyrics_on_album_cover_title">Lyrics on cover</string>
     <string name="lyrics_on_album_cover_summary">Show song lyrics instead of cover when them are available.</string>

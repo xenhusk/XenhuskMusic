@@ -587,7 +587,7 @@
     <string name="swipe_album_cover_summary">Sveip til venstre og høyre på albumomslag for å hoppe over mellom sanger.</string>
     <string name="double_tap_on_album_cover_title">Dobbelttrykk på dekselet</string>
     <string name="long_press_on_album_cover_title">Langt trykk på deksel</string>
-    <string name="carousal_effect_title">Karusellens effekt</string>
+    <string name="carousel_effect_title">Karusellens effekt</string>
     <string name="album_cover_effect_title">Albumforsideeffekt</string>
     <string name="lyrics_on_album_cover_title">Tekster på omslaget</string>
     <string name="lyrics_on_album_cover_summary">Vis sangtekst i stedet for forsidevisning når de er tilgjengelige.</string>

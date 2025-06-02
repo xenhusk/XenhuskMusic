@@ -580,7 +580,7 @@
     <string name="swipe_album_cover_summary">アルバムカバーを左右にスワイプして曲間をスキップします。</string>
     <string name="double_tap_on_album_cover_title">カバーをダブルタップする</string>
     <string name="long_press_on_album_cover_title">カバーを長押しする</string>
-    <string name="carousal_effect_title">カルーセル効果</string>
+    <string name="carousel_effect_title">カルーセル効果</string>
     <string name="album_cover_effect_title">アルバムカバー効果</string>
     <string name="lyrics_on_album_cover_title">カバーに歌詞を表示</string>
     <string name="lyrics_on_album_cover_summary">表示されている曲の代わりに歌詞を表示する</string>

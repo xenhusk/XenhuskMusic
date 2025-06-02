@@ -613,7 +613,7 @@
     <string name="long_press_on_album_cover_title">Presión larga en portada</string>
     <string name="now_playing_corner_radius_title">Radio de esquinas de la imagen</string>
     <string name="now_playing_corner_radius_summary">Elija qué tan redondeadas deben verse las esquinas de la imagen del álbum.</string>
-    <string name="carousal_effect_title">Efecto de carrusel</string>
+    <string name="carousel_effect_title">Efecto de carrusel</string>
     <string name="album_cover_effect_title">Efecto de deslizamiento de carátulas</string>
     <string name="lyrics_on_album_cover_title">Letras en portada</string>
     <string name="lyrics_on_album_cover_summary">Muestra la letra de la canción en lugar de la portada cuando esté disponible.</string>

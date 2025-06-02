@@ -587,7 +587,7 @@
     <string name="swipe_album_cover_summary">Pyyhkäise albumin kansiosassa vasemmalle ja oikealle ohittaaksesi kappaleiden välillä.</string>
     <string name="double_tap_on_album_cover_title">Kaksoisnapautus kannessa</string>
     <string name="long_press_on_album_cover_title">Paina pitkään kannella</string>
-    <string name="carousal_effect_title">Karusellin vaikutus</string>
+    <string name="carousel_effect_title">Karusellin vaikutus</string>
     <string name="album_cover_effect_title">Albumin kansiefekti</string>
     <string name="lyrics_on_album_cover_title">Sanoitukset kannessa</string>
     <string name="lyrics_on_album_cover_summary">Näytä kappaleen sanoitukset kannen sijaan, kun ne ovat saatavilla.</string>

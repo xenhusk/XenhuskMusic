@@ -111,7 +111,7 @@ class M3PlayerFragment : AbsPlayerFragment(R.layout.fragment_m3_player) {
 
         colorJob = viewLifecycleOwner.lifecycleScope.launch {
             val scheme = runCatching {
-                PlayerColorScheme.autoColorScheme(requireContext(), color)
+                PlayerColorScheme.autoDynamicColorScheme(requireContext(), color)
             }
             if (scheme.isSuccess) {
                 startColorTransition(scheme.getOrThrow())

@@ -184,7 +184,10 @@ class PlayerColorScheme(
          *
          * @return A [PlayerColorScheme] suitable for the current device and theme.
          */
-        suspend fun autoColorScheme(context: Context, mediaColor: MediaNotificationProcessor): PlayerColorScheme {
+        suspend fun autoDynamicColorScheme(
+            context: Context,
+            mediaColor: MediaNotificationProcessor
+        ): PlayerColorScheme {
             return if (DynamicColors.isDynamicColorAvailable()) {
                 dynamicColorScheme(context, mediaColor.backgroundColor)
             } else {

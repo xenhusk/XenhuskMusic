@@ -35,7 +35,10 @@ import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentGradientPlayerPlaybackControlsBinding
 import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.fragments.player.PlayerColorScheme
+import com.mardous.booming.fragments.player.PlayerTintTarget
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
+import com.mardous.booming.fragments.player.iconButtonTintTarget
+import com.mardous.booming.fragments.player.tintTarget
 import com.mardous.booming.helper.handler.PrevNextButtonOnTouchHandler
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
@@ -100,27 +103,40 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
         }
     }
 
-    override fun setColors(scheme: PlayerColorScheme) {
-        super.setColors(scheme)
-        binding.controlContainer.setBackgroundColor(scheme.surfaceColor)
+    override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
+        val oldControlColor = binding.nextButton.iconTint.defaultColor
+        val oldSliderColor = binding.progressSlider.trackActiveTintList.defaultColor
+        val oldPrimaryTextColor = binding.title.currentTextColor
+        val oldSecondaryTextColor = binding.text.currentTextColor
 
-        binding.title.setTextColor(scheme.primaryTextColor)
-        binding.text.setTextColor(scheme.secondaryTextColor)
-        binding.songInfo.setTextColor(scheme.secondaryTextColor)
+        val oldShuffleColor = getPlaybackControlsColor(isShuffleModeOn)
+        val newShuffleColor = getPlaybackControlsColor(
+            isShuffleModeOn,
+            scheme.primaryControlColor,
+            scheme.secondaryControlColor
+        )
+        val oldRepeatColor = getPlaybackControlsColor(isRepeatModeOn)
+        val newRepeatColor = getPlaybackControlsColor(
+            isRepeatModeOn,
+            scheme.primaryControlColor,
+            scheme.secondaryControlColor
+        )
 
-        binding.menu.applyColor(scheme.primaryTextColor, isIconButton = true)
-        binding.favorite.applyColor(scheme.primaryTextColor, isIconButton = true)
-
-        binding.progressSlider.applyColor(scheme.primaryControlColor)
-        binding.songCurrentProgress.setTextColor(scheme.secondaryControlColor)
-        binding.songTotalTime.setTextColor(scheme.secondaryControlColor)
-
-        binding.playPauseButton.applyColor(scheme.primaryControlColor, isIconButton = true)
-        binding.nextButton.applyColor(scheme.primaryControlColor, isIconButton = true)
-        binding.previousButton.applyColor(scheme.primaryControlColor, isIconButton = true)
-
-        updateRepeatMode()
-        updateShuffleMode()
+        return listOf(
+            binding.progressSlider.tintTarget(oldSliderColor, scheme.primaryControlColor),
+            binding.menu.iconButtonTintTarget(oldControlColor, scheme.primaryControlColor),
+            binding.favorite.iconButtonTintTarget(oldControlColor, scheme.primaryControlColor),
+            binding.playPauseButton.iconButtonTintTarget(oldControlColor, scheme.primaryControlColor),
+            binding.nextButton.iconButtonTintTarget(oldControlColor, scheme.primaryControlColor),
+            binding.previousButton.iconButtonTintTarget(oldControlColor, scheme.primaryControlColor),
+            binding.shuffleButton.iconButtonTintTarget(oldShuffleColor, newShuffleColor),
+            binding.repeatButton.iconButtonTintTarget(oldRepeatColor, newRepeatColor),
+            binding.title.tintTarget(oldPrimaryTextColor, scheme.primaryTextColor),
+            binding.text.tintTarget(oldSecondaryTextColor, scheme.secondaryTextColor),
+            binding.songInfo.tintTarget(oldSecondaryTextColor, scheme.secondaryTextColor),
+            binding.songCurrentProgress.tintTarget(oldSecondaryTextColor, scheme.secondaryTextColor),
+            binding.songTotalTime.tintTarget(oldSecondaryTextColor, scheme.secondaryTextColor)
+        )
     }
 
     override fun onSongInfoChanged(song: Song) {

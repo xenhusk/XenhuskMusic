@@ -25,6 +25,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -32,6 +33,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
+import androidx.core.animation.doOnEnd
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
@@ -57,6 +59,8 @@ import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.artistDetailArgs
 import com.mardous.booming.extensions.navigation.genreDetailArgs
 import com.mardous.booming.extensions.openIntent
+import com.mardous.booming.extensions.resources.animateBackgroundColor
+import com.mardous.booming.extensions.resources.animateTintColor
 import com.mardous.booming.extensions.resources.inflateMenu
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.buildInfoString
@@ -65,6 +69,9 @@ import com.mardous.booming.fragments.LibraryViewModel
 import com.mardous.booming.fragments.ReloadType
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.fragments.player.PlayerAlbumCoverFragment
+import com.mardous.booming.fragments.player.PlayerColorScheme
+import com.mardous.booming.fragments.player.PlayerColorSchemeMode
+import com.mardous.booming.fragments.player.PlayerTintTarget
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.helper.menu.newPopupMenu
 import com.mardous.booming.helper.menu.onSongMenu
@@ -78,6 +85,7 @@ import com.mardous.booming.service.constants.ServiceEvent
 import com.mardous.booming.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -98,10 +106,14 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         CoverSaverCoroutine(requireContext(), viewLifecycleOwner.lifecycleScope, IO)
     }
 
+    protected abstract val colorSchemeMode: PlayerColorSchemeMode
     protected abstract val playerControlsFragment: AbsPlayerControlsFragment
 
     protected open val playerToolbar: Toolbar?
         get() = null
+
+    private var colorAnimatorSet: AnimatorSet? = null
+    private var colorJob: Job? = null
 
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -215,7 +227,43 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     }
 
     override fun onColorChanged(color: MediaNotificationProcessor) {
-        libraryViewModel.setPaletteColor(color.backgroundColor)
+        cancelOngoingColorTransition()
+        colorJob = viewLifecycleOwner.lifecycleScope.launch {
+            val scheme = runCatching {
+                PlayerColorScheme.autoColorScheme(requireContext(), color, colorSchemeMode)
+            }
+            if (scheme.isSuccess) {
+                applyColorScheme(scheme.getOrThrow()).start()
+            } else if (scheme.isFailure) {
+                Log.w("AbsPlayerFragment", "Failed to apply color scheme", scheme.exceptionOrNull())
+            }
+        }
+    }
+
+    protected abstract fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget>
+
+    protected open fun getAnimationDuration(scheme: PlayerColorScheme) =
+        scheme.mode.preferredAnimDuration
+
+    protected fun applyColorScheme(scheme: PlayerColorScheme): AnimatorSet {
+        return AnimatorSet()
+            .setDuration(scheme.mode.preferredAnimDuration)
+            .apply {
+                playTogether(getTintTargets(scheme).map {
+                    if (it.isSurface) {
+                        it.target.animateBackgroundColor(it.newColor)
+                    } else {
+                        it.target.animateTintColor(
+                            it.oldColor,
+                            it.newColor,
+                            isIconButton = it.isIcon
+                        )
+                    }
+                })
+                doOnEnd { playerControlsFragment.applyColorScheme(scheme) }
+            }.also {
+                colorAnimatorSet = it
+            }
     }
 
     override fun onGestureDetected(gestureOnCover: GestureOnCover): Boolean {
@@ -304,6 +352,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     }
 
     override fun onDestroyView() {
+        cancelOngoingColorTransition()
         super.onDestroyView()
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
     }
@@ -471,6 +520,12 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
     fun getExtraInfoString(song: Song) =
         if (isExtraInfoEnabled()) song.extraInfo(Preferences.nowPlayingExtraInfoList) else null
+
+    private fun cancelOngoingColorTransition() {
+        colorJob?.cancel()
+        colorAnimatorSet?.cancel()
+        colorAnimatorSet = null
+    }
 
     private fun requestSaveCover() {
         if (!Preferences.savedArtworkCopyrightNoticeShown) {

@@ -21,6 +21,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import com.mardous.booming.R
+import com.mardous.booming.fragments.player.PlayerColorSchemeMode
+import com.mardous.booming.fragments.player.PlayerColorSchemeList
 
 enum class NowPlayingScreen(
     @StringRes
@@ -81,4 +83,31 @@ enum class NowPlayingScreen(
         supportsCarouselEffect = false,
         supportsCustomCornerRadius = false
     );
+
+    val defaultColorScheme: PlayerColorSchemeMode
+        get() = when (this) {
+            Default -> PlayerColorSchemeMode.AppTheme
+            M3 -> PlayerColorSchemeMode.MaterialYou
+            FullCover, Gradient -> PlayerColorSchemeMode.VibrantColor
+            Plain, Peek -> PlayerColorSchemeMode.SimpleColor
+        }
+
+    val supportedColorSchemes: PlayerColorSchemeList
+        get() = when (this) {
+            Default,
+            Plain -> listOf(
+                PlayerColorSchemeMode.AppTheme,
+                PlayerColorSchemeMode.SimpleColor,
+                PlayerColorSchemeMode.MaterialYou
+            )
+            FullCover,
+            Gradient -> listOf(
+                PlayerColorSchemeMode.VibrantColor
+            )
+            Peek,
+            M3 -> listOf(
+                PlayerColorSchemeMode.AppTheme,
+                PlayerColorSchemeMode.MaterialYou
+            )
+        }
 }

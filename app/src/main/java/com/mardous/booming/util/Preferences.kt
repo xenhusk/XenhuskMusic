@@ -32,6 +32,7 @@ import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.extensions.hasS
 import com.mardous.booming.extensions.intRes
 import com.mardous.booming.extensions.utilities.*
+import com.mardous.booming.fragments.player.PlayerColorSchemeMode
 import com.mardous.booming.model.*
 import com.mardous.booming.model.theme.AppTheme
 import com.mardous.booming.model.theme.NowPlayingScreen
@@ -154,6 +155,28 @@ object Preferences : KoinComponent {
 
     val allowCoverSwiping: Boolean
         get() = preferences.getBoolean(LEFT_RIGHT_SWIPING, true)
+
+    fun getNowPlayingColorSchemeKey(nps: NowPlayingScreen) =
+        "player_${nps.name.lowercase()}_color_scheme"
+
+    fun getNowPlayingColorSchemeMode(nps: NowPlayingScreen): PlayerColorSchemeMode {
+        val defaultScheme = nps.defaultColorScheme
+        val schemeName = preferences.nullString(getNowPlayingColorSchemeKey(nps))
+            ?: defaultScheme.name
+        if (nps.supportedColorSchemes.any { it.name == schemeName }) {
+            return schemeName.toEnum<PlayerColorSchemeMode>() ?: defaultScheme
+        }
+        return defaultScheme
+    }
+
+    fun setNowPlayingColorSchemeMode(nps: NowPlayingScreen, schemeMode: PlayerColorSchemeMode) {
+        val schemeName = schemeMode.name
+        if (nps.supportedColorSchemes.any { it.name == schemeName }) {
+            preferences.edit {
+                putString(getNowPlayingColorSchemeKey(nps), schemeName)
+            }
+        }
+    }
 
     fun getNowPlayingImageCornerRadius(context: Context): Int =
         preferences.getInt(NOW_PLAYING_IMAGE_CORNER_RADIUS, context.intRes(R.integer.now_playing_corner_radius))

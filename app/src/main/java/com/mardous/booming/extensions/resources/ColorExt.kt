@@ -17,14 +17,24 @@
 
 package com.mardous.booming.extensions.resources
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.text.style.ForegroundColorSpan
+import android.widget.ImageButton
+import android.widget.SeekBar
+import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.appcompat.view.menu.ActionMenuItemView
+import androidx.appcompat.widget.ActionMenuView
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
+import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -153,12 +163,19 @@ fun Context.textColorSecondary() = resolveColor(android.R.attr.textColorSecondar
 @ColorInt
 fun Context.defaultFooterColor() = resolveColor(R.attr.defaultFooterColor)
 
+fun SeekBar.applyColor(@ColorInt color: Int) {
+    color.toColorStateList().let {
+        thumbTintList = it
+        progressTintList = it
+        progressBackgroundTintList = it
+    }
+}
+
 fun Slider.applyColor(@ColorInt color: Int) {
     color.toColorStateList().run {
         thumbTintList = this
         trackActiveTintList = this
         trackInactiveTintList = ColorStateList.valueOf(color.withAlpha(0.1f))
-        haloTintList = this
     }
 }
 
@@ -180,6 +197,43 @@ fun FloatingActionButton.applyColor(color: Int) {
     val textColor = getPrimaryTextColor(context, color.isColorLight)
     backgroundTintList = ColorStateList.valueOf(color)
     imageTintList = ColorStateList.valueOf(textColor)
+}
+
+fun TextView.applyColor(color: Int) {
+    setTextColor(color)
+    TextViewCompat.setCompoundDrawableTintList(this, color.toColorStateList())
+}
+
+@SuppressLint("RestrictedApi")
+fun Toolbar.colorizeToolbar(toolbarIconsColor: Int) {
+    val colorFilter = PorterDuffColorFilter(toolbarIconsColor, PorterDuff.Mode.SRC_IN)
+
+    for (i in 0 until childCount) {
+        val v = getChildAt(i)
+
+        if (v is ImageButton) {
+            v.drawable?.mutate()?.colorFilter = colorFilter
+        }
+
+        if (v is ActionMenuView) {
+            for (j in 0 until v.childCount) {
+                val innerView = v.getChildAt(j)
+                if (innerView is ActionMenuItemView) {
+                    innerView.compoundDrawables.forEach { drawable ->
+                        innerView.post {
+                            drawable?.mutate()?.colorFilter = colorFilter
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    setTitleTextColor(context.textColorSecondary())
+    setSubtitleTextColor(context.textColorSecondary())
+
+    overflowIcon?.mutate()?.colorFilter =
+        PorterDuffColorFilter(toolbarIconsColor, PorterDuff.Mode.SRC_IN)
 }
 
 fun getPrimaryTextColor(context: Context, isDark: Boolean = !context.isNightMode, isDisabled: Boolean = false): Int {

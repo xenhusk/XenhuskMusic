@@ -17,33 +17,26 @@
 
 package com.mardous.booming.fragments.player.styles.m3style
 
-import android.animation.Animator
 import android.animation.AnimatorSet
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
-import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type
 import androidx.core.view.updatePadding
-import androidx.lifecycle.lifecycleScope
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentM3PlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
-import com.mardous.booming.extensions.resources.animateBackgroundColor
-import com.mardous.booming.extensions.resources.animateTintColor
 import com.mardous.booming.extensions.whichFragment
-import com.mardous.booming.fragments.player.PlayerColorScheme
+import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
-import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.model.NowPlayingAction
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import com.mardous.booming.model.theme.NowPlayingScreen
+import com.mardous.booming.util.Preferences
 
 /**
  * @author Christians M. A. (mardous)
@@ -56,11 +49,12 @@ class M3PlayerFragment : AbsPlayerFragment(R.layout.fragment_m3_player) {
     private lateinit var controlsFragment: M3PlayerControlsFragment
 
     private var popupMenu: PopupMenu? = null
-    private var colorAnimatorSet: AnimatorSet? = null
-    private var colorJob: Job? = null
 
     override val playerControlsFragment: AbsPlayerControlsFragment
         get() = controlsFragment
+
+    override val colorSchemeMode: PlayerColorSchemeMode
+        get() = Preferences.getNowPlayingColorSchemeMode(NowPlayingScreen.M3)
 
     override val playerToolbar: Toolbar
         get() = binding.playerToolbar
@@ -106,54 +100,18 @@ class M3PlayerFragment : AbsPlayerFragment(R.layout.fragment_m3_player) {
         controlsFragment = whichFragment(R.id.playbackControlsFragment)
     }
 
-    override fun onColorChanged(color: MediaNotificationProcessor) {
-        cancelOngoingColorTransition()
-
-        colorJob = viewLifecycleOwner.lifecycleScope.launch {
-            val scheme = runCatching {
-                PlayerColorScheme.autoDynamicColorScheme(requireContext(), color)
-            }
-            if (scheme.isSuccess) {
-                startColorTransition(scheme.getOrThrow())
-            } else if (scheme.isFailure) {
-                Log.w("M3PlayerFragment", "Failed to apply dynamic color scheme", scheme.exceptionOrNull())
-            }
+    override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
+        val oldColor = binding.openQueueButton.iconTint.defaultColor
+        return mutableListOf(
+            binding.root.surfaceTintTarget(scheme.surfaceColor),
+            binding.openQueueButton.iconButtonTintTarget(oldColor, scheme.primaryControlColor),
+            binding.showLyricsButton.iconButtonTintTarget(oldColor, scheme.primaryControlColor),
+            binding.sleepTimerAction.iconButtonTintTarget(oldColor, scheme.primaryControlColor),
+            binding.addToPlaylistAction.iconButtonTintTarget(oldColor, scheme.primaryControlColor),
+            binding.moreAction.iconButtonTintTarget(oldColor, scheme.primaryControlColor),
+        ).also {
+            it.addAll(playerControlsFragment.getTintTargets(scheme))
         }
-    }
-
-    private fun applyColorScheme(scheme: PlayerColorScheme): AnimatorSet {
-        libraryViewModel.setPaletteColor(scheme.surfaceColor)
-
-        val oldColor = binding.showLyricsButton.iconTint.defaultColor
-        val tintTargets = listOf(
-            binding.openQueueButton,
-            binding.showLyricsButton,
-            binding.sleepTimerAction,
-            binding.addToPlaylistAction,
-            binding.moreAction
-        )
-        return AnimatorSet().apply {
-            duration = 1000
-
-            val animators = mutableListOf<Animator>()
-            animators += binding.root.animateBackgroundColor(scheme.surfaceColor)
-            animators += controlsFragment.animateColors(scheme)
-            animators += tintTargets.map { it.animateTintColor(oldColor, scheme.primaryControlColor, isIconButton = true) }
-
-            playTogether(animators)
-
-            doOnEnd { playerControlsFragment.setColors(scheme) }
-        }.also { it.start() }
-    }
-
-    private fun startColorTransition(scheme: PlayerColorScheme) {
-        colorAnimatorSet = applyColorScheme(scheme).also { it.start() }
-    }
-
-    private fun cancelOngoingColorTransition() {
-        colorJob?.cancel()
-        colorAnimatorSet?.cancel()
-        colorAnimatorSet = null
     }
 
     override fun onLyricsVisibilityChange(animatorSet: AnimatorSet, lyricsVisible: Boolean) {

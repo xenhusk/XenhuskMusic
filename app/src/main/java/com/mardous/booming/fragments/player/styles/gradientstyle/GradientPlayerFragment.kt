@@ -19,6 +19,7 @@ package com.mardous.booming.fragments.player.styles.gradientstyle
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -26,20 +27,18 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type
 import androidx.core.view.updatePadding
-import androidx.core.widget.TextViewCompat
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentGradientPlayerBinding
-import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.resources.darkenColor
-import com.mardous.booming.extensions.resources.toColorStateList
 import com.mardous.booming.extensions.whichFragment
-import com.mardous.booming.fragments.player.PlayerColorScheme
+import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
-import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
+import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.util.Preferences
 
 class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_player), View.OnClickListener {
 
@@ -47,6 +46,9 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
     private val binding get() = _binding!!
 
     private lateinit var controlsFragment: GradientPlayerControlsFragment
+
+    override val colorSchemeMode: PlayerColorSchemeMode
+        get() = Preferences.getNowPlayingColorSchemeMode(NowPlayingScreen.Gradient)
 
     override val playerControlsFragment: AbsPlayerControlsFragment
         get() = controlsFragment
@@ -131,21 +133,19 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
         _binding = null
     }
 
-    override fun onColorChanged(color: MediaNotificationProcessor) {
-        super.onColorChanged(color)
-        if (_binding == null) return
-
-        controlsFragment.setColors(
-            PlayerColorScheme.vibrantColorScheme(color).also { scheme ->
-                binding.colorBackground.setBackgroundColor(scheme.surfaceColor)
-                binding.darkColorBackground.setBackgroundColor(scheme.surfaceColor.darkenColor)
-                binding.mask.backgroundTintList = scheme.surfaceColor.toColorStateList()
-
-                binding.volumeIcon.applyColor(scheme.primaryTextColor, isIconButton = true)
-                binding.nextSongLabel.setTextColor(scheme.primaryTextColor)
-                TextViewCompat.setCompoundDrawableTintList(binding.nextSongLabel, scheme.primaryTextColor.toColorStateList())
-            }
-        )
+    override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
+        val oldMaskColor = binding.mask.backgroundTintList?.defaultColor
+            ?: Color.TRANSPARENT
+        val oldPrimaryTextColor = binding.volumeIcon.iconTint.defaultColor
+        return mutableListOf(
+            binding.colorBackground.surfaceTintTarget(scheme.surfaceColor),
+            binding.darkColorBackground.surfaceTintTarget(scheme.surfaceColor.darkenColor),
+            binding.mask.tintTarget(oldMaskColor, scheme.surfaceColor),
+            binding.nextSongLabel.tintTarget(oldPrimaryTextColor, scheme.primaryTextColor),
+            binding.volumeIcon.iconButtonTintTarget(oldPrimaryTextColor, scheme.primaryTextColor)
+        ).also {
+            it.addAll(playerControlsFragment.getTintTargets(scheme))
+        }
     }
 
     override fun onLyricsVisibilityChange(animatorSet: AnimatorSet, lyricsVisible: Boolean) {

@@ -772,6 +772,15 @@
     <string name="label_nothing">Nada</string>
     <string name="label_none">Ninguno</string>
 
+    <string name="player_color_mode_app_theme_title">Tema de la app</string>
+    <string name="player_color_mode_app_theme_description">Usar el mismo esquema de color que la app</string>
+    <string name="player_color_mode_simple_color_title">Color simple</string>
+    <string name="player_color_mode_simple_color_description">Extrae el color del álbum para aplicarlo a algunos controles</string>
+    <string name="player_color_mode_vibrant_color_title">Color vibrante</string>
+    <string name="player_color_mode_vibrant_color_description">Tinta el fondo, textos y controles con el color del álbum</string>
+    <string name="player_color_mode_material_you_title">Material You</string>
+    <string name="player_color_mode_material_you_description">Usa tonos de Material You basados en el color del álbum</string>
+
     <string name="auto_update_title">Búsqueda auto. de actualización</string>
     <string name="every_day">Diariamente</string>
     <string name="weekly">Semanalmente</string>

@@ -22,6 +22,7 @@ import android.graphics.Color
 import android.os.Build
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import com.google.android.material.color.DynamicColors
@@ -33,6 +34,10 @@ import com.mardous.booming.extensions.resources.*
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+typealias PlayerColorSchemeMode = PlayerColorScheme.Mode
+
+typealias PlayerColorSchemeList = List<PlayerColorSchemeMode>
 
 /**
  * Represents a cohesive set of UI colors tailored for the audio player interface.
@@ -50,7 +55,8 @@ import kotlinx.coroutines.withContext
  *
  * @author Christians Martínez Alvarado (mardous)
  */
-class PlayerColorScheme(
+data class PlayerColorScheme(
+    val mode: Mode,
     @ColorInt val surfaceColor: Int,
     @ColorInt val emphasisColor: Int,
     @ColorInt val primaryTextColor: Int,
@@ -58,6 +64,31 @@ class PlayerColorScheme(
     @ColorInt val primaryControlColor: Int = primaryTextColor,
     @ColorInt val secondaryControlColor: Int = secondaryTextColor
 ) {
+
+    enum class Mode(
+        @StringRes val titleRes: Int,
+        @StringRes val descriptionRes: Int,
+        val preferredAnimDuration: Long = 500
+    ) {
+        AppTheme(
+            R.string.player_color_mode_app_theme_title,
+            R.string.player_color_mode_app_theme_description
+        ),
+        SimpleColor(
+            R.string.player_color_mode_simple_color_title,
+            R.string.player_color_mode_simple_color_description
+        ),
+        VibrantColor(
+            R.string.player_color_mode_vibrant_color_title,
+            R.string.player_color_mode_vibrant_color_description
+        ),
+        MaterialYou(
+            R.string.player_color_mode_material_you_title,
+            R.string.player_color_mode_material_you_description,
+            preferredAnimDuration = 1000
+        )
+    }
+
     companion object {
 
         /**
@@ -68,12 +99,13 @@ class PlayerColorScheme(
          * @param context Context used to resolve theme attributes.
          * @return A [PlayerColorScheme] derived from theme defaults.
          */
-        fun themeColorScheme(context: Context): PlayerColorScheme {
+        fun themeColorScheme(context: Context, mode: Mode = Mode.AppTheme): PlayerColorScheme {
             val primaryTextColor = context.textColorPrimary()
             val controlColor = context.controlColorNormal().takeUnless { it == Color.TRANSPARENT }
                 ?: primaryTextColor
             val secondaryControlColor = controlColor.withAlpha(0.2f)
             return PlayerColorScheme(
+                mode = mode,
                 surfaceColor = context.surfaceColor(),
                 emphasisColor = context.primaryColor(),
                 primaryTextColor = context.textColorPrimary(),
@@ -89,8 +121,25 @@ class PlayerColorScheme(
          * @param color A [MediaNotificationProcessor] with extracted media colors.
          * @return A raw [PlayerColorScheme] using unmodified colors.
          */
+        fun simpleColorScheme(
+            context: Context,
+            color: MediaNotificationProcessor
+        ): PlayerColorScheme {
+            return themeColorScheme(context).copy(
+                mode = Mode.SimpleColor,
+                emphasisColor = color.primaryTextColor
+            )
+        }
+
+        /**
+         * Creates a color scheme using the raw colors extracted from media (album art, etc).
+         *
+         * @param color A [MediaNotificationProcessor] with extracted media colors.
+         * @return A raw [PlayerColorScheme] using unmodified colors.
+         */
         fun vibrantColorScheme(color: MediaNotificationProcessor): PlayerColorScheme {
             return PlayerColorScheme(
+                mode = Mode.VibrantColor,
                 surfaceColor = color.backgroundColor,
                 emphasisColor = color.backgroundColor,
                 primaryTextColor = color.primaryTextColor,
@@ -145,6 +194,7 @@ class PlayerColorScheme(
             val secondaryTextColor = ColorUtils.setAlphaComponent(primaryTextColor, 0x99)
 
             return PlayerColorScheme(
+                mode = Mode.MaterialYou,
                 surfaceColor = surfaceColor,
                 emphasisColor = emphasisColor,
                 primaryTextColor = primaryTextColor,
@@ -170,7 +220,10 @@ class PlayerColorScheme(
                 .setContentBasedSource(seedColor)
                 .build()
 
-            themeColorScheme(DynamicColors.wrapContextIfAvailable(baseContext, options))
+            themeColorScheme(
+                context = DynamicColors.wrapContextIfAvailable(baseContext, options),
+                mode = Mode.MaterialYou
+            )
         }
 
         /**
@@ -193,6 +246,21 @@ class PlayerColorScheme(
             } else {
                 emulatedDynamicColorScheme(context, mediaColor)
             }
+        }
+
+        suspend fun autoColorScheme(
+            context: Context,
+            mediaColor: MediaNotificationProcessor,
+            schemeMode: PlayerColorSchemeMode
+        ): PlayerColorScheme {
+            val colorScheme = when (schemeMode) {
+                Mode.AppTheme -> themeColorScheme(context)
+                Mode.SimpleColor -> simpleColorScheme(context, mediaColor)
+                Mode.VibrantColor -> vibrantColorScheme(mediaColor)
+                Mode.MaterialYou -> autoDynamicColorScheme(context, mediaColor)
+            }
+            check(schemeMode == colorScheme.mode)
+            return colorScheme
         }
     }
 }

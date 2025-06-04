@@ -171,7 +171,9 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
-        when (key) {
+        if (Preferences.getNowPlayingColorSchemeKey(nps) == key) {
+            requestColor(currentPosition)
+        } else when (key) {
             LYRICS_ON_COVER -> {
                 val isShowLyrics = sharedPreferences.getBoolean(key, true)
                 if (isShowLyrics && !binding.lyricsLayout.isVisible) {

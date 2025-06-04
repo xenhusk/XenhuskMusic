@@ -36,6 +36,7 @@ import com.mardous.booming.extensions.media.durationStr
 import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.fragments.player.PlayerAnimator
 import com.mardous.booming.fragments.player.PlayerColorScheme
+import com.mardous.booming.fragments.player.PlayerTintTarget
 import com.mardous.booming.helper.MusicProgressViewUpdateHelper
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
@@ -262,7 +263,9 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         progressViewUpdateHelper.stop()
     }
 
-    open fun setColors(scheme: PlayerColorScheme) {
+    abstract fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget>
+
+    open fun applyColorScheme(scheme: PlayerColorScheme) {
         lastPlaybackControlsColor = scheme.primaryControlColor
         lastDisabledPlaybackControlsColor = scheme.secondaryControlColor
     }

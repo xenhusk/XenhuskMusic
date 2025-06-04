@@ -19,6 +19,7 @@ package com.mardous.booming.fragments.player.styles.fullcoverstyle
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -36,15 +37,18 @@ import com.mardous.booming.extensions.glide.getSongGlideModel
 import com.mardous.booming.extensions.glide.songOptions
 import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.resources.getPrimaryTextColor
-import com.mardous.booming.extensions.resources.toColorStateList
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.player.PlayerColorScheme
+import com.mardous.booming.fragments.player.PlayerColorSchemeMode
+import com.mardous.booming.fragments.player.PlayerTintTarget
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
-import com.mardous.booming.helper.color.MediaNotificationProcessor
+import com.mardous.booming.fragments.player.tintTarget
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
+import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.util.Preferences
 
 /**
  * @author Christians M. A. (mardous)
@@ -61,6 +65,9 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
     private var disabledPlaybackControlsColor = 0
 
     private var target: Target<Bitmap>? = null
+
+    override val colorSchemeMode: PlayerColorSchemeMode
+        get() = Preferences.getNowPlayingColorSchemeMode(NowPlayingScreen.FullCover)
 
     override val playerControlsFragment: AbsPlayerControlsFragment
         get() = controlsFragment
@@ -153,13 +160,14 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
         controlsFragment = whichFragment(R.id.playbackControlsFragment)
     }
 
-    override fun onColorChanged(color: MediaNotificationProcessor) {
-        super.onColorChanged(color)
-        controlsFragment.setColors(
-            PlayerColorScheme.vibrantColorScheme(color).also {
-                binding.mask.backgroundTintList = it.surfaceColor.toColorStateList()
-            }
-        )
+    override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
+        val oldMaskColor = binding.mask.backgroundTintList?.defaultColor
+            ?: Color.TRANSPARENT
+        return mutableListOf(
+            binding.mask.tintTarget(oldMaskColor, scheme.surfaceColor)
+        ).also {
+            it.addAll(playerControlsFragment.getTintTargets(scheme))
+        }
     }
 
     override fun onToggleFavorite(song: Song, isFavorite: Boolean) {

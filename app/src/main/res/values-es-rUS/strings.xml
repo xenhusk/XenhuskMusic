@@ -201,7 +201,6 @@
     <string name="album_artists_label">Artistas del álbum</string>
     <string name="genres_label">Géneros</string>
     <string name="folders_label">Carpetas</string>
-    <string name="files_label">Archivos</string>
     <string name="playlists_label">Playlists</string>
     <string name="playlist_label">Playlist</string>
     <string name="composers_label">Compositores</string>
@@ -248,6 +247,7 @@
     <string name="action_details">Detalles</string>
     <string name="action_set_as_start_directory">Establecer como directorio de inicio</string>
     <string name="action_go_to_start_directory">Ir al directorio de inicio</string>
+    <string name="action_hierarchy_view">Vista de jerarquía</string>
     <string name="new_start_directory">Nuevo directorio de inicio: %s</string>
     <string name="action_scan">Escanear</string>
     <string name="scan_media">Escanear medios</string>

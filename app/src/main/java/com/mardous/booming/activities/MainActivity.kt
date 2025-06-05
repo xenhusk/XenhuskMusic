@@ -145,7 +145,6 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
                 R.id.nav_songs,
                 R.id.nav_albums,
                 R.id.nav_artists,
-                R.id.nav_file_explorer,
                 R.id.nav_folders,
                 R.id.nav_playlists,
                 R.id.nav_genres,

@@ -75,6 +75,10 @@
         </menu>
     </item>
     <item
+        android:id="@+id/action_scan"
+        android:title="@string/scan_media"
+        app:showAsAction="never" />
+    <item
         android:orderInCategory="10"
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings_24dp"

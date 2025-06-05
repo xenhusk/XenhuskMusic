@@ -201,7 +201,6 @@
     <string name="album_artists_label">Album artister</string>
     <string name="genres_label">Genres</string>
     <string name="folders_label">Mapper</string>
-    <string name="files_label">Files</string>
     <string name="playlists_label">Spillelister</string>
     <string name="playlist_label">Spilleliste</string>
     <string name="composers_label">komponister</string>

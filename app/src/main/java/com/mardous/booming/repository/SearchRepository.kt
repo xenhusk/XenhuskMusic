@@ -93,7 +93,7 @@ class RealSearchRepository(
         specialRepository.songsByYear(year.year, query)
 
     override suspend fun searchFolderSongs(folder: Folder, query: String): List<Song> =
-        specialRepository.songsByFolder(folder.path, query)
+        specialRepository.songsByFolder(folder.filePath, query)
 
     private fun getSongs(query: String) = songRepository.songs(query)
     private fun getAlbums(query: String) = albumRepository.albums(query)

@@ -201,7 +201,6 @@
     <string name="album_artists_label">アルバムアーティスト</string>
     <string name="genres_label">Genres</string>
     <string name="folders_label">フォルダ</string>
-    <string name="files_label">Files</string>
     <string name="playlists_label">プレイリスト</string>
     <string name="playlist_label">プレイリスト</string>
     <string name="composers_label">作曲者</string>

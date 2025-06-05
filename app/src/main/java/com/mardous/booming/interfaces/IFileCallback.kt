@@ -18,10 +18,10 @@
 package com.mardous.booming.interfaces
 
 import android.view.MenuItem
-import com.mardous.booming.model.Folder
+import com.mardous.booming.model.filesystem.FileSystemItem
 
-interface IFolderCallback {
-    fun folderClick(folder: Folder)
-    fun folderMenuItemClick(folder: Folder, menuItem: MenuItem): Boolean
-    fun foldersMenuItemClick(selection: List<Folder>, menuItem: MenuItem): Boolean
+interface IFileCallback {
+    fun fileClick(file: FileSystemItem)
+    fun filesMenuItemClick(file: FileSystemItem, menuItem: MenuItem): Boolean
+    fun filesMenuItemClick(selection: List<FileSystemItem>, menuItem: MenuItem): Boolean
 }

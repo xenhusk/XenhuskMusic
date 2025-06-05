@@ -201,7 +201,6 @@
     <string name="album_artists_label">Albumkunstnere</string>
     <string name="genres_label">Genres</string>
     <string name="folders_label">Mapper</string>
-    <string name="files_label">Files</string>
     <string name="playlists_label">Afspilningslister</string>
     <string name="playlist_label">Afspilningsliste</string>
     <string name="composers_label">Komponister</string>

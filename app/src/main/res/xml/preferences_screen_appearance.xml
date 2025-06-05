@@ -51,7 +51,7 @@
             app:summary="@string/library_categories_summary"
             app:layout="@layout/list_item_view"
             app:persistent="false"
-            app:key="library_categories_v2"/>
+            app:key="library_categories"/>
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="true"

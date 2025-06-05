@@ -201,7 +201,6 @@
     <string name="album_artists_label">Albumin artistit</string>
     <string name="genres_label">Genres</string>
     <string name="folders_label">Kansiot</string>
-    <string name="files_label">Files</string>
     <string name="playlists_label">Soittolistat</string>
     <string name="playlist_label">Soittolista</string>
     <string name="composers_label">Säveltäjät</string>

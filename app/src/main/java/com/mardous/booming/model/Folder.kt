@@ -17,49 +17,79 @@
 
 package com.mardous.booming.model
 
+import android.content.Context
+import android.graphics.drawable.Drawable
+import android.os.Parcel
 import android.os.Parcelable
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.os.ParcelCompat
+import com.mardous.booming.R
+import com.mardous.booming.extensions.media.songsStr
+import com.mardous.booming.model.filesystem.FileSystemItem
+import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.TypeParceler
 import java.io.File
 
 /**
  * @author Christians M. A. (mardous)
  */
 @Parcelize
-class Folder(val path: String, override val songs: List<Song>) : Parcelable, SongProvider {
+@TypeParceler<FileSystemItem, FileSystemItemParceler>
+class Folder(
+    override val filePath: String,
+    val musicFiles: List<FileSystemItem>
+) : Parcelable, FileSystemItem, SongProvider {
 
-    companion object {
-        val empty = Folder("", emptyList())
-    }
+    override val fileName: String
+        get() = filePath.substringAfterLast("/")
 
-    val id: Long
-        get() = path.hashCode().toLong()
-
-    val name: String
-        get() = path.substringAfterLast("/")
+    override val songs: List<Song>
+        get() = musicFiles.filterIsInstance<Song>()
 
     val file: File
-        get() = File(path)
+        get() = File(filePath)
 
     val songCount: Int
-        get() = songs.size
+        get() = musicFiles.count { it is Song }
+
+    override fun getFileIcon(context: Context): Drawable? {
+        return AppCompatResources.getDrawable(context, R.drawable.ic_folder_24dp)
+    }
+
+    override fun getFileDescription(context: Context): CharSequence {
+        return songCount.songsStr(context)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Folder) return false
-
-        if (path != other.path) return false
-        if (songs != other.songs) return false
-
-        return true
+        return filePath == other.filePath && musicFiles == other.musicFiles
     }
 
     override fun hashCode(): Int {
-        var result = path.hashCode()
-        result = 31 * result + songs.hashCode()
-        return result
+        return 31 * filePath.hashCode() + musicFiles.hashCode()
     }
 
     override fun toString(): String {
-        return "Folder(path='$path', songs=$songs)"
+        return "Folder(filePath='$filePath', musicFiles=$musicFiles)"
+    }
+
+    companion object {
+        val empty = Folder("", emptyList())
+    }
+}
+
+object FileSystemItemParceler : Parceler<FileSystemItem> {
+    @Suppress("UNCHECKED_CAST")
+    override fun create(parcel: Parcel): FileSystemItem {
+        val className = parcel.readString()
+        val clazz = Class.forName(className ?: error("Missing class name")) as Class<Parcelable>
+        return ParcelCompat.readParcelable<Parcelable>(parcel, clazz.classLoader, clazz) as FileSystemItem
+    }
+
+    override fun FileSystemItem.write(parcel: Parcel, flags: Int) {
+        parcel.writeString(this::class.java.name)
+        parcel.writeParcelable(this as Parcelable, flags)
     }
 }

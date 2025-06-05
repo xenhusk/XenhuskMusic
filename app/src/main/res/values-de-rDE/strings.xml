@@ -201,7 +201,6 @@
     <string name="album_artists_label">Album-Interpreten</string>
     <string name="genres_label">Genres</string>
     <string name="folders_label">Ordner</string>
-    <string name="files_label">Files</string>
     <string name="playlists_label">Wiedergabelisten</string>
     <string name="playlist_label">Wiedergabeliste</string>
     <string name="composers_label">Komponisten</string>

@@ -34,6 +34,8 @@ import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.http.github.GitHubRelease
 import com.mardous.booming.http.github.GitHubService
 import com.mardous.booming.model.*
+import com.mardous.booming.model.filesystem.FileSystemItem
+import com.mardous.booming.model.filesystem.FileSystemQuery
 import com.mardous.booming.mvvm.*
 import com.mardous.booming.mvvm.event.Event
 import com.mardous.booming.repository.RealSmartRepository
@@ -74,7 +76,7 @@ class LibraryViewModel(
     private val playlists = MutableLiveData<List<PlaylistWithSongs>>()
     private val genres = MutableLiveData<List<Genre>>()
     private val years = MutableLiveData<List<ReleaseYear>>()
-    private val folders = MutableLiveData<List<Folder>>()
+    private val fileSystem = MutableLiveData<FileSystemQuery>()
     private val fabMargin = MutableLiveData(0)
     private val songHistory = MutableLiveData<List<Song>>()
     private val paletteColor = MutableLiveData<Int>()
@@ -87,7 +89,7 @@ class LibraryViewModel(
     fun getPlaylists(): LiveData<List<PlaylistWithSongs>> = playlists
     fun getGenres(): LiveData<List<Genre>> = genres
     fun getYears(): LiveData<List<ReleaseYear>> = years
-    fun getFolders(): LiveData<List<Folder>> = folders
+    fun getFileSystem(): LiveData<FileSystemQuery> = fileSystem
     fun getFabMargin(): LiveData<Int> = fabMargin
     fun getPaletteColor(): LiveData<Int> = paletteColor
     fun getUpdateSearchEvent(): LiveData<Event<UpdateSearchResult>> = updateSearch
@@ -173,13 +175,60 @@ class LibraryViewModel(
         years.postValue(repository.allYears())
     }
 
-    private suspend fun fetchFolders() {
-        folders.postValue(repository.allFolders())
+    private fun fetchFolders() {
+        filesInPath()
+    }
+
+    private fun songsFromFiles(files: List<FileSystemItem>, includeFolders: Boolean): List<Song> {
+        return buildList {
+            if (includeFolders) {
+                addAll(files.filterIsInstance<SongProvider>().flatMap { it.songs })
+            }
+            addAll(files.filterIsInstance<Song>())
+        }
+    }
+
+    private fun songsFromCurrentFolder(includeFolders: Boolean): List<Song> {
+        val currentFolder = fileSystem.value
+        return if (currentFolder != null) {
+            songsFromFiles(currentFolder.children, includeFolders)
+        } else {
+            emptyList()
+        }
+    }
+
+    fun filesInPath(
+        navigateToPath: String? = null,
+        hierarchyView: Boolean = Preferences.hierarchyFolderView
+    ) = viewModelScope.launch(IO) {
+        if (hierarchyView) {
+            val path = if (navigateToPath.isNullOrEmpty()) {
+                fileSystem.value?.path ?: Preferences.startDirectory.getCanonicalPathSafe()
+            } else {
+                navigateToPath
+            }
+            fileSystem.postValue(repository.filesInPath(path))
+        } else {
+            fileSystem.postValue(repository.allFolders())
+        }
     }
 
     fun blacklistPath(file: File) = viewModelScope.launch(IO) {
         inclExclDao.insertPath(InclExclEntity(file.getCanonicalPathSafe(), InclExclDao.BLACKLIST))
         forceReload(ReloadType.Folders)
+    }
+
+    fun playFromFiles(
+        song: Song,
+        files: List<FileSystemItem>? = fileSystem.value?.children
+    ) = viewModelScope.launch(IO) {
+        if (!files.isNullOrEmpty()) {
+            val songs = songsFromCurrentFolder(false)
+            val startPos = songs.indexOfSong(song.id).coerceAtLeast(0)
+            if (isActive) {
+                MusicPlayer.openQueue(songs, position = startPos)
+            }
+        }
     }
 
     @JvmName("songsFromYear")
@@ -188,9 +237,9 @@ class LibraryViewModel(
         emit(songs)
     }
 
-    @JvmName("songsFromFolder")
-    fun songs(folders: List<Folder>): LiveData<List<Song>> = liveData(IO) {
-        val songs = folders.flatMap { it.songs }
+    @JvmName("songsFromFiles")
+    fun songs(files: List<FileSystemItem>, includeFolders: Boolean = true): LiveData<List<Song>> = liveData(IO) {
+        val songs = songsFromFiles(files, includeFolders)
         emit(songs)
     }
 

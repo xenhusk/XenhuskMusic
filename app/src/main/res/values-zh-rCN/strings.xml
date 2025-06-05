@@ -201,7 +201,6 @@
     <string name="album_artists_label">专辑艺人</string>
     <string name="genres_label">Genres</string>
     <string name="folders_label">文件夹</string>
-    <string name="files_label">Files</string>
     <string name="playlists_label">播放列表</string>
     <string name="playlist_label">播放列表</string>
     <string name="composers_label">作曲家</string>

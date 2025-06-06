@@ -75,6 +75,7 @@
         </menu>
     </item>
     <item
+        android:orderInCategory="10"
         android:id="@+id/action_scan"
         android:title="@string/scan_media"
         app:showAsAction="never" />

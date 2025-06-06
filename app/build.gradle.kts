@@ -193,6 +193,19 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.fragment.ktx)
 
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material3)
+
+    // Integration with activities, ViewModels and LiveData
+    implementation(libs.compose.runtime.livedata)
+    implementation(libs.activity.compose)
+    implementation(libs.lifecycle.viewmodel.compose)
+
+    // Android Studio Preview support
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
+
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.livedata.ktx)

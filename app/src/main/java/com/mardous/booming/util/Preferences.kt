@@ -322,6 +322,16 @@ object Preferences : KoinComponent {
     val trashMusicFiles: Boolean
         get() = preferences.getBoolean(TRASH_MUSIC_FILES, false)
 
+    val recursiveFolderActions: Set<FolderAction>
+        get() {
+            val notNullSet = mutableSetOf<FolderAction>()
+            preferences.getStringSet(RECURSIVE_FOLDER_ACTIONS, null)
+                ?.mapNotNullTo(notNullSet) { string ->
+                    FolderAction.entries.firstOrNull { it.preferenceValue == string }
+                }
+            return notNullSet
+        }
+
     val historyEnabled: Boolean
         get() = preferences.getBoolean(ENABLE_HISTORY, true)
 
@@ -623,6 +633,7 @@ const val ALLOW_ONLINE_ARTIST_IMAGES = "allow_online_artist_images"
 const val PREFERRED_ARTIST_IMAGE_SIZE = "preferred_artist_image_size"
 const val ONLY_ALBUM_ARTISTS = "only_album_artists"
 const val TRASH_MUSIC_FILES = "trash_music_files"
+const val RECURSIVE_FOLDER_ACTIONS = "recursive_folder_actions"
 const val ENABLE_HISTORY = "enable_history_playlist"
 const val HISTORY_CUTOFF = "history_interval"
 const val LAST_ADDED_CUTOFF = "last_added_interval"

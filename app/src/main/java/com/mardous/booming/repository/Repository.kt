@@ -85,6 +85,7 @@ interface Repository {
     suspend fun genreBySong(song: Song): Genre
     suspend fun yearById(year: Int): ReleaseYear
     suspend fun folderByPath(path: String): Folder
+    suspend fun songsByFolder(folderPath: String, includeSubfolders: Boolean): List<Song>
     suspend fun homeSuggestions(): List<Suggestion>
     suspend fun topArtistsSuggestion(): Suggestion
     suspend fun topAlbumsSuggestion(): Suggestion
@@ -279,6 +280,9 @@ class RealRepository(
     override suspend fun yearById(year: Int): ReleaseYear = specialRepository.releaseYear(year)
 
     override suspend fun folderByPath(path: String): Folder = specialRepository.folderByPath(path)
+
+    override suspend fun songsByFolder(folderPath: String, includeSubfolders: Boolean) =
+        specialRepository.songsByFolder(folderPath, includeSubfolders)
 
     override suspend fun homeSuggestions(): List<Suggestion> {
         return listOf(

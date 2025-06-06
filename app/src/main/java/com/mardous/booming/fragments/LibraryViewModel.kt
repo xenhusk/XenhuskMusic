@@ -176,28 +176,31 @@ class LibraryViewModel(
     }
 
     private fun fetchFolders() {
-        filesInPath()
+        navigateToPath()
     }
 
-    private fun songsFromFiles(files: List<FileSystemItem>, includeFolders: Boolean): List<Song> {
+    private suspend fun filesToSongs(files: List<FileSystemItem>, includeSubfolders: Boolean): List<Song> {
         return buildList {
-            if (includeFolders) {
-                addAll(files.filterIsInstance<SongProvider>().flatMap { it.songs })
+            if (includeSubfolders) {
+                val songs = files.filterIsInstance<Folder>().flatMap {
+                    repository.songsByFolder(it.filePath, true)
+                }
+                addAll(songs)
             }
             addAll(files.filterIsInstance<Song>())
         }
     }
 
-    private fun songsFromCurrentFolder(includeFolders: Boolean): List<Song> {
+    private suspend fun songsFromCurrentFolder(): List<Song> {
         val currentFolder = fileSystem.value
         return if (currentFolder != null) {
-            songsFromFiles(currentFolder.children, includeFolders)
+            filesToSongs(currentFolder.children, includeSubfolders = false)
         } else {
             emptyList()
         }
     }
 
-    fun filesInPath(
+    fun navigateToPath(
         navigateToPath: String? = null,
         hierarchyView: Boolean = Preferences.hierarchyFolderView
     ) = viewModelScope.launch(IO) {
@@ -223,7 +226,7 @@ class LibraryViewModel(
         files: List<FileSystemItem>? = fileSystem.value?.children
     ) = viewModelScope.launch(IO) {
         if (!files.isNullOrEmpty()) {
-            val songs = songsFromCurrentFolder(false)
+            val songs = songsFromCurrentFolder()
             val startPos = songs.indexOfSong(song.id).coerceAtLeast(0)
             if (isActive) {
                 MusicPlayer.openQueue(songs, position = startPos)
@@ -237,9 +240,9 @@ class LibraryViewModel(
         emit(songs)
     }
 
-    @JvmName("songsFromFiles")
-    fun songs(files: List<FileSystemItem>, includeFolders: Boolean = true): LiveData<List<Song>> = liveData(IO) {
-        val songs = songsFromFiles(files, includeFolders)
+    @JvmName("filesToSongs")
+    fun songs(files: List<FileSystemItem>, includeSubfolders: Boolean): LiveData<List<Song>> = liveData(IO) {
+        val songs = filesToSongs(files, includeSubfolders)
         emit(songs)
     }
 

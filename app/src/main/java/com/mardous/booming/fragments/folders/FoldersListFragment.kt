@@ -39,9 +39,9 @@ import com.mardous.booming.interfaces.IFileCallback
 import com.mardous.booming.model.Folder
 import com.mardous.booming.model.GridViewType
 import com.mardous.booming.model.Song
-import com.mardous.booming.model.SongProvider
 import com.mardous.booming.model.filesystem.FileSystemItem
 import com.mardous.booming.model.filesystem.FileSystemQuery
+import com.mardous.booming.model.isPresent
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
@@ -67,6 +67,9 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
 
     override val itemLayoutRes: Int
         get() = R.layout.item_list
+
+    private val isFlatView: Boolean
+        get() = libraryViewModel.getFileSystem().value?.isFlatView == true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -95,7 +98,7 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
             is Song -> libraryViewModel.playFromFiles(file)
             else -> {
                 if (Preferences.hierarchyFolderView) {
-                    libraryViewModel.filesInPath(file.filePath)
+                    libraryViewModel.navigateToPath(file.filePath)
                 } else if (file is Folder) {
                     findNavController().navigate(R.id.nav_folder_detail, folderDetailArgs(file))
                 }
@@ -103,20 +106,38 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
         }
     }
 
-    override fun filesMenuItemClick(file: FileSystemItem, menuItem: MenuItem): Boolean {
-        if (menuItem.itemId == R.id.action_blacklist) {
-            libraryViewModel.blacklistPath(File(file.filePath))
-            return true
-        }
+    override fun fileMenuItemClick(file: FileSystemItem, menuItem: MenuItem): Boolean {
+        val recursiveActions = Preferences.recursiveFolderActions
         return when (file) {
-            is SongProvider -> file.songs.onSongsMenu(this, menuItem)
+            is Folder -> {
+                when (menuItem.itemId) {
+                    R.id.action_blacklist -> {
+                        libraryViewModel.blacklistPath(File(file.filePath))
+                    }
+                    R.id.action_set_as_start_directory -> {
+                        Preferences.startDirectory = File(file.filePath)
+                    }
+                    else -> {
+                        libraryViewModel.songs(
+                            file.musicFiles,
+                            includeSubfolders = recursiveActions.isPresent(menuItem.itemId)
+                        ).observe(viewLifecycleOwner) {
+                            it.onSongsMenu(this, menuItem)
+                        }
+                    }
+                }
+                true
+            }
             is Song -> file.onSongMenu(this, menuItem)
             else -> false
         }
     }
 
     override fun filesMenuItemClick(selection: List<FileSystemItem>, menuItem: MenuItem): Boolean {
-        libraryViewModel.songs(selection).observe(viewLifecycleOwner) { songs ->
+        libraryViewModel.songs(
+            selection,
+            includeSubfolders = Preferences.recursiveFolderActions.isPresent(menuItem.itemId)
+        ).observe(viewLifecycleOwner) { songs ->
             songs.onSongsMenu(this, menuItem)
         }
         return true
@@ -151,7 +172,7 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
                 return true
             }
             R.id.action_go_to_start_directory -> {
-                libraryViewModel.filesInPath(Preferences.startDirectory.getCanonicalPathSafe())
+                libraryViewModel.navigateToPath(Preferences.startDirectory.getCanonicalPathSafe())
                 return true
             }
             else -> return super.onMenuItemSelected(item)

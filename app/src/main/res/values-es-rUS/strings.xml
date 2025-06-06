@@ -681,6 +681,8 @@
     <!-- Library preferences -->
     <string name="trash_music_title">Enviar a la papelera</string>
     <string name="trash_music_summary">Enviar los archivos eliminados a la papelera.</string>
+    <string name="recursive_folder_actions_title">Acciones que afectan a las subcarpetas</string>
+    <string name="recursive_folder_actions_summary">Selecciona qué acciones también deben aplicarse a las subcarpetas cuando se ejecutan sobre una carpeta.</string>
     <string name="enable_history_title">Habilitar historial</string>
     <string name="enable_history_summary">Permite a la aplicación registrar las canciones que estuvo escuchando. Si lo desactiva se borrará todo el historial.</string>
     <string name="history_interval_title">Intervalo del historial</string>

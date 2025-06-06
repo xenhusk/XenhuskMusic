@@ -18,7 +18,10 @@
 package com.mardous.booming.adapters
 
 import android.annotation.SuppressLint
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.isGone
 import androidx.fragment.app.FragmentActivity
 import com.bumptech.glide.RequestManager
@@ -28,7 +31,6 @@ import com.mardous.booming.adapters.base.MediaEntryViewHolder
 import com.mardous.booming.adapters.extension.isActivated
 import com.mardous.booming.extensions.glide.getSongGlideModel
 import com.mardous.booming.extensions.glide.songOptions
-import com.mardous.booming.extensions.resources.hide
 import com.mardous.booming.extensions.resources.useAsIcon
 import com.mardous.booming.helper.menu.OnClickMenu
 import com.mardous.booming.interfaces.IFileCallback
@@ -64,7 +66,7 @@ class FileAdapter(
         val file = files[position]
         val isChecked = isChecked(file)
         holder.isActivated = isChecked
-        holder.menu?.isGone = isChecked
+        holder.menu?.isGone = isChecked || getItemViewType(position) == VIEW_TYPE_OTHER
         holder.title?.text = file.fileName
         holder.text?.text = file.getFileDescription(holder.itemView.context)
         if (getItemViewType(position) == VIEW_TYPE_SONG) {
@@ -91,7 +93,12 @@ class FileAdapter(
         }
     }
 
-    override fun getIdentifier(position: Int): FileSystemItem = files[position]
+    override fun getIdentifier(position: Int): FileSystemItem? {
+        if (getItemViewType(position) == VIEW_TYPE_OTHER) {
+            return null
+        }
+        return files[position]
+    }
 
     override fun getName(item: FileSystemItem): String? = item.fileName
 
@@ -133,20 +140,13 @@ class FileAdapter(
             if (itemViewType != VIEW_TYPE_SONG) {
                 image?.useAsIcon()
             }
-            if (filePopupMenuResource == 0) {
-                menu?.hide()
-            } else {
+            if (itemViewType != VIEW_TYPE_OTHER) {
                 menu?.setOnClickListener(object : OnClickMenu() {
                     override val popupMenuRes: Int
                         get() = filePopupMenuResource
 
-                    override fun onPreparePopup(menu: Menu) {
-                        menu.removeItem(R.id.action_set_as_start_directory)
-                        menu.removeItem(R.id.action_scan)
-                    }
-
                     override fun onMenuItemClick(item: MenuItem): Boolean {
-                        return callback?.filesMenuItemClick(currentFile, item) == true
+                        return callback?.fileMenuItemClick(currentFile, item) == true
                     }
                 })
             }

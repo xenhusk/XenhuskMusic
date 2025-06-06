@@ -147,6 +147,7 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
         super.onCreateMenu(menu, inflater)
         inflater.inflate(R.menu.menu_folders, menu)
         menu.removeItem(R.id.action_view_type)
+        menu.findItem(R.id.action_hierarchy_view)?.isChecked = Preferences.hierarchyFolderView
         val sortOrderSubmenu = menu.findItem(R.id.action_sort_order)?.subMenu
         if (sortOrderSubmenu != null) {
             sortOrderSubmenu.clear()

@@ -118,11 +118,15 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
                         Preferences.startDirectory = File(file.filePath)
                     }
                     else -> {
-                        libraryViewModel.songs(
-                            file.musicFiles,
-                            includeSubfolders = recursiveActions.isPresent(menuItem.itemId)
-                        ).observe(viewLifecycleOwner) {
-                            it.onSongsMenu(this, menuItem)
+                        if (isFlatView) {
+                            file.songs.onSongsMenu(this, menuItem)
+                        } else {
+                            libraryViewModel.songs(
+                                file.musicFiles,
+                                includeSubfolders = recursiveActions.isPresent(menuItem.itemId)
+                            ).observe(viewLifecycleOwner) {
+                                it.onSongsMenu(this, menuItem)
+                            }
                         }
                     }
                 }
@@ -134,11 +138,17 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
     }
 
     override fun filesMenuItemClick(selection: List<FileSystemItem>, menuItem: MenuItem): Boolean {
-        libraryViewModel.songs(
-            selection,
-            includeSubfolders = Preferences.recursiveFolderActions.isPresent(menuItem.itemId)
-        ).observe(viewLifecycleOwner) { songs ->
-            songs.onSongsMenu(this, menuItem)
+        if (isFlatView) {
+            libraryViewModel.songs(selection).observe(viewLifecycleOwner) {
+                it.onSongsMenu(this, menuItem)
+            }
+        } else {
+            libraryViewModel.songs(
+                selection,
+                includeSubfolders = Preferences.recursiveFolderActions.isPresent(menuItem.itemId)
+            ).observe(viewLifecycleOwner) { songs ->
+                songs.onSongsMenu(this, menuItem)
+            }
         }
         return true
     }

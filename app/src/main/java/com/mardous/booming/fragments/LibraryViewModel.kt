@@ -234,13 +234,12 @@ class LibraryViewModel(
         }
     }
 
-    @JvmName("songsFromYear")
-    fun songs(years: List<ReleaseYear>): LiveData<List<Song>> = liveData(IO) {
-        val songs = years.flatMap { it.songs }
+    fun songs(providers: List<Any>): LiveData<List<Song>> = liveData(IO) {
+        val songs = providers.filterIsInstance<SongProvider>()
+            .flatMap { it.songs }
         emit(songs)
     }
 
-    @JvmName("filesToSongs")
     fun songs(files: List<FileSystemItem>, includeSubfolders: Boolean): LiveData<List<Song>> = liveData(IO) {
         val songs = filesToSongs(files, includeSubfolders)
         emit(songs)

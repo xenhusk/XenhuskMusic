@@ -381,6 +381,11 @@
         <item quantity="other">%d reproducciones</item>
         <item quantity="many">%d reproducciones</item>
     </plurals>
+    <plurals name="x_items">
+        <item quantity="one">%d elemento</item>
+        <item quantity="other">%d elementos</item>
+        <item quantity="many">%d elementos</item>
+    </plurals>
 
     <!-- Home -->
     <string name="for_you_label">Para ti</string>

@@ -25,6 +25,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.os.ParcelCompat
 import com.mardous.booming.R
 import com.mardous.booming.extensions.media.songsStr
+import com.mardous.booming.extensions.plurals
 import com.mardous.booming.model.filesystem.FileSystemItem
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
@@ -58,7 +59,7 @@ class Folder(
     }
 
     override fun getFileDescription(context: Context): CharSequence {
-        return songCount.songsStr(context)
+        return context.plurals(R.plurals.x_items, musicFiles.size)
     }
 
     override fun equals(other: Any?): Boolean {

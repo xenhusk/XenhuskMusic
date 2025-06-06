@@ -19,28 +19,19 @@ package com.mardous.booming.model
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.os.ParcelCompat
 import com.mardous.booming.R
-import com.mardous.booming.extensions.media.songsStr
 import com.mardous.booming.extensions.plurals
 import com.mardous.booming.model.filesystem.FileSystemItem
-import kotlinx.parcelize.Parceler
-import kotlinx.parcelize.Parcelize
-import kotlinx.parcelize.TypeParceler
 import java.io.File
 
 /**
  * @author Christians M. A. (mardous)
  */
-@Parcelize
-@TypeParceler<FileSystemItem, FileSystemItemParceler>
 class Folder(
     override val filePath: String,
     val musicFiles: List<FileSystemItem>
-) : Parcelable, FileSystemItem, SongProvider {
+) : FileSystemItem, SongProvider {
 
     override val fileName: String
         get() = filePath.substringAfterLast("/")
@@ -78,19 +69,5 @@ class Folder(
 
     companion object {
         val empty = Folder("", emptyList())
-    }
-}
-
-object FileSystemItemParceler : Parceler<FileSystemItem> {
-    @Suppress("UNCHECKED_CAST")
-    override fun create(parcel: Parcel): FileSystemItem {
-        val className = parcel.readString()
-        val clazz = Class.forName(className ?: error("Missing class name")) as Class<Parcelable>
-        return ParcelCompat.readParcelable<Parcelable>(parcel, clazz.classLoader, clazz) as FileSystemItem
-    }
-
-    override fun FileSystemItem.write(parcel: Parcel, flags: Int) {
-        parcel.writeString(this::class.java.name)
-        parcel.writeParcelable(this as Parcelable, flags)
     }
 }

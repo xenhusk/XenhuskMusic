@@ -228,7 +228,7 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
     override fun suggestionClick(suggestion: Suggestion) {
         when (suggestion.type) {
             ContentType.Favorites -> {
-                libraryViewModel.favoritePlaylistAsync().observe(viewLifecycleOwner) {
+                libraryViewModel.favoritePlaylist().observe(viewLifecycleOwner) {
                     findNavController().navigate(R.id.nav_playlist_detail, playlistDetailArgs(it.playListId))
                 }
             }

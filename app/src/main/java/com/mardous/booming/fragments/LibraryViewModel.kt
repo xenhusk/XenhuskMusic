@@ -393,17 +393,32 @@ class LibraryViewModel(
         emit(repository.playlistsWithSongs())
     }
 
-    fun favoritePlaylistAsync(): LiveData<PlaylistEntity> = liveData(IO) {
+    fun favoritePlaylist(): LiveData<PlaylistEntity> = liveData(IO) {
         emit(repository.favoritePlaylist())
     }
 
-    suspend fun favoritePlaylist() = repository.favoritePlaylist()
-    suspend fun checkSongExistInPlaylist(playlistEntity: PlaylistEntity, song: Song) =
+    fun toggleFavorite(song: Song): LiveData<Boolean> = liveData(IO) {
+        val playlist = repository.favoritePlaylist()
+        val songEntity = song.toSongEntity(playlist.playListId)
+        val isFavorite = repository.isSongFavorite(song.id)
+        if (isFavorite) {
+            removeSongFromPlaylist(songEntity)
+        } else {
+            insertSongs(listOf(songEntity))
+        }
+        forceReload(ReloadType.Playlists)
+        emit(!isFavorite)
+    }
+
+    fun isSongFavorite(song: Song): LiveData<Boolean> = liveData(IO) {
+        emit(repository.isSongFavorite(song.id))
+    }
+
+    private suspend fun checkSongExistInPlaylist(playlistEntity: PlaylistEntity, song: Song) =
         repository.checkSongExistInPlaylist(playlistEntity, song)
 
-    suspend fun isSongFavorite(songId: Long) = repository.isSongFavorite(songId)
     suspend fun insertSongs(songs: List<SongEntity>) = repository.insertSongsInPlaylist(songs)
-    suspend fun removeSongFromPlaylist(songEntity: SongEntity) =
+    private suspend fun removeSongFromPlaylist(songEntity: SongEntity) =
         repository.removeSongFromPlaylist(songEntity)
 
     private suspend fun checkPlaylistExists(playlistName: String): List<PlaylistEntity> =

@@ -47,7 +47,6 @@ import com.mardous.booming.R
 import com.mardous.booming.activities.MainActivity
 import com.mardous.booming.activities.tageditor.AbsTagEditorActivity
 import com.mardous.booming.activities.tageditor.SongTagEditorActivity
-import com.mardous.booming.database.toSongEntity
 import com.mardous.booming.dialogs.LyricsDialog
 import com.mardous.booming.dialogs.SleepTimerDialog
 import com.mardous.booming.dialogs.WebSearchDialog
@@ -67,7 +66,6 @@ import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.LibraryViewModel
-import com.mardous.booming.fragments.ReloadType
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.fragments.lyrics.LyricsEditorFragmentArgs
 import com.mardous.booming.fragments.player.PlayerAlbumCoverFragment
@@ -85,12 +83,10 @@ import com.mardous.booming.model.Song
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.constants.ServiceEvent
 import com.mardous.booming.util.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
@@ -309,7 +305,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
     override fun onFavoritesStoreChanged() {
         super.onFavoritesStoreChanged()
-        updateIsFavorite(true)
+        updateIsFavorite(withAnim = true)
     }
 
     override fun onServiceConnected() {
@@ -319,14 +315,14 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         playerControlsFragment.onUpdatePlayPause(MusicPlayer.isPlaying)
         playerControlsFragment.onUpdateRepeatMode(MusicPlayer.repeatMode)
         playerControlsFragment.onUpdateShuffleMode(MusicPlayer.shuffleMode)
-        updateIsFavorite(false)
+        updateIsFavorite(withAnim = false)
     }
 
     override fun onPlayingMetaChanged() {
         super.onPlayingMetaChanged()
         onSongInfoChanged(MusicPlayer.currentSong)
         playerControlsFragment.onQueueInfoChanged(MusicPlayer.getNextSongInfo(requireContext()))
-        updateIsFavorite(false)
+        updateIsFavorite(withAnim = false)
     }
 
     override fun onPlayStateChanged() {
@@ -434,7 +430,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
             }
 
             NowPlayingAction.ToggleFavoriteState -> {
-                toggleFavorite(MusicPlayer.currentSong)
+                toggleFavorite(currentSong)
                 true
             }
 
@@ -500,26 +496,14 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         showToast(textId)
     }
 
-    private fun updateIsFavorite(withAnim: Boolean = false) {
-        lifecycleScope.launch(IO) {
-            val isFavorite = libraryViewModel.isSongFavorite(MusicPlayer.currentSong.id)
-            withContext(Dispatchers.Main) {
-                onIsFavoriteChanged(isFavorite, withAnim)
-            }
+    private fun updateIsFavorite(song: Song = MusicPlayer.currentSong, withAnim: Boolean = false) {
+        libraryViewModel.isSongFavorite(song).observe(viewLifecycleOwner) { isFavorite ->
+            onIsFavoriteChanged(isFavorite, withAnim)
         }
     }
 
-    private fun toggleFavorite(song: Song) {
-        lifecycleScope.launch(IO) {
-            val playlist = libraryViewModel.favoritePlaylist()
-            val songEntity = song.toSongEntity(playlist.playListId)
-            val isFavorite = libraryViewModel.isSongFavorite(song.id)
-            if (isFavorite) {
-                libraryViewModel.removeSongFromPlaylist(songEntity)
-            } else {
-                libraryViewModel.insertSongs(listOf(songEntity))
-            }
-            libraryViewModel.forceReload(ReloadType.Playlists)
+    private fun toggleFavorite(song: Song = MusicPlayer.currentSong) {
+        libraryViewModel.toggleFavorite(song).observe(viewLifecycleOwner) {
             LocalBroadcastManager.getInstance(requireContext())
                 .sendBroadcast(Intent(ServiceEvent.FAVORITE_STATE_CHANGED))
         }

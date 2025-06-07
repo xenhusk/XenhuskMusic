@@ -227,9 +227,9 @@ class PlayingNotificationClassic(context: Context) : PlayingNotification(context
     private fun getPlayPauseBitmap(isPlaying: Boolean): Bitmap {
         return context.getTintedDrawable(
             if (isPlaying)
-                R.drawable.ic_pause_24dp
+                R.drawable.ic_pause_48dp
             else
-                R.drawable.ic_play_24dp, primaryColor
+                R.drawable.ic_play_48dp, primaryColor
         )!!.toBitmap()
     }
 

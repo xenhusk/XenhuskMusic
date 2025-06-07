@@ -155,7 +155,7 @@ class PlayingNotificationImpl24(service: MusicService, mediaSessionToken: MediaS
     }
 
     private fun buildPlayAction(isPlaying: Boolean): NotificationCompat.Action {
-        val playButtonResId = if (isPlaying) R.drawable.ic_pause_24dp else R.drawable.ic_play_24dp
+        val playButtonResId = if (isPlaying) R.drawable.ic_pause_48dp else R.drawable.ic_play_48dp
         return NotificationCompat.Action.Builder(
             playButtonResId,
             context.getString(R.string.action_play_pause),

@@ -1023,11 +1023,11 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     }
 
     private fun setCustomAction(stateBuilder: PlaybackStateCompat.Builder) {
-        var repeatIcon = R.drawable.ic_repeat_nocircle_48dp // REPEAT_MODE_NONE
+        var repeatIcon = R.drawable.ic_repeat_24dp // REPEAT_MODE_NONE
         if (getRepeatMode() == Playback.RepeatMode.CURRENT) {
-            repeatIcon = R.drawable.ic_repeat_one_circle_48dp
+            repeatIcon = R.drawable.ic_repeat_one_on_24dp
         } else if (getRepeatMode() == Playback.RepeatMode.ALL) {
-            repeatIcon = R.drawable.ic_repeat_circle_48dp
+            repeatIcon = R.drawable.ic_repeat_on_24dp
         }
         stateBuilder.addCustomAction(
             PlaybackStateCompat.CustomAction.Builder(
@@ -1036,7 +1036,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         )
 
         val shuffleIcon = if (getShuffleMode() == Playback.ShuffleMode.ON)
-            R.drawable.ic_shuffle_circle_48dp else R.drawable.ic_shuffle_nocircle_48dp
+            R.drawable.ic_shuffle_on_24dp else R.drawable.ic_shuffle_24dp
         stateBuilder.addCustomAction(
             PlaybackStateCompat.CustomAction.Builder(
                 TOGGLE_SHUFFLE, getString(R.string.action_toggle_shuffle), shuffleIcon

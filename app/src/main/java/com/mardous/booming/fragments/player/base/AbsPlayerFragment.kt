@@ -34,6 +34,7 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.core.animation.doOnEnd
+import androidx.core.animation.doOnStart
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
@@ -87,6 +88,7 @@ import com.mardous.booming.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -115,6 +117,8 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
     private var colorAnimatorSet: AnimatorSet? = null
     private var colorJob: Job? = null
+
+    private var lastColorSchemeMode: PlayerColorSchemeMode? = null
 
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -229,21 +233,30 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
     override fun onColorChanged(color: MediaNotificationProcessor) {
         cancelOngoingColorTransition()
+
+        val newSchemeMode = colorSchemeMode
+        val currentScheme = lastColorSchemeMode?.takeIf { it == PlayerColorSchemeMode.AppTheme }
+        if (currentScheme == newSchemeMode)
+            return
+
         colorJob = viewLifecycleOwner.lifecycleScope.launch {
-            val scheme = runCatching {
-                PlayerColorScheme.autoColorScheme(requireContext(), color, colorSchemeMode)
+            val result = runCatching {
+                PlayerColorScheme.autoColorScheme(requireContext(), color, newSchemeMode)
             }
-            if (scheme.isSuccess) {
-                applyColorScheme(scheme.getOrThrow()).start()
-            } else if (scheme.isFailure) {
-                Log.w("AbsPlayerFragment", "Failed to apply color scheme", scheme.exceptionOrNull())
+            if (isActive && result.isSuccess) {
+                val scheme = result.getOrThrow().also {
+                    lastColorSchemeMode = it.mode
+                }
+                applyColorScheme(scheme).start()
+            } else if (result.isFailure) {
+                Log.w("AbsPlayerFragment", "Failed to apply color scheme", result.exceptionOrNull())
             }
         }
     }
 
     protected abstract fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget>
 
-    protected fun applyColorScheme(scheme: PlayerColorScheme): AnimatorSet {
+    private fun applyColorScheme(scheme: PlayerColorScheme): AnimatorSet {
         return AnimatorSet()
             .setDuration(scheme.mode.preferredAnimDuration)
             .apply {
@@ -258,6 +271,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                         )
                     }
                 })
+                doOnStart { libraryViewModel.setPaletteColor(scheme.surfaceColor) }
                 doOnEnd { playerControlsFragment.applyColorScheme(scheme) }
             }.also {
                 colorAnimatorSet = it

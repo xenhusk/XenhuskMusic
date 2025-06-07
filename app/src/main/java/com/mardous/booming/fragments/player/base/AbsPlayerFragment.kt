@@ -68,6 +68,7 @@ import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.LibraryViewModel
 import com.mardous.booming.fragments.ReloadType
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
+import com.mardous.booming.fragments.lyrics.LyricsEditorFragmentArgs
 import com.mardous.booming.fragments.player.PlayerAlbumCoverFragment
 import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.PlayerColorSchemeMode
@@ -242,9 +243,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
     protected abstract fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget>
 
-    protected open fun getAnimationDuration(scheme: PlayerColorScheme) =
-        scheme.mode.preferredAnimDuration
-
     protected fun applyColorScheme(scheme: PlayerColorScheme): AnimatorSet {
         return AnimatorSet()
             .setDuration(scheme.mode.preferredAnimDuration)
@@ -404,6 +402,17 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                 true
             }
 
+            NowPlayingAction.LyricsEditor -> {
+                goToDestination(
+                    requireActivity(),
+                    R.id.nav_lyrics_editor,
+                    LyricsEditorFragmentArgs.Builder(currentSong)
+                        .build()
+                        .toBundle()
+                )
+                true
+            }
+
             NowPlayingAction.AddToPlaylist -> {
                 AddToPlaylistDialog.create(currentSong)
                     .show(childFragmentManager, "ADD_TO_PLAYLIST")
@@ -432,7 +441,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                 true
             }
 
-            else -> false
+            NowPlayingAction.Nothing -> false
         }
     }
 

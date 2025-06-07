@@ -135,6 +135,14 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     private val songPlayCountHelper = SongPlayCountHelper()
 
+    private val updateFavoriteReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == ServiceEvent.FAVORITE_STATE_CHANGED) {
+                updateFavoriteState()
+            }
+        }
+    }
+
     private var bluetoothConnectedRegistered = false
     private val bluetoothConnectedIntentFilter = IntentFilter().apply {
         addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
@@ -210,6 +218,8 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         uiThreadHandler = Handler(Looper.getMainLooper())
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(widgetIntentReceiver, IntentFilter(ServiceAction.ACTION_APP_WIDGET_UPDATE))
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(updateFavoriteReceiver, IntentFilter(ServiceEvent.FAVORITE_STATE_CHANGED))
         sessionToken = mediaSession?.sessionToken
         notificationManager = getSystemService()
         initNotification()
@@ -317,6 +327,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                             quit()
                         }
                     }
+                    ServiceAction.ACTION_TOGGLE_FAVORITE -> toggleFavorite()
                 }
             }
         }
@@ -326,6 +337,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     override fun onDestroy() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(widgetIntentReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateFavoriteReceiver)
         if (headsetReceiverRegistered) {
             unregisterReceiver(headsetReceiver)
             headsetReceiverRegistered = false
@@ -459,17 +471,11 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         }
     }
 
-    fun toggleFavorite() {
-        serviceScope.launch {
-            MusicUtil.toggleFavorite(getCurrentSong())
-        }
-    }
-
     fun quit() {
         pause()
         stopForegroundAndNotification()
 
-        //force to update play count if necessary
+        //force to updateMetadata play count if necessary
         bumpPlayCount()
 
         stopSelf()
@@ -535,7 +541,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
                 isForeground = true
             } else {
-                // If we are already in foreground just update the notification
+                // If we are already in foreground just updateMetadata the notification
                 notificationManager?.notify(PlayingNotification.NOTIFICATION_ID, playingNotification!!.build())
             }
         } else {
@@ -618,6 +624,37 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
             }
             playingQueue.nextPosition = nextPosition
         } catch (_: Exception) {
+        }
+    }
+
+    fun toggleFavorite() {
+        serviceScope.launch {
+            MusicUtil.toggleFavorite(getCurrentSong())
+            LocalBroadcastManager.getInstance(this@MusicService)
+                .sendBroadcast(Intent(ServiceEvent.FAVORITE_STATE_CHANGED))
+        }
+    }
+
+    fun isCurrentFavorite(completion: (isFavorite: Boolean) -> Unit) {
+        serviceScope.launch {
+            val isFavorite = MusicUtil.isFavorite(getCurrentSong())
+            completion(isFavorite)
+        }
+    }
+
+    private fun updateFavoriteState() {
+        isCurrentFavorite { isFavorite ->
+            if (!isForeground) {
+                playingNotification?.updateMetadata(getCurrentSong()) {
+                    playingNotification?.setPlaying(isPlaying)
+                    playingNotification?.updateFavorite(isFavorite)
+                    startForegroundOrNotify()
+                }
+            } else {
+                playingNotification?.updateFavorite(isFavorite)
+                startForegroundOrNotify()
+            }
+
         }
     }
 
@@ -988,7 +1025,12 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                 // if we are loading it, or it won't be updated in the notification
                 updateMediaSessionMetadata {
                     updateMediaSessionPlaybackState()
-                    playingNotification?.update(getCurrentSong()) { startForegroundOrNotify() }
+                    isCurrentFavorite { isFavorite ->
+                        playingNotification?.updateMetadata(getCurrentSong()) {
+                            playingNotification?.updateFavorite(isFavorite)
+                            startForegroundOrNotify()
+                        }
+                    }
                 }
                 savePosition()
                 savePositionInTrack()
@@ -1154,7 +1196,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
             CLASSIC_NOTIFICATION -> {
                 updateNotification()
-                playingNotification?.update(getCurrentSong()) {
+                playingNotification?.updateMetadata(getCurrentSong()) {
                     playingNotification?.setPlaying(isPlaying)
                     startForegroundOrNotify()
                 }
@@ -1163,7 +1205,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
             COLORED_NOTIFICATION,
             NOTIFICATION_EXTRA_TEXT_LINE,
             NOTIFICATION_PRIORITY -> {
-                playingNotification?.update(getCurrentSong()) {
+                playingNotification?.updateMetadata(getCurrentSong()) {
                     playingNotification?.setPlaying(isPlaying)
                     startForegroundOrNotify()
                 }

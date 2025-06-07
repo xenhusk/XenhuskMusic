@@ -75,7 +75,7 @@ class PlayingNotificationClassic(context: Context) : PlayingNotification(context
         return remoteViews
     }
 
-    override fun update(song: Song, onUpdate: () -> Unit) {
+    override fun updateMetadata(song: Song, onUpdate: () -> Unit) {
         if (song == Song.emptySong) return
         val notificationLayout = getCombinedRemoteViews(true, song)
         val notificationLayoutBig = getCombinedRemoteViews(false, song)
@@ -221,6 +221,8 @@ class PlayingNotificationClassic(context: Context) : PlayingNotification(context
             bigContentView?.setImageViewBitmap(R.id.action_play_pause, it)
         }
     }
+
+    override fun updateFavorite(isFavorite: Boolean) {}
 
     private fun getPlayPauseBitmap(isPlaying: Boolean): Bitmap {
         return context.getTintedDrawable(

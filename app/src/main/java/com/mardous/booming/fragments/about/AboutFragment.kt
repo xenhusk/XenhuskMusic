@@ -17,128 +17,124 @@
 
 package com.mardous.booming.fragments.about
 
-import android.content.*
+import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.navigation.findNavController
 import com.mardous.booming.BuildConfig
 import com.mardous.booming.R
-import com.mardous.booming.databinding.FragmentAboutBinding
-import com.mardous.booming.dialogs.MarkdownDialog
-import com.mardous.booming.extensions.MIME_TYPE_PLAIN_TEXT
-import com.mardous.booming.extensions.applyBottomWindowInsets
-import com.mardous.booming.extensions.openWeb
-import com.mardous.booming.extensions.showToast
+import com.mardous.booming.extensions.*
 import com.mardous.booming.model.DeviceInfo
+import com.mardous.booming.ui.screens.AboutScreen
+import com.mardous.booming.ui.screens.LicensesDialog
+import com.mardous.booming.ui.screens.ReportBugsDialog
+import com.mardous.booming.ui.theme.BoomingMusicTheme
+import com.mardous.booming.util.Preferences
 
 /**
  * @author Christians M. A. (mardous)
  */
-class AboutFragment : Fragment(R.layout.fragment_about), View.OnClickListener {
-
-    private var _binding: FragmentAboutBinding? = null
-    private val binding get() = _binding!!
+class AboutFragment : Fragment() {
 
     private lateinit var deviceInfo: DeviceInfo
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         deviceInfo = DeviceInfo(requireActivity())
-        _binding = FragmentAboutBinding.bind(view)
-        view.applyBottomWindowInsets()
-        setupVersion()
-        setupListeners()
-    }
+        val appLicenses = requireContext().readStringFromAsset("LICENSES.md")
+        return ComposeView(requireContext()).apply {
+            setContent {
+                BoomingMusicTheme(dynamicColor = Preferences.materialYou) {
+                    var showReportDialog by remember { mutableStateOf(false) }
+                    var showLicensesDialog by remember { mutableStateOf(false) }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    private fun setupVersion() {
-        binding.cardApp.version.text = BuildConfig.VERSION_NAME
-    }
-
-    private fun setupListeners() {
-        binding.cardApp.changelog.setOnClickListener(this)
-        binding.cardApp.forkOnGithub.setOnClickListener(this)
-        binding.cardApp.licenses.setOnClickListener(this)
-
-        binding.cardAuthor.telegram.setOnClickListener(this)
-        binding.cardAuthor.github.setOnClickListener(this)
-        binding.cardAuthor.email.setOnClickListener(this)
-
-        binding.cardSupport.translateApp.setOnClickListener(this)
-        binding.cardSupport.telegram.setOnClickListener(this)
-        binding.cardSupport.reportBugs.setOnClickListener(this)
-        binding.cardSupport.shareApp.setOnClickListener(this)
-    }
-
-    override fun onClick(view: View?) {
-        when (view) {
-            binding.cardApp.changelog -> {
-                openUrl(RELEASES_LINK)
-            }
-
-            binding.cardApp.licenses -> {
-                MarkdownDialog()
-                    .setTitle(getString(R.string.licenses))
-                    .setContentFromAsset(requireContext(), "LICENSES.md")
-                    .show(childFragmentManager, "LICENSES")
-            }
-
-            binding.cardApp.forkOnGithub -> {
-                openUrl(GITHUB_URL)
-            }
-
-            binding.cardAuthor.telegram -> {
-                openUrl(AUTHOR_TELEGRAM_LINK)
-            }
-
-            binding.cardAuthor.github -> {
-                openUrl(AUTHOR_GITHUB_URL)
-            }
-
-            binding.cardAuthor.email -> {
-                val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
-                    data = "mailto:".toUri()
-                    putExtra(Intent.EXTRA_EMAIL, arrayOf("mardous.contact@gmail.com"))
-                    putExtra(Intent.EXTRA_SUBJECT, "${getString(R.string.app_name)} - Support & questions")
-                }
-                startActivity(Intent.createChooser(emailIntent, getString(R.string.write_an_email)))
-            }
-
-            binding.cardSupport.translateApp -> {
-                openUrl(CROWDIN_PROJECT_LINK)
-            }
-
-            binding.cardSupport.telegram -> {
-                openUrl(APP_TELEGRAM_LINK)
-            }
-
-            binding.cardSupport.reportBugs -> {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.report_an_issue)
-                    .setMessage(R.string.you_will_be_forwarded_to_the_issue_tracker_website)
-                    .setPositiveButton(R.string.continue_action) { _: DialogInterface, _: Int ->
-                        try {
-                            startActivity(ISSUE_TRACKER_LINK.openWeb())
-                            copyDeviceInfoToClipBoard()
-                        } catch (ignored: ActivityNotFoundException) {
+                    AboutScreen(
+                        appVersion = BuildConfig.VERSION_NAME,
+                        onBackClick = {
+                            getOnBackPressedDispatcher().onBackPressed()
+                        },
+                        onChangelogClick = {
+                            openUrl(RELEASES_LINK)
+                        },
+                        onForkClick = {
+                            openUrl(GITHUB_URL)
+                        },
+                        onLicensesClick = {
+                            showLicensesDialog = true
+                        },
+                        onTelegramClick = {
+                            openUrl(AUTHOR_TELEGRAM_LINK)
+                        },
+                        onGitHubClick = {
+                            openUrl(AUTHOR_GITHUB_URL)
+                        },
+                        onEmailClick = {
+                            sendEmail()
+                        },
+                        onTranslatorsClick = {
+                            findNavController().navigate(R.id.nav_translators)
+                        },
+                        onTranslateClick = {
+                            openUrl(CROWDIN_PROJECT_LINK)
+                        },
+                        onJoinChatClick = {
+                            openUrl(APP_TELEGRAM_LINK)
+                        },
+                        onShareAppClick = {
+                            sendInvitationMessage()
+                        },
+                        onReportBugsClick = {
+                            showReportDialog = true
                         }
-                    }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
-            }
+                    )
 
-            binding.cardSupport.shareApp -> {
-                sendInvitationMessage()
+                    if (showReportDialog) {
+                        ReportBugsDialog(
+                            onDismiss = {
+                                showReportDialog = false
+                            },
+                            onContinue = {
+                                showReportDialog = false
+                                openIssueTracker()
+                            }
+                        )
+                    }
+
+                    if (showLicensesDialog) {
+                        LicensesDialog(
+                            licensesContent = appLicenses ?: "",
+                            onDismiss = { showLicensesDialog = false }
+                        )
+                    }
+                }
             }
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        materialSharedAxis(view)
+    }
+
+    private fun openUrl(url: String) {
+        startActivity(url.openWeb())
     }
 
     private fun sendInvitationMessage() {
@@ -149,14 +145,28 @@ class AboutFragment : Fragment(R.layout.fragment_about), View.OnClickListener {
         startActivity(Intent.createChooser(intent, getString(R.string.send_invitation_message)))
     }
 
-    private fun openUrl(url: String) {
-        startActivity(url.openWeb())
+    private fun sendEmail() {
+        val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+            data = "mailto:".toUri()
+            putExtra(Intent.EXTRA_EMAIL, arrayOf("mardous.contact@gmail.com"))
+            putExtra(Intent.EXTRA_SUBJECT, "${getString(R.string.app_name)} - Support & questions")
+        }
+        startActivity(Intent.createChooser(emailIntent, getString(R.string.write_an_email)))
+    }
+
+    private fun openIssueTracker() {
+        try {
+            startActivity(ISSUE_TRACKER_LINK.openWeb())
+            copyDeviceInfoToClipBoard()
+        } catch (_: ActivityNotFoundException) {
+        }
     }
 
     private fun copyDeviceInfoToClipBoard() {
         val clipboard = requireContext().getSystemService<ClipboardManager>()
         if (clipboard != null) {
-            val clip = ClipData.newPlainText(getString(R.string.device_info), deviceInfo.toMarkdown())
+            val clip =
+                ClipData.newPlainText(getString(R.string.device_info), deviceInfo.toMarkdown())
             clipboard.setPrimaryClip(clip)
         }
         showToast(R.string.copied_device_info_to_clipboard, Toast.LENGTH_LONG)

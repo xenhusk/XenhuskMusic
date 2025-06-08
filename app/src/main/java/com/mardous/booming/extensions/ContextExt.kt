@@ -174,7 +174,7 @@ fun Context.createNotificationChannel(
 }
 
 fun Context.readStringFromAsset(assetName: String): String? =
-    runCatching { assets.open(assetName).readString() }.getOrNull()
+    runCatching { assets.open(assetName).use { it.readString() } }.getOrNull()
 
 fun Context.getTintedDrawable(@DrawableRes resId: Int, @ColorInt color: Int): Drawable? =
     getDrawableCompat(resId).getTinted(color)

@@ -185,4 +185,14 @@
         android:name="com.mardous.booming.fragments.sound.SoundSettingsFragment"
         android:label="SoundSettingsFragment"/>
 
+    <fragment
+        android:id="@+id/nav_about"
+        android:name="com.mardous.booming.fragments.about.AboutFragment"
+        android:label="AboutFragment"/>
+
+    <fragment
+        android:id="@+id/nav_translators"
+        android:name="com.mardous.booming.fragments.about.TranslatorsFragment"
+        android:label="TranslatorsFragment"/>
+
 </navigation>

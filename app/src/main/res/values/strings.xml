@@ -528,6 +528,9 @@
     <string name="licenses">Licenses</string>
     <string name="author">Author</string>
     <string name="mardous_summary" translatable="false">Lead Developer</string>
+    <string name="acknowledgments_title">Acknowledgment</string>
+    <string name="translators_title">Translators</string>
+    <string name="translators_summary">Thanks to those who make Booming Music available in many languages.</string>
     <string name="telegram_chat">Telegram chat</string>
     <string name="telegram_chat_summary">Join the chat in Telegram and get informed about new releases and news.</string>
     <string name="view_profile_on_github">View profile on GitHub</string>

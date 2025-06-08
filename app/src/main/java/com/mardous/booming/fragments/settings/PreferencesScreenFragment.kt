@@ -32,6 +32,7 @@ import com.mardous.booming.extensions.Space
 import com.mardous.booming.extensions.applyBottomWindowInsets
 import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.hasS
+import com.mardous.booming.extensions.navigation.findActivityNavController
 import com.mardous.booming.extensions.utilities.toEnum
 import com.mardous.booming.preferences.dialog.*
 
@@ -76,7 +77,7 @@ open class PreferencesScreenFragment : PreferenceFragmentCompat() {
         if (settingsScreen != null) {
             findNavController().navigate(settingsScreen.navAction, bundleOf(EXTRA_SCREEN to settingsScreen))
         } else if (preference.key == "about") {
-            findNavController().navigate(R.id.action_to_about)
+            findActivityNavController(R.id.fragment_container).navigate(R.id.nav_about)
         }
         return true
     }

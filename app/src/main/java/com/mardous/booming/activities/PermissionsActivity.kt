@@ -55,7 +55,7 @@ class PermissionsActivity : AbsMusicServiceActivity() {
         super.onCreate(savedInstanceState)
         val appName = getString(R.string.app_name_long).trim()
         val styledAppName = SpannableStringBuilder(getString(R.string.welcome_to_x, appName).trim()).apply {
-            setSpan(StyleSpan(Typeface.BOLD), this.indexOf(appName), lastIndex, SPAN_INCLUSIVE_INCLUSIVE)
+            setSpan(StyleSpan(Typeface.BOLD), this.indexOf(appName), length, SPAN_INCLUSIVE_INCLUSIVE)
             setSpan(ForegroundColorSpan(primaryColor()), this.lastIndexOf(" "), length, SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         _binding = ActivityPermissionBinding.inflate(layoutInflater)

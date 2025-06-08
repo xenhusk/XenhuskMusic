@@ -54,7 +54,7 @@ class LrcEntry(
         staticLayout = StaticLayout.Builder.obtain(text, 0, text.length, paint, width)
             .setAlignment(align)
             .setEllipsize(TextUtils.TruncateAt.END)
-            .setLineSpacing(0f, 1.25f)
+            .setLineSpacing(0f, 1.50f)
             .setIncludePad(false)
             .build()
 

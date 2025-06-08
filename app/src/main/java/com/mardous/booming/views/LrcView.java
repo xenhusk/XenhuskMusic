@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
 import android.text.Layout;
@@ -41,6 +42,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.mardous.booming.R;
+import com.mardous.booming.extensions.resources.ColorExtKt;
 import com.mardous.booming.lyrics.LrcEntry;
 import com.mardous.booming.lyrics.LrcLyrics;
 
@@ -53,13 +55,11 @@ import java.util.List;
  */
 @SuppressLint("StaticFieldLeak")
 public class LrcView extends View {
-    private static final long ADJUST_DURATION = 0;
     private static final long TIMELINE_KEEP_TIME = 4 * DateUtils.SECOND_IN_MILLIS;
 
     private final List<LrcEntry> mLrcEntryList = new ArrayList<>();
     private final TextPaint mLrcPaint = new TextPaint();
     private final TextPaint mTimePaint = new TextPaint();
-    private Paint.FontMetrics mTimeFontMetrics;
     private Drawable mPlayDrawable;
     private float mDividerHeight;
     private long mAnimationDuration;
@@ -67,9 +67,6 @@ public class LrcView extends View {
     private float mNormalTextSize;
     private int mCurrentTextColor;
     private float mCurrentTextSize;
-    private int mTimelineTextColor;
-    private int mTimelineColor;
-    private int mTimeTextColor;
     private int mDrawableWidth;
     private int mTimeTextWidth;
     private String mDefaultLabel;
@@ -203,14 +200,11 @@ public class LrcView extends View {
             mAnimationDuration = (mAnimationDuration < 0) ? defDuration : mAnimationDuration;
             mNormalTextColor = ta.getColor(R.styleable.LrcView_lrcNormalTextColor, ContextCompat.getColor(getContext(), R.color.lrc_normal_text_color));
             mCurrentTextColor = ta.getColor(R.styleable.LrcView_lrcCurrentTextColor, ContextCompat.getColor(getContext(), R.color.lrc_current_text_color));
-            mTimelineTextColor = ta.getColor(R.styleable.LrcView_lrcTimelineTextColor, ContextCompat.getColor(getContext(), R.color.lrc_timeline_text_color));
             mDefaultLabel = ta.getString(R.styleable.LrcView_lrcLabel);
             mDefaultLabel = TextUtils.isEmpty(mDefaultLabel) ? getContext().getString(R.string.empty_label) : mDefaultLabel;
             mLrcPadding = ta.getDimension(R.styleable.LrcView_lrcPadding, 0);
-            mTimelineColor = ta.getColor(R.styleable.LrcView_lrcTimelineColor, ContextCompat.getColor(getContext(), R.color.lrc_timeline_color));
             mPlayDrawable = ta.getDrawable(R.styleable.LrcView_lrcPlayDrawable);
             mPlayDrawable = (mPlayDrawable == null) ? ContextCompat.getDrawable(getContext(), R.drawable.ic_play_24dp) : mPlayDrawable;
-            mTimeTextColor = ta.getColor(R.styleable.LrcView_lrcTimeTextColor, ContextCompat.getColor(getContext(), R.color.lrc_time_text_color));
             mTextGravity = ta.getInteger(R.styleable.LrcView_lrcTextGravity, LrcEntry.GRAVITY_CENTER);
 
             float timelineHeight = ta.getDimension(R.styleable.LrcView_lrcTimelineHeight, getResources().getDimension(R.dimen.lrc_timeline_height));
@@ -220,7 +214,7 @@ public class LrcView extends View {
             mTimeTextWidth = (int) getResources().getDimension(R.dimen.lrc_time_width);
 
             mLrcPaint.setAntiAlias(true);
-            mLrcPaint.setTextSize(mCurrentTextSize);
+            mLrcPaint.setTextSize(mNormalTextSize);
             mLrcPaint.setTextAlign(Paint.Align.LEFT);
             mTimePaint.setAntiAlias(true);
             mTimePaint.setTextSize(timeTextSize);
@@ -228,33 +222,11 @@ public class LrcView extends View {
             //noinspection SuspiciousNameCombination
             mTimePaint.setStrokeWidth(timelineHeight);
             mTimePaint.setStrokeCap(Paint.Cap.ROUND);
-            mTimeFontMetrics = mTimePaint.getFontMetrics();
 
             mGestureDetector = new GestureDetector(getContext(), mSimpleOnGestureListener);
             mGestureDetector.setIsLongpressEnabled(false);
             mScroller = new Scroller(getContext());
         }
-    }
-
-    public void setCurrentColor(int currentColor) {
-        mCurrentTextColor = currentColor;
-        postInvalidate();
-    }
-
-    public void setTimelineTextColor(int timelineTextColor) {
-        mTimelineTextColor = timelineTextColor;
-        postInvalidate();
-    }
-
-    public void setTimelineColor(int timelineColor) {
-        mTimelineColor = timelineColor;
-        postInvalidate();
-    }
-
-
-    public void setTimeTextColor(int timeTextColor) {
-        mTimeTextColor = timeTextColor;
-        postInvalidate();
     }
 
     public void setDraggable(boolean draggable, OnPlayClickListener onPlayClickListener) {
@@ -348,12 +320,14 @@ public class LrcView extends View {
             if (i > 0) {
                 y += ((mLrcEntryList.get(i - 1).getHeight() + mLrcEntryList.get(i).getHeight()) >> 1) + mDividerHeight;
             }
-            if (i <= mCurrentLine) {
-                mLrcPaint.setTextSize(mNormalTextSize);
+            if (i == mCurrentLine) {
+                mLrcPaint.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+                mLrcPaint.setTextSize(mCurrentTextSize);
                 mLrcPaint.setColor(mCurrentTextColor);
             } else {
+                mLrcPaint.setTypeface(Typeface.DEFAULT);
                 mLrcPaint.setTextSize(mNormalTextSize);
-                mLrcPaint.setColor(mNormalTextColor);
+                mLrcPaint.setColor(ColorExtKt.withAlpha(mNormalTextColor, 0.5f));
             }
             drawText(canvas, mLrcEntryList.get(i).getStaticLayout(), y);
         }

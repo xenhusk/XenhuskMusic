@@ -6,78 +6,70 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/mini_player_height"
-    android:clipToPadding="false"
     android:transitionGroup="true">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            app:navigationIcon="?homeAsUpIndicator"
-            app:title="@string/lyrics"/>
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <FrameLayout
+    <com.bosphere.fadingedgelayout.FadingEdgeLayout
+        android:id="@+id/lyricsContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+        app:fel_size_top="64dp"
+        app:fel_edge="top">
 
         <androidx.core.widget.NestedScrollView
-            android:id="@+id/normal_lyrics_scroller"
+            android:id="@+id/normalLyricsScroller"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingTop="96dp"
             android:paddingBottom="@dimen/fab_size_padding"
             android:clipToPadding="false"
             android:overScrollMode="@integer/overScrollMode"
-            android:scrollbars="vertical">
+            android:scrollbars="none">
 
-            <TextView
-                android:id="@+id/normal_lyrics"
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/normalLyrics"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
+                android:lineSpacingExtra="8dp"
                 android:textIsSelectable="true"
                 android:textSize="@dimen/lyrics_text_size"
+                android:textStyle="bold"
                 android:visibility="gone"
-                tools:text="@tools:sample/lorem/random"/>
+                tools:text="@tools:sample/lorem/random"
+                tools:visibility="visible"/>
 
         </androidx.core.widget.NestedScrollView>
 
         <com.mardous.booming.views.LrcView
-            android:id="@+id/lyrics_view"
+            android:id="@+id/lyricsView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
             app:lrcLabel="@string/no_lyrics_found"
-            app:lrcNormalTextSize="@dimen/lyrics_text_size"
-            app:lrcPadding="8dp"
+            app:lrcPadding="24dp"
+            app:lrcAnimationDuration="650"
+            app:lrcNormalTextSize="18sp"
+            app:lrcCurrentTextColor="?colorSecondary"
             app:lrcTextGravity="left"
-            app:lrcTextSize="@dimen/lyrics_text_size"/>
+            app:lrcTextSize="@dimen/lyrics_text_size" />
 
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@android:id/progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:indeterminate="true"/>
+            android:indeterminate="true" />
 
-    </FrameLayout>
+    </com.bosphere.fadingedgelayout.FadingEdgeLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/edit"
+        style="?floatingActionButtonSurfaceStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin_top_left_right"
         android:contentDescription="@string/open_lyrics_editor"
-        app:fabCustomSize="@dimen/fab_custom_size"
         app:srcCompat="@drawable/ic_edit_note_24dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

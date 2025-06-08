@@ -18,6 +18,7 @@
 package com.mardous.booming.fragments.lyrics
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.ClipboardManager
 import android.content.DialogInterface
 import android.net.Uri
@@ -31,7 +32,9 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
+import androidx.core.app.ShareCompat
 import androidx.core.content.getSystemService
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -77,6 +80,8 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
     private val binding get() = _binding!!
 
     private lateinit var editLyricsLauncher: ActivityResultLauncher<IntentSenderRequest>
+    private lateinit var importLyricsLauncher: ActivityResultLauncher<Array<String>>
+
     private var pendingWrite: List<Pair<File, Uri>>? = null
 
     private var plainLyricsModified = false
@@ -94,6 +99,9 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
                     file.copyToUri(requireContext(), uri)
                 }
             }
+        }
+        importLyricsLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { data: Uri? ->
+            data?.let { importLRCFile(song, it) }
         }
 
         binding.search.setOnClickListener { searchLyrics() }
@@ -321,7 +329,10 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         }
     }
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_lyrics, menu)
+    }
+
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
         when (menuItem.itemId) {
             android.R.id.home -> {
@@ -329,8 +340,62 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
                 true
             }
 
+            R.id.action_import_lyrics -> {
+                importSyncedLyrics(song)
+                true
+            }
+
+            R.id.action_share_lyrics -> {
+                shareSyncedLyrics(song)
+                true
+            }
+
             else -> false
         }
+
+    private fun shareSyncedLyrics(song: Song) {
+        lyricsViewModel.shareSyncedLyrics(requireContext(), song).observe(viewLifecycleOwner) {
+            if (it == null) {
+                showToast(R.string.no_synced_lyrics_found, Toast.LENGTH_SHORT)
+            } else {
+                startActivity(
+                    ShareCompat.IntentBuilder(requireContext())
+                        .setType(MIME_TYPE_APPLICATION)
+                        .setChooserTitle(R.string.action_share_synchronized_lyrics)
+                        .setStream(it)
+                        .createChooserIntent()
+                )
+            }
+        }
+    }
+
+    private fun importSyncedLyrics(song: Song) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.action_import_synchronized_lyrics)
+            .setMessage(
+                getString(R.string.do_you_want_to_import_lrc_lyrics_for_song_x, song.title).toHtml()
+            )
+            .setPositiveButton(R.string.yes) { _: DialogInterface, _: Int ->
+                try {
+                    importLyricsLauncher.launch(arrayOf("application/*"))
+                    showToast(R.string.select_a_file_containing_synchronized_lyrics)
+                } catch (_: ActivityNotFoundException) {
+                }
+            }
+            .setNegativeButton(R.string.no, null)
+            .show()
+    }
+
+    private fun importLRCFile(song: Song, data: Uri) {
+        lyricsViewModel.setLRCContentFromUri(requireContext(), song, data)
+            .observe(viewLifecycleOwner) { isSuccess ->
+                if (isSuccess) {
+                    showToast(getString(R.string.import_lyrics_for_song_x, song.title))
+                } else {
+                    showToast(getString(R.string.could_not_import_lyrics_for_song_x, song.title))
+                }
+            }
+    }
 
     override fun onDestroyView() {
         binding.toggleGroup.clearOnButtonCheckedListeners()

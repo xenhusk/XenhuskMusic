@@ -5,6 +5,7 @@ val isNormalBuild: Boolean by rootProject.extra
 plugins {
     alias(libs.plugins.agp)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
     id("kotlin-parcelize")
     alias(libs.plugins.google.ksp)
@@ -133,6 +134,7 @@ android {
     buildFeatures {
         buildConfig = true
         viewBinding = true
+        compose = true
     }
     androidResources {
         generateLocaleConfig = true
@@ -206,6 +208,9 @@ dependencies {
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
 
+    // Coil
+    implementation(libs.coil.compose)
+
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.livedata.ktx)
@@ -238,6 +243,7 @@ dependencies {
     implementation(libs.customactivityoncrash)
     implementation(libs.versioncompare)
 
+    implementation(libs.compose.markdown)
     implementation(libs.markdown.core)
     implementation(libs.markdown.html)
     implementation(libs.markdown.glide)

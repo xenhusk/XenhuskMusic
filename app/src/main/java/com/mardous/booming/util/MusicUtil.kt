@@ -18,9 +18,9 @@
 package com.mardous.booming.util
 
 import android.content.Context
-import android.net.Uri
 import android.provider.BaseColumns
 import android.provider.MediaStore
+import androidx.core.net.toUri
 import com.mardous.booming.database.toSongEntity
 import com.mardous.booming.extensions.files.deleteUsingSAF
 import com.mardous.booming.extensions.hasQ
@@ -135,7 +135,7 @@ object MusicUtil : KoinComponent {
         }
 
         context.onUI {
-            context.contentResolver.notifyChange(Uri.parse("content://media"), null)
+            context.contentResolver.notifyChange("content://media".toUri(), null)
             onCompleted?.invoke(deleted)
         }
     }

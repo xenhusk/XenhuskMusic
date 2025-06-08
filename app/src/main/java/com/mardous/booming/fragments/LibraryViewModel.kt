@@ -21,6 +21,8 @@ import android.animation.ValueAnimator
 import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
+import android.media.MediaScannerConnection
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import androidx.core.animation.doOnEnd
@@ -44,15 +46,14 @@ import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.queue.ShuffleManager
 import com.mardous.booming.service.queue.ShuffleManager.GroupShuffleMode
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.StorageUtil
 import com.mardous.booming.util.sort.SortKeys
-import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Date
+import kotlin.coroutines.resume
 
 class LibraryViewModel(
     private val repository: Repository,
@@ -214,6 +215,36 @@ class LibraryViewModel(
         } else {
             fileSystem.postValue(repository.allFolders())
         }
+    }
+
+    fun scanPaths(context: Context, paths: Array<String>): LiveData<Int> = liveData(IO) {
+        val scanResult = runCatching {
+            suspendCancellableCoroutine { continuation ->
+                var progress = 0
+                val total = paths.size
+
+                MediaScannerConnection.scanFile(context, paths, null) { _, _ ->
+                    progress++
+                    if (progress == total && continuation.isActive) {
+                        continuation.resume(total)
+                    }
+                }
+            }
+        }
+        emit(scanResult.getOrElse { 0 })
+    }
+
+    fun scanAllPaths(context: Context): LiveData<Int> {
+        // We attempt to retrieve all storage roots using our StorageManager-based utility.
+        // If that fails for some reason, we fall back to Environment.getExternalStorageDirectory()
+        // to scan at least the device's primary storage root.
+        val storageRoots = StorageUtil.refreshStorageVolumes()
+                .map { it.filePath }
+                .plus(Environment.getExternalStorageDirectory().path)
+                .distinct()
+                .toTypedArray()
+
+        return scanPaths(context, storageRoots)
     }
 
     fun blacklistPath(file: File) = viewModelScope.launch(IO) {

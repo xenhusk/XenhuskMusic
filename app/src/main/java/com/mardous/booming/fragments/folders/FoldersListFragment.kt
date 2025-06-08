@@ -31,6 +31,7 @@ import com.mardous.booming.R
 import com.mardous.booming.adapters.FileAdapter
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.navigation.folderDetailArgs
+import com.mardous.booming.extensions.showToast
 import com.mardous.booming.fragments.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onSongMenu
@@ -116,6 +117,12 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
                     }
                     R.id.action_set_as_start_directory -> {
                         Preferences.startDirectory = File(file.filePath)
+                    }
+                    R.id.action_scan -> {
+                        libraryViewModel.scanPaths(requireContext(), arrayOf(file.filePath))
+                            .observe(viewLifecycleOwner) {
+                                showToast(R.string.scan_finished)
+                            }
                     }
                     else -> {
                         if (isFlatView) {

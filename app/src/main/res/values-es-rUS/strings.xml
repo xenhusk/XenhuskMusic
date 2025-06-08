@@ -251,6 +251,9 @@
     <string name="new_start_directory">Nuevo directorio de inicio: %s</string>
     <string name="action_scan">Escanear</string>
     <string name="scan_media">Escanear medios</string>
+    <string name="scan_media_message">En la mayoría de los casos, Android detecta e indexa automáticamente los archivos multimedia del dispositivo, por lo que no es necesario forzar un escaneo manual.</string>
+    <string name="scan_media_positive">Escanear de todos modos</string>
+    <string name="scan_finished">Escaneo completado.</string>
     <string name="album_or_artist_empty">El álbum o artista está vacío</string>
     <string name="update_image">Actualizar imagen</string>
     <string name="restore_default">Restaurar la predeterminada</string>

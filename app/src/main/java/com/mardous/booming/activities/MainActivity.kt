@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.activities.base.AbsSlidingMusicPanelActivity
 import com.mardous.booming.appshortcuts.DynamicShortcutManager
@@ -63,6 +64,20 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
         if (savedInstanceState == null) {
             searchUpdate()
         }
+    }
+
+    fun scanAllPaths() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.scan_media)
+            .setMessage(R.string.scan_media_message)
+            .setPositiveButton(R.string.scan_media_positive) { _, _ ->
+                libraryViewModel.scanAllPaths(this).observe(this) {
+                    // TODO show detailed info about scanned songs
+                    showToast(R.string.scan_finished)
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun searchUpdate() {

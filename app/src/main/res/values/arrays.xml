@@ -222,12 +222,15 @@
         <item>Chinese Simplified</item>
         <item>Czech</item>
         <item>Danish</item>
+        <item>Dutch</item>
         <item>English (US)</item>
         <item>Finnish</item>
         <item>German</item>
         <item>Greek</item>
         <item>Hebrew</item>
+        <item>Hindi</item>
         <item>Italian</item>
+        <item>Korean</item>
         <item>Japanese</item>
         <item>Norwegian</item>
         <item>Polish</item>
@@ -237,6 +240,7 @@
         <item>Spanish</item>
         <item>Spanish (Latin America)</item>
         <item>Swedish</item>
+        <item>Turkish</item>
         <item>Ukrainian</item>
     </string-array>
 
@@ -246,12 +250,15 @@
         <item>zh-CN</item>
         <item>cs</item>
         <item>da</item>
+        <item>nl</item>
         <item>en</item>
         <item>fi</item>
         <item>de</item>
         <item>el</item>
         <item>iw</item>
+        <item>hi</item>
         <item>it</item>
+        <item>ko</item>
         <item>ja</item>
         <item>no</item>
         <item>pl</item>
@@ -261,6 +268,7 @@
         <item>es</item>
         <item>es-419</item>
         <item>sv</item>
+        <item>tr</item>
         <item>uk</item>
     </string-array>
 

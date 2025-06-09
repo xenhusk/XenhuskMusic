@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import androidx.appcompat.content.res.AppCompatResources
 import com.mardous.booming.R
+import com.mardous.booming.util.StorageUtil
 import kotlinx.parcelize.Parcelize
 
 class FileSystemQuery(
@@ -65,10 +66,7 @@ class FileSystemQuery(
         }
 
         fun isNavigablePath(path: String): Boolean {
-            return path.isNotEmpty() &&
-                    path != "/" &&
-                    path != "/storage" &&
-                    path != "/storage/emulated"
+            return StorageUtil.storageVolumes.none { it.file.parent == path }
         }
     }
 }

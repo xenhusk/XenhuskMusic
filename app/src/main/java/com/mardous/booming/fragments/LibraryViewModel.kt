@@ -404,15 +404,31 @@ class LibraryViewModel(
                 val playlistId: Long = createPlaylist(PlaylistEntity(playlistName = playlistName))
                 insertSongs(songs.map { it.toSongEntity(playlistId) })
                 val playlistCreated = (playlistId != -1L)
-                emit(AddToPlaylistResult(playlistName, playlistCreated = playlistCreated, insertedSongs = songs.size))
+                val isFavoritePlaylist = repository.checkFavoritePlaylist()?.playListId == playlistId
+                emit(
+                    AddToPlaylistResult(
+                        playlistName,
+                        playlistCreated = playlistCreated,
+                        isFavoritePlaylist = isFavoritePlaylist,
+                        insertedSongs = songs.size
+                    )
+                )
             } else {
                 val playlist = playlists.firstOrNull()
                 if (playlist != null) {
                     val checkedSongs = songs.filterNot { checkSongExistInPlaylist(playlist, it) }
+                    val favoritePlaylist = repository.checkFavoritePlaylist()
+                    val isFavoritePlaylist = playlist.playListId == favoritePlaylist?.playListId
                     insertSongs(checkedSongs.map {
                         it.toSongEntity(playListId = playlist.playListId)
                     })
-                    emit(AddToPlaylistResult(playlistName, insertedSongs = checkedSongs.size))
+                    emit(
+                        AddToPlaylistResult(
+                            playlistName,
+                            isFavoritePlaylist = isFavoritePlaylist,
+                            insertedSongs = checkedSongs.size
+                        )
+                    )
                 } else {
                     emit(AddToPlaylistResult(playlistName))
                 }

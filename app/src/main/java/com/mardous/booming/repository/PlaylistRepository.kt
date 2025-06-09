@@ -55,6 +55,7 @@ interface PlaylistRepository {
     suspend fun deleteSongsInPlaylist(songs: List<SongEntity>)
     suspend fun deletePlaylistSongs(playlists: List<PlaylistEntity>)
     suspend fun favoritePlaylist(): PlaylistEntity
+    suspend fun checkFavoritePlaylist(): PlaylistEntity?
     suspend fun favoriteSongs(): List<SongEntity>
     fun favoriteObservable(): LiveData<List<SongEntity>>
     suspend fun isSongFavorite(songEntity: SongEntity): List<SongEntity>
@@ -150,6 +151,11 @@ class RealPlaylistRepository(
             createPlaylist(PlaylistEntity(playlistName = favorite))
             playlistDao.playlist(favorite).first()
         }
+    }
+
+    override suspend fun checkFavoritePlaylist(): PlaylistEntity? {
+        val favorite = context.getString(R.string.favorites_label)
+        return playlistDao.playlist(favorite).firstOrNull()
     }
 
     override suspend fun favoriteSongs(): List<SongEntity> {

@@ -22,6 +22,7 @@ import com.mardous.booming.R
 import com.mardous.booming.dialogs.InputDialog
 import com.mardous.booming.extensions.EXTRA_SONGS
 import com.mardous.booming.extensions.extraNotNull
+import com.mardous.booming.extensions.media.refreshFavoriteState
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.withArgs
 import com.mardous.booming.fragments.LibraryViewModel
@@ -63,6 +64,9 @@ class CreatePlaylistDialog : InputDialog() {
                     return@observe
 
                 if (it.playlistCreated) {
+                    if (it.isFavoritePlaylist) {
+                        context?.refreshFavoriteState()
+                    }
                     showToast(getString(R.string.created_playlist_x, it.playlistName))
                     callback?.playlistCreated()
                 } else {

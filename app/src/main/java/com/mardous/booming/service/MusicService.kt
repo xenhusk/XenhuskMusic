@@ -629,9 +629,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     fun toggleFavorite() {
         serviceScope.launch {
-            MusicUtil.toggleFavorite(getCurrentSong())
-            LocalBroadcastManager.getInstance(this@MusicService)
-                .sendBroadcast(Intent(ServiceEvent.FAVORITE_STATE_CHANGED))
+            MusicUtil.toggleFavorite(this@MusicService, getCurrentSong())
         }
     }
 

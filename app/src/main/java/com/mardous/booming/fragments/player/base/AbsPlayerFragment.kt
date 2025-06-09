@@ -36,7 +36,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
@@ -55,6 +54,7 @@ import com.mardous.booming.dialogs.songs.ShareSongDialog
 import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.extraInfo
+import com.mardous.booming.extensions.media.refreshFavoriteState
 import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.artistDetailArgs
 import com.mardous.booming.extensions.navigation.genreDetailArgs
@@ -81,7 +81,6 @@ import com.mardous.booming.model.GestureOnCover
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
 import com.mardous.booming.service.MusicPlayer
-import com.mardous.booming.service.constants.ServiceEvent
 import com.mardous.booming.util.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
@@ -504,8 +503,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
     private fun toggleFavorite(song: Song = MusicPlayer.currentSong) {
         libraryViewModel.toggleFavorite(song).observe(viewLifecycleOwner) {
-            LocalBroadcastManager.getInstance(requireContext())
-                .sendBroadcast(Intent(ServiceEvent.FAVORITE_STATE_CHANGED))
+            requireContext().refreshFavoriteState()
         }
     }
 

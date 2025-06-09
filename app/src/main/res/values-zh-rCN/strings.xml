@@ -775,7 +775,6 @@
     <string name="more_info_action">更多信息。</string>
     <string name="download_action">下载</string>
     <string name="downloading_update">正在下载 Booming 音乐更新。</string>
-    <string name="downloaded_update_name">Booming Music %s (点击安装)</string>
     <string name="uncaught_error_title">发生意外错误</string>
     <string name="uncaught_error_message">抱歉给您带来了不便。您可以查看错误报告并重启应用程序。</string>
     <string name="uncaught_error_restart_app">重启应用</string>

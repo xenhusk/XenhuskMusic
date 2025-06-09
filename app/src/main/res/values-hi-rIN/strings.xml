@@ -781,7 +781,6 @@
     <string name="more_info_action">अधिक जानकारी</string>
     <string name="download_action">डाउनलोड करें</string>
     <string name="downloading_update">बूमिंग संगीत अपडेट डाउनलोड हो रहा है।</string>
-    <string name="downloaded_update_name">बूमिंग म्यूजिक %s (इंस्टॉल करने के लिए टैप करें)</string>
     <string name="uncaught_error_title">एक अनपेक्षित त्रुटि हुई है</string>
     <string name="uncaught_error_message">असुविधा के लिए क्षमा करें। आप त्रुटि रिपोर्ट की समीक्षा कर सकते हैं और ऐप को फिर से शुरू कर सकते हैं।</string>
     <string name="uncaught_error_restart_app">ऐप को पुनः प्रारंभ करें</string>

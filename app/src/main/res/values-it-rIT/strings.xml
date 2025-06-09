@@ -783,7 +783,6 @@
     <string name="more_info_action">Maggiori informazioni.</string>
     <string name="download_action">Scarica</string>
     <string name="downloading_update">Scaricamento aggiornamento musica booming.</string>
-    <string name="downloaded_update_name">Booming Music %s (Da Installare)</string>
     <string name="uncaught_error_title">Si è verificato un errore imprevisto</string>
     <string name="uncaught_error_message">Siamo spiacenti per l\'inconveniente. Puoi rivedere il rapporto di errore e riavviare l\'app.</string>
     <string name="uncaught_error_restart_app">Riavvia app</string>

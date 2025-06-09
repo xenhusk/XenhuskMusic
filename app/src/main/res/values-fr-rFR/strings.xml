@@ -783,7 +783,6 @@
     <string name="more_info_action">Plus d\'infos.</string>
     <string name="download_action">Télécharger</string>
     <string name="downloading_update">Téléchargement de la mise à jour de la musique en plein essor.</string>
-    <string name="downloaded_update_name">Musique en plein essor %s (Appuyez pour installer)</string>
     <string name="uncaught_error_title">Une erreur inattendue s\'est produite</string>
     <string name="uncaught_error_message">Désolé pour la gêne occasionnée. Vous pouvez consulter le rapport d\'erreur et redémarrer l\'application.</string>
     <string name="uncaught_error_restart_app">Redémarrer l\'application</string>

@@ -799,7 +799,6 @@
     <string name="more_info_action">Więcej informacji.</string>
     <string name="download_action">Pobierz</string>
     <string name="downloading_update">Pobieranie aktualizacji Booming Music.</string>
-    <string name="downloaded_update_name">Booming Music %s (Kliknij, by zainstalować)</string>
     <string name="uncaught_error_title">Wystąpił nieoczekiwany błąd</string>
     <string name="uncaught_error_message">Przepraszamy za niedogodności. Możesz przejrzeć raport o błędzie i ponownie uruchomić aplikację.</string>
     <string name="uncaught_error_restart_app">Uruchom ponownie aplikację</string>

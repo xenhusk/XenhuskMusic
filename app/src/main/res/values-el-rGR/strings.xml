@@ -783,7 +783,6 @@
     <string name="more_info_action">Περισσότερες πληροφορίες.</string>
     <string name="download_action">Λήψη</string>
     <string name="downloading_update">Λήψη ενημέρωσης Booming Music</string>
-    <string name="downloaded_update_name">Αύξηση Μουσικής %s (Ταπ Εγκατάστασης)</string>
     <string name="uncaught_error_title">Παρουσιάστηκε ένα μη αναμενόμενο σφάλμα</string>
     <string name="uncaught_error_message">Συγγνώμη για την ταλαιπωρία. Μπορείτε να αναθεωρήσετε την αναφορά σφάλματος και να επανεκκινήσετε την εφαρμογή.</string>
     <string name="uncaught_error_restart_app">Επανεκκίνηση εφαρμογής</string>

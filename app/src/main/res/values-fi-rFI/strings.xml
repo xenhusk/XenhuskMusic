@@ -783,7 +783,6 @@
     <string name="more_info_action">Lisää tietoja.</string>
     <string name="download_action">Lataa</string>
     <string name="downloading_update">Ladataan kasvavan musiikin päivitystä.</string>
-    <string name="downloaded_update_name">Kukoistava Musiikki %s (Napauta Asentaaksesi)</string>
     <string name="uncaught_error_title">Odottamaton virhe tapahtui</string>
     <string name="uncaught_error_message">Pahoittelemme haittaa. Voit tarkistaa virheraportin ja käynnistää sovelluksen uudelleen.</string>
     <string name="uncaught_error_restart_app">Käynnistä sovellus uudelleen</string>

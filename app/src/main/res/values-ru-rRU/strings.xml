@@ -799,7 +799,6 @@
     <string name="more_info_action">Больше информации.</string>
     <string name="download_action">Скачать</string>
     <string name="downloading_update">Загрузка обновления Booming Music.</string>
-    <string name="downloaded_update_name">Бум музыки %s (Нажмите, чтобы установить)</string>
     <string name="uncaught_error_title">Произошла непредвиденная ошибка</string>
     <string name="uncaught_error_message">Извините за неудобства. Вы можете просмотреть отчет об ошибке и перезапустить приложение.</string>
     <string name="uncaught_error_restart_app">Перезапустить приложение</string>

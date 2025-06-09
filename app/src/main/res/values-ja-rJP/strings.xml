@@ -775,7 +775,6 @@
     <string name="more_info_action">詳細情報</string>
     <string name="download_action">ダウンロード</string>
     <string name="downloading_update">Booming Musicのアップデートをダウンロードしています。</string>
-    <string name="downloaded_update_name">Booming Music %s (タップでインストール)</string>
     <string name="uncaught_error_title">予期しないエラーが発生しました</string>
     <string name="uncaught_error_message">ご不便をおかけして申し訳ありません。エラーレポートを確認し、アプリを再起動してください。</string>
     <string name="uncaught_error_restart_app">アプリを再起動</string>

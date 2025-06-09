@@ -813,7 +813,6 @@
     <string name="more_info_action">Más info.</string>
     <string name="download_action">Descargar</string>
     <string name="downloading_update">Descargando actualización de Booming Music.</string>
-    <string name="downloaded_update_name">Booming Music %s (Tocar para instalar)</string>
 
     <string name="uncaught_error_title">Ocurrió un error inesperado</string>
     <string name="uncaught_error_message">Sentimos la inconveniencia. Puedes revisar el reporte de error y reiniciar la app.</string>

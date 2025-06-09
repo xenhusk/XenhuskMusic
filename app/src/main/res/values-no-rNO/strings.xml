@@ -783,7 +783,6 @@
     <string name="more_info_action">Mer info.</string>
     <string name="download_action">Nedlasting</string>
     <string name="downloading_update">Laster ned Booming Music update.</string>
-    <string name="downloaded_update_name">Booming Music %s (Trykk for å installere)</string>
     <string name="uncaught_error_title">Det oppstod en uventet feil</string>
     <string name="uncaught_error_message">Beklager ulempen. Du kan gjennomgå feilrapporten og starte appen på nytt.</string>
     <string name="uncaught_error_restart_app">Starte appen på nytt</string>

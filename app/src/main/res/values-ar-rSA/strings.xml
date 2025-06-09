@@ -815,7 +815,6 @@
     <string name="more_info_action">المزيد من المعلومات.</string>
     <string name="download_action">تنزيل</string>
     <string name="downloading_update">تحميل تحديث الموسيقى المزدهرة.</string>
-    <string name="downloaded_update_name">موسيقى مزدهرة %s (انقر للتثبيت)</string>
     <string name="uncaught_error_title">حدث خطأ غير متوقع</string>
     <string name="uncaught_error_message">عذرا على الإزعاج. يمكنك مراجعة تقرير الخطأ وإعادة تشغيل التطبيق.</string>
     <string name="uncaught_error_restart_app">إعادة تشغيل التطبيق</string>

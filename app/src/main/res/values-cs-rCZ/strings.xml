@@ -799,7 +799,6 @@
     <string name="more_info_action">Další informace.</string>
     <string name="download_action">Stáhnout</string>
     <string name="downloading_update">Stahování Booming aktualizace hudby.</string>
-    <string name="downloaded_update_name">Boomování hudby %s (ap k instalaci)</string>
     <string name="uncaught_error_title">Došlo k neočekávané chybě</string>
     <string name="uncaught_error_message">Omlouváme se za nepříjemnosti. Můžete zkontrolovat zprávu o chybách a restartovat aplikaci.</string>
     <string name="uncaught_error_restart_app">Restartovat aplikaci</string>

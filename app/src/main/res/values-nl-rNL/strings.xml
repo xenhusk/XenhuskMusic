@@ -783,7 +783,6 @@
     <string name="more_info_action">Meer informatie.</string>
     <string name="download_action">Downloaden</string>
     <string name="downloading_update">Booming muziek update wordt gedownload.</string>
-    <string name="downloaded_update_name">Booming Music %s (Tik om te installeren)</string>
     <string name="uncaught_error_title">Er is een onverwachte fout opgetreden</string>
     <string name="uncaught_error_message">Sorry voor het ongemak. U kunt het foutenrapport bekijken en de app herstarten.</string>
     <string name="uncaught_error_restart_app">Herstart app</string>

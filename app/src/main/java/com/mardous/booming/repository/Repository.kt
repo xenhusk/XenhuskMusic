@@ -53,7 +53,7 @@ interface Repository {
     suspend fun devicePlaylists(): List<Playlist>
     suspend fun devicePlaylistSongs(playlist: Playlist): List<Song>
     suspend fun devicePlaylist(playlistId: Long): Playlist
-    suspend fun playlistsWithSongs(): List<PlaylistWithSongs>
+    suspend fun playlistsWithSongs(sorted: Boolean = false): List<PlaylistWithSongs>
     fun playlistWithSongsObservable(playlistId: Long): LiveData<PlaylistWithSongs>
     suspend fun isSongFavorite(songEntity: SongEntity): List<SongEntity>
     suspend fun isSongFavorite(songId: Long): Boolean
@@ -173,8 +173,8 @@ class RealRepository(
     override suspend fun devicePlaylist(playlistId: Long): Playlist =
         playlistRepository.devicePlaylist(playlistId)
 
-    override suspend fun playlistsWithSongs(): List<PlaylistWithSongs> =
-        playlistRepository.playlistWithSongs()
+    override suspend fun playlistsWithSongs(sorted: Boolean): List<PlaylistWithSongs> =
+        playlistRepository.playlistWithSongs(sorted)
 
     override fun playlistWithSongsObservable(playlistId: Long): LiveData<PlaylistWithSongs> =
         playlistRepository.playlistWithSongsObservable(playlistId)

@@ -39,6 +39,9 @@ import com.mardous.booming.helper.menu.onPlaylistMenu
 import com.mardous.booming.helper.menu.onPlaylistsMenu
 import com.mardous.booming.interfaces.IPlaylistCallback
 import com.mardous.booming.model.GridViewType
+import com.mardous.booming.util.sort.SortOrder
+import com.mardous.booming.util.sort.prepareSortOrder
+import com.mardous.booming.util.sort.selectedSortOrder
 
 /**
  * @author Christians M. A. (mardous)
@@ -108,19 +111,35 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<PlaylistAdapt
         menu.removeItem(R.id.action_view_type)
         menu.add(0, R.id.action_new_playlist, 0, R.string.new_playlist_title)
         menu.add(0, R.id.action_import_playlist, 0, R.string.action_import_playlist)
-        menu.findItem(R.id.action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        val sortOrderSubmenu = menu.findItem(R.id.action_sort_order)?.subMenu
+        if (sortOrderSubmenu != null) {
+            sortOrderSubmenu.clear()
+            sortOrderSubmenu.add(0, R.id.action_sort_order_az, 0, R.string.sort_order_az)
+            sortOrderSubmenu.add(0, R.id.action_sort_order_number_of_songs, 1, R.string.sort_order_number_of_songs)
+            sortOrderSubmenu.add(1, R.id.action_sort_order_descending, 2, R.string.sort_order_descending)
+            sortOrderSubmenu.add(1, R.id.action_sort_order_ignore_articles, 3, R.string.sort_order_ignore_articles)
+            sortOrderSubmenu.setGroupCheckable(0, true, true)
+            sortOrderSubmenu.prepareSortOrder(SortOrder.playlistSortOrder)
+        }
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_new_playlist) {
-            CreatePlaylistDialog.create()
-                .show(childFragmentManager, "NEW_PLAYLIST")
-            return true
-        } else if (item.itemId == R.id.action_import_playlist) {
-            ImportPlaylistDialog().show(childFragmentManager, "IMPORT_PLAYLIST")
+        if (item.selectedSortOrder(SortOrder.playlistSortOrder)) {
+            libraryViewModel.forceReload(ReloadType.Playlists)
             return true
         }
-        return super.onMenuItemSelected(item)
+        return when (item.itemId) {
+            R.id.action_new_playlist -> {
+                CreatePlaylistDialog.create()
+                    .show(childFragmentManager, "NEW_PLAYLIST")
+                true
+            }
+            R.id.action_import_playlist -> {
+                ImportPlaylistDialog().show(childFragmentManager, "IMPORT_PLAYLIST")
+                true
+            }
+            else -> super.onMenuItemSelected(item)
+        }
     }
 
     override fun getSavedViewType(): GridViewType {

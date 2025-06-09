@@ -165,7 +165,7 @@ class LibraryViewModel(
     }
 
     private suspend fun fetchPlaylists() {
-        playlists.postValue(repository.playlistsWithSongs())
+        playlists.postValue(repository.playlistsWithSongs(true))
     }
 
     private suspend fun fetchGenres() {

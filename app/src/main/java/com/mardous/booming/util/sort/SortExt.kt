@@ -20,6 +20,7 @@ package com.mardous.booming.util.sort
 import android.view.Menu
 import android.view.MenuItem
 import com.mardous.booming.R
+import com.mardous.booming.database.PlaylistWithSongs
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.model.*
 import java.text.Collator
@@ -145,6 +146,15 @@ fun List<Folder>.sortedFolders(sortOrder: SortOrder): List<Folder> {
         else -> this
     }
     return folders.applyOrder(sortOrder.isDescending)
+}
+
+fun List<PlaylistWithSongs>.sortedPlaylists(sortOrder: SortOrder): List<PlaylistWithSongs> {
+    val playlists = when (sortOrder.value) {
+        SortKeys.AZ -> sortedWith(compareBy { it.playlistEntity.playlistName })
+        SortKeys.NUMBER_OF_SONGS -> sortedWith(compareBy { it.songCount })
+        else -> this
+    }
+    return playlists.applyOrder(sortOrder.isDescending)
 }
 
 fun Menu.prepareSortOrder(sortOrder: SortOrder) {

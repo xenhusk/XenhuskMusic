@@ -33,6 +33,8 @@ import com.mardous.booming.extensions.utilities.takeOrDefault
 import com.mardous.booming.model.Playlist
 import com.mardous.booming.model.Song
 import com.mardous.booming.util.cursor.SortedCursorUtil
+import com.mardous.booming.util.sort.SortOrder
+import com.mardous.booming.util.sort.sortedPlaylists
 
 interface PlaylistRepository {
     fun getSongs(playListId: Long): LiveData<List<SongEntity>>
@@ -43,7 +45,7 @@ interface PlaylistRepository {
     suspend fun checkPlaylistExists(playlistName: String): List<PlaylistEntity>
     fun checkPlaylistExists(playListId: Long): LiveData<Boolean>
     suspend fun playlists(): List<PlaylistEntity>
-    suspend fun playlistWithSongs(): List<PlaylistWithSongs>
+    suspend fun playlistWithSongs(sorted: Boolean = false): List<PlaylistWithSongs>
     fun playlistWithSongsObservable(playlistId: Long): LiveData<PlaylistWithSongs>
     suspend fun searchPlaylists(searchQuery: String): List<PlaylistWithSongs>
     suspend fun searchPlaylistSongs(playlistId: Long, searchQuery: String): List<SongEntity>
@@ -104,7 +106,10 @@ class RealPlaylistRepository(
 
     override suspend fun playlists(): List<PlaylistEntity> = playlistDao.playlists()
 
-    override suspend fun playlistWithSongs(): List<PlaylistWithSongs> = playlistDao.playlistsWithSongs()
+    override suspend fun playlistWithSongs(sorted: Boolean): List<PlaylistWithSongs> =
+        playlistDao.playlistsWithSongs().let {
+            if (sorted) it.sortedPlaylists(SortOrder.playlistSortOrder) else it
+        }
 
     override fun playlistWithSongsObservable(playlistId: Long): LiveData<PlaylistWithSongs> =
         playlistDao.getPlaylist(playlistId).map { result -> result ?: PlaylistWithSongs.Empty }

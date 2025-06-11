@@ -17,7 +17,6 @@
 
 package com.mardous.booming.http.lyrics
 
-import android.content.Context
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.http.lyrics.applemusic.AppleMusicLyricsApi
 import com.mardous.booming.http.lyrics.spotify.SpotifyLyricsApi
@@ -30,10 +29,10 @@ import io.ktor.client.request.get
 import io.ktor.http.encodeURLParameter
 import java.io.IOException
 
-class LyricsService(context: Context, private val client: HttpClient) {
+class LyricsService(private val client: HttpClient) {
 
     private val appleMusicLyricsApi = AppleMusicLyricsApi(client)
-    private val spotifyLyricsApi = SpotifyLyricsApi(context, client)
+    private val spotifyLyricsApi = SpotifyLyricsApi(client)
 
     @Throws(IOException::class)
     suspend fun getLyrics(

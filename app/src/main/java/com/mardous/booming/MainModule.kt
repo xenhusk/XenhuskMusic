@@ -73,7 +73,7 @@ val networkModule = module {
         LastFmService(get())
     }
     single {
-        LyricsService(androidContext(), get())
+        LyricsService(get())
     }
 }
 

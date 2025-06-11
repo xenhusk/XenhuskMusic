@@ -20,12 +20,6 @@ package com.mardous.booming.http.lyrics.spotify
 import kotlinx.serialization.Serializable
 
 @Serializable
-class SpotifyTokenResponse(
-    val accessToken: String,
-    val accessTokenExpirationTimestampMs: Long,
-)
-
-@Serializable
 class TrackSearchResult(val tracks: Tracks) {
     @Serializable
     class Tracks(val items: List<Track>) {

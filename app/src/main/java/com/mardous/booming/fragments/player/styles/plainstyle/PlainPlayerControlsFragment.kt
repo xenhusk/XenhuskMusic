@@ -93,6 +93,7 @@ class PlainPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_
             scheme.primaryControlColor,
             scheme.secondaryControlColor
         )
+        val oldPlayPauseColor = binding.playPauseButton.backgroundTintList?.defaultColor ?: oldControlColor
         val newEmphasisColor = if (scheme.mode == PlayerColorSchemeMode.VibrantColor) {
             scheme.primaryTextColor
         } else {
@@ -103,7 +104,7 @@ class PlainPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_
             binding.songCurrentProgress.tintTarget(oldSecondaryTextColor, scheme.secondaryTextColor),
             binding.songTotalTime.tintTarget(oldSecondaryTextColor, scheme.secondaryTextColor),
             binding.songInfo.tintTarget(oldSecondaryTextColor, scheme.secondaryTextColor),
-            binding.playPauseButton.iconButtonTintTarget(oldControlColor, newEmphasisColor),
+            binding.playPauseButton.iconButtonTintTarget(oldPlayPauseColor, newEmphasisColor),
             binding.nextButton.iconButtonTintTarget(oldControlColor, scheme.primaryControlColor),
             binding.previousButton.iconButtonTintTarget(oldControlColor, scheme.primaryControlColor),
             binding.shuffleButton.iconButtonTintTarget(oldShuffleColor, newShuffleColor),

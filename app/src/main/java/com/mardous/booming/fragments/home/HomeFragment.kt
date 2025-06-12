@@ -87,9 +87,6 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
         homeAdapter = HomeAdapter(arrayListOf(), this).also {
             it.registerAdapterDataObserver(adapterDataObserver)
         }
-        binding.toolbar.setOnClickListener {
-            findNavController().navigate(R.id.nav_search, null, navOptions)
-        }
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(activity)
             adapter = homeAdapter

@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
+import androidx.palette.graphics.Palette
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import com.google.android.material.color.MaterialColors
@@ -32,6 +33,8 @@ import com.mardous.booming.R
 import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.resources.*
 import com.mardous.booming.helper.color.MediaNotificationProcessor
+import com.mardous.booming.helper.color.NotificationColorUtil
+import com.mardous.booming.util.BoomingColorUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -121,14 +124,14 @@ data class PlayerColorScheme(
          * @param color A [MediaNotificationProcessor] with extracted media colors.
          * @return A raw [PlayerColorScheme] using unmodified colors.
          */
-        fun simpleColorScheme(
-            context: Context,
-            color: MediaNotificationProcessor
-        ): PlayerColorScheme {
-            return themeColorScheme(context).copy(
-                mode = Mode.SimpleColor,
-                emphasisColor = color.primaryTextColor
-            )
+        fun simpleColorScheme(context: Context, color: MediaNotificationProcessor): PlayerColorScheme {
+            val themeColorScheme = themeColorScheme(context)
+            val backgroundColor = themeColorScheme.surfaceColor
+            val emphasisColor = color.primaryTextColor
+                .ensureContrastAgainst(backgroundColor, 4.8)
+                .adjustSaturationIfTooHigh(backgroundColor, context.isNightMode)
+                .desaturateIfTooDarkComparedTo(backgroundColor)
+            return themeColorScheme.copy(mode = Mode.SimpleColor, emphasisColor = emphasisColor)
         }
 
         /**

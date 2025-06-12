@@ -31,19 +31,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentDefaultPlayerPlaybackControlsBinding
-import com.mardous.booming.extensions.isNightMode
-import com.mardous.booming.extensions.resources.adjustSaturationIfTooHigh
 import com.mardous.booming.extensions.resources.centerPivot
-import com.mardous.booming.extensions.resources.desaturateIfTooDarkComparedTo
-import com.mardous.booming.extensions.resources.ensureContrastAgainst
 import com.mardous.booming.extensions.resources.showBounceAnimation
-import com.mardous.booming.fragments.player.PlayerAnimator
-import com.mardous.booming.fragments.player.PlayerColorScheme
-import com.mardous.booming.fragments.player.PlayerColorSchemeMode
-import com.mardous.booming.fragments.player.PlayerTintTarget
+import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
-import com.mardous.booming.fragments.player.iconButtonTintTarget
-import com.mardous.booming.fragments.player.tintTarget
 import com.mardous.booming.helper.handler.PrevNextButtonOnTouchHandler
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
@@ -180,19 +171,9 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
             scheme.primaryControlColor,
             scheme.secondaryControlColor
         )
-
-        val newEmphasisColor = if (scheme.mode == PlayerColorSchemeMode.SimpleColor) {
-            scheme.emphasisColor
-                .ensureContrastAgainst(scheme.surfaceColor, minContrastRatio = 4.5)
-                .adjustSaturationIfTooHigh(scheme.surfaceColor, requireContext().isNightMode)
-                .desaturateIfTooDarkComparedTo(scheme.surfaceColor)
-        } else {
-            scheme.emphasisColor
-        }
-
         return listOfNotNull(
-            binding.playPauseButton.tintTarget(oldPlayPauseColor, newEmphasisColor),
-            binding.progressSlider.tintTarget(oldSliderColor, newEmphasisColor),
+            binding.playPauseButton.tintTarget(oldPlayPauseColor, scheme.emphasisColor),
+            binding.progressSlider.tintTarget(oldSliderColor, scheme.emphasisColor),
             binding.nextButton.iconButtonTintTarget(oldControlColor, scheme.primaryControlColor),
             binding.previousButton.iconButtonTintTarget(oldControlColor, scheme.primaryControlColor),
             binding.shuffleButton.iconButtonTintTarget(oldShuffleColor, newShuffleColor),

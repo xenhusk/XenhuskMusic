@@ -39,7 +39,7 @@ class SortOrder(
         set(value) = sharedPreferences.edit { putBoolean("${id}_descending", value) }
 
     var ignoreArticles: Boolean
-        get() = sharedPreferences.getBoolean("${id}_sort_order_ignore_articles", true)
+        get() = sharedPreferences.getBoolean("${id}_sort_order_ignore_articles", false)
         set(value) = sharedPreferences.edit { putBoolean("${id}_sort_order_ignore_articles", value) }
 
     companion object : KoinComponent {

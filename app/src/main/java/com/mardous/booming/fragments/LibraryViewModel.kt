@@ -180,11 +180,19 @@ class LibraryViewModel(
         navigateToPath()
     }
 
-    private suspend fun filesToSongs(files: List<FileSystemItem>, includeSubfolders: Boolean): List<Song> {
+    private suspend fun filesToSongs(
+        files: List<FileSystemItem>,
+        includeFolders: Boolean,
+        deepListing: Boolean
+    ): List<Song> {
         return buildList {
-            if (includeSubfolders) {
+            if (includeFolders) {
                 val songs = files.filterIsInstance<Folder>().flatMap {
-                    repository.songsByFolder(it.filePath, true)
+                    if (deepListing) {
+                        repository.songsByFolder(it.filePath, true)
+                    } else {
+                        it.songs
+                    }
                 }
                 addAll(songs)
             }
@@ -195,7 +203,7 @@ class LibraryViewModel(
     private suspend fun songsFromCurrentFolder(): List<Song> {
         val currentFolder = fileSystem.value
         return if (currentFolder != null) {
-            filesToSongs(currentFolder.children, includeSubfolders = false)
+            filesToSongs(currentFolder.children, includeFolders = false, deepListing = false)
         } else {
             emptyList()
         }
@@ -271,8 +279,12 @@ class LibraryViewModel(
         emit(songs)
     }
 
-    fun songs(files: List<FileSystemItem>, includeSubfolders: Boolean): LiveData<List<Song>> = liveData(IO) {
-        val songs = filesToSongs(files, includeSubfolders)
+    fun songs(
+        files: List<FileSystemItem>,
+        includeFolders: Boolean,
+        deepListing: Boolean
+    ): LiveData<List<Song>> = liveData(IO) {
+        val songs = filesToSongs(files, includeFolders, deepListing)
         emit(songs)
     }
 

@@ -128,9 +128,11 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
                         if (isFlatView) {
                             file.songs.onSongsMenu(this, menuItem)
                         } else {
+                            val isRecursive = recursiveActions.isPresent(menuItem.itemId)
                             libraryViewModel.songs(
                                 file.musicFiles,
-                                includeSubfolders = recursiveActions.isPresent(menuItem.itemId)
+                                includeFolders = isRecursive,
+                                deepListing = isRecursive
                             ).observe(viewLifecycleOwner) {
                                 it.onSongsMenu(this, menuItem)
                             }
@@ -152,7 +154,8 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
         } else {
             libraryViewModel.songs(
                 selection,
-                includeSubfolders = Preferences.recursiveFolderActions.isPresent(menuItem.itemId)
+                includeFolders = true,
+                deepListing = Preferences.recursiveFolderActions.isPresent(menuItem.itemId)
             ).observe(viewLifecycleOwner) { songs ->
                 songs.onSongsMenu(this, menuItem)
             }

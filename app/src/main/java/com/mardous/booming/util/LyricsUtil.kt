@@ -64,7 +64,6 @@ object LyricsUtil {
 
             val filename = Pattern.quote(file.nameWithoutExtension)
             val songinfo = Pattern.quote("${song.artistName} - ${song.title}")
-            val songtitle = Pattern.quote(song.title)
 
             val patterns = mutableListOf<Pattern>().apply {
                 add(
@@ -76,12 +75,6 @@ object LyricsUtil {
                 add(
                     Pattern.compile(
                         String.format(format, songinfo),
-                        Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE
-                    )
-                )
-                add(
-                    Pattern.compile(
-                        String.format(format, songtitle),
                         Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE
                     )
                 )

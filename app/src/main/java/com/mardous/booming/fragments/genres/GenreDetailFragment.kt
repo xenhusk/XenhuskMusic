@@ -94,7 +94,14 @@ class GenreDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_lis
     }
 
     private fun setupRecyclerView() {
-        songAdapter = SongAdapter(requireActivity(), requestManager, ArrayList(), R.layout.item_list, callback = this)
+        songAdapter = SongAdapter(
+            requireActivity(),
+            requestManager,
+            ArrayList(),
+            R.layout.item_list,
+            SortOrder.genreSongSortOrder,
+            callback = this
+        )
         binding.recyclerView.apply {
             itemAnimator = DefaultItemAnimator()
             layoutManager = LinearLayoutManager(requireContext())

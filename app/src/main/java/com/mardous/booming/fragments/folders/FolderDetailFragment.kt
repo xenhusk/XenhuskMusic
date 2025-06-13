@@ -100,6 +100,7 @@ class FolderDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
             requestManager,
             ArrayList(),
             R.layout.item_list,
+            SortOrder.folderSongSortOrder,
             callback = this
         )
         binding.recyclerView.apply {

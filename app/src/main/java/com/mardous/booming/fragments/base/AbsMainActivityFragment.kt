@@ -26,7 +26,6 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.navOptions
 import com.mardous.booming.R
 import com.mardous.booming.activities.MainActivity
 import com.mardous.booming.extensions.applyWindowInsets
@@ -45,18 +44,6 @@ abstract class AbsMainActivityFragment @JvmOverloads constructor(@LayoutRes layo
 
     protected val mainActivity: MainActivity
         get() = requireActivity() as MainActivity
-
-    protected val navOptions by lazy {
-        navOptions {
-            launchSingleTop = false
-            anim {
-                enter = R.anim.booming_fragment_open_enter
-                exit = R.anim.booming_fragment_open_exit
-                popEnter = R.anim.booming_fragment_close_enter
-                popExit = R.anim.booming_fragment_close_exit
-            }
-        }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

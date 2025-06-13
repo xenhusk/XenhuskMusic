@@ -31,6 +31,7 @@ import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentSettingsBinding
 import com.mardous.booming.extensions.applyHorizontalWindowInsets
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
+import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
 
 /**
@@ -54,6 +55,7 @@ class SettingsFragment : AbsMainActivityFragment(R.layout.fragment_settings), Na
             }
         }
 
+        materialSharedAxis(view)
         view.applyHorizontalWindowInsets()
 
         val navHostFragment = childFragmentManager.findFragmentById(R.id.contentFrame) as NavHostFragment

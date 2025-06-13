@@ -100,7 +100,7 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
 
     private fun setupToolbar() {
         toolbar.setNavigationOnClickListener {
-            findNavController().navigate(R.id.nav_search, null, navOptions)
+            findNavController().navigate(R.id.nav_search)
         }
         val appName = resources.getString(titleRes)
         binding.appBarLayout.title = appName
@@ -181,7 +181,7 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_settings -> findNavController().navigate(R.id.nav_settings, null, navOptions)
+            R.id.action_settings -> findNavController().navigate(R.id.nav_settings)
             R.id.action_scan -> mainActivity.scanAllPaths()
             R.id.action_import_playlist -> ImportPlaylistDialog().show(childFragmentManager, "IMPORT_PLAYLIST")
             R.id.action_add_to_playlist -> CreatePlaylistDialog.create().show(childFragmentManager, "CREATE_PLAYLIST")

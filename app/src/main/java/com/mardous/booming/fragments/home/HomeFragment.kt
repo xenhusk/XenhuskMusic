@@ -119,7 +119,7 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
 
     private fun setupTitle() {
         binding.appBarLayout.toolbar.setNavigationOnClickListener {
-            findNavController().navigate(R.id.nav_search, null, navOptions)
+            findNavController().navigate(R.id.nav_search)
         }
         val hexColor = String.format("#%06X", 0xFFFFFF and primaryColor())
         val appName = "Booming <font color=$hexColor>Music</font>".toHtml()
@@ -295,7 +295,7 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         if (menuItem.itemId == R.id.action_settings) {
-            findNavController().navigate(R.id.nav_settings, null, navOptions)
+            findNavController().navigate(R.id.nav_settings)
             return true
         }
         return false

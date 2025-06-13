@@ -36,6 +36,7 @@ import com.mardous.booming.fragments.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onSongMenu
 import com.mardous.booming.helper.menu.onSongsMenu
+import com.mardous.booming.interfaces.IBackConsumer
 import com.mardous.booming.interfaces.IFileCallback
 import com.mardous.booming.model.Folder
 import com.mardous.booming.model.GridViewType
@@ -50,7 +51,7 @@ import com.mardous.booming.util.sort.selectedSortOrder
 import java.io.File
 
 class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, GridLayoutManager>(),
-    IFileCallback {
+    IFileCallback, IBackConsumer {
 
     override val titleRes: Int = R.string.folders_label
     override val isShuffleVisible: Boolean = false
@@ -69,14 +70,27 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
     override val itemLayoutRes: Int
         get() = R.layout.item_list
 
+    private val fileSystem: FileSystemQuery?
+        get() = libraryViewModel.getFileSystem().value
+
     private val isFlatView: Boolean
-        get() = libraryViewModel.getFileSystem().value?.isFlatView == true
+        get() = fileSystem?.isFlatView == true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         libraryViewModel.getFileSystem().observe(viewLifecycleOwner) { fileSystem ->
             showFolders(fileSystem)
         }
+    }
+
+    override fun handleBackPress(): Boolean {
+        val handledBackPress = fileSystem?.let {
+            if (it.canGoUp) {
+                libraryViewModel.navigateToPath(it.parentPath)
+                true
+            } else false
+        }
+        return handledBackPress == true
     }
 
     override fun onResume() {

@@ -101,9 +101,12 @@ inline fun <reified T : Any> Fragment.extraNotNull(key: String, default: T? = nu
     requireNotNull(value as? T ?: default) { key }
 }
 
+fun NavHostFragment.currentFragment(): Fragment? =
+    childFragmentManager.fragments.firstOrNull()
+
 fun FragmentActivity.currentFragment(navHostId: Int): Fragment? {
     val navHostFragment: NavHostFragment = whichFragment(navHostId)
-    return navHostFragment.childFragmentManager.fragments.firstOrNull()
+    return navHostFragment.currentFragment()
 }
 
 @Suppress("UNCHECKED_CAST")

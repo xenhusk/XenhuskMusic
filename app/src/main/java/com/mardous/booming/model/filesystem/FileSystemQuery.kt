@@ -31,16 +31,17 @@ class FileSystemQuery(
     val isStorageRoot: Boolean = false
 ) {
 
-    val isFlatView: Boolean
-        get() = path.isNullOrEmpty()
+    val isFlatView: Boolean = path.isNullOrEmpty()
+
+    val canGoUp: Boolean = !parentPath.isNullOrEmpty() && !isFlatView && !isStorageRoot
 
     fun getNavigableChildren(): List<FileSystemItem> {
         if (isFlatView) {
             return children
         }
         return buildList {
-            if (!parentPath.isNullOrEmpty() && !isStorageRoot) {
-                add(GoUpFileSystemItem(fileName = "...", filePath = parentPath))
+            if (canGoUp) {
+                add(GoUpFileSystemItem(fileName = "...", filePath = parentPath!!))
             }
             addAll(children)
         }

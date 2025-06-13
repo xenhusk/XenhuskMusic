@@ -50,6 +50,7 @@ import com.mardous.booming.fragments.player.styles.m3style.M3PlayerFragment
 import com.mardous.booming.fragments.player.styles.peekplayerstyle.PeekPlayerFragment
 import com.mardous.booming.fragments.player.styles.plainstyle.PlainPlayerFragment
 import com.mardous.booming.fragments.queue.PlayingQueueFragment
+import com.mardous.booming.interfaces.IBackConsumer
 import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.service.MusicPlayer
@@ -94,8 +95,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             if (handleBackPress()) {
                 return
             }
-            val navHostFragment =
-                supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
+            val navHostFragment = whichFragment<NavHostFragment>(R.id.fragment_container)
+            val currentFragment = navHostFragment.currentFragment()
+            if (currentFragment is IBackConsumer && currentFragment.handleBackPress()) {
+                return
+            }
             if (!navHostFragment.navController.navigateUp()) {
                 finish()
             }

@@ -72,9 +72,12 @@ fun List<Song>.sortedSongs(
             it.artistName.normalizeForSorting(langCode, ignoreArticles)
         })
 
-        SortKeys.ALBUM -> sortedWith(compareBy(collator) {
-            it.albumName.normalizeForSorting(langCode, ignoreArticles)
-        })
+        SortKeys.ALBUM -> sortedWith(
+            Comparator.comparing<Song, String>(
+                { it.albumName.normalizeForSorting(langCode, ignoreArticles) },
+                collator
+            ).thenComparingInt { if (it.trackNumber > 0) it.trackNumber else Int.MAX_VALUE }
+        )
 
         SortKeys.TRACK_NUMBER -> sortedWith(compareBy { it.trackNumber })
         SortKeys.DURATION -> sortedWith(compareBy { it.duration })

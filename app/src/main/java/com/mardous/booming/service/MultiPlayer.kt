@@ -150,7 +150,7 @@ open class MultiPlayer(private val context: Context) : Playback,
                 player.setOnPreparedListener(null)
                 completion(true)
             }
-            player.prepare()
+            player.prepareAsync()
         } catch (e: Exception) {
             completion(false)
             e.printStackTrace()

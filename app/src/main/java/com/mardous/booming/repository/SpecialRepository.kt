@@ -115,23 +115,27 @@ class RealSpecialRepository(private val songRepository: RealSongRepository) : Sp
         if (!FileSystemQuery.isNavigablePath(path)) {
             return FileSystemQuery(path, null, StorageUtil.storageVolumes, true)
         }
-        val cursor = songRepository.makeSongCursor("${AudioColumns.DATA} LIKE ?", arrayOf("$path%"))
+        val cursor = songRepository.makeSongCursor(
+            "lower(${AudioColumns.DATA}) LIKE ?",
+            arrayOf("${path.lowercase()}%")
+        )
         val allSongs = songRepository.songs(cursor)
         val parentPath = path.substringBeforeLast("/")
         if (allSongs.isEmpty()) {
             return FileSystemQuery(path, parentPath, emptyList())
         }
-        val allFolderPaths = allSongs.map { it.folderPath() }.filterNot { it == path }.toSet()
-        val subfolderPaths = allFolderPaths
-            .filter { it.startsWith("$path/") }
-            .mapNotNull { subPath ->
-                val relative = subPath.removePrefix("$path/")
-                val firstSegment = relative.substringBefore("/")
-                if (firstSegment.isNotEmpty()) "$path/$firstSegment" else null
+        val subFolderPaths = allSongs
+            .mapNotNull { song ->
+                val folderPath = song.folderPath()
+                if (folderPath != path && folderPath.startsWith("$path/")) {
+                    val relative = folderPath.removePrefix("$path/")
+                    val firstSegment = relative.substringBefore("/")
+                    if (firstSegment.isNotEmpty()) "$path/$firstSegment" else null
+                } else null
             }
-            .distinct()
+            .toSet()
 
-        val subfolders = subfolderPaths.map { subPath ->
+        val subfolders = subFolderPaths.map { subPath ->
             val innerMusicFiles = if (recursiveSubfolders) {
                 musicFilesInPath(subPath, recursiveSubfolders = false).children
             } else emptyList()
@@ -139,7 +143,7 @@ class RealSpecialRepository(private val songRepository: RealSongRepository) : Sp
             Folder(subPath, innerMusicFiles)
         }
 
-        val songsInThisFolder = allSongs.filter { it.folderPath() == path }
+        val songsInThisFolder = allSongs.filter { it.folderPath().equals(path, ignoreCase = true) }
 
         val children = buildList {
             addAll(subfolders)

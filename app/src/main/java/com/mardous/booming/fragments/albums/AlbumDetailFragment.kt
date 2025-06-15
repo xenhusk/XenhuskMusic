@@ -59,6 +59,7 @@ import com.mardous.booming.model.Album
 import com.mardous.booming.model.Song
 import com.mardous.booming.search.searchFilter
 import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
@@ -145,18 +146,26 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
 
     private fun getAlbum(): Album = detailViewModel.getAlbum()
 
-    private fun setupRecyclerView() {
+    private fun createSongAdapter() {
+        val itemLayoutRes = if (Preferences.compactAlbumSongView) {
+            R.layout.item_song
+        } else {
+            R.layout.item_song_detailed
+        }
         simpleSongAdapter = SimpleSongAdapter(
-            requireActivity(), requestManager, arrayListOf(), R.layout.item_song, SortOrder.albumSongSortOrder, this
+            requireActivity(), requestManager, arrayListOf(), itemLayoutRes, SortOrder.albumSongSortOrder, this
         )
+        binding.songRecyclerView.safeUpdateWithRetry { adapter = simpleSongAdapter }
+    }
+
+    private fun setupRecyclerView() {
         binding.songRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             itemAnimator = DefaultItemAnimator()
             isNestedScrollingEnabled = false
-            adapter = simpleSongAdapter
-        }.also {
-            it.destroyOnDetach()
+            destroyOnDetach()
         }
+        createSongAdapter()
     }
 
     private fun setupSongSortButton() {
@@ -311,6 +320,8 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
         if (!isLandscape()) {
             menu.removeItem(R.id.action_search)
         }
+        menu.findItem(R.id.action_toggle_compact_song_view)
+            ?.isChecked = Preferences.compactAlbumSongView
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -327,6 +338,14 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
 
             R.id.action_play_info -> {
                 goToPlayInfo()
+                true
+            }
+
+            R.id.action_toggle_compact_song_view -> {
+                val isChecked = !menuItem.isChecked
+                Preferences.compactAlbumSongView = isChecked
+                menuItem.isChecked = isChecked
+                createSongAdapter()
                 true
             }
 

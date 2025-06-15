@@ -149,26 +149,35 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
 
     private fun getArtist() = detailViewModel.getArtist()
 
+    private fun createSongAdapter() {
+        val itemLayoutRes = if (Preferences.compactArtistSongView) {
+            R.layout.item_song
+        } else {
+            R.layout.item_song_detailed
+        }
+        songAdapter = SimpleSongAdapter(
+            requireActivity(),
+            requestManager,
+            arrayListOf(),
+            itemLayoutRes,
+            SortOrder.artistSongSortOrder,
+            this
+        )
+        binding.songRecyclerView.safeUpdateWithRetry { adapter = songAdapter }
+    }
+
     private fun setupRecyclerView() {
         setupAlbumGrid()
         binding.albumRecyclerView.apply {
             itemAnimator = DefaultItemAnimator()
             destroyOnDetach()
         }
-        songAdapter = SimpleSongAdapter(
-            requireActivity(),
-            requestManager,
-            arrayListOf(),
-            R.layout.item_song,
-            SortOrder.artistSongSortOrder,
-            this
-        )
         binding.songRecyclerView.apply {
             layoutManager = LinearLayoutManager(this.context)
             itemAnimator = DefaultItemAnimator()
-            adapter = songAdapter
             destroyOnDetach()
         }
+        createSongAdapter()
     }
 
     private fun setupSortOrder() {
@@ -374,6 +383,7 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
             menu.removeItem(R.id.action_search)
         }
         menu.findItem(R.id.action_horizontal_albums)?.isChecked = Preferences.horizontalArtistAlbums
+        menu.findItem(R.id.action_toggle_compact_song_view)?.isChecked = Preferences.compactArtistSongView
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -406,6 +416,14 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
                 Preferences.ignoreSingles = isChecked
                 menuItem.isChecked = isChecked
                 detailViewModel.loadArtistDetail()
+                true
+            }
+
+            R.id.action_toggle_compact_song_view -> {
+                val isChecked = !menuItem.isChecked
+                Preferences.compactArtistSongView = isChecked
+                menuItem.isChecked = isChecked
+                createSongAdapter()
                 true
             }
 

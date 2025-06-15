@@ -21,6 +21,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import com.bumptech.glide.RequestManager
+import com.mardous.booming.extensions.glide.getDefaultGlideTransition
+import com.mardous.booming.extensions.glide.getSongGlideModel
+import com.mardous.booming.extensions.glide.songOptions
 import com.mardous.booming.extensions.media.durationStr
 import com.mardous.booming.extensions.media.trackNumber
 import com.mardous.booming.interfaces.ISongCallback
@@ -46,6 +49,17 @@ class SimpleSongAdapter(
 
         holder.imageText?.text = if (fixedTrackNumber > 0) fixedTrackNumber.toString() else "-"
         holder.time?.text = dataSet[position].duration.durationStr()
+    }
+
+    override fun loadAlbumCover(song: Song, holder: ViewHolder) {
+        if (requestManager != null && holder.image != null) {
+            // actually we don't need color extraction here
+            requestManager.asBitmap()
+                .load(song.getSongGlideModel())
+                .transition(getDefaultGlideTransition())
+                .songOptions(song)
+                .into(holder.image)
+        }
     }
 
     override fun getItemCount(): Int {

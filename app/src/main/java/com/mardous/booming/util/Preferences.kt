@@ -133,11 +133,11 @@ object Preferences : KoinComponent {
         set(value) = preferences.edit { putBoolean(HORIZONTAL_ARTIST_ALBUMS, value) }
 
     var compactAlbumSongView: Boolean
-        get() = preferences.getBoolean(COMPACT_ALBUM_SONG_VIEW, true)
+        get() = preferences.getBoolean(COMPACT_ALBUM_SONG_VIEW, false)
         set(value) = preferences.edit { putBoolean(COMPACT_ALBUM_SONG_VIEW, value) }
 
     var compactArtistSongView: Boolean
-        get() = preferences.getBoolean(COMPACT_ARTIST_SONG_VIEW, true)
+        get() = preferences.getBoolean(COMPACT_ARTIST_SONG_VIEW, false)
         set(value) = preferences.edit { putBoolean(COMPACT_ARTIST_SONG_VIEW, value) }
 
     var queueQuickAction: QueueQuickAction

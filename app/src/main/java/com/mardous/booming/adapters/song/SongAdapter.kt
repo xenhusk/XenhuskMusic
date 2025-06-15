@@ -61,7 +61,7 @@ open class SongAdapter(
     protected val requestManager: RequestManager?,
     dataSet: List<Song>,
     @LayoutRes protected val itemLayoutRes: Int = R.layout.item_list,
-    private val sortOrder: SortOrder? = null,
+    protected val sortOrder: SortOrder? = null,
     protected val callback: ISongCallback? = null,
 ) : AbsMultiSelectAdapter<SongAdapter.ViewHolder, Song>(activity, R.menu.menu_media_selection), PopupTextProvider {
 

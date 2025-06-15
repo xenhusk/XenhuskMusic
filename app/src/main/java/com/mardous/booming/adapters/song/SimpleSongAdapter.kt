@@ -24,10 +24,13 @@ import com.bumptech.glide.RequestManager
 import com.mardous.booming.extensions.glide.getDefaultGlideTransition
 import com.mardous.booming.extensions.glide.getSongGlideModel
 import com.mardous.booming.extensions.glide.songOptions
+import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.media.durationStr
 import com.mardous.booming.extensions.media.trackNumber
+import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.Song
+import com.mardous.booming.util.sort.SortKeys
 import com.mardous.booming.util.sort.SortOrder
 
 class SimpleSongAdapter(
@@ -61,6 +64,26 @@ class SimpleSongAdapter(
                 .into(holder.image)
         }
     }
+
+    override fun getSongText(song: Song): String {
+        when (sortOrder?.value) {
+            SortKeys.TRACK_NUMBER -> {
+                return buildInfoString(getTrackNumberString(song), song.displayArtistName())
+            }
+            SortKeys.YEAR -> {
+                if (song.year > 0) {
+                    return buildInfoString(song.year.toString(), song.displayArtistName())
+                }
+            }
+            SortKeys.ALBUM -> {
+                return buildInfoString(getTrackNumberString(song), song.albumName)
+            }
+        }
+        return song.displayArtistName()
+    }
+
+    private fun getTrackNumberString(song: Song) =
+        song.trackNumber.takeIf { it > 0 }?.trackNumber()?.toString() ?: "-"
 
     override fun getItemCount(): Int {
         return dataSet.size

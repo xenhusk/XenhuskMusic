@@ -158,7 +158,7 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
         songAdapter = SimpleSongAdapter(
             requireActivity(),
             requestManager,
-            arrayListOf(),
+            getArtist().sortedSongs,
             itemLayoutRes,
             SortOrder.artistSongSortOrder,
             this

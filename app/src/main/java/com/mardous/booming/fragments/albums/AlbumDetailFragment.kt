@@ -153,7 +153,12 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
             R.layout.item_song_detailed
         }
         simpleSongAdapter = SimpleSongAdapter(
-            requireActivity(), requestManager, arrayListOf(), itemLayoutRes, SortOrder.albumSongSortOrder, this
+            requireActivity(),
+            requestManager,
+            getAlbum().songs,
+            itemLayoutRes,
+            SortOrder.albumSongSortOrder,
+            this
         )
         binding.songRecyclerView.safeUpdateWithRetry { adapter = simpleSongAdapter }
     }

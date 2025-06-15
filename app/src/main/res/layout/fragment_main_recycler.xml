@@ -23,8 +23,7 @@
         style="?appBarLayoutStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:theme="@style/CenteredCheckBoxTheme"/>
+        android:fitsSystemWindows="true"/>
 
     <LinearLayout
         android:id="@android:id/empty"

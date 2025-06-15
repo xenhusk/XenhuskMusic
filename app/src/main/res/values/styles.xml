@@ -53,14 +53,6 @@
         </item>
     </style>
 
-    <style name="CenteredCheckBoxTheme">
-        <item name="checkboxStyle">@style/CheckBoxStyle</item>
-    </style>
-
-    <style name="CheckBoxStyle" parent="@style/Widget.AppCompat.CompoundButton.CheckBox">
-        <item name="android:gravity">center_vertical|end</item>
-    </style>
-
     <!-- MORE WIDGET STYLES -->
 
     <style name="HomeActionButton" parent="Widget.Material3.Button.Icon">

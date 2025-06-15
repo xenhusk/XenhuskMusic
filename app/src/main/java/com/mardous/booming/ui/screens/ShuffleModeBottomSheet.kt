@@ -25,7 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mardous.booming.service.queue.ShuffleManager
-import com.mardous.booming.ui.components.ShuffleModeItem
+import com.mardous.booming.ui.components.lists.ShuffleModeItem
 
 @Composable
 fun ShuffleModeBottomSheet(

@@ -29,7 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.mardous.booming.R
 import com.mardous.booming.model.about.Contribution
-import com.mardous.booming.ui.components.ContributionListItem
+import com.mardous.booming.ui.components.lists.ContributionListItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

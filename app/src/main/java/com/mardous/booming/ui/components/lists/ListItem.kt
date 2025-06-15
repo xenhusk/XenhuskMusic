@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.ui.components
+package com.mardous.booming.ui.components.lists
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

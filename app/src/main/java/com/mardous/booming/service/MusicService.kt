@@ -443,7 +443,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                     playingQueue.playingQueue = ArrayList(restoredQueue.toQueueSongs())
                     playingQueue.position = restoredPosition
                     withContext(Main) {
-                        openCurrent {
+                        openCurrent { success ->
                             prepareNext()
                             if (restoredPositionInTrack > 0) {
                                 seek(restoredPositionInTrack)
@@ -453,6 +453,10 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
                             if (needsToRestorePlayback || receivedHeadsetConnected) {
                                 play()
+                                if (success && needsToRestorePlayback) {
+                                    needsToRestorePlayback = false
+                                    sendPlaybackRestored()
+                                }
                                 if (receivedHeadsetConnected) {
                                     receivedHeadsetConnected = false
                                 }
@@ -797,11 +801,17 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         if (!playbackRestored) {
             if (queuesRestored) {
                 play()
+                sendPlaybackRestored()
             } else {
                 needsToRestorePlayback = true
             }
             playbackRestored = true
         }
+    }
+
+    private fun sendPlaybackRestored() {
+        LocalBroadcastManager.getInstance(this)
+            .sendBroadcast(Intent(ServiceEvent.PLAYBACK_RESTORED))
     }
 
     fun openQueue(queue: List<Song>, startPosition: Int, startPlaying: Boolean) {

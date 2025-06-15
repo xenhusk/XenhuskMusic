@@ -32,5 +32,6 @@ class ServiceEvent {
         const val SHUFFLE_MODE_CHANGED = "$BOOMING_PACKAGE_NAME.shufflemodechanged"
         const val MEDIA_STORE_CHANGED = "$BOOMING_PACKAGE_NAME.mediastorechanged"
         const val FAVORITE_STATE_CHANGED = "$BOOMING_PACKAGE_NAME.favoritestatechanged"
+        const val PLAYBACK_RESTORED = "$BOOMING_PACKAGE_NAME.playbackrestored"
     }
 }

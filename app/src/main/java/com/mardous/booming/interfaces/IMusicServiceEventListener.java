@@ -35,4 +35,6 @@ public interface IMusicServiceEventListener {
     void onMediaStoreChanged();
 
     void onFavoritesStoreChanged();
+
+    void onPlaybackRestored();
 }

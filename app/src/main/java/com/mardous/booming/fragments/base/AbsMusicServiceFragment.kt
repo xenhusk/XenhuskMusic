@@ -86,4 +86,8 @@ abstract class AbsMusicServiceFragment @JvmOverloads constructor(@LayoutRes layo
     @CallSuper
     override fun onFavoritesStoreChanged() {
     }
+
+    @CallSuper
+    override fun onPlaybackRestored() {
+    }
 }

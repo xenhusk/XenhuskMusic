@@ -632,7 +632,6 @@
     <string name="prefer_album_artist_name_summary">Pokazuje nazwę wykonawcy Albumu, zamiast nazwy wykonawcy utworu (jeśli jest dostępny).</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Odtwarzaj po starcie</string>
-    <string name="play_on_startup_summary">Aplikacja po uruchomieniu, zaczyna odtwarzać ostatnio słuchany utwór.</string>
     <string name="gapless_playback_title">Odtwarzanie bez przerw</string>
     <string name="gapless_playback_summary">Gładkie przejście między utworami. Może powodować problemy z odtwarzaniem na niektórych urządzeniach.</string>
     <string name="replaygain_source_mode_title">Tryb źródłowy</string>

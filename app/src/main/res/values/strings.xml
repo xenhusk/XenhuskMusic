@@ -643,7 +643,6 @@
 
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Play on startup</string>
-    <string name="play_on_startup_summary">When you open the app, it starts playing from where you last left off.</string>
     <string name="gapless_playback_title">Gapless playback</string>
     <string name="gapless_playback_summary">Smooth transition between songs. Can cause playback issues on some devices.</string>
     <string name="replaygain_source_mode_title">Source mode</string>
@@ -783,6 +782,9 @@
     <string name="image_size_large">Large (slower)</string>
     <string name="image_size_medium">Medium (default, recommended)</string>
     <string name="image_size_small">Small (faster, low quality)</string>
+    <string name="play_on_startup_mode_never">Never play on startup</string>
+    <string name="play_on_startup_mode_minimized">Yes, with minimized player panel</string>
+    <string name="play_on_startup_mode_expanded">Yes, with expanded player panel</string>
     <string name="system_default">System default</string>
     <string name="label_never">Never</string>
     <string name="label_nothing">Nothing</string>

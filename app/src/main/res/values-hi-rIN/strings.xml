@@ -614,7 +614,6 @@
     <string name="prefer_album_artist_name_summary">एल्बम-कलाकार का नाम दिखाता है बजाय गाना-कलाकार के नाम के (यदि उपलब्ध हो)।</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">प्ले ऑन स्टार्टअप</string>
-    <string name="play_on_startup_summary">जब आप ऐप खोलते हैं, यह उस स्थान से खेलना शुरू करता है जहां आपने आखिरी बार छोड़ा था।</string>
     <string name="gapless_playback_title">गैपलेस प्लेबैक</string>
     <string name="gapless_playback_summary">गानों के बीच सुचारू रूपांतरण। कुछ उपकरणों पर प्लेबैक समस्याएँ उत्पन्न कर सकता है।</string>
     <string name="replaygain_source_mode_title">स्रोत मोड</string>

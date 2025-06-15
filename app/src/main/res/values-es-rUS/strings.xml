@@ -643,7 +643,6 @@
 
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Reproducir al iniciar</string>
-    <string name="play_on_startup_summary">Al abrir la app, empieza a reproducir desde donde lo dejaste la última vez.</string>
     <string name="gapless_playback_title">Reproducción sin interrupciones</string>
     <string name="gapless_playback_summary">Transición rápida entre canciones. Puede causar problemas en algunos dispositivos.</string>
     <string name="replaygain_source_mode_title">Modo de origen</string>
@@ -781,6 +780,9 @@
     <string name="image_size_large">Grande (más lento)</string>
     <string name="image_size_medium">Medio (predet., recomendado)</string>
     <string name="image_size_small">Pequeño (más rápido, calidad baja)</string>
+    <string name="play_on_startup_mode_never">Nunca reproducir al iniciar</string>
+    <string name="play_on_startup_mode_minimized">Sí, con reproductor minimizado</string>
+    <string name="play_on_startup_mode_expanded">Sí, con reproductor expandido</string>
     <string name="system_default">Predet. del sistema</string>
     <string name="label_never">Nunca</string>
     <string name="label_nothing">Nada</string>

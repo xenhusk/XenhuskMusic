@@ -145,6 +145,18 @@
         <item>delete</item>
     </string-array>
 
+    <string-array name="pref_play_on_startup_entries">
+        <item>@string/play_on_startup_mode_never</item>
+        <item>@string/play_on_startup_mode_minimized</item>
+        <item>@string/play_on_startup_mode_expanded</item>
+    </string-array>
+
+    <string-array name="pref_play_on_startup_values">
+        <item>never</item>
+        <item>with_minimized_player</item>
+        <item>with_expanded_player</item>
+    </string-array>
+
     <string-array name="pref_playlists_cutoff_entries">
         <item>@string/today</item>
         <item>@string/yesterday</item>

@@ -113,6 +113,7 @@ open class AbsMusicServiceActivity : AbsBaseActivity(),
                 addAction(ServiceEvent.QUEUE_CHANGED)
                 addAction(ServiceEvent.MEDIA_STORE_CHANGED)
                 addAction(ServiceEvent.FAVORITE_STATE_CHANGED)
+                addAction(ServiceEvent.PLAYBACK_RESTORED)
             }
 
             musicStateReceiver = MusicStateReceiver(this).also {
@@ -169,6 +170,10 @@ open class AbsMusicServiceActivity : AbsBaseActivity(),
         musicServiceEventListeners.forEach { it?.onFavoritesStoreChanged() }
     }
 
+    override fun onPlaybackRestored() {
+        musicServiceEventListeners.forEach { it?.onPlaybackRestored() }
+    }
+
     class MusicStateReceiver internal constructor(activity: AbsMusicServiceActivity) : BroadcastReceiver() {
 
         private val mReference: WeakReference<AbsMusicServiceActivity> = WeakReference(activity)
@@ -185,6 +190,7 @@ open class AbsMusicServiceActivity : AbsBaseActivity(),
                     ServiceEvent.QUEUE_CHANGED -> musicActivity.onQueueChanged()
                     ServiceEvent.MEDIA_STORE_CHANGED -> musicActivity.onMediaStoreChanged()
                     ServiceEvent.FAVORITE_STATE_CHANGED -> musicActivity.onFavoritesStoreChanged()
+                    ServiceEvent.PLAYBACK_RESTORED -> musicActivity.onPlaybackRestored()
                 }
             }
         }

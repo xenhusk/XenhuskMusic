@@ -35,6 +35,7 @@ import com.mardous.booming.http.github.isAbleToUpdate
 import com.mardous.booming.interfaces.IScrollHelper
 import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.mvvm.UpdateSearchResult
+import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -197,6 +198,13 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         intent?.let { handlePlaybackIntent(it, true) }
+    }
+
+    override fun onPlaybackRestored() {
+        super.onPlaybackRestored()
+        if (Preferences.playOnStartupMode == PlayOnStartupMode.WITH_EXPANDED_PLAYER) {
+            expandPanel()
+        }
     }
 
     private fun handlePlaybackIntent(intent: Intent, canRestorePlayback: Boolean) {

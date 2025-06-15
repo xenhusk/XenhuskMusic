@@ -608,7 +608,6 @@
     <string name="prefer_album_artist_name_summary">显示专辑艺术家的名字，而不是歌手的名字(如果可用的话)。</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">启动时自动播放</string>
-    <string name="play_on_startup_summary">打开应用程序时，从你上次离开的地方播放。</string>
     <string name="gapless_playback_title">无缝播放</string>
     <string name="gapless_playback_summary">在歌曲之间平滑过渡。可能会在某些设备上导致播放问题。</string>
     <string name="replaygain_source_mode_title">源模式</string>

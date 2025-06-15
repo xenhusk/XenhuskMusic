@@ -45,6 +45,7 @@ import com.mardous.booming.repository.Repository
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.queue.ShuffleManager
 import com.mardous.booming.service.queue.ShuffleManager.GroupShuffleMode
+import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.StorageUtil
 import com.mardous.booming.util.sort.SortKeys
@@ -304,8 +305,8 @@ class LibraryViewModel(
         }
     }
 
-    fun restorePlayback() = viewModelScope.launch(IO) {
-        if (Preferences.playOnStartup) {
+    fun restorePlayback() = viewModelScope.launch {
+        if (Preferences.playOnStartupMode != PlayOnStartupMode.NEVER) {
             MusicPlayer.restorePlayback()
         }
     }

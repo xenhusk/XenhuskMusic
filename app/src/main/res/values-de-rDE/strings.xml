@@ -616,7 +616,6 @@
     <string name="prefer_album_artist_name_summary">Zeigt den Namen des Album-Interpreten statt dem des Titel-Interpreten an (wenn verfügbar).</string>
     <!-- Playback preferences -->
     <string name="play_on_startup_title">Beim App-Start fortsetzen</string>
-    <string name="play_on_startup_summary">Wenn Du die App öffnest, beginnt die Wiedergabe, wo Du zuletzt aufgehört hast.</string>
     <string name="gapless_playback_title">Nahtlose Wiedergabe</string>
     <string name="gapless_playback_summary">Nahtloser Übergang zwischen den Titeln. Kann auf manchen Geräten zu Wiedergabeproblemen führen.</string>
     <string name="replaygain_source_mode_title">Quellmodus</string>

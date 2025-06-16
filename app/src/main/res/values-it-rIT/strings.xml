@@ -218,6 +218,7 @@
     <string name="song_stat_label">ha giocato %1$d volte, l\'ultima volta è stata la %2$s</string>
     <string name="horizontal_albums">Album orizzontali</string>
     <string name="ignore_singles">Ignore singles</string>
+    <string name="compact_song_view">Compact song view</string>
     <string name="action_view_type">Visualizza tipo</string>
     <string name="view_type_normal">Normale</string>
     <string name="view_type_card">Carta</string>
@@ -275,6 +276,7 @@
         \n\nSolo tu hai la responsabilità totale sull\'utilizzo delle copertine degli album salvate.</string>
     <string name="yes">Sì</string>
     <string name="no">No</string>
+    <string name="keyboard">Keyboard</string>
     <string name="label_file_path">Percorso file</string>
     <string name="size">Dimensione file</string>
     <string name="label_file_format">Formato</string>
@@ -584,6 +586,8 @@
     <string name="remember_last_page_summary">Vai all\'ultima pagina aperta all\'avvio.</string>
     <string name="start_page_title">Pagina iniziale</string>
     <string name="tab_mode_title">Modalità titoli scheda</string>
+    <string name="hold_tab_to_search_title">Hold tab to Search</string>
+    <string name="hold_tab_to_search_summary">Long-press any navigation bar tab to open the search screen.</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Stile</string>
     <string name="open_on_play_title">Apri in riproduzione</string>
@@ -750,6 +754,9 @@
     <string name="image_size_large">Grande (lento)</string>
     <string name="image_size_medium">Medio (predefinito, consigliato)</string>
     <string name="image_size_small">Piccolo (veloce, di bassa qualità)</string>
+    <string name="play_on_startup_mode_never">Never play on startup</string>
+    <string name="play_on_startup_mode_minimized">Yes, with minimized player panel</string>
+    <string name="play_on_startup_mode_expanded">Yes, with expanded player panel</string>
     <string name="system_default">Predefinito di sistema</string>
     <string name="label_never">Mai</string>
     <string name="label_nothing">Niente</string>

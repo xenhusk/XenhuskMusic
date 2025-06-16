@@ -218,6 +218,7 @@
     <string name="song_stat_label">spelade %1$d gånger, senast var %2$s</string>
     <string name="horizontal_albums">Horisontella album</string>
     <string name="ignore_singles">Ignore singles</string>
+    <string name="compact_song_view">Compact song view</string>
     <string name="action_view_type">Visa typ</string>
     <string name="view_type_normal">Normal</string>
     <string name="view_type_card">Kort</string>
@@ -275,6 +276,7 @@
         \n\nBara du har totalansvar för din användning av sparade skivomslag.</string>
     <string name="yes">Ja</string>
     <string name="no">Nej</string>
+    <string name="keyboard">Keyboard</string>
     <string name="label_file_path">Sökväg till fil</string>
     <string name="size">Filens storlek</string>
     <string name="label_file_format">Formatera</string>
@@ -584,6 +586,8 @@
     <string name="remember_last_page_summary">Gå till den senast öppnade sidan vid lansering.</string>
     <string name="start_page_title">Startsida</string>
     <string name="tab_mode_title">Fliken titlar läge</string>
+    <string name="hold_tab_to_search_title">Hold tab to Search</string>
+    <string name="hold_tab_to_search_summary">Long-press any navigation bar tab to open the search screen.</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Stil</string>
     <string name="open_on_play_title">Öppna vid uppspelning</string>
@@ -750,6 +754,9 @@
     <string name="image_size_large">Stor (långsammare)</string>
     <string name="image_size_medium">Medium (standard, rekommenderas)</string>
     <string name="image_size_small">Liten (snabbare, låg kvalitet)</string>
+    <string name="play_on_startup_mode_never">Never play on startup</string>
+    <string name="play_on_startup_mode_minimized">Yes, with minimized player panel</string>
+    <string name="play_on_startup_mode_expanded">Yes, with expanded player panel</string>
     <string name="system_default">Systemets standard</string>
     <string name="label_never">Aldrig</string>
     <string name="label_nothing">Ingenting</string>

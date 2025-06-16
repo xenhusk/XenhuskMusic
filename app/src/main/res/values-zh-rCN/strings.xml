@@ -218,6 +218,7 @@
     <string name="song_stat_label">播放了 %1$d 次，最后一次在 %2$s</string>
     <string name="horizontal_albums">水平专辑</string>
     <string name="ignore_singles">Ignore singles</string>
+    <string name="compact_song_view">Compact song view</string>
     <string name="action_view_type">查看类型</string>
     <string name="view_type_normal">普通的</string>
     <string name="view_type_card">卡</string>
@@ -275,6 +276,7 @@
         \n\n只有您对您保存的相册封面的使用承担全部责任。</string>
     <string name="yes">是</string>
     <string name="no">否</string>
+    <string name="keyboard">Keyboard</string>
     <string name="label_file_path">文件路径</string>
     <string name="size">文件大小</string>
     <string name="label_file_format">格式</string>
@@ -576,6 +578,8 @@
     <string name="remember_last_page_summary">在启动时转到最后打开的页面。</string>
     <string name="start_page_title">开始页面</string>
     <string name="tab_mode_title">标签标题模式</string>
+    <string name="hold_tab_to_search_title">Hold tab to Search</string>
+    <string name="hold_tab_to_search_summary">Long-press any navigation bar tab to open the search screen.</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">样式</string>
     <string name="open_on_play_title">播放时打开</string>
@@ -742,6 +746,9 @@
     <string name="image_size_large">大 (较慢)</string>
     <string name="image_size_medium">中等(默认, 推荐)</string>
     <string name="image_size_small">小(快速，低质量)</string>
+    <string name="play_on_startup_mode_never">Never play on startup</string>
+    <string name="play_on_startup_mode_minimized">Yes, with minimized player panel</string>
+    <string name="play_on_startup_mode_expanded">Yes, with expanded player panel</string>
     <string name="system_default">系统默认</string>
     <string name="label_never">从不使用</string>
     <string name="label_nothing">无</string>

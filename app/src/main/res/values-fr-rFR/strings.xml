@@ -218,6 +218,7 @@
     <string name="song_stat_label">joué %1$d fois, dernière fois le %2$s</string>
     <string name="horizontal_albums">Albums horizontaux</string>
     <string name="ignore_singles">Ignore singles</string>
+    <string name="compact_song_view">Compact song view</string>
     <string name="action_view_type">Type de vue</string>
     <string name="view_type_normal">Normale</string>
     <string name="view_type_card">Cartes</string>
@@ -275,6 +276,7 @@
         \n\nSeulement vous avez la responsabilité totale sur votre utilisation des pochettes d\'album enregistrées.</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
+    <string name="keyboard">Keyboard</string>
     <string name="label_file_path">Chemin du fichier</string>
     <string name="size">Taille du fichier</string>
     <string name="label_file_format">Formater</string>
@@ -584,6 +586,8 @@
     <string name="remember_last_page_summary">Aller à la dernière page ouverte au lancement.</string>
     <string name="start_page_title">Page d\'accueil</string>
     <string name="tab_mode_title">Mode de titre des onglets</string>
+    <string name="hold_tab_to_search_title">Hold tab to Search</string>
+    <string name="hold_tab_to_search_summary">Long-press any navigation bar tab to open the search screen.</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Style</string>
     <string name="open_on_play_title">Ouvrir en lecture</string>
@@ -750,6 +754,9 @@
     <string name="image_size_large">Grand (plus lent)</string>
     <string name="image_size_medium">Moyen (par défaut, recommandé)</string>
     <string name="image_size_small">Petit (plus rapide, de faible qualité)</string>
+    <string name="play_on_startup_mode_never">Never play on startup</string>
+    <string name="play_on_startup_mode_minimized">Yes, with minimized player panel</string>
+    <string name="play_on_startup_mode_expanded">Yes, with expanded player panel</string>
     <string name="system_default">Par défaut du système</string>
     <string name="label_never">Jamais</string>
     <string name="label_nothing">Rien</string>

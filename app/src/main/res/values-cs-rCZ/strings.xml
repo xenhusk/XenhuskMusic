@@ -218,6 +218,7 @@
     <string name="song_stat_label">přehrál %1$d krát, naposledy byl na %2$s</string>
     <string name="horizontal_albums">Horizontální alba</string>
     <string name="ignore_singles">Ignore singles</string>
+    <string name="compact_song_view">Compact song view</string>
     <string name="action_view_type">Typ zobrazení</string>
     <string name="view_type_normal">Normální</string>
     <string name="view_type_card">Karta</string>
@@ -275,6 +276,7 @@
         \n\nPouze vy máte celkovou odpovědnost za používání uložených obalů alba.</string>
     <string name="yes">Ano</string>
     <string name="no">Ne</string>
+    <string name="keyboard">Keyboard</string>
     <string name="label_file_path">Cesta k souboru</string>
     <string name="size">Velikost souboru</string>
     <string name="label_file_format">Formát</string>
@@ -600,6 +602,8 @@
     <string name="remember_last_page_summary">Přejít na poslední otevřenou stránku při spuštění.</string>
     <string name="start_page_title">Úvodní stránka</string>
     <string name="tab_mode_title">Režim názvů karet</string>
+    <string name="hold_tab_to_search_title">Hold tab to Search</string>
+    <string name="hold_tab_to_search_summary">Long-press any navigation bar tab to open the search screen.</string>
     <!-- Now playing preferences -->
     <string name="now_playing_screen_title">Styl</string>
     <string name="open_on_play_title">Otevřít při přehrávání</string>
@@ -766,6 +770,9 @@
     <string name="image_size_large">Velký (pomalejší)</string>
     <string name="image_size_medium">Střední (výchozí, doporučeno)</string>
     <string name="image_size_small">Malé (rychlejší, nízká kvalita)</string>
+    <string name="play_on_startup_mode_never">Never play on startup</string>
+    <string name="play_on_startup_mode_minimized">Yes, with minimized player panel</string>
+    <string name="play_on_startup_mode_expanded">Yes, with expanded player panel</string>
     <string name="system_default">Výchozí nastavení systému</string>
     <string name="label_never">Nikdy</string>
     <string name="label_nothing">Nic</string>

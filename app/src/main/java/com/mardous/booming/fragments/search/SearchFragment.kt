@@ -29,9 +29,7 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.os.BundleCompat
-import androidx.core.view.children
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
+import androidx.core.view.*
 import androidx.core.widget.doAfterTextChanged
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,8 +45,7 @@ import com.mardous.booming.database.PlaylistWithSongs
 import com.mardous.booming.databinding.FragmentSearchBinding
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.navigation.*
-import com.mardous.booming.extensions.resources.reactionToKey
-import com.mardous.booming.extensions.resources.setupStatusBarForeground
+import com.mardous.booming.extensions.resources.*
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.helper.menu.onAlbumMenu
 import com.mardous.booming.helper.menu.onArtistMenu
@@ -62,6 +59,7 @@ import com.mardous.booming.model.Song
 import com.mardous.booming.search.SearchFilter
 import com.mardous.booming.search.SearchQuery
 import kotlinx.coroutines.Job
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Locale
 
@@ -78,6 +76,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     private lateinit var searchAdapter: SearchAdapter
     private lateinit var voiceSearchLauncher: ActivityResultLauncher<Intent>
+    private var fabWindowInsets: WindowInsetsCompat? = null
 
     private var playSongJob: Job? = null
 
@@ -126,11 +125,38 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         binding.voiceSearch.setOnClickListener(this)
         binding.clearText.setOnClickListener(this)
         binding.chipGroup.setOnCheckedStateChangeListener(this@SearchFragment)
-        binding.searchView.reactionToKey(KeyEvent.KEYCODE_ENTER) {
-            hideSoftKeyboard()
+        binding.searchView.apply {
+            reactionToKey(KeyEvent.KEYCODE_ENTER) {
+                hideSoftKeyboard()
+            }
+            doAfterTextChanged {
+                search(it?.toString())
+            }
+            focusAndShowKeyboard()
         }
-        binding.searchView.doAfterTextChanged {
-            search(it?.toString())
+        binding.keyboardPopup.apply {
+            setOnClickListener {
+                binding.searchView.focusAndShowKeyboard()
+            }
+            applyWindowInsets(right = true, bottom = true)
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.keyboardPopup) { _, windowInsets ->
+            windowInsets.also { fabWindowInsets = it }
+        }
+
+        libraryViewModel.getFabMargin().observe(viewLifecycleOwner) {
+            binding.keyboardPopup.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = it + fabWindowInsets.getBottomInsets()
+            }
+        }
+
+        KeyboardVisibilityEvent.setEventListener(requireActivity(), viewLifecycleOwner) {
+            if (it) {
+                binding.keyboardPopup.hide()
+            } else {
+                binding.keyboardPopup.show()
+            }
         }
 
         voiceSearchLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -174,10 +200,11 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 .apply { animation.duration = resources.getInteger(R.integer.short_anim_time).toLong() }
             layoutManager = LinearLayoutManager(activity)
             adapter = searchAdapter
-            setOnTouchListener { _: View?, _: MotionEvent? ->
-                hideSoftKeyboard()
-                false
-            }
+            addPaddingRelative(bottom = dip(R.dimen.fab_custom_size))
+            onVerticalScroll(viewLifecycleOwner,
+                onScrollDown = { binding.keyboardPopup.shrink() },
+                onScrollUp = { binding.keyboardPopup.extend() }
+            )
         }
     }
 

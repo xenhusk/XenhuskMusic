@@ -276,6 +276,7 @@
         \n\nSolo tú tienes total responsabilidad sobre el uso que hagas de las portadas guardadas.</string>
     <string name="yes">Sí</string>
     <string name="no">No</string>
+    <string name="keyboard">Teclado</string>
     <string name="label_file_path">Ruta de acceso</string>
     <string name="size">Tamaño</string>
     <string name="label_file_format">Formato</string>

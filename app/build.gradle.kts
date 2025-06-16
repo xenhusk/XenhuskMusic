@@ -242,6 +242,7 @@ dependencies {
     }
     implementation(libs.customactivityoncrash)
     implementation(libs.versioncompare)
+    implementation(libs.keyboardvisibilityevent)
 
     implementation(libs.compose.markdown)
     implementation(libs.markdown.core)

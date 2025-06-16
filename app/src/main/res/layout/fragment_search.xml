@@ -153,4 +153,13 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/keyboardPopup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="@dimen/fab_margin_top_left_right"
+        android:text="@string/keyboard"
+        app:icon="@drawable/ic_keyboard_24dp" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -94,7 +94,7 @@
 -keep class com.mardous.booming.database.LyricsEntity { *; }
 -keep class com.mardous.booming.http.deezer.model.** { *; }
 -keep class com.mardous.booming.http.lastfm.model.** { *; }
--keep class com.mardous.booming.search.SearchFilter { *; }
+-keep class com.mardous.booming.search.** { *; }
 
 # Gson - required after agp 8 made r8 full mode default
 -keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken

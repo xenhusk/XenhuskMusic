@@ -178,6 +178,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     override fun onDestroy() {
         super.onDestroy()
+        clearNavigationViewGestures()
         bottomSheetBehavior.removeBottomSheetCallback(bottomSheetCallback)
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
     }

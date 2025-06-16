@@ -21,14 +21,15 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.core.animation.doOnEnd
+import androidx.core.os.bundleOf
 import androidx.core.view.*
 import androidx.fragment.app.commit
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -50,9 +51,11 @@ import com.mardous.booming.fragments.player.styles.m3style.M3PlayerFragment
 import com.mardous.booming.fragments.player.styles.peekplayerstyle.PeekPlayerFragment
 import com.mardous.booming.fragments.player.styles.plainstyle.PlainPlayerFragment
 import com.mardous.booming.fragments.queue.PlayingQueueFragment
+import com.mardous.booming.fragments.search.SearchFragment
 import com.mardous.booming.interfaces.IBackConsumer
 import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.model.theme.NowPlayingScreen
+import com.mardous.booming.search.SearchQuery
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -293,6 +296,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     protected fun updateTabs() {
+        clearNavigationViewGestures()
         navigationView.menu.clear()
         val currentTabs: List<CategoryInfo> = Preferences.libraryCategories
         for (tab in currentTabs) {
@@ -302,11 +306,41 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                     .setIcon(menu.iconRes)
             }
         }
+        setupNavigationViewGestures()
         if (navigationView.menu.size == 1) {
             isInOneTabMode = true
             navigationView.isVisible = false
         } else {
             isInOneTabMode = false
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupNavigationViewGestures() {
+        if (!Preferences.holdTabToSearch)
+            return
+
+        val selectedCategories = Preferences.libraryCategories.filter { it.visible }
+        for (info in selectedCategories) {
+            val filterMode = SearchQuery.FilterMode.entries.firstOrNull {
+                it.name == info.category.name
+            }
+
+            val gestureDetector = GestureDetector(this, object : SimpleOnGestureListener() {
+                override fun onLongPress(e: MotionEvent) {
+                    findNavController(R.id.fragment_container)
+                        .navigate(R.id.nav_search, bundleOf(SearchFragment.MODE to filterMode))
+                }
+            })
+            navigationView.setItemOnTouchListener(info.category.id) { _: View, event: MotionEvent ->
+                gestureDetector.onTouchEvent(event)
+            }
+        }
+    }
+
+    private fun clearNavigationViewGestures() {
+        for (index in 0 until navigationView.menu.size) {
+            navigationView.setItemOnTouchListener(navigationView.menu[index].itemId, null)
         }
     }
 
@@ -376,6 +410,13 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String?) {
         when (key) {
             TAB_TITLES_MODE -> navigationView.labelVisibilityMode = Preferences.bottomTitlesMode
+            HOLD_TAB_TO_SEARCH -> {
+                if (preferences.getBoolean(key, true)) {
+                    setupNavigationViewGestures()
+                } else {
+                    clearNavigationViewGestures()
+                }
+            }
             LIBRARY_CATEGORIES -> updateTabs()
             NOW_PLAYING_SCREEN -> {
                 chooseFragmentForTheme()

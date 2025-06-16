@@ -71,6 +71,14 @@
             app:layout="@layout/list_item_view"
             app:key="tab_titles_mode"/>
 
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/hold_tab_to_search_title"
+            app:summary="@string/hold_tab_to_search_summary"
+            app:defaultValue="true"
+            app:layout="@layout/list_item_view_switch"
+            app:key="hold_tab_to_search"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -128,6 +128,9 @@ object Preferences : KoinComponent {
             else -> NavigationBarView.LABEL_VISIBILITY_AUTO
         }
 
+    val holdTabToSearch: Boolean
+        get() = preferences.getBoolean(HOLD_TAB_TO_SEARCH, true)
+
     var horizontalArtistAlbums: Boolean
         get() = preferences.getBoolean(HORIZONTAL_ARTIST_ALBUMS, true)
         set(value) = preferences.edit { putBoolean(HORIZONTAL_ARTIST_ALBUMS, value) }
@@ -598,6 +601,7 @@ const val GENERAL_THEME = "general_theme"
 const val LIBRARY_CATEGORIES = "library_categories"
 const val REMEMBER_LAST_PAGE = "remember_last_page"
 const val TAB_TITLES_MODE = "tab_titles_mode"
+const val HOLD_TAB_TO_SEARCH = "hold_tab_to_search"
 const val LAST_PAGE = "last_page"
 const val HORIZONTAL_ARTIST_ALBUMS = "horizontal_artist_albums"
 const val COMPACT_ALBUM_SONG_VIEW = "compact_album_song_view"

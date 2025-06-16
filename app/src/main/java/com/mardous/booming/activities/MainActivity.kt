@@ -17,8 +17,15 @@
 
 package com.mardous.booming.activities
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.view.GestureDetector
+import android.view.GestureDetector.SimpleOnGestureListener
+import android.view.MotionEvent
+import android.view.View
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -31,10 +38,12 @@ import com.mardous.booming.extensions.navigation.isValidCategory
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.lyrics.LyricsViewModel
+import com.mardous.booming.fragments.search.SearchFragment
 import com.mardous.booming.http.github.isAbleToUpdate
 import com.mardous.booming.interfaces.IScrollHelper
 import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.mvvm.UpdateSearchResult
+import com.mardous.booming.search.SearchQuery
 import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -52,6 +61,7 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
 
         updateTabs()
         setupNavigationController()
+        setupNavigationViewGestures()
 
         // Set up dynamic shortcuts
         DynamicShortcutManager(this).initDynamicShortcuts()
@@ -109,6 +119,26 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
                 }
             }
             else -> {}
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupNavigationViewGestures() {
+        val selectedCategories = Preferences.libraryCategories.filter { it.visible }
+        for (info in selectedCategories) {
+            val filterMode = SearchQuery.FilterMode.entries.firstOrNull {
+                it.name == info.category.name
+            }
+
+            val gestureDetector = GestureDetector(this, object : SimpleOnGestureListener() {
+                override fun onLongPress(e: MotionEvent) {
+                    findNavController(R.id.fragment_container)
+                        .navigate(R.id.nav_search, bundleOf(SearchFragment.MODE to filterMode))
+                }
+            })
+            navigationView.setItemOnTouchListener(info.category.id) { _: View, event: MotionEvent ->
+                gestureDetector.onTouchEvent(event)
+            }
         }
     }
 

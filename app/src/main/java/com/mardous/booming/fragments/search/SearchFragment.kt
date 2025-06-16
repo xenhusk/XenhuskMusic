@@ -142,6 +142,10 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         }
 
         if (savedInstanceState == null) {
+            val filterMode = arguments?.let {
+                BundleCompat.getSerializable(it, MODE, SearchQuery.FilterMode::class.java)
+            }
+            binding.chipGroup.check(filterMode?.chipId ?: View.NO_ID)
             binding.searchView.setText(arguments?.getString(QUERY))
             viewModel.updateFilter(arguments?.let {
                 BundleCompat.getParcelable(it, FILTER, SearchFilter::class.java)
@@ -304,6 +308,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     }
 
     companion object {
+        const val MODE = "mode"
         private const val FILTER = "filter"
         private const val QUERY = "query"
     }

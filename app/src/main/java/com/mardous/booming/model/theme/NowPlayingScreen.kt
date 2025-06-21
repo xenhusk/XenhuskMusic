@@ -70,7 +70,7 @@ enum class NowPlayingScreen(
     M3(
         R.string.m3_style,
         R.drawable.np_m3,
-        R.layout.fragment_album_cover_default,
+        R.layout.fragment_album_cover_m3,
         supportsCoverLyrics = true,
         supportsCarouselEffect = true,
         supportsCustomCornerRadius = true

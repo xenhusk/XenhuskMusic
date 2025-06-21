@@ -27,7 +27,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/playerToolbar"
-        tools:layout="@layout/fragment_album_cover_default"/>
+        tools:layout="@layout/fragment_album_cover_m3"/>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/playbackControlsFragment"

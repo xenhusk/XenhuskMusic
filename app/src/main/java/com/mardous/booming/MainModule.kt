@@ -48,6 +48,7 @@ import com.mardous.booming.providers.MediaStoreWriter
 import com.mardous.booming.repository.*
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.queue.ShuffleManager
+import com.mardous.booming.viewmodels.PlaybackViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.bind
@@ -189,6 +190,10 @@ private val dataModule = module {
 private val viewModule = module {
     viewModel {
         LibraryViewModel(get(), get(), get(), get(), get())
+    }
+
+    viewModel {
+        PlaybackViewModel()
     }
 
     viewModel {

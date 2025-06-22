@@ -17,8 +17,11 @@
 
 package com.mardous.booming.activities
 
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.session.MediaControllerCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -35,8 +38,10 @@ import com.mardous.booming.http.github.isAbleToUpdate
 import com.mardous.booming.interfaces.IScrollHelper
 import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.mvvm.UpdateSearchResult
+import com.mardous.booming.service.MusicService
 import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.viewmodels.PlaybackViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -44,7 +49,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
  */
 class MainActivity : AbsSlidingMusicPanelActivity() {
 
+    private val playbackViewModel: PlaybackViewModel by viewModel()
     private val lyricsViewModel: LyricsViewModel by viewModel()
+
+    private lateinit var mediaBrowser: MediaBrowserCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +64,14 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
         // Set up dynamic shortcuts
         DynamicShortcutManager(this).initDynamicShortcuts()
 
+        mediaBrowser = MediaBrowserCompat(
+            this,
+            ComponentName(this, MusicService::class.java),
+            connectionCallback,
+            null
+        )
+        mediaBrowser.connect()
+
         libraryViewModel.getUpdateSearchEvent().observe(this) { result ->
             result.getContentIfNotConsumed()?.let {
                 processUpdateSearchResult(it)
@@ -64,6 +80,19 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
 
         if (savedInstanceState == null) {
             searchUpdate()
+        }
+    }
+
+    private val connectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
+        override fun onConnected() {
+            val token = mediaBrowser.sessionToken
+            val mediaController = MediaControllerCompat(this@MainActivity, token)
+            MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
+            playbackViewModel.setMediaController(mediaController)
+        }
+
+        override fun onConnectionFailed() {
+            playbackViewModel.setMediaController(null)
         }
     }
 

@@ -1,0 +1,112 @@
+package com.mardous.booming.viewmodels
+
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.PlaybackStateCompat
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.mardous.booming.service.playback.Playback
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+
+class PlaybackViewModel : ViewModel() {
+
+    private var mediaController: MediaControllerCompat? = null
+    private val transportControls get() = mediaController?.transportControls
+    private val controllerCallback = object : MediaControllerCompat.Callback() {
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+            _isPlaying.value = state?.state == PlaybackStateCompat.STATE_PLAYING
+            if (isPlaying.value) {
+                startProgressObserver()
+            } else {
+                stopProgressObserver()
+            }
+        }
+
+        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {}
+
+        override fun onRepeatModeChanged(repeatMode: Int) {
+            _repeatMode.value = when (repeatMode) {
+                PlaybackStateCompat.REPEAT_MODE_ONE -> Playback.RepeatMode.CURRENT
+                PlaybackStateCompat.REPEAT_MODE_ALL -> Playback.RepeatMode.ALL
+                else -> Playback.RepeatMode.OFF
+            }
+        }
+
+        override fun onShuffleModeChanged(shuffleMode: Int) {
+            _shuffleMode.value = when (shuffleMode) {
+                PlaybackStateCompat.SHUFFLE_MODE_ALL -> Playback.ShuffleMode.ON
+                else -> Playback.ShuffleMode.OFF
+            }
+        }
+    }
+
+    private val _progressFlow = MutableStateFlow(0L)
+    val progressFlow = _progressFlow.asStateFlow()
+
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying = _isPlaying.asStateFlow()
+
+    private val _repeatMode = MutableStateFlow(Playback.RepeatMode.OFF)
+    val repeatMode = _repeatMode.asStateFlow()
+
+    private val _shuffleMode = MutableStateFlow(Playback.ShuffleMode.OFF)
+    val shuffleMode = _shuffleMode.asStateFlow()
+
+    private var progressObserver: Job? = null
+
+    private fun startProgressObserver() {
+        stopProgressObserver()
+        progressObserver = viewModelScope.launch {
+            while (isActive) {
+                if (_isPlaying.value) {
+                    _progressFlow.value = mediaController?.playbackState?.position ?: 0L
+                    delay(100L)
+                } else {
+                    delay(300L)
+                }
+            }
+        }
+    }
+
+    private fun stopProgressObserver() {
+        progressObserver?.cancel()
+    }
+
+    fun setMediaController(controller: MediaControllerCompat?) {
+        mediaController?.unregisterCallback(controllerCallback)
+        mediaController = controller
+        controller?.registerCallback(controllerCallback)
+    }
+
+    fun togglePlayPause() {
+        val currentlyPlaying = _isPlaying.value
+        if (currentlyPlaying) {
+            transportControls?.pause()
+        } else {
+            transportControls?.play()
+        }
+    }
+
+    fun playNext() {
+        transportControls?.skipToNext()
+    }
+
+    fun back() {
+        transportControls?.skipToPrevious()
+    }
+
+    fun seekTo(positionMillis: Long) {
+        transportControls?.seekTo(positionMillis)
+    }
+
+    override fun onCleared() {
+        progressObserver?.cancel()
+        mediaController?.unregisterCallback(controllerCallback)
+        super.onCleared()
+    }
+}

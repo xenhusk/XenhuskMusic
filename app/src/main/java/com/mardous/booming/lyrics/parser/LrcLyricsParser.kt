@@ -1,0 +1,158 @@
+package com.mardous.booming.lyrics.parser
+
+import com.mardous.booming.lyrics.Lyrics
+import java.io.IOException
+import java.io.Reader
+import java.util.Locale
+
+class LrcLyricsParser : LyricsParser {
+
+    override fun isValid(reader: Reader): Boolean {
+        val content = reader.buffered().use { it.readText() }
+        return content
+            .lineSequence()
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .any { line ->
+                if (ATTRIBUTE_PATTERN.matches(line)) {
+                    false
+                } else {
+                    val hasTime = LINE_TIME_PATTERN.containsMatchIn(line)
+                    val hasContent = LINE_PATTERN.matchEntire(line)?.groupValues
+                        ?.getOrNull(2)
+                        ?.isNotBlank() == true
+
+                    hasTime && hasContent
+                }
+            }
+    }
+
+    override fun parse(reader: Reader): Lyrics? {
+        val attributes = hashMapOf<String, String>()
+        val lines = arrayListOf<Lyrics.Line>()
+        try {
+            reader.buffered().use { br ->
+                while (true) {
+                    val line = br.readLine() ?: break
+                    if (line.isBlank()) continue
+
+                    val attrMatcher = ATTRIBUTE_PATTERN.find(line)
+                    if (attrMatcher != null) {
+                        val attr = attrMatcher.groupValues[1].lowercase(Locale.getDefault()).trim()
+                        val value = attrMatcher.groupValues[2].lowercase(Locale.getDefault())
+                            .trim()
+                            .takeUnless { it.isEmpty() } ?: continue
+
+                        attributes[attr] = value
+                    } else {
+                        val lineResult = LINE_PATTERN.find(line)
+                        if (lineResult != null) {
+                            val time = lineResult.groupValues[1].trim()
+                                .takeUnless { it.isEmpty() } ?: continue
+                            val text = lineResult.groupValues[2].trim()
+                                .takeUnless { it.isEmpty() } ?: continue
+
+                            val wordEntries = buildList {
+                                LINE_WORD_PATTERN.findAll(text).forEach { match ->
+                                    val ms = parseTime(match) ?: return@forEach
+                                    val word = match.groupValues.getOrNull(3)
+                                        ?.takeIf { it.isNotBlank() } ?: return@forEach
+
+                                    add(Lyrics.Word(content = word, startAt = ms))
+                                }
+                            }.sortedBy {
+                                it.startAt
+                            }
+
+                            LINE_TIME_PATTERN.findAll(time).forEach { result ->
+                                val startAt = parseTime(result) ?: return@forEach
+                                val syncedLine = if (wordEntries.isNotEmpty()) {
+                                    val wordStartAt = wordEntries.minOf { it.startAt }
+                                    val content = wordEntries.joinToString(separator = " ") {
+                                        it.content.trim()
+                                    }
+                                    Lyrics.Line(
+                                        startAt = wordStartAt,
+                                        durationMillis = 0,
+                                        content = content,
+                                        rawContent = line,
+                                        words = wordEntries
+                                    )
+                                } else {
+                                    Lyrics.Line(
+                                        startAt = startAt,
+                                        durationMillis = 0,
+                                        content = text,
+                                        rawContent = line,
+                                        words = emptyList()
+                                    )
+                                }
+                                lines.add(syncedLine)
+                            }
+                        }
+                    }
+                }
+                val length = attributes["length"]?.let {
+                    parseTime(it)
+                }
+                if (lines.isNotEmpty()) {
+                    lines.sortBy { it.startAt }
+
+                    // Update durations
+                    for (i in 0 until lines.lastIndex) {
+                        lines[i] = lines[i].copy(
+                            durationMillis = lines[i + 1].startAt - lines[i].startAt,
+                        )
+                    }
+                    if (length != null) {
+                        val last = lines.last()
+                        lines[lines.lastIndex] = last.copy(
+                            durationMillis = (length - last.startAt).takeIf { it > 0L } ?: Long.MAX_VALUE,
+                        )
+                    } else {
+                        lines[lines.lastIndex] = lines.last().copy(
+                            durationMillis = Long.MAX_VALUE,
+                        )
+                    }
+                }
+                return Lyrics(
+                    title = attributes["ti"],
+                    artist = attributes["ar"],
+                    album = attributes["al"],
+                    durationMillis = length,
+                    lines = lines
+                )
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    private fun parseTime(str: String): Long? {
+        val result = TIME_PATTERN.find(str)
+        if (result != null) {
+            return parseTime(result)
+        }
+        return null
+    }
+
+    private fun parseTime(result: MatchResult): Long? {
+        val m = result.groupValues.getOrNull(1)?.toInt()
+        val s = result.groupValues.getOrNull(2)?.toFloat()
+        return if (m != null && s != null) {
+            (s * LRC_SECONDS_TO_MS_MULTIPLIER).toLong() + m * LRC_MINUTES_TO_MS_MULTIPLIER
+        } else null
+    }
+
+    companion object {
+        private const val LRC_SECONDS_TO_MS_MULTIPLIER = 1000f
+        private const val LRC_MINUTES_TO_MS_MULTIPLIER = 60 * 1000
+
+        private val TIME_PATTERN = Regex("(\\d+):(\\d{2}(?:\\.\\d+)?)")
+        private val LINE_PATTERN = Regex("((?:\\[.*?])+)(.*)")
+        private val LINE_TIME_PATTERN = Regex("\\[${TIME_PATTERN.pattern}]")
+        private val LINE_WORD_PATTERN = Regex("<${TIME_PATTERN.pattern}>([^<\\s]+)")
+        private val ATTRIBUTE_PATTERN = Regex("\\[(offset|ti|ar|al|length):(.+)]", RegexOption.IGNORE_CASE)
+    }
+}

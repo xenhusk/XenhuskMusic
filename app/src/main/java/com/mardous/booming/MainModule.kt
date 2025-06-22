@@ -43,6 +43,8 @@ import com.mardous.booming.http.lastfm.LastFmService
 import com.mardous.booming.http.lyrics.LyricsService
 import com.mardous.booming.http.provideDefaultCache
 import com.mardous.booming.http.provideOkHttp
+import com.mardous.booming.lyrics.parser.LrcLyricsParser
+import com.mardous.booming.lyrics.parser.LyricsParser
 import com.mardous.booming.model.Genre
 import com.mardous.booming.providers.MediaStoreWriter
 import com.mardous.booming.repository.*
@@ -100,6 +102,9 @@ private val mainModule = module {
     single {
         PreferenceManager.getDefaultSharedPreferences(androidContext())
     }
+    single {
+        LrcLyricsParser()
+    } bind LyricsParser::class
 }
 
 private val roomModule = module {

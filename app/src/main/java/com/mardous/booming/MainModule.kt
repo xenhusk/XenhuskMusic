@@ -184,6 +184,10 @@ private val dataModule = module {
     } bind SpecialRepository::class
 
     single {
+        RealLyricsRepository(androidContext(), get(), get(), get(), get())
+    } bind LyricsRepository::class
+
+    single {
         UriSongResolver(androidContext(), get(), get())
     }
 

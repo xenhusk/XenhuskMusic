@@ -40,7 +40,7 @@ import com.mardous.booming.http.deezer.DeezerService
 import com.mardous.booming.http.github.GitHubService
 import com.mardous.booming.http.jsonHttpClient
 import com.mardous.booming.http.lastfm.LastFmService
-import com.mardous.booming.http.lyrics.LyricsService
+import com.mardous.booming.http.lyrics.LyricsDownloadService
 import com.mardous.booming.http.provideDefaultCache
 import com.mardous.booming.http.provideOkHttp
 import com.mardous.booming.lyrics.parser.LrcLyricsParser
@@ -76,7 +76,7 @@ val networkModule = module {
         LastFmService(get())
     }
     single {
-        LyricsService(get())
+        LyricsDownloadService(get())
     }
 }
 

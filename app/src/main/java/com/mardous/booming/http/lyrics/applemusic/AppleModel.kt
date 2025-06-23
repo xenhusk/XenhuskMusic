@@ -25,8 +25,18 @@ class AppleSearchResponse(val id: Long, val songName: String, val artistName: St
 @Serializable
 class AppleLyricsResponse(val type: String, val content: List<AppleLyrics>?) {
     @Serializable
-    class AppleLyrics(val text: List<AppleLyricsLine>, val timestamp: Int, val endtime: Int) {
+    class AppleLyrics(
+        val text: List<AppleLyricsLine>,
+        val oppositeTurn: Boolean,
+        val timestamp: Int,
+        val endtime: Int
+    ) {
         @Serializable
-        class AppleLyricsLine(val text: String, val part: Boolean, val timestamp: Int?)
+        class AppleLyricsLine(
+            val text: String,
+            val part: Boolean,
+            val timestamp: Int?,
+            val endtime: Int?
+        )
     }
 }

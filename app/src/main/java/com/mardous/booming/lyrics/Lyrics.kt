@@ -8,7 +8,7 @@ data class Lyrics(
     val artist: String?,
     val album: String?,
     val durationMillis: Long?,
-    val lines: List<Line>,
+    val lines: List<Line>
 ) {
     val hasContent = lines.isNotEmpty()
     val optimalDurationMillis = optimalDurationMillis()
@@ -36,9 +36,11 @@ data class Lyrics(
         val durationMillis: Long,
         val content: String,
         val rawContent: String,
-        val words: List<Word>
+        val words: List<Word>,
+        val actor: String?
     ) {
         val isWordByWord: Boolean = words.isNotEmpty()
+        val isOppositeTurn: Boolean = actor != null && actor != "v1"
     }
 
     @Immutable

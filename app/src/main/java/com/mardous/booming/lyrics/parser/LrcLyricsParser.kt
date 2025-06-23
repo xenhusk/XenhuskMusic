@@ -49,14 +49,17 @@ class LrcLyricsParser : LyricsParser {
                         if (lineResult != null) {
                             val time = lineResult.groupValues[1].trim()
                                 .takeUnless { it.isEmpty() } ?: continue
-                            val text = lineResult.groupValues[2].trim()
+                            val rawText = lineResult.groupValues[2].trim()
                                 .takeUnless { it.isEmpty() } ?: continue
+
+                            val actorMatch = LINE_ACTOR_PATTERN.find(rawText)
+                            val actor = actorMatch?.groupValues?.get(1)
+                            val text = actorMatch?.groupValues?.get(2) ?: rawText
 
                             val wordEntries = buildList {
                                 LINE_WORD_PATTERN.findAll(text).forEach { match ->
                                     val ms = parseTime(match) ?: return@forEach
-                                    val word = match.groupValues.getOrNull(3)
-                                        ?.takeIf { it.isNotBlank() } ?: return@forEach
+                                    val word = match.groupValues.getOrNull(3) ?: return@forEach
 
                                     add(Lyrics.Word(content = word, startAt = ms))
                                 }
@@ -68,15 +71,16 @@ class LrcLyricsParser : LyricsParser {
                                 val startAt = parseTime(result) ?: return@forEach
                                 val syncedLine = if (wordEntries.isNotEmpty()) {
                                     val wordStartAt = wordEntries.minOf { it.startAt }
-                                    val content = wordEntries.joinToString(separator = " ") {
-                                        it.content.trim()
+                                    val content = wordEntries.joinToString(separator = "") {
+                                        it.content
                                     }
                                     Lyrics.Line(
                                         startAt = wordStartAt,
                                         durationMillis = 0,
                                         content = content,
                                         rawContent = line,
-                                        words = wordEntries
+                                        words = wordEntries,
+                                        actor = actor
                                     )
                                 } else {
                                     Lyrics.Line(
@@ -84,7 +88,8 @@ class LrcLyricsParser : LyricsParser {
                                         durationMillis = 0,
                                         content = text,
                                         rawContent = line,
-                                        words = emptyList()
+                                        words = emptyList(),
+                                        actor = actor
                                     )
                                 }
                                 lines.add(syncedLine)
@@ -152,7 +157,8 @@ class LrcLyricsParser : LyricsParser {
         private val TIME_PATTERN = Regex("(\\d+):(\\d{2}(?:\\.\\d+)?)")
         private val LINE_PATTERN = Regex("((?:\\[.*?])+)(.*)")
         private val LINE_TIME_PATTERN = Regex("\\[${TIME_PATTERN.pattern}]")
-        private val LINE_WORD_PATTERN = Regex("<${TIME_PATTERN.pattern}>([^<\\s]+)")
-        private val ATTRIBUTE_PATTERN = Regex("\\[(offset|ti|ar|al|length):(.+)]", RegexOption.IGNORE_CASE)
+        private val LINE_ACTOR_PATTERN = Regex("^(v\\d+):\\s*(.*)", RegexOption.IGNORE_CASE)
+        private val LINE_WORD_PATTERN = Regex("<${TIME_PATTERN.pattern}>([^<]+)")
+        private val ATTRIBUTE_PATTERN = Regex("\\[(offset|ti|ar|al|length|by):(.+)]", RegexOption.IGNORE_CASE)
     }
 }

@@ -51,15 +51,20 @@ class AppleMusicLyricsApi(private val client: HttpClient) : LyricsApi {
         val lines = response.content
         when (response.type) {
             "Syllable" -> {
+                val isMultiPerson = lines.any { it.oppositeTurn }
                 for (line in lines) {
-                    syncedLyrics.append("[${line.timestamp.toLrcTimestamp()}] ")
+                    syncedLyrics.append("[${line.timestamp.toLrcTimestamp()}]")
+                    if (isMultiPerson) {
+                        syncedLyrics.append(if (line.oppositeTurn) "v2:" else "v1:")
+                    }
                     for (syllable in line.text) {
-                        syncedLyrics.append(syllable.text)
+                        syncedLyrics.append("<${syllable.timestamp!!.toLrcTimestamp()}>${syllable.text}")
                         if (!syllable.part) {
                             syncedLyrics.append(" ")
                         }
+                        syncedLyrics.append("<${syllable.endtime?.toLrcTimestamp()}>")
                     }
-                    syncedLyrics.append("\n")
+                    syncedLyrics.append("<${line.endtime.toLrcTimestamp()}>\n")
                 }
             }
 

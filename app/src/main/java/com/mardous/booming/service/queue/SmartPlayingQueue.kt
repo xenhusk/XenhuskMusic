@@ -41,8 +41,8 @@ class SmartPlayingQueue(
     private var isSequentialQueue: Boolean
 ) {
 
-    var shuffleMode = Playback.ShuffleMode.OFF
-    var repeatMode = Playback.ShuffleMode.OFF
+    var shuffleMode = Playback.ShuffleMode.Off
+    var repeatMode = Playback.RepeatMode.Off
     var stopPosition = -1
     var nextPosition = -1
     var position = -1
@@ -78,7 +78,7 @@ class SmartPlayingQueue(
             this.originalPlayingQueue = ArrayList(queue.toQueueSongs())
             this.playingQueue = ArrayList(originalPlayingQueue)
             var position = startPosition
-            if (shuffleMode == Playback.ShuffleMode.ON) {
+            if (shuffleMode == Playback.ShuffleMode.On) {
                 makeShuffleList(playingQueue, startPosition)
                 position = 0
             }
@@ -97,11 +97,11 @@ class SmartPlayingQueue(
     fun getNextPosition(force: Boolean): Int {
         var position = this.position + 1
         when (repeatMode) {
-            Playback.RepeatMode.ALL -> if (isLastTrack) {
+            Playback.RepeatMode.All -> if (isLastTrack) {
                 position = 0
             }
 
-            Playback.RepeatMode.CURRENT -> if (force) {
+            Playback.RepeatMode.One -> if (force) {
                 if (isLastTrack) {
                     position = 0
                 }
@@ -109,11 +109,7 @@ class SmartPlayingQueue(
                 position -= 1
             }
 
-            Playback.RepeatMode.OFF -> if (isLastTrack) {
-                position -= 1
-            }
-
-            else -> if (isLastTrack) {
+            Playback.RepeatMode.Off -> if (isLastTrack) {
                 position -= 1
             }
         }
@@ -123,11 +119,11 @@ class SmartPlayingQueue(
     fun getPreviousPosition(force: Boolean): Int {
         var newPosition = this.position - 1
         when (repeatMode) {
-            Playback.RepeatMode.ALL -> if (newPosition < 0) {
+            Playback.RepeatMode.All -> if (newPosition < 0) {
                 newPosition = playingQueue.size - 1
             }
 
-            Playback.RepeatMode.CURRENT -> if (force) {
+            Playback.RepeatMode.One -> if (force) {
                 if (newPosition < 0) {
                     newPosition = playingQueue.size - 1
                 }
@@ -135,11 +131,7 @@ class SmartPlayingQueue(
                 newPosition = this.position
             }
 
-            Playback.RepeatMode.OFF -> if (newPosition < 0) {
-                newPosition = 0
-            }
-
-            else -> if (newPosition < 0) {
+            Playback.RepeatMode.Off -> if (newPosition < 0) {
                 newPosition = 0
             }
         }
@@ -231,7 +223,7 @@ class SmartPlayingQueue(
         val songToMove = playingQueue.removeAt(from)
         songToMove.isUpcoming = isInUpcomingRange(to)
         playingQueue.add(to, songToMove)
-        if (shuffleMode == Playback.RepeatMode.OFF) {
+        if (shuffleMode == Playback.ShuffleMode.Off) {
             val tmpSong = originalPlayingQueue.removeAt(from)
             originalPlayingQueue.add(to, tmpSong)
         }
@@ -250,7 +242,7 @@ class SmartPlayingQueue(
     }
 
     fun removeSong(position: Int) {
-        if (shuffleMode == Playback.ShuffleMode.OFF) {
+        if (shuffleMode == Playback.ShuffleMode.Off) {
             playingQueue.removeAt(position)
             originalPlayingQueue.removeAt(position)
         } else {
@@ -381,36 +373,30 @@ class SmartPlayingQueue(
         originalPlayingQueue.clear()
     }
 
-    fun setRepeatMode(mode: Int, onCompleted: () -> Unit) {
+    fun setRepeatMode(mode: Playback.RepeatMode, onCompleted: () -> Unit) {
         this.repeatMode = mode
 
         sharedPreferences.edit {
-            putInt(SAVED_REPEAT_MODE, repeatMode)
+            putInt(SAVED_REPEAT_MODE, repeatMode.ordinal)
         }
 
-        when (mode) {
-            Playback.RepeatMode.OFF,
-            Playback.RepeatMode.CURRENT,
-            Playback.RepeatMode.ALL -> {
-                onCompleted()
-            }
-        }
+        onCompleted()
     }
 
-    fun setShuffleMode(mode: Int, onCompleted: () -> Unit) {
+    fun setShuffleMode(mode: Playback.ShuffleMode, onCompleted: () -> Unit) {
         this.shuffleMode = mode
 
         sharedPreferences.edit {
-            putInt(SAVED_SHUFFLE_MODE, shuffleMode)
+            putInt(SAVED_SHUFFLE_MODE, shuffleMode.ordinal)
         }
 
         when (mode) {
-            Playback.ShuffleMode.ON -> {
+            Playback.ShuffleMode.On -> {
                 makeShuffleList(playingQueue, position)
                 position = 0
             }
 
-            Playback.ShuffleMode.OFF -> {
+            Playback.ShuffleMode.Off -> {
                 val currentSongId = currentSong.id
                 playingQueue = ArrayList(originalPlayingQueue)
                 var newPosition = 0

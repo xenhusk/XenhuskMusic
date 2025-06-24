@@ -41,24 +41,24 @@ class AppShortcutLauncherActivity : Activity() {
         super.onCreate(savedInstanceState)
         when (extraNotNull(KEY_SHORTCUT_TYPE, SHORTCUT_TYPE_NONE).value) {
             SHORTCUT_TYPE_SHUFFLE_ALL -> {
-                startServiceWithPlaylist(Playback.ShuffleMode.ON, ShuffleAllPlaylist())
+                startServiceWithPlaylist(Playback.ShuffleMode.On, ShuffleAllPlaylist())
                 DynamicShortcutManager.reportShortcutUsed(this, ShuffleAllShortcutType.ID)
             }
 
             SHORTCUT_TYPE_TOP_TRACKS -> {
-                startServiceWithPlaylist(Playback.ShuffleMode.OFF, TopTracksPlaylist())
+                startServiceWithPlaylist(Playback.ShuffleMode.Off, TopTracksPlaylist())
                 DynamicShortcutManager.reportShortcutUsed(this, TopTracksShortcutType.ID)
             }
 
             SHORTCUT_TYPE_LAST_ADDED -> {
-                startServiceWithPlaylist(Playback.ShuffleMode.OFF, LastAddedPlaylist())
+                startServiceWithPlaylist(Playback.ShuffleMode.Off, LastAddedPlaylist())
                 DynamicShortcutManager.reportShortcutUsed(this, LastAddedShortcutType.ID)
             }
         }
         finish()
     }
 
-    private fun startServiceWithPlaylist(shuffleMode: Int, playlist: Playlist) {
+    private fun startServiceWithPlaylist(shuffleMode: Playback.ShuffleMode, playlist: Playlist) {
         val intent = Intent(this, MusicService::class.java)
         intent.action = ServiceAction.ACTION_PLAY_PLAYLIST
 

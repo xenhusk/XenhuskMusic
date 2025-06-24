@@ -68,12 +68,10 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
     protected open val songInfoView: TextView? = null
 
     protected val isShuffleModeOn: Boolean
-        get() = MusicPlayer.shuffleMode == Playback.ShuffleMode.ON
+        get() = MusicPlayer.shuffleMode.isOn
 
     protected val isRepeatModeOn: Boolean
-        get() = MusicPlayer.repeatMode.let {
-            it == Playback.RepeatMode.CURRENT || it == Playback.RepeatMode.ALL
-        }
+        get() = MusicPlayer.repeatMode.isOn
 
     private var lastPlaybackControlsColor: Int = 0
     private var lastDisabledPlaybackControlsColor: Int = 0
@@ -224,11 +222,11 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     abstract fun onUpdatePlayPause(isPlaying: Boolean)
 
-    open fun onUpdateRepeatMode(repeatMode: Int) {
+    open fun onUpdateRepeatMode(repeatMode: Playback.RepeatMode) {
         updateRepeatMode(repeatMode = repeatMode)
     }
 
-    open fun onUpdateShuffleMode(shuffleMode: Int) {
+    open fun onUpdateShuffleMode(shuffleMode: Playback.ShuffleMode) {
         updateShuffleMode(shuffleMode = shuffleMode)
     }
 
@@ -288,22 +286,22 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         disabledControlColor: Int = lastDisabledPlaybackControlsColor
     ) = if (isEnabled) controlColor else disabledControlColor
 
-    protected fun updateShuffleMode(shuffleMode: Int = MusicPlayer.shuffleMode) {
+    protected fun updateShuffleMode(shuffleMode: Playback.ShuffleMode = MusicPlayer.shuffleMode) {
         shuffleButton?.applyColor(
-            getPlaybackControlsColor(shuffleMode == Playback.ShuffleMode.ON),
+            getPlaybackControlsColor(shuffleMode == Playback.ShuffleMode.On),
             isIconButton = true
         )
     }
 
-    protected fun updateRepeatMode(repeatMode: Int = MusicPlayer.repeatMode) {
+    protected fun updateRepeatMode(repeatMode: Playback.RepeatMode = MusicPlayer.repeatMode) {
         val iconResource = when (repeatMode) {
-            Playback.RepeatMode.CURRENT -> R.drawable.ic_repeat_one_24dp
+            Playback.RepeatMode.One -> R.drawable.ic_repeat_one_24dp
             else -> R.drawable.ic_repeat_24dp
         }
         repeatButton?.let {
             it.setIconResource(iconResource)
             it.applyColor(
-                getPlaybackControlsColor(repeatMode != Playback.RepeatMode.OFF),
+                getPlaybackControlsColor(repeatMode != Playback.RepeatMode.Off),
                 isIconButton = true
             )
         }

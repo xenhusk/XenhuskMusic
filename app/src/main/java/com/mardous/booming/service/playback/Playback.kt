@@ -19,22 +19,33 @@ package com.mardous.booming.service.playback
 
 import android.media.AudioDeviceInfo
 import android.os.Build
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.annotation.RequiresApi
 
 interface Playback {
 
-    class RepeatMode {
+    enum class RepeatMode(val value: Int) {
+        Off(PlaybackStateCompat.REPEAT_MODE_NONE),
+        One(PlaybackStateCompat.REPEAT_MODE_ONE),
+        All(PlaybackStateCompat.REPEAT_MODE_ALL);
+
+        val isOn get() = this != Off
+
         companion object {
-            const val OFF = 0
-            const val CURRENT = 1
-            const val ALL = 2
+            fun fromOrdinal(ordinal: Int) = RepeatMode.entries.getOrElse(ordinal) { Off }
+            fun fromValue(value: Int) = RepeatMode.entries.firstOrNull { it.value == value } ?: Off
         }
     }
 
-    class ShuffleMode {
+    enum class ShuffleMode(val value: Int) {
+        Off(PlaybackStateCompat.SHUFFLE_MODE_NONE),
+        On(PlaybackStateCompat.SHUFFLE_MODE_ALL);
+
+        val isOn get() = this != Off
+
         companion object {
-            const val OFF = 0
-            const val ON = 1
+            fun fromOrdinal(ordinal: Int) = ShuffleMode.entries.getOrElse(ordinal) { Off }
+            fun fromValue(value: Int) = ShuffleMode.entries.firstOrNull { it.value == value } ?: Off
         }
     }
 

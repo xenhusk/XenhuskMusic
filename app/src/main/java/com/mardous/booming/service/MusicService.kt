@@ -75,6 +75,8 @@ import com.mardous.booming.providers.databases.PlaybackQueueStore
 import com.mardous.booming.providers.databases.SongPlayCountStore
 import com.mardous.booming.repository.Repository
 import com.mardous.booming.service.constants.ServiceAction
+import com.mardous.booming.service.constants.ServiceAction.Extras.Companion.EXTRA_PLAYLIST
+import com.mardous.booming.service.constants.ServiceAction.Extras.Companion.EXTRA_SHUFFLE_MODE
 import com.mardous.booming.service.constants.ServiceEvent
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.notification.PlayingNotification
@@ -363,13 +365,14 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     private fun playFromPlaylist(intent: Intent) {
         val playlist =
-            IntentCompat.getParcelableExtra(intent, ServiceAction.Extras.EXTRA_PLAYLIST, Playlist::class.java)
-        val shuffleMode = intent.getIntExtra(ServiceAction.Extras.EXTRA_SHUFFLE_MODE, getShuffleMode())
+            IntentCompat.getParcelableExtra(intent, EXTRA_PLAYLIST, Playlist::class.java)
+        val shuffleMode =
+            IntentCompat.getSerializableExtra(intent, EXTRA_SHUFFLE_MODE, Playback.ShuffleMode::class.java)
         if (playlist != null) {
             serviceScope.launch(IO) {
                 val playlistSongs = playlist.getSongs()
                 if (playlistSongs.isNotEmpty()) {
-                    if (shuffleMode == Playback.ShuffleMode.ON) {
+                    if (shuffleMode == Playback.ShuffleMode.On) {
                         val startPosition = nextInt(playlistSongs.size)
                         openQueue(playlistSongs, startPosition, true)
                         setShuffleMode(shuffleMode)
@@ -421,8 +424,12 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     }
 
     fun restoreState(completion: () -> Unit = {}) {
-        playingQueue.repeatMode = sharedPreferences.getInt(SAVED_REPEAT_MODE, Playback.RepeatMode.OFF)
-        playingQueue.shuffleMode = sharedPreferences.getInt(SAVED_SHUFFLE_MODE, Playback.ShuffleMode.OFF)
+        playingQueue.repeatMode = Playback.RepeatMode.fromOrdinal(
+            sharedPreferences.getInt(SAVED_REPEAT_MODE, -1)
+        )
+        playingQueue.shuffleMode = Playback.ShuffleMode.fromOrdinal(
+            sharedPreferences.getInt(SAVED_SHUFFLE_MODE, -1)
+        )
         handleAndSendChangeInternal(ServiceEvent.REPEAT_MODE_CHANGED)
         handleAndSendChangeInternal(ServiceEvent.SHUFFLE_MODE_CHANGED)
         serviceScope.launch {
@@ -576,7 +583,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     }
 
     fun playNextSong(force: Boolean) {
-        if (isLastTrack && playingQueue.repeatMode == Playback.RepeatMode.OFF) {
+        if (isLastTrack && playingQueue.repeatMode == Playback.RepeatMode.Off) {
             showToast(R.string.list_end)
             return
         }
@@ -793,7 +800,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     fun getRepeatMode() = playingQueue.repeatMode
 
-    fun setRepeatMode(mode: Int) {
+    fun setRepeatMode(mode: Playback.RepeatMode) {
         playingQueue.setRepeatMode(mode) {
             prepareNext()
             handleAndSendChangeInternal(ServiceEvent.REPEAT_MODE_CHANGED)
@@ -928,7 +935,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     }
 
     fun playPreviousSong(force: Boolean) {
-        if (isFirstTrack && playingQueue.repeatMode == Playback.RepeatMode.OFF) {
+        if (isFirstTrack && playingQueue.repeatMode == Playback.RepeatMode.Off) {
             showToast(R.string.list_start)
             return
         }
@@ -962,23 +969,23 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     fun cycleRepeatMode() {
         when (getRepeatMode()) {
-            Playback.RepeatMode.OFF -> setRepeatMode(Playback.RepeatMode.ALL)
-            Playback.RepeatMode.ALL -> setRepeatMode(Playback.RepeatMode.CURRENT)
-            else -> setRepeatMode(Playback.RepeatMode.OFF)
+            Playback.RepeatMode.Off -> setRepeatMode(Playback.RepeatMode.All)
+            Playback.RepeatMode.All -> setRepeatMode(Playback.RepeatMode.One)
+            else -> setRepeatMode(Playback.RepeatMode.Off)
         }
     }
 
     fun toggleShuffle() {
-        if (getShuffleMode() == Playback.ShuffleMode.OFF) {
-            setShuffleMode(Playback.ShuffleMode.ON)
+        if (getShuffleMode() == Playback.ShuffleMode.Off) {
+            setShuffleMode(Playback.ShuffleMode.On)
         } else {
-            setShuffleMode(Playback.ShuffleMode.OFF)
+            setShuffleMode(Playback.ShuffleMode.Off)
         }
     }
 
     fun getShuffleMode() = playingQueue.shuffleMode
 
-    fun setShuffleMode(mode: Int) {
+    fun setShuffleMode(mode: Playback.ShuffleMode) {
         playingQueue.setShuffleMode(mode) {
             handleAndSendChangeInternal(ServiceEvent.SHUFFLE_MODE_CHANGED)
             notifyChange(ServiceEvent.QUEUE_CHANGED)
@@ -1015,6 +1022,14 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     private fun handleChangeInternal(what: String) {
         when (what) {
+            ServiceEvent.REPEAT_MODE_CHANGED -> {
+                mediaSession?.setRepeatMode(getRepeatMode().value)
+            }
+
+            ServiceEvent.SHUFFLE_MODE_CHANGED -> {
+                mediaSession?.setShuffleMode(getShuffleMode().value)
+            }
+
             ServiceEvent.PLAY_STATE_CHANGED -> {
                 updateMediaSessionPlaybackState()
                 val isPlaying = isPlaying
@@ -1077,9 +1092,9 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     private fun setCustomAction(stateBuilder: PlaybackStateCompat.Builder) {
         var repeatIcon = R.drawable.ic_repeat_24dp // REPEAT_MODE_NONE
-        if (getRepeatMode() == Playback.RepeatMode.CURRENT) {
+        if (getRepeatMode() == Playback.RepeatMode.One) {
             repeatIcon = R.drawable.ic_repeat_one_on_24dp
-        } else if (getRepeatMode() == Playback.RepeatMode.ALL) {
+        } else if (getRepeatMode() == Playback.RepeatMode.All) {
             repeatIcon = R.drawable.ic_repeat_on_24dp
         }
         stateBuilder.addCustomAction(
@@ -1088,8 +1103,11 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
             ).build()
         )
 
-        val shuffleIcon = if (getShuffleMode() == Playback.ShuffleMode.ON)
-            R.drawable.ic_shuffle_on_24dp else R.drawable.ic_shuffle_24dp
+        val shuffleIcon = if (getShuffleMode() == Playback.ShuffleMode.On) {
+            R.drawable.ic_shuffle_on_24dp
+        } else {
+            R.drawable.ic_shuffle_24dp
+        }
         stateBuilder.addCustomAction(
             PlaybackStateCompat.CustomAction.Builder(
                 TOGGLE_SHUFFLE, getString(R.string.action_toggle_shuffle), shuffleIcon
@@ -1226,7 +1244,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     override fun onTrackWentToNext() {
         bumpPlayCount()
-        if (checkShouldStop(false) || (playingQueue.repeatMode == Playback.RepeatMode.OFF && isLastTrack)) {
+        if (checkShouldStop(false) || (playingQueue.repeatMode == Playback.RepeatMode.Off && isLastTrack)) {
             playbackManager.setNextDataSource(null)
             pause()
             seek(0)
@@ -1250,7 +1268,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         // bump play count before anything else
         bumpPlayCount()
         // if there is a timer finished, don't continue
-        if ((playingQueue.repeatMode == Playback.RepeatMode.OFF && isLastTrack) || checkShouldStop(false)) {
+        if ((playingQueue.repeatMode == Playback.RepeatMode.Off && isLastTrack) || checkShouldStop(false)) {
             notifyChange(ServiceEvent.PLAY_STATE_CHANGED)
             seek(0)
             if (checkShouldStop(true)) {

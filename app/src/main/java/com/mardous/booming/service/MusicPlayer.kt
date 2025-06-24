@@ -71,14 +71,14 @@ object MusicPlayer {
             musicService?.setPosition(position)
         }
 
-    var repeatMode: Int
-        get() = musicService?.getRepeatMode() ?: Playback.RepeatMode.OFF
+    var repeatMode: Playback.RepeatMode
+        get() = musicService?.getRepeatMode() ?: Playback.RepeatMode.Off
         set(repeatMode) {
             musicService?.setRepeatMode(repeatMode)
         }
 
-    var shuffleMode: Int
-        get() = musicService?.getShuffleMode() ?: Playback.ShuffleMode.OFF
+    var shuffleMode: Playback.ShuffleMode
+        get() = musicService?.getShuffleMode() ?: Playback.ShuffleMode.Off
         set(shuffleMode) {
             musicService?.setShuffleMode(shuffleMode)
         }
@@ -128,7 +128,7 @@ object MusicPlayer {
     ) {
         musicService?.openQueue(queue, position, startPlaying)
         if (!keepShuffleMode) {
-            shuffleMode = Playback.ShuffleMode.OFF
+            shuffleMode = Playback.ShuffleMode.Off
         }
     }
 
@@ -139,7 +139,7 @@ object MusicPlayer {
         }
         if (!tryToHandleOpenPlayingQueue(queue, startPosition, startPlaying) && musicService != null) {
             openQueue(queue, startPosition, startPlaying)
-            shuffleMode = Playback.ShuffleMode.ON
+            shuffleMode = Playback.ShuffleMode.On
         }
     }
 

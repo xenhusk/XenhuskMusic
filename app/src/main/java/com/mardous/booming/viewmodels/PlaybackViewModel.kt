@@ -21,46 +21,46 @@ class PlaybackViewModel : ViewModel() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             _isPlaying.value = state?.state == PlaybackStateCompat.STATE_PLAYING
             if (isPlaying.value) {
-                startProgressObserver()
+                if (progressObserver == null) {
+                    startProgressObserver()
+                }
             } else {
                 stopProgressObserver()
             }
         }
 
-        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {}
+        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+            val mediaMetadata = MediaMetadataCompat.fromMediaMetadata(metadata?.mediaMetadata)
+            _durationFlow.value = mediaMetadata?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) ?: 0
+        }
 
         override fun onRepeatModeChanged(repeatMode: Int) {
-            _repeatMode.value = when (repeatMode) {
-                PlaybackStateCompat.REPEAT_MODE_ONE -> Playback.RepeatMode.CURRENT
-                PlaybackStateCompat.REPEAT_MODE_ALL -> Playback.RepeatMode.ALL
-                else -> Playback.RepeatMode.OFF
-            }
+            _repeatMode.value = Playback.RepeatMode.fromValue(repeatMode)
         }
 
         override fun onShuffleModeChanged(shuffleMode: Int) {
-            _shuffleMode.value = when (shuffleMode) {
-                PlaybackStateCompat.SHUFFLE_MODE_ALL -> Playback.ShuffleMode.ON
-                else -> Playback.ShuffleMode.OFF
-            }
+            _shuffleMode.value = Playback.ShuffleMode.fromValue(shuffleMode)
         }
     }
 
     private val _progressFlow = MutableStateFlow(0L)
     val progressFlow = _progressFlow.asStateFlow()
 
+    private val _durationFlow = MutableStateFlow(0L)
+    val durationFlow = _durationFlow.asStateFlow()
+
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying = _isPlaying.asStateFlow()
 
-    private val _repeatMode = MutableStateFlow(Playback.RepeatMode.OFF)
+    private val _repeatMode = MutableStateFlow(Playback.RepeatMode.Off)
     val repeatMode = _repeatMode.asStateFlow()
 
-    private val _shuffleMode = MutableStateFlow(Playback.ShuffleMode.OFF)
+    private val _shuffleMode = MutableStateFlow(Playback.ShuffleMode.Off)
     val shuffleMode = _shuffleMode.asStateFlow()
 
     private var progressObserver: Job? = null
 
     private fun startProgressObserver() {
-        stopProgressObserver()
         progressObserver = viewModelScope.launch {
             while (isActive) {
                 if (_isPlaying.value) {
@@ -75,6 +75,7 @@ class PlaybackViewModel : ViewModel() {
 
     private fun stopProgressObserver() {
         progressObserver?.cancel()
+        progressObserver = null
     }
 
     fun setMediaController(controller: MediaControllerCompat?) {
@@ -105,7 +106,7 @@ class PlaybackViewModel : ViewModel() {
     }
 
     override fun onCleared() {
-        progressObserver?.cancel()
+        stopProgressObserver()
         mediaController?.unregisterCallback(controllerCallback)
         super.onCleared()
     }

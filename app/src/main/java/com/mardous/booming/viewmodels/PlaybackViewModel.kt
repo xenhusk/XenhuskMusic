@@ -20,6 +20,9 @@ class PlaybackViewModel : ViewModel() {
     private val controllerCallback = object : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             _isPlaying.value = state?.state == PlaybackStateCompat.STATE_PLAYING
+            if (progressObserver == null) {
+                _progressFlow.value = state?.position ?: 0
+            }
             if (isPlaying.value) {
                 if (progressObserver == null) {
                     startProgressObserver()

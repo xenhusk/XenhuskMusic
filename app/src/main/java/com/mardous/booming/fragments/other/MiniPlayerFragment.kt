@@ -18,7 +18,6 @@
 package com.mardous.booming.fragments.other
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.SpannableString
@@ -36,6 +35,7 @@ import com.mardous.booming.extensions.glide.getDefaultGlideTransition
 import com.mardous.booming.extensions.glide.getSongGlideModel
 import com.mardous.booming.extensions.glide.songOptions
 import com.mardous.booming.extensions.isTablet
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.resources.show
 import com.mardous.booming.extensions.resources.textColorPrimary
@@ -43,37 +43,52 @@ import com.mardous.booming.extensions.resources.textColorSecondary
 import com.mardous.booming.extensions.resources.toForegroundColorSpan
 import com.mardous.booming.extensions.utilities.DEFAULT_INFO_DELIMITER
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
-import com.mardous.booming.helper.MusicProgressViewUpdateHelper
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.viewmodels.PlaybackViewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.math.abs
 
 class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player),
-    View.OnClickListener,
-    MusicProgressViewUpdateHelper.Callback {
+    View.OnClickListener {
+
+    private val playbackViewModel: PlaybackViewModel by activityViewModel()
 
     private var _binding: FragmentMiniPlayerBinding? = null
     private val binding get() = _binding!!
-
-    private lateinit var progressViewUpdateHelper: MusicProgressViewUpdateHelper
 
     private lateinit var primaryColorSpan: ForegroundColorSpan
     private lateinit var secondaryColorSpan: ForegroundColorSpan
 
     private var target: Target<Bitmap>? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        progressViewUpdateHelper = MusicProgressViewUpdateHelper(this)
-    }
-
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentMiniPlayerBinding.bind(view)
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playbackViewModel.durationFlow.collect {
+                binding.progressBar.max = it.toInt()
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playbackViewModel.progressFlow.collect {
+                binding.progressBar.setProgressCompat(it.toInt(), true)
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playbackViewModel.isPlayingFlow.collect { isPlaying ->
+                if (isPlaying) {
+                    binding.actionPlayPause.setIconResource(R.drawable.ic_pause_24dp)
+                } else {
+                    binding.actionPlayPause.setIconResource(R.drawable.ic_play_24dp)
+                }
+            }
+        }
         primaryColorSpan = textColorPrimary().toForegroundColorSpan()
         secondaryColorSpan = textColorSecondary().toForegroundColorSpan()
         setUpButtons()
-        view.setOnTouchListener(FlingPlayBackController(view.context))
+        view.setOnTouchListener { _, event -> flingPlayBackController.onTouchEvent(event) }
     }
 
     private fun setUpButtons() {
@@ -95,20 +110,10 @@ class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player
 
     override fun onClick(view: View) {
         when (view) {
-            binding.actionPlayPause -> MusicPlayer.togglePlayPause()
-            binding.actionNext -> MusicPlayer.playNextSong()
-            binding.actionPrevious -> MusicPlayer.playPreviousSong()
+            binding.actionPlayPause -> playbackViewModel.togglePlayPause()
+            binding.actionNext -> playbackViewModel.playNext()
+            binding.actionPrevious -> playbackViewModel.back()
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        progressViewUpdateHelper.start()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        progressViewUpdateHelper.stop()
     }
 
     override fun onDestroyView() {
@@ -120,22 +125,11 @@ class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player
     override fun onServiceConnected() {
         super.onServiceConnected()
         updateCurrentSong()
-        updatePlayPause()
     }
 
     override fun onPlayingMetaChanged() {
         super.onPlayingMetaChanged()
         updateCurrentSong()
-    }
-
-    override fun onPlayStateChanged() {
-        super.onPlayStateChanged()
-        updatePlayPause()
-    }
-
-    override fun onUpdateProgressViews(progress: Long, total: Long) {
-        binding.progressBar.max = total.toInt()
-        binding.progressBar.setProgressCompat(progress.toInt(), true)
     }
 
     private fun updateCurrentSong() {
@@ -160,35 +154,18 @@ class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player
             .into(binding.image)
     }
 
-    private fun updatePlayPause() {
-        if (MusicPlayer.isPlaying) {
-            binding.actionPlayPause.setIconResource(R.drawable.ic_pause_24dp)
-        } else {
-            binding.actionPlayPause.setIconResource(R.drawable.ic_play_24dp)
-        }
-    }
-
-    class FlingPlayBackController(context: Context) : View.OnTouchListener {
-        private var flingPlayBackController =
-            GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-                override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-                    if (abs(velocityX) > abs(velocityY)) {
-                        if (velocityX < 0) {
-                            MusicPlayer.playNextSong()
-                            return true
-                        } else if (velocityX > 0) {
-                            MusicPlayer.playPreviousSong()
-                            return true
-                        }
+    private var flingPlayBackController = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                if (abs(velocityX) > abs(velocityY)) {
+                    if (velocityX < 0) {
+                        playbackViewModel.playNext()
+                        return true
+                    } else if (velocityX > 0) {
+                        playbackViewModel.back()
+                        return true
                     }
-                    return false
                 }
-            })
-
-        @SuppressLint("ClickableViewAccessibility")
-        override fun onTouch(v: View, event: MotionEvent): Boolean {
-            return flingPlayBackController.onTouchEvent(event)
-        }
-    }
-
+                return false
+            }
+        })
 }

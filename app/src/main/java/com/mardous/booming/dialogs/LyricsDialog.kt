@@ -46,8 +46,8 @@ class LyricsDialog : DialogFragment() {
             }
             .create { dialog ->
                 lyricsViewModel.getLyrics(song).observe(this) { result ->
-                    if (result.hasData) {
-                        dialog.setMessage(result.data)
+                    if (result.hasPlainLyrics) {
+                        dialog.setMessage(result.plainLyrics)
                     }
                 }
             }

@@ -38,6 +38,7 @@ import com.mardous.booming.http.github.isAbleToUpdate
 import com.mardous.booming.interfaces.IScrollHelper
 import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.mvvm.UpdateSearchResult
+import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.MusicService
 import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
@@ -229,11 +230,22 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
         intent?.let { handlePlaybackIntent(it, true) }
     }
 
+    override fun onPlayingMetaChanged() {
+        super.onPlayingMetaChanged()
+        playbackViewModel.updateSong(MusicPlayer.currentSong)
+        lyricsViewModel.updateSong(MusicPlayer.currentSong)
+    }
+
     override fun onPlaybackRestored() {
         super.onPlaybackRestored()
         if (Preferences.playOnStartupMode == PlayOnStartupMode.WITH_EXPANDED_PLAYER) {
             expandPanel()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaBrowser.disconnect()
     }
 
     private fun handlePlaybackIntent(intent: Intent, canRestorePlayback: Boolean) {

@@ -10,11 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mardous.booming.R
 import com.mardous.booming.fragments.lyrics.LyricsViewModel
-import com.mardous.booming.lyrics.Lyrics
 import com.mardous.booming.ui.components.decoration.FadingEdges
 import com.mardous.booming.viewmodels.PlaybackViewModel
 
@@ -23,8 +24,7 @@ fun LyricsScreen(
     lyricsViewModel: LyricsViewModel,
     playbackViewModel: PlaybackViewModel,
     onEditClick: () -> Unit,
-    onSeekToLine: (Lyrics.Line) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
     val songProgress by playbackViewModel.progressFlow.collectAsState()
@@ -64,7 +64,7 @@ fun LyricsScreen(
                 lyricsViewState.lyrics != null -> {
                     LyricsView(
                         state = lyricsViewState,
-                        onLineClick = onSeekToLine,
+                        onLineClick = { playbackViewModel.seekTo(it.startAt) },
                         fadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
                         contentPadding = PaddingValues(
                             top = 72.dp,
@@ -74,7 +74,69 @@ fun LyricsScreen(
                 }
 
                 !lyricsResult.plainLyrics.isNullOrBlank() -> {
-                    PlainLyricsView(lyricsResult.plainLyrics!!)
+                    PlainLyricsView(content = lyricsResult.plainLyrics!!)
+                }
+
+                else -> {
+                    Text(
+                        text = stringResource(R.string.no_lyrics_found),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CoverLyricsScreen(
+    lyricsViewModel: LyricsViewModel,
+    playbackViewModel: PlaybackViewModel,
+    modifier: Modifier = Modifier
+) {
+    val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
+    val songProgress by playbackViewModel.progressFlow.collectAsState()
+    val lyricsViewState = remember(lyricsResult.syncedLyrics) {
+        LyricsViewState(lyricsResult.syncedLyrics)
+    }
+
+    LaunchedEffect(songProgress) {
+        lyricsViewState.updatePosition(songProgress)
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(all = 8.dp)
+    ) {
+        if (lyricsResult.loading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        } else {
+            when {
+                lyricsViewState.lyrics != null -> {
+                    LyricsView(
+                        state = lyricsViewState,
+                        onLineClick = { playbackViewModel.seekTo(it.startAt) },
+                        fadingEdges = FadingEdges(top = 72.dp, bottom = 64.dp),
+                        fontSize = 24.sp,
+                        contentPadding = PaddingValues(
+                            top = 72.dp,
+                            bottom = dimensionResource(R.dimen.fab_size_padding)
+                        )
+                    )
+                }
+
+                !lyricsResult.plainLyrics.isNullOrBlank() -> {
+                    PlainLyricsView(
+                        content = lyricsResult.plainLyrics!!,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
                 }
 
                 else -> {
@@ -94,7 +156,9 @@ fun LyricsScreen(
 @Composable
 private fun PlainLyricsView(
     content: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fontSize: TextUnit = 20.sp,
+    textAlign: TextAlign? = null,
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -109,7 +173,8 @@ private fun PlainLyricsView(
     ) {
         Text(
             text = content,
-            fontSize = 20.sp,
+            textAlign = textAlign,
+            fontSize = fontSize,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)

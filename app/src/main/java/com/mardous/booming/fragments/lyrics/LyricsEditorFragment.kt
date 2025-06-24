@@ -126,9 +126,9 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             binding.progressIndicator.hide()
             binding.embeddedButton.isEnabled = true
             binding.externalButton.isEnabled = true
-            binding.plainInput.setText(it.data)
+            binding.plainInput.setText(it.plainLyrics)
             binding.plainInput.doOnTextChanged { _, _, _, _ -> plainLyricsModified = true }
-            binding.syncedInput.setText(it.lrcData.getText())
+            binding.syncedInput.setText(it.syncedLyrics?.rawText)
         }
     }
 
@@ -305,7 +305,6 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
 
     private fun saveLyrics() {
         lyricsViewModel.saveLyrics(
-            requireContext(),
             song,
             binding.plainInput.text?.toString(),
             binding.syncedInput.text?.toString(),
@@ -354,7 +353,7 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         }
 
     private fun shareSyncedLyrics(song: Song) {
-        lyricsViewModel.shareSyncedLyrics(requireContext(), song).observe(viewLifecycleOwner) {
+        lyricsViewModel.shareSyncedLyrics(song).observe(viewLifecycleOwner) {
             if (it == null) {
                 showToast(R.string.no_synced_lyrics_found, Toast.LENGTH_SHORT)
             } else {
@@ -387,7 +386,7 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
     }
 
     private fun importLRCFile(song: Song, data: Uri) {
-        lyricsViewModel.setLRCContentFromUri(requireContext(), song, data)
+        lyricsViewModel.setLRCContentFromUri(song, data)
             .observe(viewLifecycleOwner) { isSuccess ->
                 if (isSuccess) {
                     showToast(getString(R.string.import_lyrics_for_song_x, song.title))

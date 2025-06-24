@@ -21,11 +21,13 @@ import android.content.Context
 import android.net.Uri
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Immutable
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
+import com.mardous.booming.lyrics.Lyrics
 import com.mardous.booming.R
-import com.mardous.booming.lyrics.LrcLyrics
 import java.io.File
+import java.util.EnumMap
 
 class SaveLyricsResult(
     val isPending: Boolean,
@@ -33,16 +35,21 @@ class SaveLyricsResult(
     val pendingWrite: List<Pair<File, Uri>>? = null
 )
 
+@Immutable
 class LyricsResult(
     val id: Long,
-    val data: String? = null,
-    val lrcData: LrcLyrics = LrcLyrics(),
-    val sources: Map<LyricsType, LyricsSource> = hashMapOf(),
+    val plainLyrics: String? = null,
+    val syncedLyrics: Lyrics? = null,
+    val sources: Map<LyricsType, LyricsSource> = EnumMap(LyricsType::class.java),
     val loading: Boolean = false,
 ) {
-    val hasData: Boolean get() = !data.isNullOrEmpty()
-    val isSynced: Boolean get() = lrcData.hasLines
-    val isEmpty: Boolean get() = !hasData && !isSynced
+    val hasPlainLyrics: Boolean get() = !plainLyrics.isNullOrEmpty()
+    val hasSyncedLyrics: Boolean get() = syncedLyrics?.hasContent == true
+    val isEmpty: Boolean get() = !hasPlainLyrics && !hasSyncedLyrics
+
+    companion object {
+        val Empty = LyricsResult(-1)
+    }
 }
 
 enum class LyricsType(@IdRes val idRes: Int) {

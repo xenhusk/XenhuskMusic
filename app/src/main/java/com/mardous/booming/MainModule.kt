@@ -242,7 +242,7 @@ private val viewModule = module {
     }
 
     viewModel {
-        LyricsViewModel(get(), get())
+        LyricsViewModel(get())
     }
 
     viewModel {

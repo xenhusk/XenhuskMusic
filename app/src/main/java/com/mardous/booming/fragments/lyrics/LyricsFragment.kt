@@ -17,123 +17,63 @@
 package com.mardous.booming.fragments.lyrics
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
+import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mardous.booming.R
-import com.mardous.booming.databinding.FragmentLyricsBinding
-import com.mardous.booming.extensions.applyWindowInsets
 import com.mardous.booming.extensions.keepScreenOn
 import com.mardous.booming.extensions.materialSharedAxis
-import com.mardous.booming.fragments.base.AbsMainActivityFragment
-import com.mardous.booming.helper.MusicProgressViewUpdateHelper
-import com.mardous.booming.model.Song
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.ui.screens.lyrics.LyricsScreen
+import com.mardous.booming.ui.theme.BoomingMusicTheme
+import com.mardous.booming.viewmodels.PlaybackViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import kotlin.properties.Delegates
 
 /**
  * @author Christians M. A. (mardous)
  */
-class LyricsFragment : AbsMainActivityFragment(R.layout.fragment_lyrics),
-    MusicProgressViewUpdateHelper.Callback {
-
-    private var _binding: FragmentLyricsBinding? = null
-    private val binding get() = _binding!!
+class LyricsFragment : Fragment() {
 
     private val lyricsViewModel: LyricsViewModel by activityViewModel()
+    private val playbackViewModel: PlaybackViewModel by activityViewModel()
 
-    private lateinit var progressViewUpdateHelper: MusicProgressViewUpdateHelper
-
-    private var song: Song by Delegates.notNull()
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        materialSharedAxis(view)
-        view.applyWindowInsets(top = true, left = true, right = true, bottom = true)
-        _binding = FragmentLyricsBinding.bind(view)
-        progressViewUpdateHelper = MusicProgressViewUpdateHelper(this, 500, 1000)
-        setupViews()
-    }
-
-    private fun setupViews() {
-        binding.edit.setOnClickListener { editLyrics(song) }
-        binding.lyricsView.apply {
-            setDraggable(true) {
-                MusicPlayer.seekTo(it.toInt())
-                true
-            }
-        }
-    }
-
-    private fun loadLyrics() {
-        lyricsViewModel.getAllLyrics(song, allowDownload = true)
-            .observe(viewLifecycleOwner) { lyrics ->
-                if (lyrics.loading) {
-                    binding.progress.show()
-                    binding.normalLyrics.isGone = true
-                    binding.lyricsView.isGone = true
-                } else {
-                    binding.progress.hide()
-                    binding.normalLyrics.text = lyrics.data
-                    binding.normalLyrics.isGone = lyrics.isEmpty || lyrics.isSynced
-                    binding.lyricsView.setLRCContent(lyrics.lrcData)
-                    binding.lyricsView.updateTime(MusicPlayer.songProgressMillis.toLong())
-                    binding.lyricsView.isVisible = lyrics.isEmpty || lyrics.isSynced
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setContent {
+                BoomingMusicTheme {
+                    LyricsScreen(
+                        lyricsViewModel,
+                        playbackViewModel,
+                        onEditClick = {
+                            val currentSong = playbackViewModel.currentSong
+                            findNavController().navigate(
+                                R.id.nav_lyrics_editor,
+                                LyricsEditorFragmentArgs.Builder(currentSong)
+                                    .build()
+                                    .toBundle()
+                            )
+                        }
+                    )
                 }
             }
-    }
-
-    private fun updateCurrentSong() {
-        song = MusicPlayer.currentSong
-        if (song == Song.emptySong) {
-            binding.edit.hide()
-        } else {
-            binding.edit.show()
+        }.also {
+            materialSharedAxis(it)
         }
-        loadLyrics()
     }
 
     override fun onResume() {
         super.onResume()
-        updateCurrentSong()
-        progressViewUpdateHelper.start()
         requireActivity().keepScreenOn(true)
     }
 
     override fun onPause() {
         super.onPause()
-        progressViewUpdateHelper.stop()
         requireActivity().keepScreenOn(false)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    override fun onUpdateProgressViews(progress: Long, total: Long) {
-        binding.lyricsView.updateTime(progress)
-    }
-
-    override fun onPlayingMetaChanged() {
-        super.onPlayingMetaChanged()
-        updateCurrentSong()
-    }
-
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean = false
-
-    private fun editLyrics(song: Song) {
-        findNavController().navigate(
-            R.id.nav_lyrics_editor,
-            LyricsEditorFragmentArgs.Builder(song)
-                .build()
-                .toBundle()
-        )
     }
 }

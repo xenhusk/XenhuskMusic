@@ -23,25 +23,18 @@ import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
-import androidx.annotation.ColorInt
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
-import androidx.core.view.*
+import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
 import androidx.viewpager.widget.ViewPager
 import com.mardous.booming.R
 import com.mardous.booming.adapters.pager.AlbumCoverPagerAdapter
 import com.mardous.booming.databinding.FragmentPlayerAlbumCoverBinding
-import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.isLandscape
-import com.mardous.booming.extensions.keepScreenOn
-import com.mardous.booming.extensions.resources.*
+import com.mardous.booming.extensions.resources.BOOMING_ANIM_TIME
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
-import com.mardous.booming.fragments.lyrics.LyricsFragment
-import com.mardous.booming.fragments.lyrics.LyricsViewModel
-import com.mardous.booming.fragments.player.base.goToDestination
-import com.mardous.booming.helper.MusicProgressViewUpdateHelper
 import com.mardous.booming.helper.color.MediaNotificationProcessor
-import com.mardous.booming.lyrics.LrcLyrics
 import com.mardous.booming.model.GestureOnCover
 import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.service.MusicPlayer
@@ -50,30 +43,22 @@ import com.mardous.booming.transform.ParallaxPagerTransformer
 import com.mardous.booming.util.LEFT_RIGHT_SWIPING
 import com.mardous.booming.util.LYRICS_ON_COVER
 import com.mardous.booming.util.Preferences
-import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChangeListener,
-    SharedPreferences.OnSharedPreferenceChangeListener, MusicProgressViewUpdateHelper.Callback {
-
-    private val lyricsViewModel: LyricsViewModel by activityViewModel()
+    SharedPreferences.OnSharedPreferenceChangeListener {
 
     private var _binding: FragmentPlayerAlbumCoverBinding? = null
     private val binding get() = _binding!!
     private val viewPager get() = binding.viewPager
 
+    private var coverLyricsFragment: CoverLyricsFragment? = null
     private val nps: NowPlayingScreen by lazy {
         Preferences.nowPlayingScreen
     }
 
-    private var lyricsLoaded = false
-
-    private val isAllowedToLoadLyrics: Boolean
-        get() = nps.supportsCoverLyrics && isAdded && !isRemoving
     private var isShowLyricsOnCover: Boolean
         get() = Preferences.showLyricsOnCover
         set(value) { Preferences.showLyricsOnCover = value }
-
-    private lateinit var progressViewUpdateHelper: MusicProgressViewUpdateHelper
 
     private var gestureDetector: GestureDetector? = null
     private var callbacks: Callbacks? = null
@@ -109,31 +94,10 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentPlayerAlbumCoverBinding.bind(view)
-        binding.syncedLyricsView.setDraggable(true) {
-            MusicPlayer.seekTo(it.toInt())
-            true
-        }
-        binding.openEditor.setOnClickListener {
-            goToDestination(requireActivity(), R.id.nav_lyrics)
-        }
-        binding.openEditor.setOnLongClickListener {
-            hideLyrics(true)
-            true
-        }
-        applyWindowInsets()
+        coverLyricsFragment =
+            childFragmentManager.findFragmentById(R.id.coverLyricsFragment) as? CoverLyricsFragment
         setupPageTransformer()
-        progressViewUpdateHelper = MusicProgressViewUpdateHelper(this, 500, 1000)
         Preferences.registerOnSharedPreferenceChangeListener(this)
-    }
-
-    private fun applyWindowInsets() {
-        if (nps == NowPlayingScreen.Gradient) {
-            ViewCompat.setOnApplyWindowInsetsListener(binding.lyricsLayout) { v: View, insets: WindowInsetsCompat ->
-                val padding = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
-                v.updatePadding(left = padding.left, right = padding.right)
-                WindowInsetsCompat.CONSUMED
-            }
-        }
     }
 
     private fun setupPageTransformer() {
@@ -176,10 +140,10 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         } else when (key) {
             LYRICS_ON_COVER -> {
                 val isShowLyrics = sharedPreferences.getBoolean(key, true)
-                if (isShowLyrics && !binding.lyricsLayout.isVisible) {
+                if (isShowLyrics && !binding.coverLyricsFragment.isVisible) {
                     showLyrics()
-                } else if (!isShowLyrics && binding.lyricsLayout.isVisible) {
-                    removeLyrics()
+                } else if (!isShowLyrics && binding.coverLyricsFragment.isVisible) {
+                    hideLyrics()
                 }
             }
 
@@ -197,17 +161,6 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         if (position != MusicPlayer.position) {
             MusicPlayer.playSongAt(position)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        progressViewUpdateHelper.start()
-        updateLyrics()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        progressViewUpdateHelper.stop()
     }
 
     override fun onDestroyView() {
@@ -229,7 +182,6 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         if (viewPager.currentItem != position) {
             viewPager.setCurrentItem(position, true)
         }
-        updateLyrics()
     }
 
     override fun onQueueChanged() {
@@ -237,14 +189,8 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         updatePlayingQueue()
     }
 
-    override fun onUpdateProgressViews(progress: Long, total: Long) {
-        if (!isShowingLyrics())
-            return
-
-        _binding?.syncedLyricsView?.updateTime(progress)
-    }
-
-    fun isShowingLyrics() = lyricsLoaded
+    val isAllowedToLoadLyrics: Boolean
+        get() = nps.supportsCoverLyrics
 
     fun toggleLyrics() {
         if (isShowLyricsOnCover) {
@@ -255,153 +201,56 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
     }
 
     fun showLyrics(isForced: Boolean = false) {
-        if (!lyricsLoaded || binding.lyricsLayout.isVisible || (!isShowLyricsOnCover && !isForced))
+        if (binding.coverLyricsFragment.isVisible || (!isShowLyricsOnCover && !isForced))
             return
 
-        setLyricsLayoutVisible(true) {
-            isShowLyricsOnCover = true
+        val animatorSet = AnimatorSet()
+        animatorSet.playTogether(
+            ObjectAnimator.ofFloat(binding.coverLyricsFragment, View.ALPHA, 1f),
+            ObjectAnimator.ofFloat(binding.viewPager, View.ALPHA, 0f)
+        )
+        animatorSet.duration = BOOMING_ANIM_TIME
+        animatorSet.doOnEnd {
+            binding.viewPager.isVisible = false
         }
+        animatorSet.doOnStart {
+            coverLyricsFragment?.let {
+                childFragmentManager.beginTransaction()
+                    .setMaxLifecycle(it, Lifecycle.State.RESUMED)
+                    .commitAllowingStateLoss()
+            }
+            isShowLyricsOnCover = true
+            binding.coverLyricsFragment.isVisible = true
+        }
+        callbacks?.onLyricsVisibilityChange(animatorSet, true)
+        animatorSet.start()
     }
 
     fun hideLyrics(isPermanent: Boolean = false) {
-        if (!lyricsLoaded || !binding.lyricsLayout.isVisible) return
+        if (!binding.coverLyricsFragment.isVisible) return
 
-        setLyricsLayoutVisible(false) {
+        val animatorSet = AnimatorSet()
+        animatorSet.playTogether(
+            ObjectAnimator.ofFloat(binding.coverLyricsFragment, View.ALPHA, 0f),
+            ObjectAnimator.ofFloat(binding.viewPager, View.ALPHA, 1f)
+        )
+        animatorSet.duration = BOOMING_ANIM_TIME
+        animatorSet.doOnStart {
+            binding.viewPager.isVisible = true
+        }
+        animatorSet.doOnEnd {
+            coverLyricsFragment?.let {
+                childFragmentManager.beginTransaction()
+                    .setMaxLifecycle(it, Lifecycle.State.STARTED)
+                    .commitAllowingStateLoss()
+            }
             if (isPermanent) {
                 isShowLyricsOnCover = false
             }
+            binding.coverLyricsFragment.isVisible = false
         }
-    }
-
-    private fun updateLyrics() {
-        removeLyrics {
-            if (!isAllowedToLoadLyrics) {
-                return@removeLyrics
-            }
-            lyricsViewModel.getAllLyrics(
-                MusicPlayer.currentSong,
-                allowDownload = true
-            ).observe(viewLifecycleOwner) {
-                if (it.loading)
-                    return@observe
-
-                if (it.id == MusicPlayer.currentSong.id) {
-                    if (it.isSynced) {
-                        setLyricsContent(it.lrcData, null)
-                    } else {
-                        setLyricsContent(null, it.data)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun removeLyrics(onCompleted: AnimationCompleted? = null) {
-        this.lyricsLoaded = false
-        setLyricsLayoutVisible(false, isFullHide = true, onCompleted = onCompleted)
-    }
-
-    private fun setLyricsLayoutVisible(
-        isVisible: Boolean,
-        isFullHide: Boolean = false,
-        onCompleted: AnimationCompleted? = null
-    ) {
-        _binding?.let { safeBinding ->
-            val isInLyricsFragment = requireActivity().currentFragment(R.id.fragment_container) is LyricsFragment
-            requireActivity().keepScreenOn(isVisible || isInLyricsFragment)
-
-            val animatorSet = AnimatorSet()
-            animatorSet.duration = BOOMING_ANIM_TIME
-            if (isVisible) {
-                animatorSet.playTogether(
-                    ObjectAnimator.ofFloat(safeBinding.lyricsLayout, View.ALPHA, 1f),
-                    ObjectAnimator.ofFloat(safeBinding.viewPager, View.ALPHA, 0f)
-                )
-                animatorSet.doOnStart { safeBinding.lyricsLayout.isVisible = true }
-                animatorSet.doOnEnd { safeBinding.viewPager.isInvisible = true }
-            } else {
-                animatorSet.playTogether(
-                    ObjectAnimator.ofFloat(safeBinding.lyricsLayout, View.ALPHA, 0f),
-                    ObjectAnimator.ofFloat(safeBinding.viewPager, View.ALPHA, 1f)
-                )
-                animatorSet.doOnStart { safeBinding.viewPager.isInvisible = false }
-                animatorSet.doOnEnd {
-                    safeBinding.lyricsLayout.isVisible = false
-                    if (isFullHide) {
-                        safeBinding.syncedLyricsView.reset()
-                        safeBinding.syncedLyricsView.hide()
-                        safeBinding.normalLyrics.text = null
-                        safeBinding.normalLyrics.hide()
-                    }
-                }
-            }
-            animatorSet.doOnEnd {
-                animatorSet.removeAllListeners()
-                onCompleted?.invoke()
-            }
-            callbacks?.onLyricsVisibilityChange(animatorSet, isVisible)
-            animatorSet.start()
-        }
-    }
-
-    private fun setLyricsContent(lrcData: LrcLyrics?, normalLyrics: String?) {
-        _binding?.let { safeBinding ->
-            val isLyricsLayoutVisible = safeBinding.lyricsLayout.isVisible
-            if (lrcData != null && lrcData.hasLines) {
-                val animatorSet = AnimatorSet()
-                animatorSet.duration = BOOMING_ANIM_TIME
-                animatorSet.playSequentially(
-                    ObjectAnimator.ofFloat(safeBinding.normalLyrics, View.ALPHA, 0f),
-                    ObjectAnimator.ofFloat(safeBinding.syncedLyricsView, View.ALPHA, 1f)
-                )
-                animatorSet.doOnStart {
-                    safeBinding.syncedLyricsView.setLRCContent(lrcData)
-                    safeBinding.syncedLyricsView.show()
-                }
-                animatorSet.doOnEnd {
-                    safeBinding.normalLyrics.text = null
-                    safeBinding.normalLyrics.hide()
-                }
-                animatorSet.start()
-                if (isShowLyricsOnCover && !isLyricsLayoutVisible) {
-                    setLyricsLayoutVisible(true)
-                }
-                this.lyricsLoaded = true
-            } else if (!normalLyrics.isNullOrBlank()) {
-                val animatorSet = AnimatorSet()
-                animatorSet.duration = BOOMING_ANIM_TIME
-                animatorSet.playSequentially(
-                    ObjectAnimator.ofFloat(safeBinding.normalLyrics, View.ALPHA, 1f),
-                    ObjectAnimator.ofFloat(safeBinding.syncedLyricsView, View.ALPHA, 0f)
-                )
-                animatorSet.doOnStart {
-                    safeBinding.lyricsScrollView.scrollTo(0, 0)
-                    safeBinding.normalLyrics.text = normalLyrics
-                    safeBinding.normalLyrics.show()
-                }
-                animatorSet.doOnEnd {
-                    safeBinding.syncedLyricsView.reset()
-                    safeBinding.syncedLyricsView.hide()
-                }
-                animatorSet.start()
-                if (isShowLyricsOnCover && !isLyricsLayoutVisible) {
-                    setLyricsLayoutVisible(true)
-                }
-                this.lyricsLoaded = true
-            } else {
-                removeLyrics()
-            }
-        }
-    }
-
-    private fun setLrcViewColors(@ColorInt primaryColor: Int, @ColorInt secondaryColor: Int) {
-        binding.syncedLyricsView.apply {
-            setCurrentColor(primaryColor)
-            setTimeTextColor(primaryColor)
-            setTimelineColor(primaryColor)
-            setNormalColor(secondaryColor)
-            setTimelineTextColor(primaryColor)
-        }
+        callbacks?.onLyricsVisibilityChange(animatorSet, false)
+        animatorSet.start()
     }
 
     private fun updatePlayingQueue() {
@@ -428,16 +277,6 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
 
     private fun notifyColorChange(color: MediaNotificationProcessor) {
         callbacks?.onColorChanged(color)
-        val primaryColor = getPrimaryTextColor(requireContext(), surfaceColor().isColorLight)
-        val secondaryColor =
-            getSecondaryTextColor(requireContext(), surfaceColor().isColorLight, true)
-        if (nps == NowPlayingScreen.Gradient) {
-            setLrcViewColors(color.primaryTextColor, color.secondaryTextColor)
-            binding.normalLyrics.setTextColor(color.primaryTextColor)
-            binding.openEditor.applyColor(color.primaryTextColor)
-        } else {
-            setLrcViewColors(primaryColor, secondaryColor)
-        }
     }
 
     private fun consumeGesture(gesture: GestureOnCover): Boolean {

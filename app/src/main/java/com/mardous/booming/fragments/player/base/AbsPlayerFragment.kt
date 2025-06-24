@@ -403,7 +403,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
             }
 
             NowPlayingAction.Lyrics -> {
-                if (coverFragment?.isShowingLyrics() == true) {
+                if (coverFragment?.isAllowedToLoadLyrics == true) {
                     coverFragment?.toggleLyrics()
                 } else {
                     LyricsDialog.create(currentSong).show(childFragmentManager, "LYRICS_DIALOG")

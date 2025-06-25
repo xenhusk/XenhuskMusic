@@ -1333,7 +1333,9 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         internal const val TOGGLE_SHUFFLE = ServiceEvent.BOOMING_PACKAGE_NAME + ".toggleshuffle"
         internal const val TOGGLE_FAVORITE = ServiceEvent.BOOMING_PACKAGE_NAME + ".togglefavorite"
 
-        private const val REWIND_INSTEAD_PREVIOUS_MILLIS = 5000
+        const val FAST_FORWARD_THRESHOLD = 5000
+        const val REWIND_THRESHOLD = 5000
+        private const val REWIND_INSTEAD_PREVIOUS_MILLIS = REWIND_THRESHOLD
 
         private const val MEDIA_SESSION_ACTIONS = (PlaybackStateCompat.ACTION_PLAY
                 or PlaybackStateCompat.ACTION_PAUSE

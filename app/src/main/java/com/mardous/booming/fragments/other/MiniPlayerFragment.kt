@@ -112,7 +112,7 @@ class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player
         when (view) {
             binding.actionPlayPause -> playbackViewModel.togglePlayPause()
             binding.actionNext -> playbackViewModel.playNext()
-            binding.actionPrevious -> playbackViewModel.back()
+            binding.actionPrevious -> playbackViewModel.playPrevious()
         }
     }
 
@@ -161,7 +161,7 @@ class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player
                         playbackViewModel.playNext()
                         return true
                     } else if (velocityX > 0) {
-                        playbackViewModel.back()
+                        playbackViewModel.playPrevious()
                         return true
                     }
                 }

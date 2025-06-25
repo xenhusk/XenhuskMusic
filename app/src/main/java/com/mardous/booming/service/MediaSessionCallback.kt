@@ -30,6 +30,8 @@ import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.model.Song
 import com.mardous.booming.providers.databases.PlaybackQueueStore
 import com.mardous.booming.repository.Repository
+import com.mardous.booming.service.MusicService.Companion.FAST_FORWARD_THRESHOLD
+import com.mardous.booming.service.MusicService.Companion.REWIND_THRESHOLD
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
@@ -66,9 +68,22 @@ class MediaSessionCallback(private val musicService: MusicService, private val c
         musicService.playNextSong(true)
     }
 
+    override fun onFastForward() {
+        super.onFastForward()
+        val currentPosition = musicService.getSongProgressMillis()
+        val songDuration = musicService.getSongDurationMillis()
+        musicService.seek((currentPosition + FAST_FORWARD_THRESHOLD).coerceAtMost(songDuration))
+    }
+
+    override fun onRewind() {
+        super.onRewind()
+        val currentPosition = musicService.getSongProgressMillis()
+        musicService.seek((currentPosition - REWIND_THRESHOLD).coerceAtLeast(0))
+    }
+
     override fun onSkipToPrevious() {
         super.onSkipToPrevious()
-        musicService.playPreviousSong(true)
+        musicService.back(true)
     }
 
     override fun onStop() {

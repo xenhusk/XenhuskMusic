@@ -108,8 +108,16 @@ class PlaybackViewModel : ViewModel() {
         transportControls?.skipToNext()
     }
 
-    fun back() {
+    fun playPrevious() {
         transportControls?.skipToPrevious()
+    }
+
+    fun fastForward() {
+        transportControls?.fastForward()
+    }
+
+    fun rewind() {
+        transportControls?.rewind()
     }
 
     fun seekTo(positionMillis: Long) {

@@ -41,7 +41,7 @@ import com.mardous.booming.activities.PermissionsActivity
 import com.mardous.booming.databinding.SlidingMusicPanelLayoutBinding
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.resources.*
-import com.mardous.booming.fragments.LibraryViewModel
+import com.mardous.booming.viewmodels.LibraryViewModel
 import com.mardous.booming.fragments.other.MiniPlayerFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
 import com.mardous.booming.fragments.player.styles.defaultstyle.DefaultPlayerFragment

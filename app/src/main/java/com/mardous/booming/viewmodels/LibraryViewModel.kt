@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.fragments
+package com.mardous.booming.viewmodels
 
 import android.animation.ValueAnimator
 import android.app.DownloadManager

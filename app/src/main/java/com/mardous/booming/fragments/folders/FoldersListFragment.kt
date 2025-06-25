@@ -32,7 +32,7 @@ import com.mardous.booming.adapters.FileAdapter
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.navigation.folderDetailArgs
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.fragments.ReloadType
+import com.mardous.booming.viewmodels.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onSongMenu
 import com.mardous.booming.helper.menu.onSongsMenu

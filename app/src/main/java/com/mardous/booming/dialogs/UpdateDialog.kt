@@ -33,7 +33,7 @@ import com.mardous.booming.databinding.DialogUpdateInfoBinding
 import com.mardous.booming.extensions.openUrl
 import com.mardous.booming.extensions.resources.setMarkdownText
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.fragments.LibraryViewModel
+import com.mardous.booming.viewmodels.LibraryViewModel
 import com.mardous.booming.http.github.GitHubRelease
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 

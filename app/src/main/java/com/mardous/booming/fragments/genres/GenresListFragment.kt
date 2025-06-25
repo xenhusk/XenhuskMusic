@@ -30,7 +30,7 @@ import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.GenreAdapter
 import com.mardous.booming.extensions.navigation.genreDetailArgs
-import com.mardous.booming.fragments.ReloadType
+import com.mardous.booming.viewmodels.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.interfaces.IGenreCallback
 import com.mardous.booming.model.Genre

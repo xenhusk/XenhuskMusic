@@ -31,7 +31,7 @@ import com.mardous.booming.activities.MainActivity
 import com.mardous.booming.extensions.applyWindowInsets
 import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.isLandscape
-import com.mardous.booming.fragments.LibraryViewModel
+import com.mardous.booming.viewmodels.LibraryViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**

@@ -24,8 +24,8 @@ import com.mardous.booming.R
 import com.mardous.booming.database.InclExclDao
 import com.mardous.booming.dialogs.library.BlacklistWhitelistDialog
 import com.mardous.booming.extensions.hasR
-import com.mardous.booming.fragments.LibraryViewModel
-import com.mardous.booming.fragments.ReloadType
+import com.mardous.booming.viewmodels.LibraryViewModel
+import com.mardous.booming.viewmodels.ReloadType
 import com.mardous.booming.preferences.SwitchWithButtonPreference
 import com.mardous.booming.util.BLACKLIST_ENABLED
 import com.mardous.booming.util.LAST_ADDED_CUTOFF

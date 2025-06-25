@@ -38,7 +38,7 @@ import com.mardous.booming.extensions.getShareSongIntent
 import com.mardous.booming.extensions.getShareSongsIntent
 import com.mardous.booming.extensions.navigation.*
 import com.mardous.booming.extensions.toChooser
-import com.mardous.booming.fragments.LibraryViewModel
+import com.mardous.booming.viewmodels.LibraryViewModel
 import com.mardous.booming.helper.m3u.M3UWriter
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist

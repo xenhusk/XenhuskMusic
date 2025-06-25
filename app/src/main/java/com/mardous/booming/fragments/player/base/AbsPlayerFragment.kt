@@ -65,7 +65,7 @@ import com.mardous.booming.extensions.resources.inflateMenu
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.extensions.whichFragment
-import com.mardous.booming.fragments.LibraryViewModel
+import com.mardous.booming.viewmodels.LibraryViewModel
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.fragments.lyrics.LyricsEditorFragmentArgs
 import com.mardous.booming.fragments.player.PlayerAlbumCoverFragment

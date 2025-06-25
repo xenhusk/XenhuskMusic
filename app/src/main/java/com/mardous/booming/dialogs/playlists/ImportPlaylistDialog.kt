@@ -37,7 +37,7 @@ import com.mardous.booming.extensions.create
 import com.mardous.booming.extensions.media.getSpannedTitles
 import com.mardous.booming.extensions.requestContext
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.fragments.LibraryViewModel
+import com.mardous.booming.viewmodels.LibraryViewModel
 import com.mardous.booming.mvvm.ImportablePlaylistResult
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 

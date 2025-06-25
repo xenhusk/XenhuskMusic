@@ -23,7 +23,7 @@ import com.mardous.booming.activities.tageditor.TagEditorViewModel
 import com.mardous.booming.androidauto.AutoMusicProvider
 import com.mardous.booming.audio.SoundSettings
 import com.mardous.booming.database.BoomingDatabase
-import com.mardous.booming.fragments.LibraryViewModel
+import com.mardous.booming.viewmodels.LibraryViewModel
 import com.mardous.booming.viewmodels.albumdetail.AlbumDetailViewModel
 import com.mardous.booming.viewmodels.artistdetail.ArtistDetailViewModel
 import com.mardous.booming.viewmodels.equalizer.EqualizerViewModel

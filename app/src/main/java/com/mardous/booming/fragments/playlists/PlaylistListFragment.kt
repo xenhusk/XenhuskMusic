@@ -33,7 +33,7 @@ import com.mardous.booming.database.PlaylistWithSongs
 import com.mardous.booming.dialogs.playlists.CreatePlaylistDialog
 import com.mardous.booming.dialogs.playlists.ImportPlaylistDialog
 import com.mardous.booming.extensions.navigation.playlistDetailArgs
-import com.mardous.booming.fragments.ReloadType
+import com.mardous.booming.viewmodels.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onPlaylistMenu
 import com.mardous.booming.helper.menu.onPlaylistsMenu

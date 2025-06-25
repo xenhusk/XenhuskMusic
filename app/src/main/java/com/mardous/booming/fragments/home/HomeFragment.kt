@@ -44,7 +44,7 @@ import com.mardous.booming.extensions.resources.setupStatusBarForeground
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.toHtml
 import com.mardous.booming.extensions.topLevelTransition
-import com.mardous.booming.fragments.ReloadType
+import com.mardous.booming.viewmodels.ReloadType
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.helper.menu.*
 import com.mardous.booming.interfaces.*

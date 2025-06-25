@@ -44,6 +44,7 @@ import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Song
+import com.mardous.booming.viewmodels.info.InfoViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**

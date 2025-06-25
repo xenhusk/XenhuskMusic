@@ -29,7 +29,7 @@ import com.mardous.booming.viewmodels.artistdetail.ArtistDetailViewModel
 import com.mardous.booming.viewmodels.equalizer.EqualizerViewModel
 import com.mardous.booming.viewmodels.folderdetail.FolderDetailViewModel
 import com.mardous.booming.viewmodels.genredetail.GenreDetailViewModel
-import com.mardous.booming.fragments.info.InfoViewModel
+import com.mardous.booming.viewmodels.info.InfoViewModel
 import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import com.mardous.booming.viewmodels.playlistdetail.PlaylistDetailViewModel
 import com.mardous.booming.viewmodels.search.SearchViewModel

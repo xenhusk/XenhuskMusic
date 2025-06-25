@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mardous.booming.R
-import com.mardous.booming.fragments.lyrics.LyricsViewModel
+import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import com.mardous.booming.ui.components.decoration.FadingEdges
 import com.mardous.booming.viewmodels.PlaybackViewModel
 

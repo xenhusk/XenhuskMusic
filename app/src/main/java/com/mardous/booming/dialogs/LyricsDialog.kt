@@ -27,7 +27,7 @@ import com.mardous.booming.R
 import com.mardous.booming.extensions.EXTRA_SONG
 import com.mardous.booming.extensions.create
 import com.mardous.booming.extensions.withArgs
-import com.mardous.booming.fragments.lyrics.LyricsViewModel
+import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import com.mardous.booming.fragments.player.base.goToDestination
 import com.mardous.booming.model.Song
 import org.koin.androidx.viewmodel.ext.android.activityViewModel

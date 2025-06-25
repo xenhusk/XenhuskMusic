@@ -29,6 +29,7 @@ import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.ui.screens.lyrics.LyricsScreen
 import com.mardous.booming.ui.theme.BoomingMusicTheme
 import com.mardous.booming.viewmodels.PlaybackViewModel
+import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**

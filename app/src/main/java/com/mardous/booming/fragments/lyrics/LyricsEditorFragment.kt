@@ -64,6 +64,7 @@ import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
 import com.mardous.booming.mvvm.LyricsResult
 import com.mardous.booming.mvvm.LyricsType
+import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import java.io.File
 

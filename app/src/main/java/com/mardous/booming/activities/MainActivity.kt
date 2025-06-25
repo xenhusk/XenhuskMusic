@@ -33,7 +33,7 @@ import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.navigation.isValidCategory
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.whichFragment
-import com.mardous.booming.fragments.lyrics.LyricsViewModel
+import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import com.mardous.booming.http.github.isAbleToUpdate
 import com.mardous.booming.interfaces.IScrollHelper
 import com.mardous.booming.model.CategoryInfo

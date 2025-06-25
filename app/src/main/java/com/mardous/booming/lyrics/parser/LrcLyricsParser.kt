@@ -77,7 +77,7 @@ class LrcLyricsParser : LyricsParser {
                                     Lyrics.Line(
                                         startAt = wordStartAt,
                                         durationMillis = 0,
-                                        content = content,
+                                        content = content.trim(),
                                         rawContent = line,
                                         words = wordEntries,
                                         actor = actor

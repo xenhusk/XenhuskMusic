@@ -157,7 +157,7 @@ private fun LyricsViewLine(
         onClick = onClick,
     ) { pivotFractionX: Float, pivotFractionY: Float ->
         Text(
-            text = content,
+            text = content.trim(),
             modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
@@ -220,7 +220,11 @@ fun LyricsLineWordByWord(
                 words.forEachIndexed { i, word ->
                     val alpha = if (isActive && i <= activeWordIndex) activeAlpha else inactiveAlpha
                     withStyle(SpanStyle(color = contentColor.copy(alpha = alpha))) {
-                        append(word.content)
+                        if (i == words.lastIndex) {
+                            append(word.content.trimEnd())
+                        } else {
+                            append(word.content)
+                        }
                     }
                 }
             }

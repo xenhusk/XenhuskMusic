@@ -17,46 +17,10 @@
 
 package com.mardous.booming.mvvm
 
-import com.mardous.booming.database.PlayCountEntity
 import com.mardous.booming.http.github.GitHubRelease
 import com.mardous.booming.model.Suggestion
 
 data class HandleIntentResult(val handled: Boolean, val failed: Boolean = false)
-
-data class PlayInfoResult(
-    val playCount: Int,
-    val skipCount: Int,
-    val lastPlayDate: Long,
-    val mostPlayedTracks: List<PlayCountEntity>
-)
-
-data class SongDetailResult(
-    val playCount: String? = null,
-    val skipCount: String? = null,
-    val lastPlayedDate: String? = null,
-    val filePath: String? = null,
-    val fileSize: String? = null,
-    val trackLength: String? = null,
-    val dateModified: String? = null,
-    val audioHeader: String? = null,
-    val title: String? = null,
-    val album: String? = null,
-    val artist: String? = null,
-    val albumArtist: String? = null,
-    val albumYear: String? = null,
-    val trackNumber: String? = null,
-    val discNumber: String? = null,
-    val composer: String? = null,
-    val conductor: String? = null,
-    val publisher: String? = null,
-    val genre: String? = null,
-    val replayGain: String? = null,
-    val comment: String? = null
-) {
-    companion object {
-        val Empty = SongDetailResult()
-    }
-}
 
 data class SuggestedResult(val state: State = State.Idle, val data: List<Suggestion> = arrayListOf()) {
 

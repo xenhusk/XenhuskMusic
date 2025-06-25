@@ -21,8 +21,8 @@ import com.mardous.booming.extensions.utilities.format
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Song
-import com.mardous.booming.mvvm.PlayInfoResult
-import com.mardous.booming.mvvm.SongDetailResult
+import com.mardous.booming.viewmodels.info.model.PlayInfoResult
+import com.mardous.booming.viewmodels.info.model.SongInfoResult
 import com.mardous.booming.repository.Repository
 import kotlinx.coroutines.Dispatchers
 import org.jaudiotagger.audio.AudioHeader
@@ -58,7 +58,7 @@ class InfoViewModel(private val repository: Repository) : ViewModel() {
         emit(PlayInfoResult(totalPlayCount, totalSkipCount, lastPlayDate, playCountEntities))
     }
 
-    fun songDetail(context: Context, song: Song): LiveData<SongDetailResult> =
+    fun songDetail(context: Context, song: Song): LiveData<SongInfoResult> =
         liveData(Dispatchers.IO) {
             // Play count
             val result = runCatching {
@@ -74,7 +74,7 @@ class InfoViewModel(private val repository: Repository) : ViewModel() {
 
                 val audioFile = song.audioFile()
                 if (audioFile == null) {
-                    SongDetailResult(
+                    SongInfoResult(
                         playCount = playCount,
                         skipCount = skipCount,
                         lastPlayedDate = lastPlayed,
@@ -116,7 +116,7 @@ class InfoViewModel(private val repository: Repository) : ViewModel() {
                     val genre = tag?.getGenres()?.merge()
                     val comment = tag?.getFirst(FieldKey.COMMENT)
 
-                    SongDetailResult(
+                    SongInfoResult(
                         playCount,
                         skipCount,
                         lastPlayed,
@@ -144,7 +144,7 @@ class InfoViewModel(private val repository: Repository) : ViewModel() {
             if (result.isSuccess) {
                 emit(result.getOrThrow())
             } else {
-                emit(SongDetailResult.Companion.Empty)
+                emit(SongInfoResult.Companion.Empty)
             }
         }
 

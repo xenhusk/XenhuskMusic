@@ -31,7 +31,7 @@ import com.mardous.booming.extensions.resources.secondaryColor
 import com.mardous.booming.extensions.resources.show
 import com.mardous.booming.extensions.toHtml
 import com.mardous.booming.model.Song
-import com.mardous.booming.mvvm.SongDetailResult
+import com.mardous.booming.viewmodels.info.model.SongInfoResult
 import com.mardous.booming.viewmodels.info.InfoViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -58,7 +58,7 @@ class SongDetailFragment : DialogFragment() {
             .create {
                 viewModel.songDetail(requireContext(), song).observe(this) { detail ->
                     binding.progressIndicator.hide()
-                    if (detail == SongDetailResult.Empty) {
+                    if (detail == SongInfoResult.Empty) {
                         binding.empty.show()
                     } else {
                         // Fill media info

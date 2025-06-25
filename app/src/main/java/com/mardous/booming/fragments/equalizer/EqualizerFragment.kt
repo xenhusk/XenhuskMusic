@@ -52,8 +52,8 @@ import com.mardous.booming.extensions.resources.setTrackingTouchListener
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.interfaces.IEQPresetCallback
 import com.mardous.booming.model.EQPreset
-import com.mardous.booming.mvvm.ExportRequestResult
-import com.mardous.booming.mvvm.ImportRequestResult
+import com.mardous.booming.viewmodels.equalizer.model.ExportRequestResult
+import com.mardous.booming.viewmodels.equalizer.model.ImportRequestResult
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.equalizer.OpenSLESConstants

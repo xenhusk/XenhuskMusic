@@ -12,11 +12,11 @@ import com.mardous.booming.extensions.MIME_TYPE_APPLICATION
 import com.mardous.booming.extensions.files.getContentUri
 import com.mardous.booming.extensions.files.readString
 import com.mardous.booming.model.EQPreset
-import com.mardous.booming.mvvm.ExportRequestResult
-import com.mardous.booming.mvvm.ImportRequestResult
-import com.mardous.booming.mvvm.PresetExportResult
-import com.mardous.booming.mvvm.PresetImportResult
-import com.mardous.booming.mvvm.PresetOpResult
+import com.mardous.booming.viewmodels.equalizer.model.ExportRequestResult
+import com.mardous.booming.viewmodels.equalizer.model.ImportRequestResult
+import com.mardous.booming.viewmodels.equalizer.model.PresetExportResult
+import com.mardous.booming.viewmodels.equalizer.model.PresetImportResult
+import com.mardous.booming.viewmodels.equalizer.model.PresetOpResult
 import com.mardous.booming.viewmodels.equalizer.model.EqEffectUpdate
 import com.mardous.booming.viewmodels.equalizer.model.EqState
 import com.mardous.booming.viewmodels.equalizer.model.EqUpdate

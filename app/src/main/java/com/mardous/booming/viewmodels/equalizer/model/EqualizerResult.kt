@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.mvvm
+package com.mardous.booming.viewmodels.equalizer.model
 
 import android.net.Uri
 import androidx.annotation.StringRes

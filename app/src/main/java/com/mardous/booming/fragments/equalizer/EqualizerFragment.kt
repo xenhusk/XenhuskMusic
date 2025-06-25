@@ -57,6 +57,7 @@ import com.mardous.booming.mvvm.ImportRequestResult
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.equalizer.OpenSLESConstants
+import com.mardous.booming.viewmodels.equalizer.EqualizerViewModel
 import com.mardous.booming.views.AnimSlider
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Formatter

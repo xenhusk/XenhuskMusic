@@ -25,7 +25,11 @@ import androidx.core.content.edit
 import com.mardous.booming.extensions.files.getFormattedFileName
 import com.mardous.booming.model.EQPreset
 import com.mardous.booming.model.EQPreset.Companion.getEmptyPreset
-import com.mardous.booming.mvvm.equalizer.*
+import com.mardous.booming.viewmodels.equalizer.model.EqEffectState
+import com.mardous.booming.viewmodels.equalizer.model.EqEffectUpdate
+import com.mardous.booming.viewmodels.equalizer.model.EqPresetList
+import com.mardous.booming.viewmodels.equalizer.model.EqState
+import com.mardous.booming.viewmodels.equalizer.model.EqUpdate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
 import java.util.Locale
@@ -440,7 +444,10 @@ class EqualizerManager internal constructor(context: Context) {
         return EqEffectState(
             isSupported = isLoudnessEnhancerSupported,
             isEnabled = mPreferences.getBoolean(Keys.LOUDNESS_ENABLED, false),
-            value = mPreferences.getFloat(Keys.LOUDNESS_GAIN, OpenSLESConstants.MINIMUM_LOUDNESS_GAIN.toFloat()),
+            value = mPreferences.getFloat(
+                Keys.LOUDNESS_GAIN,
+                OpenSLESConstants.MINIMUM_LOUDNESS_GAIN.toFloat()
+            ),
             onCommitEffect = { state ->
                 mPreferences.edit(commit = true) {
                     putBoolean(Keys.LOUDNESS_ENABLED, state.isEnabled)

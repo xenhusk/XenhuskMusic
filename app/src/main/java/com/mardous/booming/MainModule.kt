@@ -26,7 +26,7 @@ import com.mardous.booming.database.BoomingDatabase
 import com.mardous.booming.fragments.LibraryViewModel
 import com.mardous.booming.fragments.albums.AlbumDetailViewModel
 import com.mardous.booming.fragments.artists.ArtistDetailViewModel
-import com.mardous.booming.fragments.equalizer.EqualizerViewModel
+import com.mardous.booming.viewmodels.equalizer.EqualizerViewModel
 import com.mardous.booming.fragments.folders.FolderDetailViewModel
 import com.mardous.booming.fragments.genres.GenreDetailViewModel
 import com.mardous.booming.fragments.info.InfoViewModel

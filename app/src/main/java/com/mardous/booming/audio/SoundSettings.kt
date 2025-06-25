@@ -19,8 +19,8 @@ package com.mardous.booming.audio
 
 import android.content.Context
 import androidx.core.content.edit
-import com.mardous.booming.mvvm.equalizer.EqEffectState
-import com.mardous.booming.mvvm.equalizer.EqEffectUpdate
+import com.mardous.booming.viewmodels.equalizer.model.EqEffectState
+import com.mardous.booming.viewmodels.equalizer.model.EqEffectUpdate
 import com.mardous.booming.mvvm.soundsettings.BalanceLevel
 import com.mardous.booming.mvvm.soundsettings.TempoLevel
 import com.mardous.booming.service.equalizer.EqualizerManager.Companion.PREFERENCES_NAME

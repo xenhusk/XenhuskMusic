@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.mvvm.equalizer
+package com.mardous.booming.viewmodels.equalizer.model
 
 import com.mardous.booming.model.EQPreset
 

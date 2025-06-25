@@ -20,7 +20,7 @@ package com.mardous.booming.fragments.sound
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mardous.booming.audio.SoundSettings
-import com.mardous.booming.mvvm.equalizer.EqEffectUpdate
+import com.mardous.booming.viewmodels.equalizer.model.EqEffectUpdate
 import com.mardous.booming.mvvm.soundsettings.BalanceLevel
 import com.mardous.booming.mvvm.soundsettings.TempoLevel
 import kotlinx.coroutines.Dispatchers

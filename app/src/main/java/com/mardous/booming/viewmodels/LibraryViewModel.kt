@@ -18,28 +18,22 @@
 package com.mardous.booming.viewmodels
 
 import android.animation.ValueAnimator
-import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.media.MediaScannerConnection
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import androidx.core.animation.doOnEnd
-import androidx.core.content.getSystemService
 import androidx.lifecycle.*
 import com.mardous.booming.database.*
 import com.mardous.booming.extensions.dp
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.media.indexOfSong
 import com.mardous.booming.helper.UriSongResolver
-import com.mardous.booming.http.github.GitHubRelease
-import com.mardous.booming.http.github.GitHubService
 import com.mardous.booming.model.*
 import com.mardous.booming.model.filesystem.FileSystemItem
 import com.mardous.booming.model.filesystem.FileSystemQuery
 import com.mardous.booming.mvvm.*
-import com.mardous.booming.mvvm.event.Event
 import com.mardous.booming.repository.RealSmartRepository
 import com.mardous.booming.repository.Repository
 import com.mardous.booming.service.MusicPlayer
@@ -49,19 +43,20 @@ import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.StorageUtil
 import com.mardous.booming.util.sort.SortKeys
-import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.Date
 import kotlin.coroutines.resume
 
 class LibraryViewModel(
     private val repository: Repository,
     private val inclExclDao: InclExclDao,
     private val uriSongResolver: UriSongResolver,
-    private val shuffleManager: ShuffleManager,
-    private val updateService: GitHubService
+    private val shuffleManager: ShuffleManager
 ) : ViewModel() {
 
     init {
@@ -82,7 +77,6 @@ class LibraryViewModel(
     private val fabMargin = MutableLiveData(0)
     private val songHistory = MutableLiveData<List<Song>>()
     private val paletteColor = MutableLiveData<Int>()
-    private val updateSearch = MutableLiveData<Event<UpdateSearchResult>>()
 
     fun getSuggestions(): LiveData<SuggestedResult> = suggestions
     fun getSongs(): LiveData<List<Song>> = songs
@@ -94,7 +88,6 @@ class LibraryViewModel(
     fun getFileSystem(): LiveData<FileSystemQuery> = fileSystem
     fun getFabMargin(): LiveData<Int> = fabMargin
     fun getPaletteColor(): LiveData<Int> = paletteColor
-    fun getUpdateSearchEvent(): LiveData<Event<UpdateSearchResult>> = updateSearch
 
     fun setFabMargin(context: Context, bottomMargin: Int) {
         val currentValue = 16.dp(context) + bottomMargin
@@ -529,62 +522,6 @@ class LibraryViewModel(
         }
     }
 
-    fun searchForUpdate(fromUser: Boolean, allowExperimental: Boolean = Preferences.experimentalUpdates) =
-        viewModelScope.launch(IO) {
-            val current = updateSearch.value?.peekContent() ?: UpdateSearchResult(executedAtMillis = Preferences.lastUpdateSearch)
-            if (current.shouldStartNewSearchFor(fromUser, allowExperimental)) {
-                updateSearch.postValue(
-                    Event(
-                        current.copy(
-                            state = UpdateSearchResult.State.Searching,
-                            wasFromUser = fromUser,
-                            wasExperimentalQuery = allowExperimental
-                        )
-                    )
-                )
-
-                val result = runCatching {
-                    updateService.latestRelease(allowExperimental = allowExperimental)
-                }
-                val executedAtMillis = Date().time.also {
-                    Preferences.lastUpdateSearch = it
-                }
-                val newState = if (result.isSuccess) {
-                    UpdateSearchResult(
-                        state = UpdateSearchResult.State.Completed,
-                        data = result.getOrThrow(),
-                        executedAtMillis = executedAtMillis,
-                        wasFromUser = fromUser,
-                        wasExperimentalQuery = allowExperimental
-                    )
-                } else {
-                    UpdateSearchResult(
-                        state = UpdateSearchResult.State.Failed,
-                        data = null,
-                        executedAtMillis = executedAtMillis,
-                        wasFromUser = fromUser,
-                        wasExperimentalQuery = allowExperimental
-                    )
-                }
-                updateSearch.postValue(Event(newState))
-            }
-        }
-
-    fun downloadUpdate(context: Context, release: GitHubRelease) =
-        viewModelScope.launch(IO + ioHandler) {
-            val downloadRequest = release.getDownloadRequest(context)
-            if (downloadRequest != null) {
-                val downloadManager = context.getSystemService<DownloadManager>()
-                if (downloadManager != null) {
-                    val lastUpdateId = Preferences.lastUpdateId
-                    if (lastUpdateId != -1L) {
-                        downloadManager.remove(lastUpdateId)
-                    }
-                    Preferences.lastUpdateId = downloadManager.enqueue(downloadRequest)
-                }
-            }
-        }
-
     @Suppress("DEPRECATION")
     fun handleIntent(intent: Intent): LiveData<HandleIntentResult> = liveData(IO) {
         val result = HandleIntentResult(handled = true)
@@ -646,10 +583,6 @@ class LibraryViewModel(
             id = intent.getStringExtra(stringKey)?.toLongOrNull() ?: -1
         }
         return id
-    }
-
-    private val ioHandler = CoroutineExceptionHandler { _, throwable ->
-        Log.e("Coroutines", "An unexpected error occurred", throwable)
     }
 }
 

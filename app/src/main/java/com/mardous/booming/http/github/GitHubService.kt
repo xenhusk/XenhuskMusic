@@ -23,6 +23,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.statement.HttpResponse
+import kotlin.time.ExperimentalTime
 
 class GitHubService(private val context: Context, private val client: HttpClient, private val authToken: String? = null) {
 
@@ -40,6 +41,7 @@ class GitHubService(private val context: Context, private val client: HttpClient
     private suspend fun fetchAllReleases(user: String, repo: String, page: Int = 1, limit: Int = 20): List<GitHubRelease> =
         get("https://api.github.com/repos/$user/$repo/releases?page=$page&per_page=$limit").body()
 
+    @OptIn(ExperimentalTime::class)
     suspend fun latestRelease(user: String = DEFAULT_USER, repo: String = DEFAULT_REPO, allowExperimental: Boolean = true): GitHubRelease {
         val stableRelease = fetchStableRelease(user, repo)
         if (stableRelease.hasApk && stableRelease.isNewer(context)) {

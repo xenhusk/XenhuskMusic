@@ -33,16 +33,16 @@ import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.navigation.isValidCategory
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.whichFragment
-import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
-import com.mardous.booming.http.github.isAbleToUpdate
 import com.mardous.booming.interfaces.IScrollHelper
 import com.mardous.booming.model.CategoryInfo
-import com.mardous.booming.mvvm.UpdateSearchResult
+import com.mardous.booming.viewmodels.update.model.UpdateSearchResult
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.MusicService
 import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.PlaybackViewModel
+import com.mardous.booming.viewmodels.update.UpdateViewModel
+import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -50,6 +50,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
  */
 class MainActivity : AbsSlidingMusicPanelActivity() {
 
+    private val updateViewModel: UpdateViewModel by viewModel()
     private val playbackViewModel: PlaybackViewModel by viewModel()
     private val lyricsViewModel: LyricsViewModel by viewModel()
 
@@ -73,28 +74,7 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
         )
         mediaBrowser.connect()
 
-        libraryViewModel.getUpdateSearchEvent().observe(this) { result ->
-            result.getContentIfNotConsumed()?.let {
-                processUpdateSearchResult(it)
-            }
-        }
-
-        if (savedInstanceState == null) {
-            searchUpdate()
-        }
-    }
-
-    private val connectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
-        override fun onConnected() {
-            val token = mediaBrowser.sessionToken
-            val mediaController = MediaControllerCompat(this@MainActivity, token)
-            MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
-            playbackViewModel.setMediaController(mediaController)
-        }
-
-        override fun onConnectionFailed() {
-            playbackViewModel.setMediaController(null)
-        }
+        prepareUpdateViewModel()
     }
 
     fun scanAllPaths() {
@@ -109,37 +89,6 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
-    }
-
-    private fun searchUpdate() {
-        if (isAbleToUpdate()) {
-            libraryViewModel.searchForUpdate(false)
-        }
-    }
-
-    private fun processUpdateSearchResult(result: UpdateSearchResult) {
-        when (result.state) {
-//            UpdateSearchResult.State.Searching -> {
-//                if (result.wasFromUser) {
-//                    showToast(R.string.checking_please_wait)
-//                }
-//            }
-            UpdateSearchResult.State.Completed -> {
-                val release = result.data ?: return
-                if (result.wasFromUser || result.data.isDownloadable(this)) {
-                    val existingDialog = supportFragmentManager.findFragmentByTag("UPDATE_FOUND")
-                    if (existingDialog == null) {
-                        UpdateDialog.create(release).show(supportFragmentManager, "UPDATE_FOUND")
-                    }
-                }
-            }
-            UpdateSearchResult.State.Failed -> {
-                if (result.wasFromUser) {
-                    showToast(R.string.could_not_check_for_updates)
-                }
-            }
-            else -> {}
-        }
     }
 
     private fun setupNavigationController() {
@@ -258,6 +207,52 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
             if (result.failed) {
                 showToast(R.string.unplayable_file)
             }
+        }
+    }
+
+    private fun prepareUpdateViewModel() {
+        updateViewModel.run {
+            updateEventObservable.observe(this@MainActivity) { event ->
+                event.getContentIfNotConsumed()?.let { result ->
+                    when (result.state) {
+                        UpdateSearchResult.State.Completed -> {
+                            val release = result.data ?: return@let
+                            if (result.wasFromUser || release.isDownloadable(this@MainActivity)) {
+                                val existingDialog = supportFragmentManager.findFragmentByTag("UPDATE_FOUND")
+                                if (existingDialog == null) {
+                                    UpdateDialog().show(supportFragmentManager, "UPDATE_FOUND")
+                                }
+                            }
+                        }
+                        UpdateSearchResult.State.Failed -> {
+                            if (result.wasFromUser) {
+                                showToast(R.string.could_not_check_for_updates)
+                            }
+                        }
+                        else -> {}
+                    }
+                }
+            }
+            updateEvent?.peekContent().let { updateState ->
+                if (updateState == null || updateState.state == UpdateSearchResult.State.Idle) {
+                    if (isAllowedToUpdate(this@MainActivity)) {
+                        searchForUpdate(false)
+                    }
+                }
+            }
+        }
+    }
+
+    private val connectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
+        override fun onConnected() {
+            val token = mediaBrowser.sessionToken
+            val mediaController = MediaControllerCompat(this@MainActivity, token)
+            MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
+            playbackViewModel.setMediaController(mediaController)
+        }
+
+        override fun onConnectionFailed() {
+            playbackViewModel.setMediaController(null)
         }
     }
 }

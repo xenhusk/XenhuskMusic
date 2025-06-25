@@ -22,8 +22,6 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
-import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -33,21 +31,21 @@ import com.mardous.booming.databinding.DialogUpdateInfoBinding
 import com.mardous.booming.extensions.openUrl
 import com.mardous.booming.extensions.resources.setMarkdownText
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.viewmodels.LibraryViewModel
 import com.mardous.booming.http.github.GitHubRelease
+import com.mardous.booming.viewmodels.update.UpdateViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class UpdateDialog : BottomSheetDialogFragment(), View.OnClickListener {
 
     private var _binding: DialogUpdateInfoBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by activityViewModel<LibraryViewModel>()
+    private val viewModel by activityViewModel<UpdateViewModel>()
 
     private lateinit var release: GitHubRelease
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        release = BundleCompat.getParcelable(requireArguments(), EXTRA_RELEASE, GitHubRelease::class.java)!!
-        if (release.isNewer(requireContext())) {
+        val release = viewModel.latestRelease
+        if (release != null && release.isNewer(requireContext())) {
             _binding = DialogUpdateInfoBinding.inflate(layoutInflater)
             binding.infoAction.setOnClickListener(this)
             binding.downloadAction.setOnClickListener(this)
@@ -88,14 +86,6 @@ class UpdateDialog : BottomSheetDialogFragment(), View.OnClickListener {
             binding.versionInfo.setMarkdownText(release.body)
         } else {
             binding.versionInfo.isVisible = false
-        }
-    }
-
-    companion object {
-        private const val EXTRA_RELEASE = "extra_release"
-
-        fun create(release: GitHubRelease) = UpdateDialog().apply {
-            arguments = bundleOf(EXTRA_RELEASE to release)
         }
     }
 }

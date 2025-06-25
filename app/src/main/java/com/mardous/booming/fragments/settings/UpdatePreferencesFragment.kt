@@ -23,15 +23,15 @@ import androidx.preference.Preference
 import com.mardous.booming.R
 import com.mardous.booming.extensions.requestContext
 import com.mardous.booming.extensions.utilities.dateStr
-import com.mardous.booming.viewmodels.LibraryViewModel
-import com.mardous.booming.mvvm.UpdateSearchResult
+import com.mardous.booming.viewmodels.update.model.UpdateSearchResult
 import com.mardous.booming.preferences.ProgressIndicatorPreference
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.viewmodels.update.UpdateViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class UpdatePreferencesFragment : PreferencesScreenFragment() {
 
-    private val libraryViewModel: LibraryViewModel by activityViewModel()
+    private val updateViewModel: UpdateViewModel by activityViewModel()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preferences_screen_update)
@@ -42,10 +42,10 @@ class UpdatePreferencesFragment : PreferencesScreenFragment() {
         val preference = findPreference<ProgressIndicatorPreference>("search_for_update")
         defaultState(preference, Preferences.lastUpdateSearch)
         preference?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            libraryViewModel.searchForUpdate(true)
+            updateViewModel.searchForUpdate(true)
             true
         }
-        libraryViewModel.getUpdateSearchEvent().observe(viewLifecycleOwner) {
+        updateViewModel.updateEventObservable.observe(viewLifecycleOwner) {
             val result = it.peekContent()
             when (result.state) {
                 UpdateSearchResult.State.Searching -> {

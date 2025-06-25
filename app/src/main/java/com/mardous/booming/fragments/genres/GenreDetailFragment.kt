@@ -50,6 +50,7 @@ import com.mardous.booming.search.searchFilter
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
+import com.mardous.booming.viewmodels.genredetail.GenreDetailViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 

@@ -1,28 +1,15 @@
-/*
- * Copyright (c) 2024 Christians Martínez Alvarado
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-package com.mardous.booming.activities.tageditor
+package com.mardous.booming.viewmodels.tageditor
 
 import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.mardous.booming.extensions.files.copyToUri
 import com.mardous.booming.extensions.files.getBestTag
 import com.mardous.booming.extensions.files.safeMerge
@@ -31,16 +18,14 @@ import com.mardous.booming.http.Result
 import com.mardous.booming.http.deezer.DeezerAlbum
 import com.mardous.booming.http.deezer.DeezerTrack
 import com.mardous.booming.misc.TagWriter
-import com.mardous.booming.misc.TagWriter.WriteInfo
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Song
-import com.mardous.booming.mvvm.SaveTagsResult
-import com.mardous.booming.mvvm.TagEditorResult
+import com.mardous.booming.viewmodels.tageditor.model.SaveTagsResult
+import com.mardous.booming.viewmodels.tageditor.model.TagEditorResult
 import com.mardous.booming.repository.Repository
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jaudiotagger.tag.FieldKey
@@ -86,23 +71,23 @@ class TagEditorViewModel(private val repository: Repository, private val id: Lon
      * This method will try to find an album-artist or an artist and if none
      * is found, this method will not emit any result neither throw an exception.
      */
-    fun requestArtist(): LiveData<Artist> = liveData(IO) {
+    fun requestArtist(): LiveData<Artist> = liveData(Dispatchers.IO) {
         val artist = if (!name.isNullOrEmpty()) {
             repository.albumArtistByName(name)
         } else {
             repository.artistById(id)
         }
-        if (artist != Artist.empty) {
+        if (artist != Artist.Companion.empty) {
             emit(artist)
         }
     }
 
-    fun loadAlbumTags() = viewModelScope.launch(IO + ioHandler) {
+    fun loadAlbumTags() = viewModelScope.launch(Dispatchers.IO + ioHandler) {
         if (paths.isNotEmpty() && uris.isNotEmpty()) {
             loadTags(paths.first())
         } else {
             val album = repository.albumById(id)
-            if (album != Album.empty) {
+            if (album != Album.Companion.empty) {
                 artworkId = album.id
                 album.songs.forEach {
                     paths.add(it.data)
@@ -116,7 +101,7 @@ class TagEditorViewModel(private val repository: Repository, private val id: Lon
         loadArtwork()
     }
 
-    fun loadArtistTags() = viewModelScope.launch(IO + ioHandler) {
+    fun loadArtistTags() = viewModelScope.launch(Dispatchers.IO + ioHandler) {
         if (paths.isNotEmpty() && uris.isNotEmpty()) {
             loadTags(paths.first())
         } else {
@@ -124,7 +109,7 @@ class TagEditorViewModel(private val repository: Repository, private val id: Lon
                 repository.albumArtistByName(name)
             else repository.artistById(id)
 
-            if (artist != Artist.empty) {
+            if (artist != Artist.Companion.empty) {
                 artist.songs.forEach {
                     paths.add(it.data)
                     uris.add(it.mediaStoreUri)
@@ -136,12 +121,12 @@ class TagEditorViewModel(private val repository: Repository, private val id: Lon
         }
     }
 
-    fun loadSongTags() = viewModelScope.launch(IO + ioHandler) {
+    fun loadSongTags() = viewModelScope.launch(Dispatchers.IO + ioHandler) {
         if (paths.isNotEmpty() && uris.isNotEmpty()) {
             loadTags(paths.single())
         } else {
             val song = repository.songById(id)
-            if (song != Song.emptySong) {
+            if (song != Song.Companion.emptySong) {
                 artworkId = song.albumId
                 paths.add(song.data)
                 uris.add(song.mediaStoreUri)
@@ -151,7 +136,7 @@ class TagEditorViewModel(private val repository: Repository, private val id: Lon
         loadArtwork()
     }
 
-    fun loadArtwork() = viewModelScope.launch(IO + ioHandler) {
+    fun loadArtwork() = viewModelScope.launch(Dispatchers.IO + ioHandler) {
         if (paths.isNotEmpty()) {
             val tag = File(paths.first()).toAudioFile()?.getBestTag()
             artworkResult.postValue(tag?.firstArtwork)
@@ -184,16 +169,18 @@ class TagEditorViewModel(private val repository: Repository, private val id: Lon
         }
     }
 
-    fun getAlbumInfo(artistName: String, albumName: String): LiveData<Result<DeezerAlbum>> = liveData(IO) {
-        emit(repository.deezerAlbum(artistName, albumName))
-    }
+    fun getAlbumInfo(artistName: String, albumName: String): LiveData<Result<DeezerAlbum>> =
+        liveData(Dispatchers.IO) {
+            emit(repository.deezerAlbum(artistName, albumName))
+        }
 
-    fun getTrackInfo(artistName: String, title: String): LiveData<Result<DeezerTrack>> = liveData(IO) {
-        emit(repository.deezerTrack(artistName, title))
-    }
+    fun getTrackInfo(artistName: String, title: String): LiveData<Result<DeezerTrack>> =
+        liveData(Dispatchers.IO) {
+            emit(repository.deezerTrack(artistName, title))
+        }
 
-    fun writeTags(context: Context, writeInfo: WriteInfo): LiveData<SaveTagsResult> =
-        liveData(IO) {
+    fun writeTags(context: Context, writeInfo: TagWriter.WriteInfo): LiveData<SaveTagsResult> =
+        liveData(Dispatchers.IO) {
             emit(SaveTagsResult(isLoading = true, isSuccess = false))
             val result = runCatching {
                 TagWriter.writeTagsToFiles(context, writeInfo)
@@ -202,8 +189,8 @@ class TagEditorViewModel(private val repository: Repository, private val id: Lon
         }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    fun createCacheFiles(context: Context, writeInfo: WriteInfo): LiveData<SaveTagsResult> =
-        liveData(IO) {
+    fun createCacheFiles(context: Context, writeInfo: TagWriter.WriteInfo): LiveData<SaveTagsResult> =
+        liveData(Dispatchers.IO) {
             emit(SaveTagsResult(isLoading = true, isSuccess = false))
             val result = runCatching {
                 TagWriter.writeTagsToFilesR(context, writeInfo)
@@ -220,7 +207,7 @@ class TagEditorViewModel(private val repository: Repository, private val id: Lon
         paths: List<String>,
         destUris: List<Uri>,
         cacheFiles: List<File>
-    ) = viewModelScope.launch(IO) {
+    ) = viewModelScope.launch(Dispatchers.IO) {
         if (cacheFiles.size == destUris.size) {
             for (i in cacheFiles.indices) {
                 try {

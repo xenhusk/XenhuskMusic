@@ -51,7 +51,8 @@ import com.mardous.booming.extensions.resources.getResized
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
 import com.mardous.booming.misc.TagWriter
 import com.mardous.booming.misc.TagWriter.WriteInfo
-import com.mardous.booming.mvvm.SaveTagsResult
+import com.mardous.booming.viewmodels.tageditor.model.SaveTagsResult
+import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.reference.GenreTypes
 import java.io.File

@@ -19,7 +19,7 @@ package com.mardous.booming
 
 import androidx.preference.PreferenceManager
 import androidx.room.Room
-import com.mardous.booming.activities.tageditor.TagEditorViewModel
+import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
 import com.mardous.booming.androidauto.AutoMusicProvider
 import com.mardous.booming.audio.SoundSettings
 import com.mardous.booming.database.BoomingDatabase

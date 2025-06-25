@@ -1,28 +1,11 @@
-/*
- * Copyright (c) 2025 Christians Martínez Alvarado
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-package com.mardous.booming.fragments.sound
+package com.mardous.booming.viewmodels.equalizer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mardous.booming.audio.SoundSettings
+import com.mardous.booming.viewmodels.equalizer.model.BalanceLevel
+import com.mardous.booming.viewmodels.equalizer.model.TempoLevel
 import com.mardous.booming.viewmodels.equalizer.model.EqEffectUpdate
-import com.mardous.booming.mvvm.soundsettings.BalanceLevel
-import com.mardous.booming.mvvm.soundsettings.TempoLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

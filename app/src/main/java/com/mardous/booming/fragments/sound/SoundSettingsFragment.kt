@@ -36,6 +36,7 @@ import com.mardous.booming.extensions.create
 import com.mardous.booming.extensions.hasPie
 import com.mardous.booming.extensions.requireAlertDialog
 import com.mardous.booming.extensions.resources.controlColorNormal
+import com.mardous.booming.viewmodels.equalizer.SoundSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel

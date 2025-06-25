@@ -33,7 +33,7 @@ import com.mardous.booming.fragments.info.InfoViewModel
 import com.mardous.booming.fragments.lyrics.LyricsViewModel
 import com.mardous.booming.viewmodels.playlistdetail.PlaylistDetailViewModel
 import com.mardous.booming.fragments.search.SearchViewModel
-import com.mardous.booming.fragments.sound.SoundSettingsViewModel
+import com.mardous.booming.viewmodels.equalizer.SoundSettingsViewModel
 import com.mardous.booming.viewmodels.yeardetail.YearDetailViewModel
 import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.http.deezer.DeezerService

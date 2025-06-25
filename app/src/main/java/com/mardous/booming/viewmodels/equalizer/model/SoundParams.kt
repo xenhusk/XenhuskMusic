@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.mvvm.soundsettings
+package com.mardous.booming.viewmodels.equalizer.model
 
 data class BalanceLevel(val left: Float, val right: Float)
 

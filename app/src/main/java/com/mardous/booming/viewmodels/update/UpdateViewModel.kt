@@ -12,7 +12,7 @@ import com.mardous.booming.R
 import com.mardous.booming.extensions.isOnline
 import com.mardous.booming.http.github.GitHubRelease
 import com.mardous.booming.http.github.GitHubService
-import com.mardous.booming.mvvm.event.Event
+import com.mardous.booming.model.event.Event
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.UpdateSearchMode
 import com.mardous.booming.viewmodels.update.model.UpdateSearchResult

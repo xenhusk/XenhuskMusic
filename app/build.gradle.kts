@@ -148,9 +148,6 @@ android {
         abortOnError = true
         warning += listOf("ImpliedQuantity", "Instantiatable", "MissingQuantity", "MissingTranslation")
     }
-    kotlinOptions {
-        freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-    }
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
@@ -164,6 +161,9 @@ android {
 }
 
 kotlin {
+    compilerOptions {
+        optIn.add("kotlin.RequiresOptIn")
+    }
     jvmToolchain(21)
 }
 

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.mvvm
+package com.mardous.booming.viewmodels.lyrics.model
 
 import android.content.Context
 import android.net.Uri

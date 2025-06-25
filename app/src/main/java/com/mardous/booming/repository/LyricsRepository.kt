@@ -18,10 +18,10 @@ import com.mardous.booming.http.lyrics.LyricsDownloadService
 import com.mardous.booming.misc.TagWriter
 import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
-import com.mardous.booming.mvvm.LyricsResult
-import com.mardous.booming.mvvm.LyricsSource
-import com.mardous.booming.mvvm.LyricsType
-import com.mardous.booming.mvvm.SaveLyricsResult
+import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
+import com.mardous.booming.viewmodels.lyrics.model.LyricsSource
+import com.mardous.booming.viewmodels.lyrics.model.LyricsType
+import com.mardous.booming.viewmodels.lyrics.model.SaveLyricsResult
 import com.mardous.booming.util.LyricsUtil
 import com.mardous.booming.util.UriUtil
 import org.jaudiotagger.tag.FieldKey

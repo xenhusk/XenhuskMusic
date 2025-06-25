@@ -234,6 +234,7 @@ dependencies {
     implementation(libs.androidx.viewpager)
     implementation(libs.material.components)
 
+    implementation(libs.m3color)
     implementation(libs.balloon)
     implementation(libs.fastscroll)
     implementation(libs.fadingedgelayout)

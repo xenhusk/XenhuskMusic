@@ -38,6 +38,7 @@ versioncompare = "1.5.0"
 keyboardvisibilityevent = "3.0.0-RC3"
 markdown = "4.6.2"
 ktor = "3.1.2"
+m3color = "2025.3"
 
 [libraries]
 androidx-palette-ktx = { module = "androidx.palette:palette-ktx", version.ref = "paletteKtx" }

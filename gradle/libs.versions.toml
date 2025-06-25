@@ -37,7 +37,7 @@ customactivityoncrash = "2.4.0"
 versioncompare = "1.5.0"
 keyboardvisibilityevent = "3.0.0-RC3"
 markdown = "4.6.2"
-ktor = "3.2.0"
+ktor = "3.1.3"
 m3color = "2025.3"
 
 [libraries]

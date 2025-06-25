@@ -25,7 +25,7 @@ import com.mardous.booming.extensions.extraNotNull
 import com.mardous.booming.extensions.media.refreshFavoriteState
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.withArgs
-import com.mardous.booming.viewmodels.LibraryViewModel
+import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.model.Song
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 

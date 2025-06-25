@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.viewmodels
+package com.mardous.booming.viewmodels.library
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -33,7 +33,6 @@ import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.model.*
 import com.mardous.booming.model.filesystem.FileSystemItem
 import com.mardous.booming.model.filesystem.FileSystemQuery
-import com.mardous.booming.mvvm.*
 import com.mardous.booming.repository.RealSmartRepository
 import com.mardous.booming.repository.Repository
 import com.mardous.booming.service.MusicPlayer
@@ -43,6 +42,11 @@ import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.StorageUtil
 import com.mardous.booming.util.sort.SortKeys
+import com.mardous.booming.viewmodels.library.model.AddToPlaylistResult
+import com.mardous.booming.viewmodels.library.model.HandleIntentResult
+import com.mardous.booming.viewmodels.library.model.ImportResult
+import com.mardous.booming.viewmodels.library.model.ImportablePlaylistResult
+import com.mardous.booming.viewmodels.library.model.SuggestedResult
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.isActive

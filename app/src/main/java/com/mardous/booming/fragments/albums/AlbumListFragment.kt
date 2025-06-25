@@ -31,7 +31,7 @@ import com.mardous.booming.adapters.album.AlbumAdapter
 import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.asFragmentExtras
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.viewmodels.ReloadType
+import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onAlbumMenu
 import com.mardous.booming.helper.menu.onAlbumsMenu

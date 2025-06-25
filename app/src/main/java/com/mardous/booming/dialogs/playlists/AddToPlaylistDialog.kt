@@ -31,7 +31,7 @@ import com.mardous.booming.database.PlaylistWithSongs
 import com.mardous.booming.databinding.DialogProgressRecyclerViewBinding
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.media.refreshFavoriteState
-import com.mardous.booming.viewmodels.LibraryViewModel
+import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.model.Song
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 

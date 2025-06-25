@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.song.SongAdapter
-import com.mardous.booming.viewmodels.ReloadType
+import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onSongMenu
 import com.mardous.booming.helper.menu.onSongsMenu

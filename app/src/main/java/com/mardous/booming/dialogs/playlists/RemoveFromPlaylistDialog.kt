@@ -28,7 +28,7 @@ import com.mardous.booming.extensions.EXTRA_SONGS
 import com.mardous.booming.extensions.extraNotNull
 import com.mardous.booming.extensions.toHtml
 import com.mardous.booming.extensions.withArgs
-import com.mardous.booming.viewmodels.LibraryViewModel
+import com.mardous.booming.viewmodels.library.LibraryViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class RemoveFromPlaylistDialog : DialogFragment() {

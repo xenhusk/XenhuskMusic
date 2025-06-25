@@ -15,11 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.mvvm
+package com.mardous.booming.viewmodels.library.model
 
 import com.mardous.booming.model.Suggestion
-
-data class HandleIntentResult(val handled: Boolean, val failed: Boolean = false)
 
 data class SuggestedResult(val state: State = State.Idle, val data: List<Suggestion> = arrayListOf()) {
 

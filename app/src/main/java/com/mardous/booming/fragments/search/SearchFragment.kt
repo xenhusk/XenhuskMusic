@@ -58,6 +58,7 @@ import com.mardous.booming.model.Genre
 import com.mardous.booming.model.Song
 import com.mardous.booming.search.SearchFilter
 import com.mardous.booming.search.SearchQuery
+import com.mardous.booming.viewmodels.search.SearchViewModel
 import kotlinx.coroutines.Job
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel

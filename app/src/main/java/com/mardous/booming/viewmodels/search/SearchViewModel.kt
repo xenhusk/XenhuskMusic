@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.fragments.search
+package com.mardous.booming.viewmodels.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,7 +24,15 @@ import com.mardous.booming.search.SearchFilter
 import com.mardous.booming.search.SearchQuery
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class SearchViewModel(private val repository: Repository) : ViewModel() {
 
@@ -64,5 +72,3 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
         searchQuery.value = searchQuery.value.copy(timestamp = System.currentTimeMillis())
     }
 }
-
-

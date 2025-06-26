@@ -6,10 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
+import androidx.navigation.fragment.findNavController
+import com.mardous.booming.R
+import com.mardous.booming.fragments.player.base.goToDestination
 import com.mardous.booming.ui.screens.lyrics.CoverLyricsScreen
 import com.mardous.booming.ui.theme.BoomingMusicTheme
 import com.mardous.booming.viewmodels.PlaybackViewModel
+import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class CoverLyricsFragment : Fragment() {
@@ -25,7 +28,12 @@ class CoverLyricsFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 BoomingMusicTheme {
-                    CoverLyricsScreen(lyricsViewModel, playbackViewModel)
+                    CoverLyricsScreen(
+                        lyricsViewModel,
+                        playbackViewModel,
+                        onExpandClick = {
+                            goToDestination(requireActivity(), R.id.nav_lyrics)
+                        })
                 }
             }
         }

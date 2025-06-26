@@ -1,5 +1,6 @@
 package com.mardous.booming.ui.screens.lyrics
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,9 +16,11 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mardous.booming.R
-import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
+import com.mardous.booming.lyrics.Lyrics
 import com.mardous.booming.ui.components.decoration.FadingEdges
 import com.mardous.booming.viewmodels.PlaybackViewModel
+import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
+import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
 
 @Composable
 fun LyricsScreen(
@@ -36,6 +39,11 @@ fun LyricsScreen(
         lyricsViewState.updatePosition(songProgress)
     }
 
+    val plainScrollState = rememberScrollState()
+    LaunchedEffect(lyricsResult.id) {
+        plainScrollState.scrollTo(0)
+    }
+
     Scaffold(
         modifier = modifier.padding(bottom = dimensionResource(R.dimen.mini_player_height)),
         floatingActionButton = {
@@ -51,43 +59,21 @@ fun LyricsScreen(
             }
         }
     ) { innerPadding ->
-        Box(
+        LyricsSurface(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            if (lyricsResult.loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else when {
-                lyricsViewState.lyrics != null -> {
-                    LyricsView(
-                        state = lyricsViewState,
-                        onLineClick = { playbackViewModel.seekTo(it.startAt) },
-                        fadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
-                        contentPadding = PaddingValues(
-                            top = 72.dp,
-                            bottom = dimensionResource(R.dimen.fab_size_padding)
-                        )
-                    )
-                }
-
-                !lyricsResult.plainLyrics.isNullOrBlank() -> {
-                    PlainLyricsView(content = lyricsResult.plainLyrics!!)
-                }
-
-                else -> {
-                    Text(
-                        text = stringResource(R.string.no_lyrics_found),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .align(Alignment.Center)
-                    )
-                }
-            }
-        }
+                .padding(innerPadding),
+            lyricsResult = lyricsResult,
+            lyricsViewState = lyricsViewState,
+            contentPadding = PaddingValues(
+                top = 72.dp,
+                bottom = dimensionResource(R.dimen.fab_size_padding),
+                start = 16.dp,
+                end = 16.dp
+            ),
+            plainScrollState = plainScrollState,
+            onSeekToLine = { playbackViewModel.seekTo(it.startAt) }
+        )
     }
 }
 
@@ -95,6 +81,7 @@ fun LyricsScreen(
 fun CoverLyricsScreen(
     lyricsViewModel: LyricsViewModel,
     playbackViewModel: PlaybackViewModel,
+    onExpandClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
@@ -107,11 +94,54 @@ fun CoverLyricsScreen(
         lyricsViewState.updatePosition(songProgress)
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(all = 8.dp)
-    ) {
+    val plainScrollState = rememberScrollState()
+    LaunchedEffect(lyricsResult.id) {
+        plainScrollState.scrollTo(0)
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        LyricsSurface(
+            modifier = Modifier.fillMaxSize(),
+            lyricsResult = lyricsResult,
+            lyricsViewState = lyricsViewState,
+            contentPadding = PaddingValues(vertical = 72.dp, horizontal = 8.dp),
+            syncedFadingEdges = FadingEdges(top = 72.dp, bottom = 64.dp),
+            syncedFontSize = 24.sp,
+            plainFontSize = 16.sp,
+            plainTextAlign = TextAlign.Center,
+            plainScrollState = plainScrollState,
+            onSeekToLine = { playbackViewModel.seekTo(it.startAt) }
+        )
+
+        FilledIconButton(
+            modifier = Modifier
+                .wrapContentSize()
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            onClick = onExpandClick
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_open_in_full_24dp),
+                contentDescription = stringResource(R.string.open_lyrics_editor)
+            )
+        }
+    }
+}
+
+@Composable
+private fun LyricsSurface(
+    lyricsResult: LyricsResult,
+    lyricsViewState: LyricsViewState,
+    onSeekToLine: (Lyrics.Line) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues,
+    syncedFadingEdges: FadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
+    syncedFontSize: TextUnit = 30.sp,
+    plainScrollState: ScrollState = rememberScrollState(),
+    plainFontSize: TextUnit = 20.sp,
+    plainTextAlign: TextAlign? = null,
+) {
+    Box(modifier) {
         if (lyricsResult.loading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)
@@ -121,22 +151,27 @@ fun CoverLyricsScreen(
                 lyricsViewState.lyrics != null -> {
                     LyricsView(
                         state = lyricsViewState,
-                        onLineClick = { playbackViewModel.seekTo(it.startAt) },
-                        fadingEdges = FadingEdges(top = 72.dp, bottom = 64.dp),
-                        fontSize = 24.sp,
-                        contentPadding = PaddingValues(
-                            top = 72.dp,
-                            bottom = dimensionResource(R.dimen.fab_size_padding)
-                        )
+                        onLineClick = { onSeekToLine(it) },
+                        fadingEdges = syncedFadingEdges,
+                        fontSize = syncedFontSize,
+                        contentPadding = contentPadding
                     )
                 }
 
                 !lyricsResult.plainLyrics.isNullOrBlank() -> {
-                    PlainLyricsView(
-                        content = lyricsResult.plainLyrics!!,
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(plainScrollState)
+                            .padding(contentPadding)
+                    ) {
+                        Text(
+                            text = lyricsResult.plainLyrics,
+                            textAlign = plainTextAlign,
+                            fontSize = plainFontSize,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
 
                 else -> {
@@ -150,34 +185,5 @@ fun CoverLyricsScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun PlainLyricsView(
-    content: String,
-    modifier: Modifier = Modifier,
-    fontSize: TextUnit = 20.sp,
-    textAlign: TextAlign? = null,
-) {
-    val scrollState = rememberScrollState()
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(horizontal = 16.dp)
-            .padding(
-                top = 72.dp,
-                bottom = dimensionResource(R.dimen.fab_size_padding)
-            )
-    ) {
-        Text(
-            text = content,
-            textAlign = textAlign,
-            fontSize = fontSize,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
     }
 }

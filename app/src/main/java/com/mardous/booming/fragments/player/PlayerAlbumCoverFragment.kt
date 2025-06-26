@@ -212,6 +212,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         animatorSet.duration = BOOMING_ANIM_TIME
         animatorSet.doOnEnd {
             binding.viewPager.isVisible = false
+            it.removeAllListeners()
         }
         animatorSet.doOnStart {
             coverLyricsFragment?.let {
@@ -248,6 +249,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
                 isShowLyricsOnCover = false
             }
             binding.coverLyricsFragment.isVisible = false
+            it.removeAllListeners()
         }
         callbacks?.onLyricsVisibilityChange(animatorSet, false)
         animatorSet.start()

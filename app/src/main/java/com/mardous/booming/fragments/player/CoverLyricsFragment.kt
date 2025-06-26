@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.mardous.booming.R
 import com.mardous.booming.fragments.player.base.goToDestination
 import com.mardous.booming.ui.screens.lyrics.CoverLyricsScreen

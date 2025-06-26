@@ -259,9 +259,9 @@ fun LyricsLineBox(
     val indication = ripple(color = contentColor)
 
     val paddingValues = if (isOppositeTurn) {
-        PaddingValues(start = 32.dp, top = 8.dp, end = 16.dp, bottom = 8.dp)
+        PaddingValues(start = 32.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
     } else {
-        PaddingValues(start = 16.dp, top = 8.dp, end = 32.dp, bottom = 8.dp)
+        PaddingValues(start = 8.dp, top = 8.dp, end = 32.dp, bottom = 8.dp)
     }
 
     Box(

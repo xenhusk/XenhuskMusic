@@ -19,7 +19,6 @@ package com.mardous.booming.extensions
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.core.app.ShareCompat
 import androidx.core.net.toUri
 import com.mardous.booming.R
@@ -38,11 +37,6 @@ const val EXTRA_PLAYLISTS = "extra_playlists"
 fun String.openWeb(): Intent =
     Intent(Intent.ACTION_VIEW, this.toUri())
         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-fun Uri.openIntent(asType: String): Intent =
-    Intent(Intent.ACTION_VIEW)
-        .setDataAndType(this, asType)
-        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
 fun Context.getShareNowPlayingIntent(song: Song): Intent {
     val currentlyListening =

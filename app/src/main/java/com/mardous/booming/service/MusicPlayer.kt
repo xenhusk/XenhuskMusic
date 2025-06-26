@@ -62,19 +62,10 @@ object MusicPlayer {
     val songProgressMillis: Int
         get() = musicService?.getSongProgressMillis() ?: -1
 
-    val songDurationMillis: Int
-        get() = musicService?.getSongDurationMillis() ?: -1
-
     var position: Int
         get() = musicService?.getPosition() ?: -1
         set(position) {
             musicService?.setPosition(position)
-        }
-
-    var repeatMode: Playback.RepeatMode
-        get() = musicService?.getRepeatMode() ?: Playback.RepeatMode.Off
-        set(repeatMode) {
-            musicService?.setRepeatMode(repeatMode)
         }
 
     var shuffleMode: Playback.ShuffleMode
@@ -96,20 +87,12 @@ object MusicPlayer {
             musicService?.pendingQuit = pendingQuit
         }
 
-    fun togglePlayPause() {
-        isPlaying = !isPlaying
-    }
-
     fun playSongAt(position: Int) {
         musicService?.playSongAt(position)
     }
 
     fun playNextSong() {
         musicService?.playNextSong(true)
-    }
-
-    fun playPreviousSong() {
-        musicService?.playPreviousSong(true)
     }
 
     fun back() {
@@ -155,10 +138,6 @@ object MusicPlayer {
         return false
     }
 
-    fun getSongAt(position: Int): Song = musicService?.getSongAt(position) ?: Song.emptySong
-
-    fun getQueueDurationMillis(position: Int): Long = musicService?.getQueueDurationMillis(position) ?: -1
-
     fun getQueueDurationInfo(): String? =
         musicService?.getQueueDurationInfo()
 
@@ -168,14 +147,6 @@ object MusicPlayer {
 
     fun seekTo(millis: Int) {
         musicService?.seek(millis)
-    }
-
-    fun cycleRepeatMode() {
-        musicService?.cycleRepeatMode()
-    }
-
-    fun toggleShuffleMode() {
-        musicService?.toggleShuffle()
     }
 
     fun playNext(song: Song, play: Boolean = false) {

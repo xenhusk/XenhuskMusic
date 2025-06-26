@@ -26,10 +26,6 @@ public interface IMusicServiceEventListener {
 
     void onPlayStateChanged();
 
-    void onRepeatModeChanged();
-
-    void onShuffleModeChanged();
-
     void onQueueChanged();
 
     void onMediaStoreChanged();

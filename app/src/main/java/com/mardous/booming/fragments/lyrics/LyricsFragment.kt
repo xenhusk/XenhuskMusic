@@ -28,8 +28,8 @@ import com.mardous.booming.extensions.keepScreenOn
 import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.ui.screens.lyrics.LyricsScreen
 import com.mardous.booming.ui.theme.BoomingMusicTheme
-import com.mardous.booming.viewmodels.PlaybackViewModel
 import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
+import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
@@ -38,7 +38,7 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 class LyricsFragment : Fragment() {
 
     private val lyricsViewModel: LyricsViewModel by activityViewModel()
-    private val playbackViewModel: PlaybackViewModel by activityViewModel()
+    private val playerViewModel: PlayerViewModel by activityViewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,9 +50,9 @@ class LyricsFragment : Fragment() {
                 BoomingMusicTheme {
                     LyricsScreen(
                         lyricsViewModel,
-                        playbackViewModel,
+                        playerViewModel,
                         onEditClick = {
-                            val currentSong = playbackViewModel.currentSong
+                            val currentSong = playerViewModel.currentSong
                             findNavController().navigate(
                                 R.id.nav_lyrics_editor,
                                 LyricsEditorFragmentArgs.Builder(currentSong)

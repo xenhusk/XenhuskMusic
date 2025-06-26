@@ -45,14 +45,14 @@ import com.mardous.booming.extensions.utilities.DEFAULT_INFO_DELIMITER
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.Preferences
-import com.mardous.booming.viewmodels.PlaybackViewModel
+import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.math.abs
 
 class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player),
     View.OnClickListener {
 
-    private val playbackViewModel: PlaybackViewModel by activityViewModel()
+    private val playerViewModel: PlayerViewModel by activityViewModel()
 
     private var _binding: FragmentMiniPlayerBinding? = null
     private val binding get() = _binding!!
@@ -67,17 +67,13 @@ class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentMiniPlayerBinding.bind(view)
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playbackViewModel.durationFlow.collect {
-                binding.progressBar.max = it.toInt()
+            playerViewModel.progressFlow.collect {
+                binding.progressBar.max = it.total.toInt()
+                binding.progressBar.setProgressCompat(it.progress.toInt(), true)
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playbackViewModel.progressFlow.collect {
-                binding.progressBar.setProgressCompat(it.toInt(), true)
-            }
-        }
-        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playbackViewModel.isPlayingFlow.collect { isPlaying ->
+            playerViewModel.isPlayingFlow.collect { isPlaying ->
                 if (isPlaying) {
                     binding.actionPlayPause.setIconResource(R.drawable.ic_pause_24dp)
                 } else {
@@ -110,9 +106,9 @@ class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player
 
     override fun onClick(view: View) {
         when (view) {
-            binding.actionPlayPause -> playbackViewModel.togglePlayPause()
-            binding.actionNext -> playbackViewModel.playNext()
-            binding.actionPrevious -> playbackViewModel.playPrevious()
+            binding.actionPlayPause -> playerViewModel.togglePlayPause()
+            binding.actionNext -> playerViewModel.playNext()
+            binding.actionPrevious -> playerViewModel.playPrevious()
         }
     }
 
@@ -158,10 +154,10 @@ class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player
             override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
                 if (abs(velocityX) > abs(velocityY)) {
                     if (velocityX < 0) {
-                        playbackViewModel.playNext()
+                        playerViewModel.playNext()
                         return true
                     } else if (velocityX > 0) {
-                        playbackViewModel.playPrevious()
+                        playerViewModel.playPrevious()
                         return true
                     }
                 }

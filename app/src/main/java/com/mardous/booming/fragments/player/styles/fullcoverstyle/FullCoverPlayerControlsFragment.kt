@@ -42,7 +42,6 @@ import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.helper.handler.PrevNextButtonOnTouchHandler
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.Preferences
 import java.util.LinkedList
 
@@ -104,10 +103,10 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
     override fun onClick(view: View) {
         super.onClick(view)
         when (view) {
-            binding.shuffleButton -> MusicPlayer.toggleShuffleMode()
-            binding.repeatButton -> MusicPlayer.cycleRepeatMode()
+            binding.shuffleButton -> playerViewModel.toggleShuffleMode()
+            binding.repeatButton -> playerViewModel.cycleRepeatMode()
             binding.playPauseButton -> {
-                MusicPlayer.togglePlayPause()
+                playerViewModel.togglePlayPause()
                 view.showBounceAnimation()
             }
         }
@@ -181,7 +180,7 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
 
     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
         if (binding.progressSlider == seekBar && fromUser) {
-            MusicPlayer.seekTo(progress)
+            playerViewModel.seekTo(progress.toLong())
         }
     }
 

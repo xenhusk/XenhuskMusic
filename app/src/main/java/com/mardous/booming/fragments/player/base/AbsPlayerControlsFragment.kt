@@ -19,6 +19,7 @@ package com.mardous.booming.fragments.player.base
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -32,28 +33,27 @@ import com.google.android.material.slider.Slider
 import com.google.android.material.snackbar.Snackbar
 import com.mardous.booming.R
 import com.mardous.booming.extensions.getShapeAppearanceModel
-import com.mardous.booming.extensions.media.durationStr
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.fragments.player.PlayerAnimator
 import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.PlayerTintTarget
-import com.mardous.booming.helper.MusicProgressViewUpdateHelper
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
 import com.mardous.booming.preferences.dialog.NowPlayingExtraInfoPreferenceDialog
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.playback.Playback
-import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.*
+import com.mardous.booming.viewmodels.player.PlayerViewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
  * @author Christians M. A. (mardous)
  */
 abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes),
-    View.OnClickListener,
-    View.OnLongClickListener,
-    MusicProgressViewUpdateHelper.Callback {
+    View.OnClickListener, View.OnLongClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private lateinit var progressViewUpdateHelper: MusicProgressViewUpdateHelper
+    val playerViewModel: PlayerViewModel by activityViewModel()
 
     protected var playerFragment: AbsPlayerFragment? = null
     private var playerAnimator: PlayerAnimator? = null
@@ -68,10 +68,10 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
     protected open val songInfoView: TextView? = null
 
     protected val isShuffleModeOn: Boolean
-        get() = MusicPlayer.shuffleMode.isOn
+        get() = playerViewModel.shuffleMode.isOn
 
     protected val isRepeatModeOn: Boolean
-        get() = MusicPlayer.repeatMode.isOn
+        get() = playerViewModel.repeatMode.isOn
 
     private var lastPlaybackControlsColor: Int = 0
     private var lastDisabledPlaybackControlsColor: Int = 0
@@ -92,9 +92,58 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         playerFragment = null
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        progressViewUpdateHelper = MusicProgressViewUpdateHelper(this)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        playerViewModel.colorSchemeObservable.observe(viewLifecycleOwner) { scheme ->
+            lastPlaybackControlsColor = scheme.primaryControlColor
+            lastDisabledPlaybackControlsColor = scheme.secondaryControlColor
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.currentSongFlow.collect {
+                onSongInfoChanged(it)
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.isPlayingFlow.collect { isPlaying ->
+                onUpdatePlayPause(isPlaying)
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.repeatModeFlow.collect { repeatMode ->
+                onUpdateRepeatMode(repeatMode)
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.shuffleModeFlow.collect { shuffleMode ->
+                onUpdateShuffleMode(shuffleMode)
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.progressFlow.collect {
+                if (seekBar == null) {
+                    progressSlider?.valueTo = it.total.toFloat().coerceAtLeast(1f)
+                    progressSlider?.value = it.progress.toFloat().coerceIn(progressSlider?.valueFrom, progressSlider?.valueTo)
+                } else {
+                    if (isSeeking) {
+                        seekBar?.max = it.total.toInt()
+                        seekBar?.progress = it.progress.toInt()
+                    } else {
+                        progressAnimator = ObjectAnimator.ofInt(seekBar, "progress", it.progress.toInt()).apply {
+                            duration = SLIDER_ANIMATION_TIME
+                            interpolator = LinearInterpolator()
+                            start()
+                        }
+                    }
+                }
+                songCurrentProgress?.text = it.progressAsString
+                songTotalTime?.text = if (Preferences.preferRemainingTime){
+                    it.remainingTimeAsString
+                } else {
+                    it.totalAsString
+                }
+            }
+        }
+        Preferences.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onStart() {
@@ -120,11 +169,6 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
                 }
                 (view as? TextView)?.text = getSongArtist(MusicPlayer.currentSong)
             }
-            R.id.songTotalTime -> {
-                Preferences.let {
-                    it.preferRemainingTime = !it.preferRemainingTime
-                }
-            }
             R.id.songInfo -> {
                 val playerView = this.view
                 val infoString = getExtraInfoString(MusicPlayer.currentSong)
@@ -143,34 +187,10 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         return false
     }
 
-    override fun onUpdateProgressViews(progress: Long, total: Long) {
-        if (seekBar == null) {
-            progressSlider?.valueTo = total.toFloat().coerceAtLeast(1f)
-            progressSlider?.value = progress.toFloat().coerceIn(progressSlider?.valueFrom, progressSlider?.valueTo)
-        } else {
-            seekBar?.max = total.toInt()
-            if (isSeeking) {
-                seekBar?.progress = progress.toInt()
-            } else {
-                progressAnimator = ObjectAnimator.ofInt(seekBar, "progress", progress.toInt()).apply {
-                    duration = SLIDER_ANIMATION_TIME
-                    interpolator = LinearInterpolator()
-                    start()
-                }
-            }
-        }
-        val totalDisplayTime = when {
-            Preferences.preferRemainingTime -> (total - progress)
-            else -> total
-        }
-        songTotalTime?.text = totalDisplayTime.durationStr()
-        songCurrentProgress?.text = progress.durationStr()
-    }
-
     private fun setUpProgressSlider() {
-        progressSlider?.addOnChangeListener(Slider.OnChangeListener { _, value, fromUser ->
-            onProgressChange(value.toInt(), fromUser)
-        })
+        progressSlider?.addOnChangeListener { _, value, fromUser ->
+            onProgressChange(value.toLong(), fromUser)
+        }
         progressSlider?.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
             override fun onStartTrackingTouch(slider: Slider) {
                 onStartTrackingTouch()
@@ -183,7 +203,7 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
         seekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                onProgressChange(progress, fromUser)
+                onProgressChange(progress.toLong(), fromUser)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -196,38 +216,49 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         })
     }
 
-    private fun onProgressChange(value: Int, fromUser: Boolean) {
+    private fun onProgressChange(value: Long, fromUser: Boolean) {
         if (fromUser) {
-            onUpdateProgressViews(value.toLong(), MusicPlayer.songDurationMillis.toLong())
+            playerViewModel.seekTo(value)
         }
     }
 
     private fun onStartTrackingTouch() {
         isSeeking = true
-        progressViewUpdateHelper.stop()
         progressAnimator?.cancel()
     }
 
     private fun onStopTrackingTouch(value: Int) {
         isSeeking = false
-        MusicPlayer.seekTo(value)
-        progressViewUpdateHelper.start()
+        //MusicPlayer.seekTo(value)
     }
 
     protected open fun onCreatePlayerAnimator(): PlayerAnimator? = null
 
-    abstract fun onSongInfoChanged(song: Song)
+    protected abstract fun onSongInfoChanged(song: Song)
 
     abstract fun onQueueInfoChanged(newInfo: String?)
 
-    abstract fun onUpdatePlayPause(isPlaying: Boolean)
+    protected abstract fun onUpdatePlayPause(isPlaying: Boolean)
 
     open fun onUpdateRepeatMode(repeatMode: Playback.RepeatMode) {
-        updateRepeatMode(repeatMode = repeatMode)
+        val iconResource = when (repeatMode) {
+            Playback.RepeatMode.One -> R.drawable.ic_repeat_one_24dp
+            else -> R.drawable.ic_repeat_24dp
+        }
+        repeatButton?.let {
+            it.setIconResource(iconResource)
+            it.applyColor(
+                getPlaybackControlsColor(repeatMode != Playback.RepeatMode.Off),
+                isIconButton = true
+            )
+        }
     }
 
     open fun onUpdateShuffleMode(shuffleMode: Playback.ShuffleMode) {
-        updateShuffleMode(shuffleMode = shuffleMode)
+        shuffleButton?.applyColor(
+            getPlaybackControlsColor(shuffleMode == Playback.ShuffleMode.On),
+            isIconButton = true
+        )
     }
 
     /**
@@ -253,20 +284,9 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         } else if (!isShown && playerAnimator?.isPrepared == false) {
             onHide()
         }
-        progressViewUpdateHelper.start()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        progressViewUpdateHelper.stop()
     }
 
     abstract fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget>
-
-    open fun applyColorScheme(scheme: PlayerColorScheme) {
-        lastPlaybackControlsColor = scheme.primaryControlColor
-        lastDisabledPlaybackControlsColor = scheme.secondaryControlColor
-    }
 
     protected fun setViewAction(view: View, action: NowPlayingAction) =
         playerFragment?.setViewAction(view, action)
@@ -286,25 +306,18 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         disabledControlColor: Int = lastDisabledPlaybackControlsColor
     ) = if (isEnabled) controlColor else disabledControlColor
 
-    protected fun updateShuffleMode(shuffleMode: Playback.ShuffleMode = MusicPlayer.shuffleMode) {
-        shuffleButton?.applyColor(
-            getPlaybackControlsColor(shuffleMode == Playback.ShuffleMode.On),
-            isIconButton = true
-        )
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
+        when (key) {
+            DISPLAY_EXTRA_INFO,
+            EXTRA_INFO,
+            DISPLAY_ALBUM_TITLE,
+            PREFER_ALBUM_ARTIST_NAME -> onSongInfoChanged(playerViewModel.currentSong)
+        }
     }
 
-    protected fun updateRepeatMode(repeatMode: Playback.RepeatMode = MusicPlayer.repeatMode) {
-        val iconResource = when (repeatMode) {
-            Playback.RepeatMode.One -> R.drawable.ic_repeat_one_24dp
-            else -> R.drawable.ic_repeat_24dp
-        }
-        repeatButton?.let {
-            it.setIconResource(iconResource)
-            it.applyColor(
-                getPlaybackControlsColor(repeatMode != Playback.RepeatMode.Off),
-                isIconButton = true
-            )
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Preferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     companion object {

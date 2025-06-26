@@ -1,20 +1,28 @@
-package com.mardous.booming.viewmodels
+package com.mardous.booming.viewmodels.player
 
+import android.content.Context
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.util.Log
+import androidx.lifecycle.*
+import com.mardous.booming.fragments.player.PlayerColorScheme
+import com.mardous.booming.fragments.player.PlayerColorSchemeMode
+import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.model.Song
+import com.mardous.booming.service.constants.SessionCommand
 import com.mardous.booming.service.playback.Playback
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import com.mardous.booming.service.queue.SmartPlayingQueue
+import com.mardous.booming.viewmodels.player.model.PlayerProgress
+import com.mardous.booming.viewmodels.player.model.SaveCoverResult
+import com.mardous.booming.viewmodels.player.worker.SaveCoverWorker
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 
-class PlaybackViewModel : ViewModel() {
+class PlayerViewModel(
+    private val queueManager: SmartPlayingQueue,
+    private val saveCoverWorker: SaveCoverWorker
+) : ViewModel() {
 
     private var mediaController: MediaControllerCompat? = null
     private val transportControls get() = mediaController?.transportControls
@@ -22,7 +30,7 @@ class PlaybackViewModel : ViewModel() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             _isPlayingFlow.value = state?.state == PlaybackStateCompat.STATE_PLAYING
             if (progressObserver == null) {
-                _progressFlow.value = state?.position ?: 0
+                _songProgressFlow.value = state?.position ?: 0
             }
             if (isPlayingFlow.value) {
                 if (progressObserver == null) {
@@ -35,7 +43,7 @@ class PlaybackViewModel : ViewModel() {
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             val mediaMetadata = MediaMetadataCompat.fromMediaMetadata(metadata?.mediaMetadata)
-            _durationFlow.value = mediaMetadata?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) ?: 0
+            _songDurationFlow.value = mediaMetadata?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) ?: 0
         }
 
         override fun onRepeatModeChanged(repeatMode: Int) {
@@ -47,27 +55,39 @@ class PlaybackViewModel : ViewModel() {
         }
     }
 
-    private val _progressFlow = MutableStateFlow(0L)
-    val progressFlow = _progressFlow.asStateFlow()
+    private val _songProgressFlow = MutableStateFlow(0L)
+    val songProgressFlow = _songProgressFlow.asStateFlow()
 
-    private val _durationFlow = MutableStateFlow(0L)
-    val durationFlow = _durationFlow.asStateFlow()
+    private val _songDurationFlow = MutableStateFlow(0L)
+    val songDurationFlow = _songDurationFlow.asStateFlow()
+
+    val progressFlow = combine(_songProgressFlow, _songDurationFlow) { progress, total ->
+        PlayerProgress(progress, total)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = PlayerProgress.Unspecified
+    )
 
     private val _isPlayingFlow = MutableStateFlow(false)
     val isPlayingFlow = _isPlayingFlow.asStateFlow()
-    val isPlaying = isPlayingFlow.value
+    val isPlaying get() = isPlayingFlow.value
 
     private val _repeatModeFlow = MutableStateFlow(Playback.RepeatMode.Off)
     val repeatModeFlow = _repeatModeFlow.asStateFlow()
-    val repeatMode = repeatModeFlow.value
+    val repeatMode get() = repeatModeFlow.value
 
     private val _shuffleModeFlow = MutableStateFlow(Playback.ShuffleMode.Off)
     val shuffleModeFlow = _shuffleModeFlow.asStateFlow()
-    val shuffleMode = shuffleModeFlow.value
+    val shuffleMode get() = shuffleModeFlow.value
 
     private val _currentSongFlow = MutableStateFlow(Song.emptySong)
     val currentSongFlow = _currentSongFlow.asStateFlow()
-    val currentSong = currentSongFlow.value
+    val currentSong get() = currentSongFlow.value
+
+    private val _colorScheme = MutableLiveData<PlayerColorScheme>()
+    val colorSchemeObservable: LiveData<PlayerColorScheme> = _colorScheme
+    val colorScheme get() = colorSchemeObservable.value
 
     private var progressObserver: Job? = null
 
@@ -75,7 +95,7 @@ class PlaybackViewModel : ViewModel() {
         progressObserver = viewModelScope.launch {
             while (isActive) {
                 if (_isPlayingFlow.value) {
-                    _progressFlow.value = mediaController?.playbackState?.position ?: 0L
+                    _songProgressFlow.value = mediaController?.playbackState?.position ?: 0L
                     delay(100L)
                 } else {
                     delay(300L)
@@ -93,6 +113,14 @@ class PlaybackViewModel : ViewModel() {
         mediaController?.unregisterCallback(controllerCallback)
         mediaController = controller
         controller?.registerCallback(controllerCallback)
+    }
+
+    fun cycleRepeatMode() {
+        transportControls?.sendCustomAction(SessionCommand.TOGGLE_SHUFFLE, null)
+    }
+
+    fun toggleShuffleMode() {
+        transportControls?.sendCustomAction(SessionCommand.CYCLE_REPEAT, null)
     }
 
     fun togglePlayPause() {
@@ -128,9 +156,38 @@ class PlaybackViewModel : ViewModel() {
         _currentSongFlow.value = song
     }
 
+    fun loadColorScheme(
+        context: Context,
+        mode: PlayerColorScheme.Mode,
+        mediaColor: MediaNotificationProcessor
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        val currentScheme = colorScheme?.mode?.takeIf { it == PlayerColorSchemeMode.AppTheme }
+        if (currentScheme == mode)
+            return@launch
+
+        val result = runCatching {
+            PlayerColorScheme.autoColorScheme(context, mediaColor, mode)
+        }
+        if (result.isSuccess) {
+            _colorScheme.postValue(result.getOrThrow())
+        } else if (result.isFailure) {
+            Log.e(TAG, "Failed to load color scheme", result.exceptionOrNull())
+        }
+    }
+
+    fun saveCover(song: Song) = liveData {
+        emit(SaveCoverResult(true))
+        val uri = saveCoverWorker.saveArtwork(song)
+        emit(SaveCoverResult(false, uri))
+    }
+
     override fun onCleared() {
         stopProgressObserver()
         mediaController?.unregisterCallback(controllerCallback)
         super.onCleared()
+    }
+
+    companion object {
+        private const val TAG = "PlayerViewModel"
     }
 }

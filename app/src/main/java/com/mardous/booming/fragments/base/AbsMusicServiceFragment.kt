@@ -68,14 +68,6 @@ abstract class AbsMusicServiceFragment @JvmOverloads constructor(@LayoutRes layo
     }
 
     @CallSuper
-    override fun onRepeatModeChanged() {
-    }
-
-    @CallSuper
-    override fun onShuffleModeChanged() {
-    }
-
-    @CallSuper
     override fun onQueueChanged() {
     }
 

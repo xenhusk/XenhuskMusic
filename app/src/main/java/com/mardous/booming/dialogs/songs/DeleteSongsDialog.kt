@@ -37,26 +37,29 @@ import com.mardous.booming.R
 import com.mardous.booming.databinding.DialogDeleteSongsBinding
 import com.mardous.booming.dialogs.SAFDialog
 import com.mardous.booming.extensions.*
-import com.mardous.booming.extensions.files.isSAFRequiredForSongs
 import com.mardous.booming.extensions.files.isSAFAccessGranted
+import com.mardous.booming.extensions.files.isSAFRequiredForSongs
 import com.mardous.booming.extensions.media.isPlayingSong
 import com.mardous.booming.model.Song
 import com.mardous.booming.recordException
 import com.mardous.booming.repository.Repository
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.MusicUtil
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.viewmodels.player.PlayerViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
  * @author Christians M. A. (mardous)
  */
 class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
+
+    private val playerViewModel: PlayerViewModel by activityViewModel()
 
     private lateinit var songs: MutableList<Song>
 
@@ -94,7 +97,7 @@ class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
                 registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
                     if (result.resultCode == Activity.RESULT_OK) {
                         if ((songs.size == 1) && songs.single().isPlayingSong) {
-                            MusicPlayer.playNextSong()
+                            playerViewModel.playNext()
                         }
                         lifecycleScope.launch(IO) {
                             repository.deleteSongs(songs)
@@ -134,7 +137,7 @@ class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
                 .create { dialog ->
                     dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
                         if (songs.singleOrNull()?.isPlayingSong == true) {
-                            MusicPlayer.playNextSong()
+                            playerViewModel.playNext()
                         }
                         onStartDeletion(songs)
                     }

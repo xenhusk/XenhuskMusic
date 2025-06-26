@@ -32,6 +32,7 @@ import com.mardous.booming.providers.databases.PlaybackQueueStore
 import com.mardous.booming.repository.Repository
 import com.mardous.booming.service.MusicService.Companion.FAST_FORWARD_THRESHOLD
 import com.mardous.booming.service.MusicService.Companion.REWIND_THRESHOLD
+import com.mardous.booming.service.constants.SessionCommand
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
@@ -96,17 +97,17 @@ class MediaSessionCallback(private val musicService: MusicService, private val c
 
     override fun onCustomAction(action: String, extras: Bundle) {
         when (action) {
-            MusicService.CYCLE_REPEAT -> {
+            SessionCommand.CYCLE_REPEAT -> {
                 musicService.cycleRepeatMode()
                 musicService.updateMediaSessionPlaybackState()
             }
 
-            MusicService.TOGGLE_SHUFFLE -> {
+            SessionCommand.TOGGLE_SHUFFLE -> {
                 musicService.toggleShuffle()
                 musicService.updateMediaSessionPlaybackState()
             }
 
-            MusicService.TOGGLE_FAVORITE -> {
+            SessionCommand.TOGGLE_FAVORITE -> {
                 musicService.toggleFavorite()
             }
 

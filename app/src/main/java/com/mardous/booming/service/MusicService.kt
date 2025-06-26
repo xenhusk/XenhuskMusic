@@ -78,6 +78,8 @@ import com.mardous.booming.service.constants.ServiceAction
 import com.mardous.booming.service.constants.ServiceAction.Extras.Companion.EXTRA_PLAYLIST
 import com.mardous.booming.service.constants.ServiceAction.Extras.Companion.EXTRA_SHUFFLE_MODE
 import com.mardous.booming.service.constants.ServiceEvent
+import com.mardous.booming.service.constants.SessionCommand.Companion.CYCLE_REPEAT
+import com.mardous.booming.service.constants.SessionCommand.Companion.TOGGLE_SHUFFLE
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.notification.PlayingNotification
 import com.mardous.booming.service.notification.PlayingNotificationClassic
@@ -1329,10 +1331,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     }
 
     companion object {
-        internal const val CYCLE_REPEAT = ServiceEvent.BOOMING_PACKAGE_NAME + ".cyclerepeat"
-        internal const val TOGGLE_SHUFFLE = ServiceEvent.BOOMING_PACKAGE_NAME + ".toggleshuffle"
-        internal const val TOGGLE_FAVORITE = ServiceEvent.BOOMING_PACKAGE_NAME + ".togglefavorite"
-
         const val FAST_FORWARD_THRESHOLD = 5000
         const val REWIND_THRESHOLD = 5000
         private const val REWIND_INSTEAD_PREVIOUS_MILLIS = REWIND_THRESHOLD

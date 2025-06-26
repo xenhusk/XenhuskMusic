@@ -33,7 +33,6 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentGradientPlayerPlaybackControlsBinding
-import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.PlayerTintTarget
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
@@ -42,7 +41,6 @@ import com.mardous.booming.fragments.player.tintTarget
 import com.mardous.booming.helper.handler.PrevNextButtonOnTouchHandler
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
-import com.mardous.booming.service.MusicPlayer
 
 class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_gradient_player_playback_controls),
     SeekBar.OnSeekBarChangeListener {
@@ -97,9 +95,9 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
     override fun onClick(view: View) {
         super.onClick(view)
         when (view) {
-            binding.shuffleButton -> MusicPlayer.toggleShuffleMode()
-            binding.repeatButton -> MusicPlayer.cycleRepeatMode()
-            binding.playPauseButton -> MusicPlayer.togglePlayPause()
+            binding.shuffleButton -> playerViewModel.toggleShuffleMode()
+            binding.repeatButton -> playerViewModel.cycleRepeatMode()
+            binding.playPauseButton -> playerViewModel.togglePlayPause()
         }
     }
 
@@ -164,7 +162,7 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
 
     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
         if (binding.progressSlider == seekBar && fromUser) {
-            MusicPlayer.seekTo(progress)
+            playerViewModel.seekTo(progress.toLong())
         }
     }
 

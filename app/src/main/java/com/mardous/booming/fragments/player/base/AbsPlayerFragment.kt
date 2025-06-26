@@ -22,10 +22,8 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -33,9 +31,6 @@ import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
-import androidx.core.animation.doOnEnd
-import androidx.core.animation.doOnStart
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
@@ -58,14 +53,13 @@ import com.mardous.booming.extensions.media.refreshFavoriteState
 import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.artistDetailArgs
 import com.mardous.booming.extensions.navigation.genreDetailArgs
-import com.mardous.booming.extensions.openIntent
+import com.mardous.booming.extensions.requestView
 import com.mardous.booming.extensions.resources.animateBackgroundColor
 import com.mardous.booming.extensions.resources.animateTintColor
 import com.mardous.booming.extensions.resources.inflateMenu
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.extensions.whichFragment
-import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.fragments.lyrics.LyricsEditorFragmentArgs
 import com.mardous.booming.fragments.player.PlayerAlbumCoverFragment
@@ -75,17 +69,14 @@ import com.mardous.booming.fragments.player.PlayerTintTarget
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.helper.menu.newPopupMenu
 import com.mardous.booming.helper.menu.onSongMenu
-import com.mardous.booming.misc.CoverSaverCoroutine
 import com.mardous.booming.model.Genre
 import com.mardous.booming.model.GestureOnCover
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
 import com.mardous.booming.service.MusicPlayer
-import com.mardous.booming.util.*
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import com.mardous.booming.util.Preferences
+import com.mardous.booming.viewmodels.library.LibraryViewModel
+import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
@@ -94,15 +85,12 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     AbsMusicServiceFragment(layoutRes),
     Toolbar.OnMenuItemClickListener,
-    SharedPreferences.OnSharedPreferenceChangeListener,
     PlayerAlbumCoverFragment.Callbacks {
 
+    val playerViewModel: PlayerViewModel by activityViewModel()
     val libraryViewModel: LibraryViewModel by activityViewModel()
 
     private var coverFragment: PlayerAlbumCoverFragment? = null
-    private val coverSaver: CoverSaverCoroutine by lazy {
-        CoverSaverCoroutine(requireContext(), viewLifecycleOwner.lifecycleScope, IO)
-    }
 
     protected abstract val colorSchemeMode: PlayerColorSchemeMode
     protected abstract val playerControlsFragment: AbsPlayerControlsFragment
@@ -111,15 +99,14 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         get() = null
 
     private var colorAnimatorSet: AnimatorSet? = null
-    private var colorJob: Job? = null
-
-    private var lastColorSchemeMode: PlayerColorSchemeMode? = null
 
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         onCreateChildFragments()
-        Preferences.registerOnSharedPreferenceChangeListener(this)
+        playerViewModel.colorSchemeObservable.observe(viewLifecycleOwner) { scheme ->
+            applyColorScheme(scheme)?.start()
+        }
     }
 
     @CallSuper
@@ -227,32 +214,14 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     }
 
     override fun onColorChanged(color: MediaNotificationProcessor) {
-        cancelOngoingColorTransition()
-
-        val newSchemeMode = colorSchemeMode
-        val currentScheme = lastColorSchemeMode?.takeIf { it == PlayerColorSchemeMode.AppTheme }
-        if (currentScheme == newSchemeMode)
-            return
-
-        colorJob = viewLifecycleOwner.lifecycleScope.launch {
-            val result = runCatching {
-                PlayerColorScheme.autoColorScheme(requireContext(), color, newSchemeMode)
-            }
-            if (isActive && result.isSuccess) {
-                val scheme = result.getOrThrow().also {
-                    lastColorSchemeMode = it.mode
-                }
-                applyColorScheme(scheme).start()
-            } else if (result.isFailure) {
-                Log.w("AbsPlayerFragment", "Failed to apply color scheme", result.exceptionOrNull())
-            }
-        }
+        playerViewModel.loadColorScheme(requireContext(), colorSchemeMode, color)
     }
 
     protected abstract fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget>
 
-    private fun applyColorScheme(scheme: PlayerColorScheme): AnimatorSet {
-        return AnimatorSet()
+    private fun applyColorScheme(scheme: PlayerColorScheme): AnimatorSet? {
+        colorAnimatorSet?.cancel()
+        colorAnimatorSet = AnimatorSet()
             .setDuration(scheme.mode.preferredAnimDuration)
             .apply {
                 playTogether(getTintTargets(scheme).map {
@@ -266,11 +235,8 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                         )
                     }
                 })
-                doOnStart { libraryViewModel.setPaletteColor(scheme.surfaceColor) }
-                doOnEnd { playerControlsFragment.applyColorScheme(scheme) }
-            }.also {
-                colorAnimatorSet = it
             }
+        return colorAnimatorSet
     }
 
     override fun onGestureDetected(gestureOnCover: GestureOnCover): Boolean {
@@ -298,10 +264,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         playerToolbar?.menu?.onLyricsVisibilityChang(lyricsVisible)
     }
 
-    protected open fun onSongInfoChanged(song: Song) {
-        playerControlsFragment.onSongInfoChanged(song)
-    }
-
     override fun onFavoritesStoreChanged() {
         super.onFavoritesStoreChanged()
         updateIsFavorite(withAnim = true)
@@ -309,34 +271,14 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        onSongInfoChanged(MusicPlayer.currentSong)
         playerControlsFragment.onQueueInfoChanged(MusicPlayer.getNextSongInfo(requireContext()))
-        playerControlsFragment.onUpdatePlayPause(MusicPlayer.isPlaying)
-        playerControlsFragment.onUpdateRepeatMode(MusicPlayer.repeatMode)
-        playerControlsFragment.onUpdateShuffleMode(MusicPlayer.shuffleMode)
         updateIsFavorite(withAnim = false)
     }
 
     override fun onPlayingMetaChanged() {
         super.onPlayingMetaChanged()
-        onSongInfoChanged(MusicPlayer.currentSong)
         playerControlsFragment.onQueueInfoChanged(MusicPlayer.getNextSongInfo(requireContext()))
         updateIsFavorite(withAnim = false)
-    }
-
-    override fun onPlayStateChanged() {
-        super.onPlayStateChanged()
-        playerControlsFragment.onUpdatePlayPause(MusicPlayer.isPlaying)
-    }
-
-    override fun onRepeatModeChanged() {
-        super.onRepeatModeChanged()
-        playerControlsFragment.onUpdateRepeatMode(MusicPlayer.repeatMode)
-    }
-
-    override fun onShuffleModeChanged() {
-        super.onShuffleModeChanged()
-        playerControlsFragment.onUpdateShuffleMode(MusicPlayer.shuffleMode)
     }
 
     override fun onQueueChanged() {
@@ -344,24 +286,10 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         playerControlsFragment.onQueueInfoChanged(MusicPlayer.getNextSongInfo(requireContext()))
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
-        when (key) {
-            DISPLAY_EXTRA_INFO,
-            EXTRA_INFO -> {
-                playerControlsFragment.onSongInfoChanged(MusicPlayer.currentSong)
-            }
-
-            DISPLAY_ALBUM_TITLE,
-            PREFER_ALBUM_ARTIST_NAME -> {
-                playerControlsFragment.onSongInfoChanged(MusicPlayer.currentSong)
-            }
-        }
-    }
-
     override fun onDestroyView() {
-        cancelOngoingColorTransition()
+        colorAnimatorSet?.cancel()
+        colorAnimatorSet = null
         super.onDestroyView()
-        Preferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     internal fun onQuickActionEvent(action: NowPlayingAction): Boolean {
@@ -383,7 +311,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
             }
 
             NowPlayingAction.TogglePlayState -> {
-                MusicPlayer.togglePlayPause()
+                playerViewModel.togglePlayPause()
                 true
             }
 
@@ -526,12 +454,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     fun getExtraInfoString(song: Song) =
         if (isExtraInfoEnabled()) song.extraInfo(Preferences.nowPlayingExtraInfoList) else null
 
-    private fun cancelOngoingColorTransition() {
-        colorJob?.cancel()
-        colorAnimatorSet?.cancel()
-        colorAnimatorSet = null
-    }
-
     private fun requestSaveCover() {
         if (!Preferences.savedArtworkCopyrightNoticeShown) {
             MaterialAlertDialogBuilder(requireContext())
@@ -544,41 +466,29 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         } else {
-            coverSaver.saveArtwork(
-                MusicPlayer.currentSong,
-                onPreExecute = {
-                    view?.let { safeView ->
-                        Snackbar.make(
-                            safeView,
-                            R.string.saving_cover_please_wait,
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
-                },
-                onSuccess = { uri, mimeType ->
-                    view?.let { safeView ->
-                        Snackbar.make(
-                            safeView,
-                            R.string.save_artwork_success,
-                            Snackbar.LENGTH_SHORT
-                        )
+            playerViewModel.saveCover(MusicPlayer.currentSong).observe(viewLifecycleOwner) { result ->
+                requestView { view ->
+                    if (result.isWorking) {
+                        Snackbar.make(view, R.string.saving_cover_please_wait, Snackbar.LENGTH_SHORT)
+                            .show()
+                    } else if (result.uri != null) {
+                        Snackbar.make(view, R.string.save_artwork_success, Snackbar.LENGTH_SHORT)
                             .setAction(R.string.save_artwork_view_action) {
                                 try {
-                                    startActivity(uri.openIntent(mimeType))
-                                } catch (e: ActivityNotFoundException) {
-                                    context?.showToast(e.toString())
-                                }
+                                    startActivity(
+                                        Intent(Intent.ACTION_VIEW)
+                                            .setDataAndType(result.uri, "image/jpeg")
+                                            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    )
+                                } catch (_: ActivityNotFoundException) {}
                             }
                             .show()
+                    } else {
+                        Snackbar.make(view, R.string.save_artwork_error, Snackbar.LENGTH_SHORT)
+                            .show()
                     }
-                },
-                onError = { errorMessage ->
-                    view?.let { safeView ->
-                        if (!errorMessage.isNullOrEmpty()) {
-                            Snackbar.make(safeView, errorMessage, Snackbar.LENGTH_SHORT).show()
-                        }
-                    }
-                })
+                }
+            }
         }
     }
 }

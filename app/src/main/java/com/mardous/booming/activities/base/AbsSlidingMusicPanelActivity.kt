@@ -41,7 +41,6 @@ import com.mardous.booming.activities.PermissionsActivity
 import com.mardous.booming.databinding.SlidingMusicPanelLayoutBinding
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.resources.*
-import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.fragments.other.MiniPlayerFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
 import com.mardous.booming.fragments.player.styles.defaultstyle.DefaultPlayerFragment
@@ -58,6 +57,8 @@ import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.search.SearchQuery
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.*
+import com.mardous.booming.viewmodels.library.LibraryViewModel
+import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -68,6 +69,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
 
     protected lateinit var binding: SlidingMusicPanelLayoutBinding
     protected val libraryViewModel: LibraryViewModel by viewModel()
+    protected val playerViewModel: PlayerViewModel by viewModel()
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var nowPlayingScreen: NowPlayingScreen
@@ -358,8 +360,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     private fun updateColor() {
-        libraryViewModel.getPaletteColor().observe(this) { color ->
-            this.paletteColor = color
+        playerViewModel.colorSchemeObservable.observe(this) { scheme ->
+            this.paletteColor = scheme.surfaceColor
             onPaletteColorChanged()
         }
     }

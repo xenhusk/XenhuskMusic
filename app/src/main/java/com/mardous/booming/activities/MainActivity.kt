@@ -35,14 +35,13 @@ import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.interfaces.IScrollHelper
 import com.mardous.booming.model.CategoryInfo
-import com.mardous.booming.viewmodels.update.model.UpdateSearchResult
 import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.MusicService
 import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
-import com.mardous.booming.viewmodels.PlaybackViewModel
-import com.mardous.booming.viewmodels.update.UpdateViewModel
 import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
+import com.mardous.booming.viewmodels.update.UpdateViewModel
+import com.mardous.booming.viewmodels.update.model.UpdateSearchResult
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
@@ -51,7 +50,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : AbsSlidingMusicPanelActivity() {
 
     private val updateViewModel: UpdateViewModel by viewModel()
-    private val playbackViewModel: PlaybackViewModel by viewModel()
     private val lyricsViewModel: LyricsViewModel by viewModel()
 
     private lateinit var mediaBrowser: MediaBrowserCompat
@@ -181,7 +179,7 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
 
     override fun onPlayingMetaChanged() {
         super.onPlayingMetaChanged()
-        playbackViewModel.updateSong(MusicPlayer.currentSong)
+        playerViewModel.updateSong(MusicPlayer.currentSong)
         lyricsViewModel.updateSong(MusicPlayer.currentSong)
     }
 
@@ -248,11 +246,11 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
             val token = mediaBrowser.sessionToken
             val mediaController = MediaControllerCompat(this@MainActivity, token)
             MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
-            playbackViewModel.setMediaController(mediaController)
+            playerViewModel.setMediaController(mediaController)
         }
 
         override fun onConnectionFailed() {
-            playbackViewModel.setMediaController(null)
+            playerViewModel.setMediaController(null)
         }
     }
 }

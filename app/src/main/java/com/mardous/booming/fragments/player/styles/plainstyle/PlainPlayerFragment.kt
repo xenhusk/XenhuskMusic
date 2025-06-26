@@ -29,15 +29,11 @@ import androidx.core.view.updatePadding
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentPlainPlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.whichFragment
-import com.mardous.booming.fragments.player.PlayerColorScheme
-import com.mardous.booming.fragments.player.PlayerColorSchemeMode
-import com.mardous.booming.fragments.player.PlayerTintTarget
+import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
-import com.mardous.booming.fragments.player.surfaceTintTarget
-import com.mardous.booming.fragments.player.tintTarget
-import com.mardous.booming.model.Song
 import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.util.Preferences
 
@@ -71,6 +67,14 @@ class PlainPlayerFragment : AbsPlayerFragment(R.layout.fragment_plain_player) {
             val displayCutout = insets.getInsets(Type.displayCutout())
             v.updatePadding(left = displayCutout.left, right = displayCutout.right)
             WindowInsetsCompat.CONSUMED
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.currentSongFlow.collect { song ->
+                _binding?.let { nonNullBinding ->
+                    nonNullBinding.title.text = song.title
+                    nonNullBinding.text.text = getSongArtist(song)
+                }
+            }
         }
     }
 
@@ -107,14 +111,6 @@ class PlainPlayerFragment : AbsPlayerFragment(R.layout.fragment_plain_player) {
     override fun onCreateChildFragments() {
         super.onCreateChildFragments()
         controlsFragment = whichFragment(R.id.playbackControlsFragment)
-    }
-
-    override fun onSongInfoChanged(song: Song) {
-        super.onSongInfoChanged(song)
-        _binding?.let { nonNullBinding ->
-            nonNullBinding.title.text = song.title
-            nonNullBinding.text.text = getSongArtist(song)
-        }
     }
 
     override fun onDestroyView() {

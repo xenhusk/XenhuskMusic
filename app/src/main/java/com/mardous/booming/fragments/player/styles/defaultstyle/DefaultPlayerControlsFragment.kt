@@ -38,7 +38,6 @@ import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.helper.handler.PrevNextButtonOnTouchHandler
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.Preferences
 import java.util.LinkedList
 
@@ -136,10 +135,10 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
     override fun onClick(view: View) {
         super.onClick(view)
         when (view) {
-            binding.repeatButton -> MusicPlayer.cycleRepeatMode()
-            binding.shuffleButton -> MusicPlayer.toggleShuffleMode()
+            binding.repeatButton -> playerViewModel.cycleRepeatMode()
+            binding.shuffleButton -> playerViewModel.toggleShuffleMode()
             binding.playPauseButton -> {
-                MusicPlayer.togglePlayPause()
+                playerViewModel.togglePlayPause()
                 view.showBounceAnimation()
             }
         }

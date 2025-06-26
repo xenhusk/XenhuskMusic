@@ -19,22 +19,9 @@ package com.mardous.booming
 
 import androidx.preference.PreferenceManager
 import androidx.room.Room
-import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
 import com.mardous.booming.androidauto.AutoMusicProvider
 import com.mardous.booming.audio.SoundSettings
 import com.mardous.booming.database.BoomingDatabase
-import com.mardous.booming.viewmodels.library.LibraryViewModel
-import com.mardous.booming.viewmodels.albumdetail.AlbumDetailViewModel
-import com.mardous.booming.viewmodels.artistdetail.ArtistDetailViewModel
-import com.mardous.booming.viewmodels.equalizer.EqualizerViewModel
-import com.mardous.booming.viewmodels.folderdetail.FolderDetailViewModel
-import com.mardous.booming.viewmodels.genredetail.GenreDetailViewModel
-import com.mardous.booming.viewmodels.info.InfoViewModel
-import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
-import com.mardous.booming.viewmodels.playlistdetail.PlaylistDetailViewModel
-import com.mardous.booming.viewmodels.search.SearchViewModel
-import com.mardous.booming.viewmodels.equalizer.SoundSettingsViewModel
-import com.mardous.booming.viewmodels.yeardetail.YearDetailViewModel
 import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.http.deezer.DeezerService
 import com.mardous.booming.http.github.GitHubService
@@ -50,8 +37,21 @@ import com.mardous.booming.providers.MediaStoreWriter
 import com.mardous.booming.repository.*
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.queue.ShuffleManager
-import com.mardous.booming.viewmodels.PlaybackViewModel
+import com.mardous.booming.viewmodels.albumdetail.AlbumDetailViewModel
+import com.mardous.booming.viewmodels.artistdetail.ArtistDetailViewModel
+import com.mardous.booming.viewmodels.equalizer.EqualizerViewModel
+import com.mardous.booming.viewmodels.equalizer.SoundSettingsViewModel
+import com.mardous.booming.viewmodels.folderdetail.FolderDetailViewModel
+import com.mardous.booming.viewmodels.genredetail.GenreDetailViewModel
+import com.mardous.booming.viewmodels.info.InfoViewModel
+import com.mardous.booming.viewmodels.library.LibraryViewModel
+import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
+import com.mardous.booming.viewmodels.player.PlayerViewModel
+import com.mardous.booming.viewmodels.playlistdetail.PlaylistDetailViewModel
+import com.mardous.booming.viewmodels.search.SearchViewModel
+import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
 import com.mardous.booming.viewmodels.update.UpdateViewModel
+import com.mardous.booming.viewmodels.yeardetail.YearDetailViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.bind
@@ -99,6 +99,12 @@ private val mainModule = module {
     }
     single {
         MediaStoreWriter(androidContext(), get())
+    }
+    single {
+        UriSongResolver(androidContext(), get(), get())
+    }
+    single {
+        ShuffleManager(get())
     }
     single {
         PreferenceManager.getDefaultSharedPreferences(androidContext())
@@ -187,14 +193,6 @@ private val dataModule = module {
     single {
         RealLyricsRepository(androidContext(), get(), get(), get(), get())
     } bind LyricsRepository::class
-
-    single {
-        UriSongResolver(androidContext(), get(), get())
-    }
-
-    single {
-        ShuffleManager(get())
-    }
 }
 
 private val viewModule = module {
@@ -203,7 +201,7 @@ private val viewModule = module {
     }
 
     viewModel {
-        PlaybackViewModel()
+        PlayerViewModel(get())
     }
 
     viewModel {

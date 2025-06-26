@@ -42,11 +42,7 @@ import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.StorageUtil
 import com.mardous.booming.util.sort.SortKeys
-import com.mardous.booming.viewmodels.library.model.AddToPlaylistResult
-import com.mardous.booming.viewmodels.library.model.HandleIntentResult
-import com.mardous.booming.viewmodels.library.model.ImportResult
-import com.mardous.booming.viewmodels.library.model.ImportablePlaylistResult
-import com.mardous.booming.viewmodels.library.model.SuggestedResult
+import com.mardous.booming.viewmodels.library.model.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.isActive
@@ -80,7 +76,6 @@ class LibraryViewModel(
     private val fileSystem = MutableLiveData<FileSystemQuery>()
     private val fabMargin = MutableLiveData(0)
     private val songHistory = MutableLiveData<List<Song>>()
-    private val paletteColor = MutableLiveData<Int>()
 
     fun getSuggestions(): LiveData<SuggestedResult> = suggestions
     fun getSongs(): LiveData<List<Song>> = songs
@@ -91,7 +86,6 @@ class LibraryViewModel(
     fun getYears(): LiveData<List<ReleaseYear>> = years
     fun getFileSystem(): LiveData<FileSystemQuery> = fileSystem
     fun getFabMargin(): LiveData<Int> = fabMargin
-    fun getPaletteColor(): LiveData<Int> = paletteColor
 
     fun setFabMargin(context: Context, bottomMargin: Int) {
         val currentValue = 16.dp(context) + bottomMargin
@@ -104,10 +98,6 @@ class LibraryViewModel(
             }
             start()
         }
-    }
-
-    fun setPaletteColor(color: Int) {
-        paletteColor.value = color
     }
 
     suspend fun albumById(id: Long) = repository.albumById(id)

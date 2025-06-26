@@ -17,15 +17,12 @@
 
 package com.mardous.booming.providers
 
-import android.annotation.TargetApi
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import androidx.annotation.WorkerThread
 import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.util.FileUtil.PLAYLISTS_DIRECTORY_NAME
 import java.io.File
@@ -72,8 +69,6 @@ class MediaStoreWriter(private val context: Context, private val contentResolver
         }
     }
 
-    @WorkerThread
-    @TargetApi(Build.VERSION_CODES.Q)
     fun toMediaStore(
         contentUri: Uri,
         request: Request,
@@ -106,7 +101,6 @@ class MediaStoreWriter(private val context: Context, private val contentResolver
         return Result(Result.Code.ERROR)
     }
 
-    @WorkerThread
     fun toContentResolver(
         contentUri: Uri?,
         dest: Uri,
@@ -129,15 +123,16 @@ class MediaStoreWriter(private val context: Context, private val contentResolver
         return Result(Result.Code.ERROR)
     }
 
-    @WorkerThread
     fun toFile(directory: File? = null, fileName: String, streamConsumer: (OutputStream) -> Boolean): File? {
         val result = runCatching {
             val file = File(directory ?: context.filesDir, fileName)
-            file.outputStream().use {
-                if (streamConsumer(it))
-                    return file
-                else null
-            }
+            if (file.createNewFile()) {
+                file.outputStream().use {
+                    if (streamConsumer(it))
+                        return file
+                    else null
+                }
+            } else null
         }
         return result.getOrNull()
     }

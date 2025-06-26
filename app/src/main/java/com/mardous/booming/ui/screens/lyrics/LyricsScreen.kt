@@ -18,19 +18,19 @@ import androidx.compose.ui.unit.sp
 import com.mardous.booming.R
 import com.mardous.booming.lyrics.Lyrics
 import com.mardous.booming.ui.components.decoration.FadingEdges
-import com.mardous.booming.viewmodels.PlaybackViewModel
 import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
+import com.mardous.booming.viewmodels.player.PlayerViewModel
 
 @Composable
 fun LyricsScreen(
     lyricsViewModel: LyricsViewModel,
-    playbackViewModel: PlaybackViewModel,
+    playerViewModel: PlayerViewModel,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
-    val songProgress by playbackViewModel.progressFlow.collectAsState()
+    val songProgress by playerViewModel.songProgressFlow.collectAsState()
     val lyricsViewState = remember(lyricsResult.syncedLyrics) {
         LyricsViewState(lyricsResult.syncedLyrics)
     }
@@ -72,7 +72,7 @@ fun LyricsScreen(
                 end = 16.dp
             ),
             plainScrollState = plainScrollState,
-            onSeekToLine = { playbackViewModel.seekTo(it.startAt) }
+            onSeekToLine = { playerViewModel.seekTo(it.startAt) }
         )
     }
 }
@@ -80,12 +80,12 @@ fun LyricsScreen(
 @Composable
 fun CoverLyricsScreen(
     lyricsViewModel: LyricsViewModel,
-    playbackViewModel: PlaybackViewModel,
+    playerViewModel: PlayerViewModel,
     onExpandClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
-    val songProgress by playbackViewModel.progressFlow.collectAsState()
+    val songProgress by playerViewModel.songProgressFlow.collectAsState()
     val lyricsViewState = remember(lyricsResult.syncedLyrics) {
         LyricsViewState(lyricsResult.syncedLyrics)
     }
@@ -110,7 +110,7 @@ fun CoverLyricsScreen(
             plainFontSize = 16.sp,
             plainTextAlign = TextAlign.Center,
             plainScrollState = plainScrollState,
-            onSeekToLine = { playbackViewModel.seekTo(it.startAt) }
+            onSeekToLine = { playerViewModel.seekTo(it.startAt) }
         )
 
         FilledIconButton(

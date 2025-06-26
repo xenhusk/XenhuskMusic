@@ -146,16 +146,6 @@ open class AbsMusicServiceActivity : AbsBaseActivity(),
     }
 
     @CallSuper
-    override fun onRepeatModeChanged() {
-        musicServiceEventListeners.forEach { it?.onRepeatModeChanged() }
-    }
-
-    @CallSuper
-    override fun onShuffleModeChanged() {
-        musicServiceEventListeners.forEach { it?.onShuffleModeChanged() }
-    }
-
-    @CallSuper
     override fun onQueueChanged() {
         musicServiceEventListeners.forEach { it?.onQueueChanged() }
     }
@@ -185,8 +175,6 @@ open class AbsMusicServiceActivity : AbsBaseActivity(),
                 when (action) {
                     ServiceEvent.META_CHANGED -> musicActivity.onPlayingMetaChanged()
                     ServiceEvent.PLAY_STATE_CHANGED -> musicActivity.onPlayStateChanged()
-                    ServiceEvent.REPEAT_MODE_CHANGED -> musicActivity.onRepeatModeChanged()
-                    ServiceEvent.SHUFFLE_MODE_CHANGED -> musicActivity.onShuffleModeChanged()
                     ServiceEvent.QUEUE_CHANGED -> musicActivity.onQueueChanged()
                     ServiceEvent.MEDIA_STORE_CHANGED -> musicActivity.onMediaStoreChanged()
                     ServiceEvent.FAVORITE_STATE_CHANGED -> musicActivity.onFavoritesStoreChanged()

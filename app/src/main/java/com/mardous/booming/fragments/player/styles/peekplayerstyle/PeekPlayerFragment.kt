@@ -29,6 +29,7 @@ import androidx.core.view.updatePadding
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentPeekPlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.PlayerColorSchemeMode
@@ -37,7 +38,6 @@ import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
 import com.mardous.booming.fragments.player.surfaceTintTarget
 import com.mardous.booming.fragments.player.tintTarget
-import com.mardous.booming.model.Song
 import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.util.Preferences
 
@@ -72,6 +72,20 @@ class PeekPlayerFragment : AbsPlayerFragment(R.layout.fragment_peek_player) {
             v.updatePadding(left = displayCutout.left, right = displayCutout.right)
             insets
         }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.currentSongFlow.collect { song ->
+                _binding?.let { nonNullBinding ->
+                    nonNullBinding.title.text = song.title
+                    nonNullBinding.text.text = getSongArtist(song)
+                    if (isExtraInfoEnabled()) {
+                        nonNullBinding.songInfo.text = getExtraInfoString(song)
+                        nonNullBinding.songInfo.isVisible = true
+                    } else {
+                        nonNullBinding.songInfo.isVisible = false
+                    }
+                }
+            }
+        }
     }
 
     private fun setupToolbar() {
@@ -89,19 +103,6 @@ class PeekPlayerFragment : AbsPlayerFragment(R.layout.fragment_peek_player) {
     override fun onCreateChildFragments() {
         super.onCreateChildFragments()
         controlsFragment = whichFragment(R.id.playbackControlsFragment)
-    }
-
-    override fun onSongInfoChanged(song: Song) {
-        _binding?.let { nonNullBinding ->
-            nonNullBinding.title.text = song.title
-            nonNullBinding.text.text = getSongArtist(song)
-            if (isExtraInfoEnabled()) {
-                nonNullBinding.songInfo.text = getExtraInfoString(song)
-                nonNullBinding.songInfo.isVisible = true
-            } else {
-                nonNullBinding.songInfo.isVisible = false
-            }
-        }
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {

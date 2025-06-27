@@ -1,4 +1,4 @@
-package com.mardous.booming.viewmodels.player.worker
+package com.mardous.booming.worker
 
 import android.content.Context
 import android.graphics.Bitmap

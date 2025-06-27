@@ -15,7 +15,7 @@ import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.service.queue.SmartPlayingQueue
 import com.mardous.booming.viewmodels.player.model.PlayerProgress
 import com.mardous.booming.viewmodels.player.model.SaveCoverResult
-import com.mardous.booming.viewmodels.player.worker.SaveCoverWorker
+import com.mardous.booming.worker.SaveCoverWorker
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 

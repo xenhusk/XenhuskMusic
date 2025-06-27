@@ -17,7 +17,7 @@ import com.mardous.booming.extensions.files.toAudioFile
 import com.mardous.booming.http.Result
 import com.mardous.booming.http.deezer.DeezerAlbum
 import com.mardous.booming.http.deezer.DeezerTrack
-import com.mardous.booming.misc.TagWriter
+import com.mardous.booming.worker.TagEditorWorker
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Song
@@ -179,21 +179,21 @@ class TagEditorViewModel(private val repository: Repository, private val id: Lon
             emit(repository.deezerTrack(artistName, title))
         }
 
-    fun writeTags(context: Context, writeInfo: TagWriter.WriteInfo): LiveData<SaveTagsResult> =
+    fun writeTags(context: Context, writeInfo: TagEditorWorker.WriteInfo): LiveData<SaveTagsResult> =
         liveData(Dispatchers.IO) {
             emit(SaveTagsResult(isLoading = true, isSuccess = false))
             val result = runCatching {
-                TagWriter.writeTagsToFiles(context, writeInfo)
+                TagEditorWorker.writeTagsToFiles(context, writeInfo)
             }
             emit(SaveTagsResult(isLoading = false, isSuccess = result.isSuccess))
         }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    fun createCacheFiles(context: Context, writeInfo: TagWriter.WriteInfo): LiveData<SaveTagsResult> =
+    fun createCacheFiles(context: Context, writeInfo: TagEditorWorker.WriteInfo): LiveData<SaveTagsResult> =
         liveData(Dispatchers.IO) {
             emit(SaveTagsResult(isLoading = true, isSuccess = false))
             val result = runCatching {
-                TagWriter.writeTagsToFilesR(context, writeInfo)
+                TagEditorWorker.writeTagsToFilesR(context, writeInfo)
             }
             if (result.isSuccess) {
                 emit(SaveTagsResult(isLoading = false, isSuccess = true, result.getOrThrow()))
@@ -216,7 +216,7 @@ class TagEditorViewModel(private val repository: Repository, private val id: Lon
             }
         }
         withContext(Dispatchers.Main) {
-            TagWriter.scan(context, paths)
+            TagEditorWorker.scan(context, paths)
         }
     }
 

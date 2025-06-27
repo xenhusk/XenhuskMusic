@@ -15,7 +15,7 @@ import com.mardous.booming.extensions.isAllowedToDownloadMetadata
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.http.Result
 import com.mardous.booming.http.lyrics.LyricsDownloadService
-import com.mardous.booming.misc.TagWriter
+import com.mardous.booming.worker.TagEditorWorker
 import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
 import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
@@ -173,10 +173,10 @@ class RealLyricsRepository(
             val fieldKeyValueMap = EnumMap<FieldKey, String>(FieldKey::class.java).apply {
                 put(FieldKey.LYRICS, plainLyrics)
             }
-            val writeInfo = TagWriter.WriteInfo(listOf(song.data), fieldKeyValueMap, null)
+            val writeInfo = TagEditorWorker.WriteInfo(listOf(song.data), fieldKeyValueMap, null)
             if (hasR()) {
                 val pending = runCatching {
-                    TagWriter.writeTagsToFilesR(context, writeInfo).first() to song.mediaStoreUri
+                    TagEditorWorker.writeTagsToFilesR(context, writeInfo).first() to song.mediaStoreUri
                 }
                 if (pending.isSuccess) {
                     SaveLyricsResult(
@@ -189,7 +189,7 @@ class RealLyricsRepository(
                 }
             } else {
                 val result = runCatching {
-                    TagWriter.writeTagsToFiles(context, writeInfo)
+                    TagEditorWorker.writeTagsToFiles(context, writeInfo)
                 }
                 if (result.isSuccess) {
                     SaveLyricsResult(isPending = false, isSuccess = true)

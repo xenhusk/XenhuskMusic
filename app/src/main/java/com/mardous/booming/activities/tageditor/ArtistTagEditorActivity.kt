@@ -33,7 +33,7 @@ import com.mardous.booming.extensions.glide.*
 import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.extensions.webSearch
 import com.mardous.booming.glide.BoomingSimpleTarget
-import com.mardous.booming.misc.TagWriter
+import com.mardous.booming.worker.TagEditorWorker
 import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
 import org.jaudiotagger.tag.FieldKey
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -156,7 +156,7 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
             put(FieldKey.DISC_TOTAL, artistBinding.discTotal.text?.toString())
         }
 
-    override val artworkInfo: TagWriter.ArtworkInfo? = null
+    override val artworkInfo: TagEditorWorker.ArtworkInfo? = null
 
     override fun getSongPaths(): List<String> = viewModel.getPaths()
 

@@ -49,8 +49,8 @@ import com.mardous.booming.extensions.files.isSAFRequiredForPaths
 import com.mardous.booming.extensions.files.isSAFAccessGranted
 import com.mardous.booming.extensions.resources.getResized
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
-import com.mardous.booming.misc.TagWriter
-import com.mardous.booming.misc.TagWriter.WriteInfo
+import com.mardous.booming.worker.TagEditorWorker
+import com.mardous.booming.worker.TagEditorWorker.WriteInfo
 import com.mardous.booming.viewmodels.tageditor.model.SaveTagsResult
 import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
 import org.jaudiotagger.tag.FieldKey
@@ -270,11 +270,11 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
 
     protected abstract val fieldKeyValueMap: EnumMap<FieldKey, String?>
 
-    protected open val artworkInfo: TagWriter.ArtworkInfo?
+    protected open val artworkInfo: TagEditorWorker.ArtworkInfo?
         get() = when {
-            deleteAlbumArt -> TagWriter.ArtworkInfo(getArtworkId(), null)
+            deleteAlbumArt -> TagEditorWorker.ArtworkInfo(getArtworkId(), null)
             albumArtBitmap == null -> null
-            else -> TagWriter.ArtworkInfo(getArtworkId(), albumArtBitmap)
+            else -> TagEditorWorker.ArtworkInfo(getArtworkId(), albumArtBitmap)
         }
 
     private val defaultGenreSelector: Dialog by lazy {

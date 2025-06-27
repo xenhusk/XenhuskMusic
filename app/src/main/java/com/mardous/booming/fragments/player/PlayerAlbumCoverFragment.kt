@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager.widget.ViewPager
@@ -211,7 +212,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         )
         animatorSet.duration = BOOMING_ANIM_TIME
         animatorSet.doOnEnd {
-            binding.viewPager.isVisible = false
+            binding.viewPager.isInvisible = true
             it.removeAllListeners()
         }
         animatorSet.doOnStart {
@@ -237,7 +238,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         )
         animatorSet.duration = BOOMING_ANIM_TIME
         animatorSet.doOnStart {
-            binding.viewPager.isVisible = true
+            binding.viewPager.isInvisible = false
         }
         animatorSet.doOnEnd {
             coverLyricsFragment?.let {

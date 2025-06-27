@@ -24,6 +24,7 @@ import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.SearchManager
+import android.app.UiModeManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -43,6 +44,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
+import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.google.android.material.color.MaterialColors
@@ -83,6 +85,9 @@ val Resources.isScreenLarge: Boolean
 
 val Context.isNightMode: Boolean
     get() = resources.isNightMode
+
+val Context.systemContrast: Float
+    get() = (if (hasU()) getSystemService<UiModeManager>()?.contrast else null) ?: 0f
 
 fun Fragment.dip(id: Int) = resources.getDimensionPixelSize(id)
 

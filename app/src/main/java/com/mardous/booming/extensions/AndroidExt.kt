@@ -35,6 +35,8 @@ fun hasS() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
 fun hasT() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 
+fun hasU() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+
 fun PackageManager.packageInfo(packageName: String = appContext().packageName) =
     runCatching {
         if (hasT()) getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))

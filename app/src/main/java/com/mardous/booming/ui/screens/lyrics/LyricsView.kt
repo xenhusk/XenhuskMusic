@@ -1,6 +1,9 @@
 package com.mardous.booming.ui.screens.lyrics
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,7 +30,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.sp
 import com.mardous.booming.lyrics.Lyrics
 import com.mardous.booming.ui.components.decoration.FadingEdges
 import com.mardous.booming.ui.components.decoration.fadingEdges
@@ -40,11 +42,11 @@ import kotlinx.coroutines.withTimeout
 fun LyricsView(
     state: LyricsViewState,
     onLineClick: (Lyrics.Line) -> Unit,
+    contentColor: Color,
+    contentPadding: PaddingValues,
+    fadingEdges: FadingEdges,
+    fontSize: TextUnit,
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colorScheme.secondary,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    fadingEdges: FadingEdges = FadingEdges.None,
-    fontSize: TextUnit = 32.sp,
     fontWeight: FontWeight = FontWeight.Bold,
     lineHeight: TextUnit = 1.2.em,
 ) {

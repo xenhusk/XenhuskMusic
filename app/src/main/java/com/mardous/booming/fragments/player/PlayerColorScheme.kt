@@ -63,6 +63,9 @@ data class PlayerColorScheme(
     @param:ColorInt val secondaryControlColor: Int = secondaryTextColor
 ) {
 
+    fun composeColor(composer: PlayerColorScheme.() -> Int) =
+        run { androidx.compose.ui.graphics.Color(composer()) }
+
     enum class Mode(
         @param:StringRes val titleRes: Int,
         @param:StringRes val descriptionRes: Int,

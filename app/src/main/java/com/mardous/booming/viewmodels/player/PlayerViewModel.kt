@@ -20,7 +20,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
 class PlayerViewModel(
-    private val queueManager: SmartPlayingQueue,
     private val saveCoverWorker: SaveCoverWorker
 ) : ViewModel() {
 
@@ -87,6 +86,7 @@ class PlayerViewModel(
 
     private val _colorScheme = MutableLiveData<PlayerColorScheme>()
     val colorSchemeObservable: LiveData<PlayerColorScheme> = _colorScheme
+    val colorSchemeFlow = _colorScheme.asFlow()
     val colorScheme get() = colorSchemeObservable.value
 
     private var progressObserver: Job? = null

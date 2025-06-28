@@ -8,6 +8,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -16,8 +18,11 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mardous.booming.R
+import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.lyrics.Lyrics
+import com.mardous.booming.ui.components.color.primaryTextColor
 import com.mardous.booming.ui.components.decoration.FadingEdges
+import com.mardous.booming.ui.theme.PlayerTheme
 import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
 import com.mardous.booming.viewmodels.player.PlayerViewModel
@@ -99,31 +104,42 @@ fun CoverLyricsScreen(
         plainScrollState.scrollTo(0)
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        LyricsSurface(
-            modifier = Modifier.fillMaxSize(),
-            lyricsResult = lyricsResult,
-            lyricsViewState = lyricsViewState,
-            contentPadding = PaddingValues(vertical = 72.dp, horizontal = 8.dp),
-            syncedFadingEdges = FadingEdges(top = 72.dp, bottom = 64.dp),
-            syncedFontSize = 24.sp,
-            plainFontSize = 16.sp,
-            plainTextAlign = TextAlign.Center,
-            plainScrollState = plainScrollState,
-            onSeekToLine = { playerViewModel.seekTo(it.startAt) }
-        )
-
-        FilledIconButton(
-            modifier = Modifier
-                .wrapContentSize()
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            onClick = onExpandClick
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_open_in_full_24dp),
-                contentDescription = stringResource(R.string.open_lyrics_editor)
+    val playerColorScheme by playerViewModel.colorSchemeFlow.collectAsState(
+        initial = PlayerColorScheme.themeColorScheme(LocalContext.current)
+    )
+    PlayerTheme(playerColorScheme) {
+        Box(modifier = modifier.fillMaxSize()) {
+            LyricsSurface(
+                modifier = Modifier.fillMaxSize(),
+                lyricsResult = lyricsResult,
+                lyricsViewState = lyricsViewState,
+                contentPadding = PaddingValues(vertical = 72.dp, horizontal = 8.dp),
+                syncedContentColor = MaterialTheme.colorScheme.onSurface,
+                syncedFadingEdges = FadingEdges(top = 72.dp, bottom = 64.dp),
+                syncedFontSize = 24.sp,
+                plainFontSize = 16.sp,
+                plainTextAlign = TextAlign.Center,
+                plainScrollState = plainScrollState,
+                plainContentColor = MaterialTheme.colorScheme.onSurface,
+                onSeekToLine = { playerViewModel.seekTo(it.startAt) }
             )
+
+            FilledIconButton(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.onSurface,
+                    contentColor = MaterialTheme.colorScheme.onSurface.primaryTextColor()
+                ),
+                onClick = onExpandClick
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_open_in_full_24dp),
+                    contentDescription = stringResource(R.string.open_lyrics_editor)
+                )
+            }
         }
     }
 }
@@ -135,11 +151,13 @@ private fun LyricsSurface(
     onSeekToLine: (Lyrics.Line) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues,
+    syncedContentColor: Color = MaterialTheme.colorScheme.secondary,
     syncedFadingEdges: FadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
     syncedFontSize: TextUnit = 30.sp,
+    plainContentColor: Color = Color.Unspecified,
     plainScrollState: ScrollState = rememberScrollState(),
     plainFontSize: TextUnit = 20.sp,
-    plainTextAlign: TextAlign? = null,
+    plainTextAlign: TextAlign? = null
 ) {
     Box(modifier) {
         if (lyricsResult.loading) {
@@ -154,6 +172,7 @@ private fun LyricsSurface(
                         onLineClick = { onSeekToLine(it) },
                         fadingEdges = syncedFadingEdges,
                         fontSize = syncedFontSize,
+                        contentColor = syncedContentColor,
                         contentPadding = contentPadding
                     )
                 }
@@ -169,6 +188,7 @@ private fun LyricsSurface(
                             text = lyricsResult.plainLyrics,
                             textAlign = plainTextAlign,
                             fontSize = plainFontSize,
+                            color = plainContentColor,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -178,6 +198,7 @@ private fun LyricsSurface(
                     Text(
                         text = stringResource(R.string.no_lyrics_found),
                         style = MaterialTheme.typography.bodyLarge,
+                        color = plainContentColor,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .align(Alignment.Center)

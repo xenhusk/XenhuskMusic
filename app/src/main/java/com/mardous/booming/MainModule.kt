@@ -52,6 +52,7 @@ import com.mardous.booming.viewmodels.search.SearchViewModel
 import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
 import com.mardous.booming.viewmodels.update.UpdateViewModel
 import com.mardous.booming.viewmodels.yeardetail.YearDetailViewModel
+import com.mardous.booming.worker.SaveCoverWorker
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.bind
@@ -99,6 +100,9 @@ private val mainModule = module {
     }
     single {
         MediaStoreWriter(androidContext(), get())
+    }
+    single {
+        SaveCoverWorker(androidContext(), get())
     }
     single {
         UriSongResolver(androidContext(), get(), get())

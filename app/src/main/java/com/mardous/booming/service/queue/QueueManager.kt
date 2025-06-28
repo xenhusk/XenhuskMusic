@@ -34,7 +34,7 @@ import kotlinx.coroutines.withContext
 /**
  * @author Christians M. A. (mardous)
  */
-class SmartPlayingQueue(
+class QueueManager(
     private val musicService: MusicService,
     private val sharedPreferences: SharedPreferences,
     private val coroutineScope: CoroutineScope,

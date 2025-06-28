@@ -12,7 +12,6 @@ import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.model.Song
 import com.mardous.booming.service.constants.SessionCommand
 import com.mardous.booming.service.playback.Playback
-import com.mardous.booming.service.queue.SmartPlayingQueue
 import com.mardous.booming.viewmodels.player.model.PlayerProgress
 import com.mardous.booming.viewmodels.player.model.SaveCoverResult
 import com.mardous.booming.worker.SaveCoverWorker

@@ -263,8 +263,8 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
     private fun gridLayoutManager(): GridLayoutManager =
         GridLayoutManager(requireContext(), defaultGridColumns(), GridLayoutManager.VERTICAL, false)
 
-    override fun onMediaStoreChanged() {
-        super.onMediaStoreChanged()
+    override fun onMediaContentChanged() {
+        super.onMediaContentChanged()
         loadContent()
     }
 

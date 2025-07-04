@@ -22,6 +22,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.doOnPreDraw
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -40,12 +41,12 @@ import com.mardous.booming.databinding.FragmentQueueBinding
 import com.mardous.booming.dialogs.playlists.CreatePlaylistDialog
 import com.mardous.booming.extensions.applyBottomWindowInsets
 import com.mardous.booming.extensions.applyScrollableContentInsets
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.media.songCountStr
 import com.mardous.booming.extensions.resources.createFastScroller
 import com.mardous.booming.extensions.resources.inflateMenu
 import com.mardous.booming.extensions.resources.onVerticalScroll
 import com.mardous.booming.extensions.utilities.buildInfoString
-import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.helper.menu.onSongMenu
 import com.mardous.booming.model.QueueQuickAction
 import com.mardous.booming.model.Song
@@ -58,7 +59,7 @@ import kotlin.reflect.KProperty
 /**
  * @author Christians M. A. (mardous)
  */
-class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
+class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
     Toolbar.OnMenuItemClickListener,
     View.OnClickListener,
     PlayingQueueSongAdapter.Callback {
@@ -151,8 +152,22 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
         toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
         toolbar.setTitle(R.string.playing_queue_label)
         toolbar.inflateMenu(R.menu.menu_playing_queue, this@PlayingQueueFragment)
-
         updateQuickAction(null, selectedQuickAction)
+
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.playingQueueFlow.collect {
+                if (it.isEmpty()) {
+                    findNavController().navigateUp()
+                } else {
+                    updateQueue()
+                }
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.currentSongFlow.collect {
+                updateQueuePosition()
+            }
+        }
     }
 
     private fun applyWindowInsets(view: View) {
@@ -255,31 +270,6 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
     private fun updateQueuePosition() {
         playingQueueAdapter?.current = queuePosition
         toolbar.subtitle = queueInfo
-    }
-
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        updateQueue()
-        resetToCurrentPosition()
-    }
-
-    override fun onPlayingMetaChanged() {
-        super.onPlayingMetaChanged()
-        updateQueuePosition()
-    }
-
-    override fun onQueueChanged() {
-        super.onQueueChanged()
-        if (playerViewModel.playingQueue.isEmpty()) {
-            findNavController().navigateUp()
-            return
-        }
-        updateQueue()
-    }
-
-    override fun onMediaStoreChanged() {
-        super.onMediaStoreChanged()
-        updateQueue()
     }
 
     override fun onPause() {

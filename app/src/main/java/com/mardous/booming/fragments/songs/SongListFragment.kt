@@ -148,8 +148,8 @@ class SongListFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, Grid
         return super.onMenuItemSelected(item)
     }
 
-    override fun onMediaStoreChanged() {
-        super.onMediaStoreChanged()
+    override fun onMediaContentChanged() {
+        super.onMediaContentChanged()
         libraryViewModel.forceReload(ReloadType.Songs)
     }
 

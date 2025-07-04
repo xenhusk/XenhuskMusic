@@ -218,8 +218,8 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
         }
     }
 
-    override fun onMediaStoreChanged() {
-        super.onMediaStoreChanged()
+    override fun onMediaContentChanged() {
+        super.onMediaContentChanged()
         libraryViewModel.forceReload(ReloadType.Folders)
     }
 

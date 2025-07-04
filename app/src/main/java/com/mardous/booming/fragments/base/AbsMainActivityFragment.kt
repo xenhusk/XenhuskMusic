@@ -25,21 +25,27 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.mardous.booming.R
 import com.mardous.booming.activities.MainActivity
 import com.mardous.booming.extensions.applyWindowInsets
 import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.isLandscape
+import com.mardous.booming.extensions.showToast
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.player.PlayerViewModel
+import com.mardous.booming.viewmodels.player.model.MediaEvent
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
  * @author Christians M. A. (mardous)
  */
 abstract class AbsMainActivityFragment @JvmOverloads constructor(@LayoutRes layoutRes: Int = 0) :
-    AbsMusicServiceFragment(layoutRes), MenuProvider {
+    Fragment(layoutRes), MenuProvider {
 
     val playerViewModel: PlayerViewModel by activityViewModel()
     val libraryViewModel: LibraryViewModel by activityViewModel()
@@ -51,7 +57,22 @@ abstract class AbsMainActivityFragment @JvmOverloads constructor(@LayoutRes layo
         super.onViewCreated(view, savedInstanceState)
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.STARTED)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                playerViewModel.mediaEvent.collect {
+                    when (it) {
+                        MediaEvent.FavoriteContentChanged -> onFavoriteContentChanged()
+                        MediaEvent.MediaContentChanged -> onMediaContentChanged()
+                        is MediaEvent.PlaybackError -> showToast(it.message)
+                    }
+                }
+            }
+        }
     }
+
+    protected open fun onMediaContentChanged() {}
+
+    protected open fun onFavoriteContentChanged() {}
 
     protected fun applyWindowInsetsFromView(view: View) {
         view.applyWindowInsets(

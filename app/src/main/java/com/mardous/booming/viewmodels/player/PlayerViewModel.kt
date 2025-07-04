@@ -12,6 +12,7 @@ import com.mardous.booming.fragments.player.PlayerColorSchemeMode
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.model.Song
 import com.mardous.booming.model.SongProvider
+import com.mardous.booming.service.MediaEventBus
 import com.mardous.booming.service.constants.SessionCommand
 import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.service.playback.PlaybackManager
@@ -20,6 +21,7 @@ import com.mardous.booming.service.queue.QueueManager
 import com.mardous.booming.service.queue.StopPosition
 import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.viewmodels.player.model.MediaEvent
 import com.mardous.booming.viewmodels.player.model.PlayerProgress
 import com.mardous.booming.viewmodels.player.model.SaveCoverResult
 import com.mardous.booming.worker.SaveCoverWorker
@@ -31,6 +33,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class PlayerViewModel(
+    private val mediaEventBus: MediaEventBus,
     private val queueManager: QueueManager,
     private val playbackManager: PlaybackManager,
     private val saveCoverWorker: SaveCoverWorker
@@ -64,6 +67,7 @@ class PlayerViewModel(
     }
 
     val audioSessionId get() = playbackManager.getAudioSessionId()
+    val mediaEvent get() = mediaEventBus.mediaEvent
 
     private val _songProgressFlow = MutableStateFlow(0L)
     val songProgressFlow = _songProgressFlow.asStateFlow()
@@ -137,6 +141,10 @@ class PlayerViewModel(
         mediaController?.unregisterCallback(controllerCallback)
         mediaController = controller
         controller?.registerCallback(controllerCallback)
+    }
+
+    fun submitEvent(event: MediaEvent) = viewModelScope.launch {
+        mediaEventBus.submitEvent(event)
     }
 
     fun cycleRepeatMode() {

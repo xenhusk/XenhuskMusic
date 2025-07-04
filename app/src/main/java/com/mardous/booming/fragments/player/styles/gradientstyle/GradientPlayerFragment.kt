@@ -29,6 +29,7 @@ import androidx.core.view.WindowInsetsCompat.Type
 import androidx.core.view.updatePadding
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentGradientPlayerBinding
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.resources.darkenColor
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.player.*
@@ -63,6 +64,11 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
             insets
         }
         setupListeners()
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.nextSongFlow.collect {
+                updateNextSong(it)
+            }
+        }
     }
 
     private fun setupListeners() {
@@ -77,33 +83,12 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
         }
     }
 
-    private fun updateNextSong() {
-        val nextSong = playerViewModel.nextSong
+    private fun updateNextSong(nextSong: Song) {
         if (nextSong != Song.emptySong) {
             binding.nextSongLabel.text = nextSong.title
         } else {
             binding.nextSongLabel.setText(R.string.now_playing)
         }
-    }
-
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        updateNextSong()
-    }
-
-    override fun onPlayStateChanged() {
-        super.onPlayStateChanged()
-        updateNextSong()
-    }
-
-    override fun onPlayingMetaChanged() {
-        super.onPlayingMetaChanged()
-        updateNextSong()
-    }
-
-    override fun onQueueChanged() {
-        super.onQueueChanged()
-        updateNextSong()
     }
 
     override fun onToggleFavorite(song: Song, isFavorite: Boolean) {

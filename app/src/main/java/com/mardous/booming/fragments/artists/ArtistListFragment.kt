@@ -167,8 +167,8 @@ class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, 
         adapter?.notifyDataSetChanged()
     }
 
-    override fun onMediaStoreChanged() {
-        super.onMediaStoreChanged()
+    override fun onMediaContentChanged() {
+        super.onMediaContentChanged()
         libraryViewModel.forceReload(ReloadType.Artists)
     }
 

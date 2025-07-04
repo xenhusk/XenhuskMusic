@@ -35,6 +35,7 @@ import com.mardous.booming.extensions.getOnBackPressedDispatcher
 import com.mardous.booming.extensions.glide.DEFAULT_SONG_IMAGE
 import com.mardous.booming.extensions.glide.getSongGlideModel
 import com.mardous.booming.extensions.glide.songOptions
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.extensions.resources.getPrimaryTextColor
 import com.mardous.booming.extensions.whichFragment
@@ -89,6 +90,11 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
             v.updatePadding(left = displayCutout.left, right = displayCutout.right)
             insets
         }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.nextSongFlow.collect {
+                updateNextSongInfo(it)
+            }
+        }
     }
 
     private fun setupColors() {
@@ -110,9 +116,8 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
         }
     }
 
-    private fun updateNextSongInfo() {
+    private fun updateNextSongInfo(nextSong: Song) {
         Glide.with(this).clear(target)
-        val nextSong = playerViewModel.nextSong
         if (nextSong != Song.emptySong) {
             _binding?.nextSongText?.text = nextSong.title
             target = _binding?.nextSongAlbumArt?.let {
@@ -126,26 +131,6 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
             _binding?.nextSongText?.setText(R.string.now_playing)
             _binding?.nextSongAlbumArt?.setImageResource(DEFAULT_SONG_IMAGE)
         }
-    }
-
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        updateNextSongInfo()
-    }
-
-    override fun onPlayStateChanged() {
-        super.onPlayStateChanged()
-        updateNextSongInfo()
-    }
-
-    override fun onPlayingMetaChanged() {
-        super.onPlayingMetaChanged()
-        updateNextSongInfo()
-    }
-
-    override fun onQueueChanged() {
-        super.onQueueChanged()
-        updateNextSongInfo()
     }
 
     override fun onMenuInflated(menu: Menu) {

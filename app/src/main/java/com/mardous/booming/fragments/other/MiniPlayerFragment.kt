@@ -27,6 +27,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.Target
 import com.mardous.booming.R
@@ -42,13 +43,12 @@ import com.mardous.booming.extensions.resources.textColorPrimary
 import com.mardous.booming.extensions.resources.textColorSecondary
 import com.mardous.booming.extensions.resources.toForegroundColorSpan
 import com.mardous.booming.extensions.utilities.DEFAULT_INFO_DELIMITER
-import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.math.abs
 
-class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player),
+class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
     View.OnClickListener {
 
     private val playerViewModel: PlayerViewModel by activityViewModel()
@@ -65,6 +65,11 @@ class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentMiniPlayerBinding.bind(view)
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.currentSongFlow.collect {
+                updateCurrentSong()
+            }
+        }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.progressFlow.collect {
                 binding.progressBar.max = it.total.toInt()
@@ -115,16 +120,6 @@ class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player
         Glide.with(this).clear(target)
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        updateCurrentSong()
-    }
-
-    override fun onPlayingMetaChanged() {
-        super.onPlayingMetaChanged()
-        updateCurrentSong()
     }
 
     private fun updateCurrentSong() {

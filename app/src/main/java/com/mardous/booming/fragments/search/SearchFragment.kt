@@ -325,8 +325,8 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         binding.searchView.clearFocus()
     }
 
-    override fun onMediaStoreChanged() {
-        super.onMediaStoreChanged()
+    override fun onMediaContentChanged() {
+        super.onMediaContentChanged()
         viewModel.refresh()
     }
 

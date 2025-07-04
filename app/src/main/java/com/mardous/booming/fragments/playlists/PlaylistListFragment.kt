@@ -96,8 +96,8 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<PlaylistAdapt
         playlists.onPlaylistsMenu(this, menuItem)
     }
 
-    override fun onMediaStoreChanged() {
-        super.onMediaStoreChanged()
+    override fun onMediaContentChanged() {
+        super.onMediaContentChanged()
         libraryViewModel.forceReload(ReloadType.Playlists)
     }
 

@@ -18,15 +18,7 @@
 package com.mardous.booming.extensions.media
 
 import android.content.Context
-import android.content.Intent
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mardous.booming.R
 import com.mardous.booming.database.PlaylistEntity
-import com.mardous.booming.service.constants.ServiceEvent
 
 fun PlaylistEntity.isFavorites(context: Context) = playlistName == context.getString(R.string.favorites_label)
-
-fun Context.refreshFavoriteState() {
-    LocalBroadcastManager.getInstance(this)
-        .sendBroadcast(Intent(ServiceEvent.FAVORITE_STATE_CHANGED))
-}

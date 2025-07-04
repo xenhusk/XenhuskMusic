@@ -183,13 +183,11 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
         _binding = null
     }
 
-    override fun onMediaStoreChanged() {
-        super.onMediaStoreChanged()
+    override fun onMediaContentChanged() {
         libraryViewModel.forceReload(ReloadType.Suggestions)
     }
 
-    override fun onFavoritesStoreChanged() {
-        super.onFavoritesStoreChanged()
+    override fun onFavoriteContentChanged() {
         libraryViewModel.forceReload(ReloadType.Suggestions)
     }
 

@@ -27,16 +27,18 @@ import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager.widget.ViewPager
 import com.mardous.booming.R
 import com.mardous.booming.adapters.pager.AlbumCoverPagerAdapter
 import com.mardous.booming.databinding.FragmentPlayerAlbumCoverBinding
 import com.mardous.booming.extensions.isLandscape
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.resources.BOOMING_ANIM_TIME
-import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.model.GestureOnCover
+import com.mardous.booming.model.Song
 import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.transform.CarouselPagerTransformer
 import com.mardous.booming.transform.ParallaxPagerTransformer
@@ -46,7 +48,7 @@ import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
-class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChangeListener,
+class PlayerAlbumCoverFragment : Fragment(), ViewPager.OnPageChangeListener,
     SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val playerViewModel: PlayerViewModel by activityViewModel()
@@ -101,6 +103,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         coverLyricsFragment =
             childFragmentManager.findFragmentById(R.id.coverLyricsFragment) as? CoverLyricsFragment
         setupPageTransformer()
+        setupEventObserver()
         Preferences.registerOnSharedPreferenceChangeListener(this)
     }
 
@@ -124,6 +127,23 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         } else {
             viewPager.offscreenPageLimit = 2
             viewPager.setPageTransformer(true, Preferences.coverSwipingEffect)
+        }
+    }
+
+    private fun setupEventObserver() {
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.playingQueueFlow.collect { playingQueue ->
+                updatePlayingQueue(playingQueue)
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.currentPositionFlow.collect { position ->
+                if (!position.passive) {
+                    if (viewPager.currentItem != position.value) {
+                        viewPager.setCurrentItem(position.value, true)
+                    }
+                }
+            }
         }
     }
 
@@ -173,24 +193,6 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         gestureDetector = null
         _binding = null
         super.onDestroyView()
-    }
-
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        updatePlayingQueue()
-    }
-
-    override fun onPlayingMetaChanged() {
-        super.onPlayingMetaChanged()
-        val position = playerViewModel.currentPosition
-        if (viewPager.currentItem != position) {
-            viewPager.setCurrentItem(position, true)
-        }
-    }
-
-    override fun onQueueChanged() {
-        super.onQueueChanged()
-        updatePlayingQueue()
     }
 
     val isAllowedToLoadLyrics: Boolean
@@ -259,9 +261,9 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
         animatorSet.start()
     }
 
-    private fun updatePlayingQueue() {
+    private fun updatePlayingQueue(playingQueue: List<Song>) {
         _binding?.viewPager?.apply {
-            adapter = AlbumCoverPagerAdapter(parentFragmentManager, playerViewModel.playingQueue)
+            adapter = AlbumCoverPagerAdapter(parentFragmentManager, playingQueue)
             currentItem = playerViewModel.currentPosition
         }
         onPageSelected(playerViewModel.currentPosition)

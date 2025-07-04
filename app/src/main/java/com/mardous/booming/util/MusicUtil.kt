@@ -24,7 +24,6 @@ import androidx.core.net.toUri
 import com.mardous.booming.database.toSongEntity
 import com.mardous.booming.extensions.files.deleteUsingSAF
 import com.mardous.booming.extensions.hasQ
-import com.mardous.booming.extensions.media.refreshFavoriteState
 import com.mardous.booming.extensions.onUI
 import com.mardous.booming.model.Song
 import com.mardous.booming.repository.PlaylistRepository
@@ -39,7 +38,7 @@ typealias CompletionCallback = (deleted: Int) -> Unit
 
 object MusicUtil : KoinComponent {
 
-    suspend fun toggleFavorite(context: Context, song: Song) = withContext(Dispatchers.IO) {
+    suspend fun toggleFavorite(song: Song) = withContext(Dispatchers.IO) {
         val repository = get<PlaylistRepository>()
         val playlist = repository.favoritePlaylist()
         val songEntity = song.toSongEntity(playlist.playListId)
@@ -49,7 +48,6 @@ object MusicUtil : KoinComponent {
         } else {
             repository.insertSongs(listOf(songEntity))
         }
-        context.refreshFavoriteState()
     }
 
     suspend fun isFavorite(song: Song) = withContext(Dispatchers.IO) {

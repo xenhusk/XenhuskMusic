@@ -30,9 +30,10 @@ import com.mardous.booming.adapters.AddToPlaylistAdapter
 import com.mardous.booming.database.PlaylistWithSongs
 import com.mardous.booming.databinding.DialogProgressRecyclerViewBinding
 import com.mardous.booming.extensions.*
-import com.mardous.booming.extensions.media.refreshFavoriteState
-import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.model.Song
+import com.mardous.booming.viewmodels.library.LibraryViewModel
+import com.mardous.booming.viewmodels.player.PlayerViewModel
+import com.mardous.booming.viewmodels.player.model.MediaEvent
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
@@ -40,6 +41,7 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
  */
 class AddToPlaylistDialog : DialogFragment(), AddToPlaylistAdapter.IAddToPlaylistCallback {
 
+    private val playerViewModel: PlayerViewModel by activityViewModel()
     private val libraryViewModel: LibraryViewModel by activityViewModel()
     private val songs by extraNotNull<List<Song>>(EXTRA_SONGS)
 
@@ -94,7 +96,7 @@ class AddToPlaylistDialog : DialogFragment(), AddToPlaylistAdapter.IAddToPlaylis
                 adapter.adding(playlist.playlistEntity.playListId)
             } else {
                 if (it.isFavoritePlaylist && it.insertedSongs > 0) {
-                    context?.refreshFavoriteState()
+                    playerViewModel.submitEvent(MediaEvent.FavoriteContentChanged)
                 }
                 if (it.insertedSongs > 1) {
                     showToast(

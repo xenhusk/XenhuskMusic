@@ -31,6 +31,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
@@ -46,19 +47,18 @@ import com.mardous.booming.dialogs.SleepTimerDialog
 import com.mardous.booming.dialogs.WebSearchDialog
 import com.mardous.booming.dialogs.playlists.AddToPlaylistDialog
 import com.mardous.booming.dialogs.songs.ShareSongDialog
-import com.mardous.booming.extensions.currentFragment
-import com.mardous.booming.extensions.media.*
+import com.mardous.booming.extensions.*
+import com.mardous.booming.extensions.media.albumArtistName
+import com.mardous.booming.extensions.media.displayArtistName
+import com.mardous.booming.extensions.media.extraInfo
+import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.artistDetailArgs
 import com.mardous.booming.extensions.navigation.genreDetailArgs
-import com.mardous.booming.extensions.requestView
 import com.mardous.booming.extensions.resources.animateBackgroundColor
 import com.mardous.booming.extensions.resources.animateTintColor
 import com.mardous.booming.extensions.resources.inflateMenu
-import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.buildInfoString
-import com.mardous.booming.extensions.whichFragment
-import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.fragments.lyrics.LyricsEditorFragmentArgs
 import com.mardous.booming.fragments.player.PlayerAlbumCoverFragment
 import com.mardous.booming.fragments.player.PlayerColorScheme
@@ -74,15 +74,15 @@ import com.mardous.booming.model.Song
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.player.PlayerViewModel
+import com.mardous.booming.viewmodels.player.model.MediaEvent
+import kotlinx.coroutines.flow.filter
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
  * @author Christians M. A. (mardous)
  */
 abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
-    AbsMusicServiceFragment(layoutRes),
-    Toolbar.OnMenuItemClickListener,
-    PlayerAlbumCoverFragment.Callbacks {
+    Fragment(layoutRes), Toolbar.OnMenuItemClickListener, PlayerAlbumCoverFragment.Callbacks {
 
     val playerViewModel: PlayerViewModel by activityViewModel()
     val libraryViewModel: LibraryViewModel by activityViewModel()
@@ -101,6 +101,22 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         onCreateChildFragments()
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.mediaEvent.filter { it == MediaEvent.FavoriteContentChanged }
+                .collect {
+                    updateIsFavorite(withAnim = true)
+                }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.currentSongFlow.collect {
+                updateIsFavorite(withAnim = false)
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.nextSongFlow.collect {
+                playerControlsFragment.onQueueInfoChanged(getNextSongInfo())
+            }
+        }
         playerViewModel.colorSchemeObservable.observe(viewLifecycleOwner) { scheme ->
             applyColorScheme(scheme)?.start()
         }
@@ -261,28 +277,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         playerToolbar?.menu?.onLyricsVisibilityChang(lyricsVisible)
     }
 
-    override fun onFavoritesStoreChanged() {
-        super.onFavoritesStoreChanged()
-        updateIsFavorite(withAnim = true)
-    }
-
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        playerControlsFragment.onQueueInfoChanged(getNextSongInfo())
-        updateIsFavorite(withAnim = false)
-    }
-
-    override fun onPlayingMetaChanged() {
-        super.onPlayingMetaChanged()
-        playerControlsFragment.onQueueInfoChanged(getNextSongInfo())
-        updateIsFavorite(withAnim = false)
-    }
-
-    override fun onQueueChanged() {
-        super.onQueueChanged()
-        playerControlsFragment.onQueueInfoChanged(getNextSongInfo())
-    }
-
     override fun onDestroyView() {
         colorAnimatorSet?.cancel()
         colorAnimatorSet = null
@@ -428,7 +422,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
     private fun toggleFavorite(song: Song = playerViewModel.currentSong) {
         libraryViewModel.toggleFavorite(song).observe(viewLifecycleOwner) {
-            requireContext().refreshFavoriteState()
+            playerViewModel.submitEvent(MediaEvent.FavoriteContentChanged)
         }
     }
 

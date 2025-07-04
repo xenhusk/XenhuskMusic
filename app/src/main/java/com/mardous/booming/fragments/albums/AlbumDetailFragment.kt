@@ -375,8 +375,8 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
         findNavController().navigate(R.id.nav_play_info, playInfoArgs(getAlbum()))
     }
 
-    override fun onMediaStoreChanged() {
-        super.onMediaStoreChanged()
+    override fun onMediaContentChanged() {
+        super.onMediaContentChanged()
         detailViewModel.loadAlbumDetail()
     }
 

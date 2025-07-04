@@ -440,8 +440,8 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
         findNavController().navigate(R.id.nav_play_info, playInfoArgs(getArtist()))
     }
 
-    override fun onMediaStoreChanged() {
-        super.onMediaStoreChanged()
+    override fun onMediaContentChanged() {
+        super.onMediaContentChanged()
         detailViewModel.loadArtistDetail()
     }
 

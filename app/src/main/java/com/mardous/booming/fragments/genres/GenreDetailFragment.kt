@@ -167,8 +167,8 @@ class GenreDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_lis
         }
     }
 
-    override fun onMediaStoreChanged() {
-        super.onMediaStoreChanged()
+    override fun onMediaContentChanged() {
+        super.onMediaContentChanged()
         detailViewModel.loadGenreSongs()
     }
 

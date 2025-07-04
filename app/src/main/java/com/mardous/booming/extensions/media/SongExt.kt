@@ -38,13 +38,9 @@ import com.mardous.booming.misc.ReplayGainTagExtractor
 import com.mardous.booming.model.NowPlayingInfo
 import com.mardous.booming.model.Song
 import com.mardous.booming.model.WebSearchEngine
-import com.mardous.booming.service.MusicPlayer
 import org.jaudiotagger.audio.AudioFile
 import java.io.File
 import java.util.Locale
-
-val Song.isPlayingSong
-    get() = this.id == MusicPlayer.currentSong.id
 
 fun List<Song>.getSpannedTitles(context: Context): List<CharSequence> {
     val primaryColorSpan = context.textColorPrimary().toForegroundColorSpan()

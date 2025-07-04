@@ -20,8 +20,6 @@ package com.mardous.booming.interfaces;
 public interface IMusicServiceEventListener {
     void onServiceConnected();
 
-    void onServiceDisconnected();
-
     void onPlayingMetaChanged();
 
     void onPlayStateChanged();

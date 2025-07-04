@@ -30,7 +30,8 @@ import com.mardous.booming.R
 import com.mardous.booming.extensions.resources.hitTest
 import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.Song
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.viewmodels.player.PlayerViewModel
+import org.koin.androidx.viewmodel.ext.android.getViewModel
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
@@ -101,7 +102,8 @@ class PlayingQueueSongAdapter(
     }
 
     override fun onMoveItem(from: Int, to: Int) {
-        MusicPlayer.moveSong(from, to)
+        val playerViewModel = activity.getViewModel<PlayerViewModel>()
+        playerViewModel.moveSong(from, to)
     }
 
     override fun onCheckCanDrop(p1: Int, p2: Int): Boolean {
@@ -129,11 +131,8 @@ class PlayingQueueSongAdapter(
 
         override fun onClick(view: View) {
             val songPosition = layoutPosition
-            if (MusicPlayer.playingQueue.indices.contains(songPosition)) {
-                if (songPosition != current) {
-                    MusicPlayer.playSongAt(songPosition)
-                }
-            }
+            val playerViewModel = activity.getViewModel<PlayerViewModel>()
+            playerViewModel.playSongAt(songPosition)
         }
 
         override fun onLongClick(view: View): Boolean {
@@ -156,18 +155,21 @@ class PlayingQueueSongAdapter(
                     if (callback is Callback) {
                         callback.onRemoveSong(song, layoutPosition)
                     } else {
-                        MusicPlayer.removeFromQueue(layoutPosition)
+                        val playerViewModel = activity.getViewModel<PlayerViewModel>()
+                        playerViewModel.removePosition(layoutPosition)
                     }
                     true
                 }
 
                 R.id.action_stop_after_track -> {
-                    MusicPlayer.setStopPosition(layoutPosition)
+                    val playerViewModel = activity.getViewModel<PlayerViewModel>()
+                    playerViewModel.stopAt(layoutPosition)
                     true
                 }
 
                 R.id.action_put_after_current_track -> {
-                    MusicPlayer.moveToNextPosition(layoutPosition)
+                    val playerViewModel = activity.getViewModel<PlayerViewModel>()
+                    playerViewModel.moveToNextPosition(layoutPosition)
                     true
                 }
 

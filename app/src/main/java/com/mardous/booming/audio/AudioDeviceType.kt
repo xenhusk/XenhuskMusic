@@ -28,8 +28,8 @@ import com.mardous.booming.R
  */
 @SuppressLint("InlinedApi")
 enum class AudioDeviceType(
-    @DrawableRes val iconRes: Int,
-    @StringRes internal val nameRes: Int,
+    @param:DrawableRes val iconRes: Int,
+    @param:StringRes internal val nameRes: Int,
     internal val isProduct: Boolean,
     internal val types: Array<Int>
 ) {

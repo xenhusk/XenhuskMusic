@@ -59,7 +59,7 @@ import com.mardous.booming.helper.menu.onSongsMenu
 import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.Song
 import com.mardous.booming.search.searchFilter
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.viewmodels.playlistdetail.PlaylistDetailViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -71,7 +71,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_
     ISongCallback {
 
     private val arguments by navArgs<PlaylistDetailFragmentArgs>()
-    private val viewModel by viewModel<PlaylistDetailViewModel> {
+    private val detailViewModel by viewModel<PlaylistDetailViewModel> {
         parametersOf(arguments.playlistId)
     }
 
@@ -109,17 +109,17 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_
         setSupportActionBar(binding.toolbar)
         //binding.collapsingAppBarLayout.setupStatusBarScrim(requireContext())
 
-        viewModel.getPlaylist().observe(viewLifecycleOwner) { playlistWithSongs ->
+        detailViewModel.getPlaylist().observe(viewLifecycleOwner) { playlistWithSongs ->
             playlist = playlistWithSongs
             binding.title.text = playlist.playlistEntity.playlistName
             binding.subtitle.text = playlist.songs.toSongs().playlistInfo(requireContext())
             binding.collapsingAppBarLayout.title = playlist.playlistEntity.playlistName
         }
-        viewModel.getSongs().observe(viewLifecycleOwner) {
+        detailViewModel.getSongs().observe(viewLifecycleOwner) {
             binding.progressIndicator.hide()
             playlistSongAdapter?.dataSet = it.toSongs()
         }
-        viewModel.playlistExists().observe(viewLifecycleOwner) {
+        detailViewModel.playlistExists().observe(viewLifecycleOwner) {
             if (!it) {
                 findNavController().navigateUp()
             }
@@ -132,10 +132,14 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_
 
     private fun setupButtons() {
         binding.playAction.setOnClickListener {
-            MusicPlayer.openQueue(playlistSongAdapter!!.dataSet, keepShuffleMode = false)
+            playlistSongAdapter?.dataSet?.let {
+                playerViewModel.openQueue(it, shuffleMode = Playback.ShuffleMode.Off)
+            }
         }
         binding.shuffleAction.setOnClickListener {
-            MusicPlayer.openQueueShuffle(playlistSongAdapter!!.dataSet)
+            playlistSongAdapter?.dataSet?.let {
+                playerViewModel.openQueue(it, shuffleMode = Playback.ShuffleMode.On)
+            }
         }
     }
 

@@ -18,9 +18,12 @@
 package com.mardous.booming.activities.base
 
 import android.annotation.SuppressLint
+import android.content.ComponentName
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.session.MediaControllerCompat
 import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
@@ -55,7 +58,7 @@ import com.mardous.booming.interfaces.IBackConsumer
 import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.search.SearchQuery
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.service.MusicService
 import com.mardous.booming.util.*
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.player.PlayerViewModel
@@ -64,12 +67,15 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 /**
  * @author Christians M. A. (mardous)
  */
-abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
+abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
     protected lateinit var binding: SlidingMusicPanelLayoutBinding
+
     protected val libraryViewModel: LibraryViewModel by viewModel()
     protected val playerViewModel: PlayerViewModel by viewModel()
+
+    private lateinit var mediaBrowser: MediaBrowserCompat
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var nowPlayingScreen: NowPlayingScreen
@@ -117,18 +123,36 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             startActivity(Intent(this, PermissionsActivity::class.java))
             finish()
         }
+
         binding = SlidingMusicPanelLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             insets.also { windowInsets = it }
         }
+
+        createMediaBrowser()
         chooseFragmentForTheme()
         setupNavigationView()
         setupSlidingUpPanel()
         setupBottomSheet()
         updateColor()
 
+        launchAndRepeatWithViewLifecycle {
+            playerViewModel.playingQueueFlow.collect {
+                if (currentFragment(R.id.fragment_container) !is PlayingQueueFragment) {
+                    hideBottomSheet(playerViewModel.playingQueue.isEmpty())
+                }
+            }
+        }
+
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+    }
+
+    private fun createMediaBrowser() {
+        val component = ComponentName(this, MusicService::class.java)
+        mediaBrowser = MediaBrowserCompat(this, component, mediaBrowserConnectionCallback, null)
+        mediaBrowser.connect()
     }
 
     private fun setupNavigationView() {
@@ -179,35 +203,31 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
     }
 
     override fun onDestroy() {
+        mediaBrowser.disconnect()
         super.onDestroy()
         clearNavigationViewGestures()
         bottomSheetBehavior.removeBottomSheetCallback(bottomSheetCallback)
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
-    private val bottomSheetCallback = object : BottomSheetCallback() {
-        @SuppressLint("SwitchIntDef")
-        override fun onStateChanged(bottomSheet: View, newState: Int) {
-            if (panelStateCurrent != null) {
-                panelStateBefore = panelStateCurrent
-            }
-            panelStateCurrent = newState
-            when (newState) {
-                STATE_EXPANDED -> onPanelExpanded()
-                STATE_COLLAPSED -> onPanelCollapsed()
-                STATE_HIDDEN -> MusicPlayer.clearQueue()
-            }
+    protected open fun onMediaBrowserConnected() {
+        val token = mediaBrowser.sessionToken
+        var mediaController = MediaControllerCompat.getMediaController(this)
+        if (mediaController == null) {
+            mediaController = MediaControllerCompat(this, token)
+            MediaControllerCompat.setMediaController(this, mediaController)
         }
+        playerViewModel.setMediaController(mediaController)
+    }
 
-        override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            setMiniPlayerAlphaProgress(slideOffset)
-        }
+    protected open fun onMediaBrowserDisconnected() {
+        playerViewModel.setMediaController(null)
     }
 
     fun setBottomNavVisibility(
         visible: Boolean,
         animate: Boolean = false,
-        hideBottomSheet: Boolean = MusicPlayer.playingQueue.isEmpty(),
+        hideBottomSheet: Boolean = playerViewModel.playingQueue.isEmpty(),
     ) {
         if (isInOneTabMode) {
             hideBottomSheet(hide = hideBottomSheet, animate = animate, isBottomNavVisible = false)
@@ -249,7 +269,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             panelState = STATE_COLLAPSED
             libraryViewModel.setFabMargin(this, if (isBottomNavVisible) dip(R.dimen.bottom_nav_height) else 0)
         } else {
-            if (MusicPlayer.playingQueue.isNotEmpty()) {
+            if (playerViewModel.playingQueue.isNotEmpty()) {
                 slidingPanel.elevation = 0f
                 navigationView.elevation = 5f
                 if (isBottomNavVisible) {
@@ -390,18 +410,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         }
     }
 
-    override fun onServiceConnected() {
-        super.onServiceConnected()
-        hideBottomSheet(false)
-    }
-
-    override fun onQueueChanged() {
-        super.onQueueChanged()
-        if (currentFragment(R.id.fragment_container) !is PlayingQueueFragment) {
-            hideBottomSheet(MusicPlayer.playingQueue.isEmpty())
-        }
-    }
-
     private fun handleBackPress(): Boolean {
         if (panelState == STATE_EXPANDED || (panelState == STATE_SETTLING && panelStateBefore != STATE_EXPANDED)) {
             collapsePanel()
@@ -430,7 +438,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
                         ViewGroup.LayoutParams.WRAP_CONTENT
                     }
                 }
-                onServiceConnected()
             }
 
             ADD_EXTRA_CONTROLS -> {
@@ -442,7 +449,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
             NOW_PLAYING_IMAGE_CORNER_RADIUS,
             CIRCLE_PLAY_BUTTON -> {
                 chooseFragmentForTheme()
-                onServiceConnected()
             }
 
             SWIPE_TO_DISMISS -> bottomSheetBehavior.isHideable =
@@ -469,5 +475,38 @@ abstract class AbsSlidingMusicPanelActivity : AbsMusicServiceActivity(),
         playerFragment = whichFragment(R.id.player_container)
         miniPlayerFragment = whichFragment(R.id.mini_player_container)
         miniPlayerFragment?.view?.setOnClickListener { expandPanel() }
+    }
+
+    private val bottomSheetCallback = object : BottomSheetCallback() {
+        @SuppressLint("SwitchIntDef")
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            if (panelStateCurrent != null) {
+                panelStateBefore = panelStateCurrent
+            }
+            panelStateCurrent = newState
+            when (newState) {
+                STATE_EXPANDED -> onPanelExpanded()
+                STATE_COLLAPSED -> onPanelCollapsed()
+                STATE_HIDDEN -> playerViewModel.clearQueue()
+            }
+        }
+
+        override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            setMiniPlayerAlphaProgress(slideOffset)
+        }
+    }
+
+    private val mediaBrowserConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
+        override fun onConnected() {
+            onMediaBrowserConnected()
+        }
+
+        override fun onConnectionSuspended() {
+            onMediaBrowserDisconnected()
+        }
+
+        override fun onConnectionFailed() {
+            onMediaBrowserDisconnected()
+        }
     }
 }

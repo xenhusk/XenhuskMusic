@@ -185,6 +185,7 @@ open class MultiPlayer(private val context: Context) : Playback,
     override fun start(): Boolean {
         return mCurrentMediaPlayer.execSafe {
             start()
+            mCallbacks?.onPlayStateChanged()
             true
         } ?: false
     }
@@ -214,6 +215,7 @@ open class MultiPlayer(private val context: Context) : Playback,
     override fun pause(): Boolean {
         return mCurrentMediaPlayer.execSafe {
             pause()
+            mCallbacks?.onPlayStateChanged()
             true
         } ?: false
     }

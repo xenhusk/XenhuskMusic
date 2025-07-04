@@ -31,7 +31,6 @@ import com.mardous.booming.adapters.artist.ArtistAdapter
 import com.mardous.booming.extensions.navigation.artistDetailArgs
 import com.mardous.booming.extensions.navigation.asFragmentExtras
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onArtistMenu
 import com.mardous.booming.helper.menu.onArtistsMenu
@@ -39,9 +38,11 @@ import com.mardous.booming.interfaces.IArtistCallback
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.GridViewType
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.sort.SortKeys
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
+import com.mardous.booming.viewmodels.library.ReloadType
 
 class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, GridLayoutManager>(),
     IArtistCallback {
@@ -60,9 +61,15 @@ class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, 
 
     override fun onShuffleClicked() {
         super.onShuffleClicked()
-        libraryViewModel.artistsShuffle(adapter?.dataSet).observe(viewLifecycleOwner) { success ->
-            if (success) {
-                showToast(R.string.artists_shuffle)
+        adapter?.dataSet?.let {
+            playerViewModel.openShuffle(
+                providers = it,
+                mode = Preferences.artistShuffleMode,
+                sortKey = SortKeys.AZ
+            ).observe(viewLifecycleOwner) { success ->
+                if (success) {
+                    showToast(R.string.artists_shuffle)
+                }
             }
         }
     }

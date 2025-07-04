@@ -1,18 +1,26 @@
 package com.mardous.booming.viewmodels.equalizer
 
+import android.media.AudioManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mardous.booming.audio.AudioOutputObserver
 import com.mardous.booming.audio.SoundSettings
 import com.mardous.booming.viewmodels.equalizer.model.BalanceLevel
-import com.mardous.booming.viewmodels.equalizer.model.TempoLevel
 import com.mardous.booming.viewmodels.equalizer.model.EqEffectUpdate
+import com.mardous.booming.viewmodels.equalizer.model.TempoLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SoundSettingsViewModel(private val soundSettings: SoundSettings) : ViewModel() {
+class SoundSettingsViewModel(
+    private val audioOutputObserver: AudioOutputObserver,
+    private val soundSettings: SoundSettings
+) : ViewModel() {
 
-    val balanceFlow get() = soundSettings.balanceFlow
-    val tempoFlow get() = soundSettings.tempoFlow
+    val volumeStateFlow get() = audioOutputObserver.volumeStateFlow
+    val audioDeviceFlow get() = audioOutputObserver.audioDeviceFlow
+
+    val balanceFlow = soundSettings.balanceFlow
+    val tempoFlow = soundSettings.tempoFlow
 
     val balance get() = soundSettings.balance
     val minBalance: Float get() = soundSettings.minBalance
@@ -25,6 +33,19 @@ class SoundSettingsViewModel(private val soundSettings: SoundSettings) : ViewMod
     val minPitch: Float get() = soundSettings.minPitch
     val defaultSpeed: Float get() = soundSettings.defaultSpeed
     val defaultPitch: Float get() = soundSettings.defaultPitch
+
+    init {
+        audioOutputObserver.startObserver()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        audioOutputObserver.stopObserver()
+    }
+
+    fun setVolume(volume: Int) {
+        audioOutputObserver.audioManager?.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0)
+    }
 
     fun setBalance(
         right: Float = balance.right,

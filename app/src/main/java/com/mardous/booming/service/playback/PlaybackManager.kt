@@ -34,14 +34,18 @@ import com.mardous.booming.service.MultiPlayer
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class PlaybackManager(
     private val context: Context,
     private val equalizerManager: EqualizerManager,
-    private val soundSettings: SoundSettings,
-    coroutineScope: CoroutineScope
+    private val soundSettings: SoundSettings
 ) : AudioManager.OnAudioFocusChangeListener {
+
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val audioManager: AudioManager? = context.getSystemService()
     private val audioFocusRequest: AudioFocusRequestCompat =
@@ -54,25 +58,25 @@ class PlaybackManager(
                     .build()
             ).build()
 
-    var isGaplessPlayback = false
+    var pendingQuit = false
+    var gaplessPlayback = Preferences.gaplessPlayback
+
     private var isPausedByTransientLossOfFocus = false
-
     private var playback: Playback? = null
-
     private val equalizerEnabled: Boolean
         get() = equalizerManager.eqState.isUsable
 
-    init {
+    fun initialize(callbacks: Playback.PlaybackCallbacks) {
         playback = MultiPlayer(context)
-        isGaplessPlayback = Preferences.gaplessPlayback
+        playback?.setCallbacks(callbacks)
         coroutineScope.launch {
-            soundSettings.balanceFlow.collect {
-                updateBalance(it.value.left, it.value.right)
+            soundSettings.balanceFlow.collect { balance ->
+                updateBalance(balance.value.left, balance.value.right)
             }
         }
         coroutineScope.launch {
-            soundSettings.tempoFlow.collect {
-                updateTempo(it.value.speed, it.value.actualPitch)
+            soundSettings.tempoFlow.collect { tempo ->
+                updateTempo(tempo.value.speed, tempo.value.actualPitch)
             }
         }
     }
@@ -91,10 +95,6 @@ class PlaybackManager(
     fun isPlaying(): Boolean = playback?.isPlaying() == true
 
     fun mayResume(): Boolean = isPausedByTransientLossOfFocus
-
-    fun setCallbacks(callbacks: Playback.PlaybackCallbacks) {
-        playback?.setCallbacks(callbacks)
-    }
 
     fun play(onNotInitialized: () -> Unit) {
         if (!requestFocus()) {
@@ -123,11 +123,10 @@ class PlaybackManager(
         }
     }
 
-    fun pause(onPause: () -> Unit) {
+    fun pause() {
         if (playback != null && playback!!.isPlaying()) {
             playback?.pause()
             closeAudioEffectSession(false)
-            onPause()
         }
     }
 
@@ -170,6 +169,7 @@ class PlaybackManager(
     }
 
     fun release() {
+        coroutineScope.cancel()
         equalizerManager.release()
         playback?.release()
         playback = null
@@ -193,7 +193,6 @@ class PlaybackManager(
             AudioManager.AUDIOFOCUS_GAIN -> {
                 if (!isPlaying() && isPausedByTransientLossOfFocus) {
                     playback?.start()
-                    playback?.getCallbacks()?.onPlayStateChanged()
                     isPausedByTransientLossOfFocus = false
                 }
             }
@@ -202,7 +201,6 @@ class PlaybackManager(
                 // Lost focus for an unbounded amount of time: stop playback and release media playback
                 if (!Preferences.ignoreAudioFocus) {
                     playback?.pause()
-                    playback?.getCallbacks()?.onPlayStateChanged()
                 }
             }
 
@@ -213,21 +211,9 @@ class PlaybackManager(
                 if (Preferences.pauseOnTransientFocusLoss) {
                     val wasPlaying = isPlaying()
                     playback?.pause()
-                    playback?.getCallbacks()?.onPlayStateChanged()
                     isPausedByTransientLossOfFocus = wasPlaying
                 }
             }
         }
-    }
-
-    object Volume {
-        /**
-         * The volume we set the media player to when we lose audio focus, but are
-         * allowed to reduce the volume instead of stopping playback.
-         */
-        const val DUCK = 0.2f
-
-        /** The volume we set the media player when we have audio focus.  */
-        const val NORMAL = 1.0f
     }
 }

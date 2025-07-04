@@ -19,7 +19,6 @@ package com.mardous.booming.fragments.sound
 
 import android.app.Dialog
 import android.graphics.PorterDuff
-import android.media.AudioManager
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.DialogFragment
@@ -29,10 +28,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
-import com.mardous.booming.audio.AudioDevice
-import com.mardous.booming.audio.AudioOutputObserver
 import com.mardous.booming.databinding.FragmentSoundSettingsBinding
-import com.mardous.booming.extensions.create
 import com.mardous.booming.extensions.hasPie
 import com.mardous.booming.extensions.requireAlertDialog
 import com.mardous.booming.extensions.resources.controlColorNormal
@@ -46,22 +42,12 @@ import java.util.Locale
  * @author Christians M. A. (mardous)
  */
 class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
-    Slider.OnChangeListener, Slider.OnSliderTouchListener, AudioOutputObserver.Callback {
+    Slider.OnChangeListener, Slider.OnSliderTouchListener {
 
     private val viewModel: SoundSettingsViewModel by viewModel()
 
     private var _binding: FragmentSoundSettingsBinding? = null
     private val binding get() = _binding!!
-
-    private lateinit var audioOutputObserver: AudioOutputObserver
-
-    private val audioManager: AudioManager
-        get() = audioOutputObserver.audioManager
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        audioOutputObserver = AudioOutputObserver(requireContext(), this)
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = FragmentSoundSettingsBinding.inflate(layoutInflater)
@@ -73,10 +59,7 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
             .setIcon(R.drawable.ic_volume_up_24dp)
             .setView(binding.root)
             .setPositiveButton(R.string.close_action, null)
-            .create {
-                audioOutputObserver.requestVolume()
-                audioOutputObserver.requestAudioDevice()
-            }
+            .create()
     }
 
     private fun launchAndRepeatWithViewLifecycle(block: suspend CoroutineScope.() -> Unit) {
@@ -86,6 +69,28 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
     }
 
     private fun launchFlow() {
+        launchAndRepeatWithViewLifecycle {
+            viewModel.volumeStateFlow.collect { volumeState ->
+                binding.volumeSlider.apply {
+                    valueFrom = volumeState.minVolume.toFloat()
+                    valueTo = volumeState.maxVolume.toFloat()
+                    if (!isDragging) {
+                        setValueAnimated(volumeState.currentVolume.toFloat())
+                    }
+                    isEnabled = !volumeState.isFixed
+                }
+            }
+        }
+        launchAndRepeatWithViewLifecycle {
+            viewModel.audioDeviceFlow.collect { currentDevice ->
+                requireAlertDialog().setIcon(currentDevice.type.iconRes)
+                if (hasPie()) {
+                    requireAlertDialog().setTitle(currentDevice.getDeviceName(requireContext()))
+                } else {
+                    requireAlertDialog().setTitle(getString(R.string.sound_settings))
+                }
+            }
+        }
         launchAndRepeatWithViewLifecycle {
             viewModel.balanceFlow.collect {
                 binding.leftBalanceSlider.value = it.value.left
@@ -161,7 +166,7 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
     override fun onValueChange(slider: Slider, value: Float, fromUser: Boolean) {
         if (fromUser) {
             when (slider) {
-                binding.volumeSlider -> audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value.toInt(), 0)
+                binding.volumeSlider -> viewModel.setVolume(value.toInt())
                 binding.leftBalanceSlider -> viewModel.setBalance(left = value, apply = false)
                 binding.rightBalanceSlider -> viewModel.setBalance(right = value, apply = false)
                 binding.speedSlider -> viewModel.setTempo(speed = value, apply = false)
@@ -176,39 +181,6 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
         viewModel.applyPendingState()
     }
 
-    override fun onAudioOutputDeviceChange(currentDevice: AudioDevice) {
-        requireAlertDialog().setIcon(currentDevice.type.iconRes)
-        if (hasPie()) {
-            requireAlertDialog().setTitle(currentDevice.getDeviceName(requireContext()))
-        } else {
-            requireAlertDialog().setTitle(getString(R.string.sound_settings))
-        }
-    }
-
-    override fun onVolumeChange(newVolume: Int, minVolume: Int, maxVolume: Int) {
-        binding.volumeSlider.apply {
-            valueFrom = minVolume.toFloat()
-            valueTo = maxVolume.toFloat()
-            if (!isDragging) {
-                setValueAnimated(newVolume.toFloat())
-            }
-        }
-    }
-
-    override fun onFixedVolumeStateChange(isFixed: Boolean) {
-        binding.volumeSlider.isEnabled = !isFixed
-    }
-
-    override fun onStart() {
-        super.onStart()
-        audioOutputObserver.startObserver()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        audioOutputObserver.stopObserver(false)
-    }
-
     override fun onDestroy() {
         binding.volumeSlider.clearOnChangeListeners()
         binding.leftBalanceSlider.clearOnChangeListeners()
@@ -220,7 +192,6 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
         binding.pitchSlider.clearOnChangeListeners()
         binding.pitchSlider.clearOnSliderTouchListeners()
         super.onDestroy()
-        audioOutputObserver.stopObserver()
         _binding = null
     }
 }

@@ -38,7 +38,7 @@ import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import com.mardous.booming.R
-import com.mardous.booming.activities.base.AbsMusicServiceActivity
+import com.mardous.booming.activities.base.AbsBaseActivity
 import com.mardous.booming.databinding.ActivityPermissionBinding
 import com.mardous.booming.extensions.hasS
 import com.mardous.booming.extensions.resources.primaryColor
@@ -46,7 +46,7 @@ import com.mardous.booming.extensions.resources.primaryColor
 /**
  * @author Christians M. A. (mardous)
  */
-class PermissionsActivity : AbsMusicServiceActivity() {
+class PermissionsActivity : AbsBaseActivity() {
 
     private var _binding: ActivityPermissionBinding? = null
     private val binding get() = _binding!!

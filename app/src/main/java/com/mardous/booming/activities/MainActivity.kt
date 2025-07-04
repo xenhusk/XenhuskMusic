@@ -17,11 +17,8 @@
 
 package com.mardous.booming.activities
 
-import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.session.MediaControllerCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -35,9 +32,6 @@ import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.interfaces.IScrollHelper
 import com.mardous.booming.model.CategoryInfo
-import com.mardous.booming.service.MusicPlayer
-import com.mardous.booming.service.MusicService
-import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import com.mardous.booming.viewmodels.update.UpdateViewModel
@@ -52,8 +46,6 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
     private val updateViewModel: UpdateViewModel by viewModel()
     private val lyricsViewModel: LyricsViewModel by viewModel()
 
-    private lateinit var mediaBrowser: MediaBrowserCompat
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = null
@@ -63,14 +55,6 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
 
         // Set up dynamic shortcuts
         DynamicShortcutManager(this).initDynamicShortcuts()
-
-        mediaBrowser = MediaBrowserCompat(
-            this,
-            ComponentName(this, MusicService::class.java),
-            connectionCallback,
-            null
-        )
-        mediaBrowser.connect()
 
         prepareUpdateViewModel()
     }
@@ -172,35 +156,20 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
         handlePlaybackIntent(intent, false)
     }
 
-    override fun onServiceConnected() {
-        super.onServiceConnected()
+    override fun onMediaBrowserConnected() {
+        super.onMediaBrowserConnected()
         intent?.let { handlePlaybackIntent(it, true) }
-    }
-
-    override fun onPlayingMetaChanged() {
-        super.onPlayingMetaChanged()
-        playerViewModel.updateSong(MusicPlayer.currentSong)
-        lyricsViewModel.updateSong(MusicPlayer.currentSong)
-    }
-
-    override fun onPlaybackRestored() {
-        super.onPlaybackRestored()
-        if (Preferences.playOnStartupMode == PlayOnStartupMode.WITH_EXPANDED_PLAYER) {
-            expandPanel()
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mediaBrowser.disconnect()
     }
 
     private fun handlePlaybackIntent(intent: Intent, canRestorePlayback: Boolean) {
         libraryViewModel.handleIntent(intent).observe(this) { result ->
             if (result.handled) {
+                if (result.songs.isNotEmpty()) {
+                    playerViewModel.openQueue(result.songs, result.position)
+                }
                 setIntent(Intent())
             } else if (canRestorePlayback) {
-                libraryViewModel.restorePlayback()
+                playerViewModel.restorePlayback()
             }
             if (result.failed) {
                 showToast(R.string.unplayable_file)
@@ -238,19 +207,6 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
                     }
                 }
             }
-        }
-    }
-
-    private val connectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
-        override fun onConnected() {
-            val token = mediaBrowser.sessionToken
-            val mediaController = MediaControllerCompat(this@MainActivity, token)
-            MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
-            playerViewModel.setMediaController(mediaController)
-        }
-
-        override fun onConnectionFailed() {
-            playerViewModel.setMediaController(null)
         }
     }
 }

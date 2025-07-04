@@ -32,7 +32,6 @@ import com.mardous.booming.adapters.FileAdapter
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.navigation.folderDetailArgs
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onSongMenu
 import com.mardous.booming.helper.menu.onSongsMenu
@@ -48,6 +47,7 @@ import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
+import com.mardous.booming.viewmodels.library.ReloadType
 import java.io.File
 
 class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, GridLayoutManager>(),
@@ -110,7 +110,11 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
 
     override fun fileClick(file: FileSystemItem) {
         when (file) {
-            is Song -> libraryViewModel.playFromFiles(file)
+            is Song -> {
+                libraryViewModel.listSongsFromFiles(file).observe(viewLifecycleOwner) { (songs, position) ->
+                    playerViewModel.openQueue(songs, position)
+                }
+            }
             else -> {
                 if (Preferences.hierarchyFolderView) {
                     libraryViewModel.navigateToPath(file.filePath)

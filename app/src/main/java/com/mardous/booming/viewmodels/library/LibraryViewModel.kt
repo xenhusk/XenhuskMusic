@@ -35,28 +35,19 @@ import com.mardous.booming.model.filesystem.FileSystemItem
 import com.mardous.booming.model.filesystem.FileSystemQuery
 import com.mardous.booming.repository.RealSmartRepository
 import com.mardous.booming.repository.Repository
-import com.mardous.booming.service.MusicPlayer
-import com.mardous.booming.service.queue.ShuffleManager
-import com.mardous.booming.service.queue.ShuffleManager.GroupShuffleMode
-import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.StorageUtil
-import com.mardous.booming.util.sort.SortKeys
 import com.mardous.booming.viewmodels.library.model.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.resume
 
 class LibraryViewModel(
     private val repository: Repository,
     private val inclExclDao: InclExclDao,
-    private val uriSongResolver: UriSongResolver,
-    private val shuffleManager: ShuffleManager
+    private val uriSongResolver: UriSongResolver
 ) : ViewModel() {
 
     init {
@@ -107,11 +98,8 @@ class LibraryViewModel(
         emit(repository.genreBySong(song))
     }
 
-    fun shuffleAll() = viewModelScope.launch(IO) {
-        val allSongs = repository.allSongs()
-        withContext(Main) {
-            MusicPlayer.openQueueShuffle(allSongs)
-        }
+    fun allSongs() = liveData(IO) {
+        emit(repository.allSongs())
     }
 
     fun forceReload(reloadType: ReloadType) = viewModelScope.launch(IO) {
@@ -248,16 +236,14 @@ class LibraryViewModel(
         forceReload(ReloadType.Folders)
     }
 
-    fun playFromFiles(
+    fun listSongsFromFiles(
         song: Song,
         files: List<FileSystemItem>? = fileSystem.value?.children
-    ) = viewModelScope.launch(IO) {
+    ) = liveData(IO) {
         if (!files.isNullOrEmpty()) {
             val songs = songsFromCurrentFolder()
             val startPos = songs.indexOfSong(song.id).coerceAtLeast(0)
-            if (isActive) {
-                MusicPlayer.openQueue(songs, position = startPos)
-            }
+            emit(songs to startPos)
         }
     }
 
@@ -289,28 +275,6 @@ class LibraryViewModel(
             ContentType.TopAlbums -> emit(repository.topAlbums())
             ContentType.RecentAlbums -> emit(repository.recentAlbums())
             else -> emit(arrayListOf())
-        }
-    }
-
-    fun restorePlayback() = viewModelScope.launch {
-        if (Preferences.playOnStartupMode != PlayOnStartupMode.NEVER) {
-            MusicPlayer.restorePlayback()
-        }
-    }
-
-    fun playFromSearch(
-        song: Song,
-        results: List<Any>,
-        autoQueue: Boolean = Preferences.searchAutoQueue
-    ) = viewModelScope.launch(IO) {
-        if (autoQueue) {
-            val songs = results.filterIsInstance<Song>()
-            val startPos = songs.indexOfSong(song.id).coerceAtLeast(0)
-            if (isActive) {
-                MusicPlayer.openQueue(songs, position = startPos)
-            }
-        } else {
-            MusicPlayer.openQueue(listOf(song))
         }
     }
 
@@ -356,24 +320,6 @@ class LibraryViewModel(
 
     fun notRecentlyPlayedSongs(): LiveData<List<Song>> = liveData(IO) {
         emit(repository.notRecentlyPlayedSongs())
-    }
-
-    fun albumsShuffle(
-        albums: List<Album>?,
-        mode: GroupShuffleMode = Preferences.albumShuffleMode
-    ): LiveData<Boolean> = liveData(IO) {
-        val shuffledSongs = shuffleManager.shuffleByProvider(albums, mode, SortKeys.TRACK_NUMBER)
-        MusicPlayer.openQueue(shuffledSongs, keepShuffleMode = false)
-        emit(shuffledSongs.isNotEmpty())
-    }
-
-    fun artistsShuffle(
-        artists: List<Artist>?,
-        mode: GroupShuffleMode = Preferences.artistShuffleMode
-    ): LiveData<Boolean> = liveData(IO) {
-        val shuffledSongs = shuffleManager.shuffleByProvider(artists, mode, SortKeys.AZ)
-        MusicPlayer.openQueue(shuffledSongs, keepShuffleMode = false)
-        emit(shuffledSongs.isNotEmpty())
     }
 
     fun renamePlaylist(playListId: Long, name: String) = viewModelScope.launch(IO) {
@@ -509,6 +455,10 @@ class LibraryViewModel(
         }
     }
 
+    fun deleteSongs(songs: List<Song>) = viewModelScope.launch(IO) {
+        repository.deleteSongs(songs)
+    }
+
     private suspend fun initializeBlacklist() {
         if (!Preferences.initializedBlacklist) {
             repository.initializeBlacklist()
@@ -525,14 +475,7 @@ class LibraryViewModel(
         } else {
             if (uri.toString().isNotEmpty()) {
                 val songs = uriSongResolver.resolve(uri)
-                if (songs.isNotEmpty()) {
-                    withContext(Main) {
-                        MusicPlayer.openQueue(songs)
-                    }
-                    emit(result)
-                } else {
-                    emit(result.copy(failed = true))
-                }
+                emit(result.copy(songs = songs, failed = songs.isEmpty()))
             } else {
                 when (intent.type) {
                     MediaStore.Audio.Playlists.CONTENT_TYPE -> {
@@ -541,9 +484,10 @@ class LibraryViewModel(
                             val position = intent.getIntExtra("position", 0)
                             val playlist = devicePlaylistById(id)
                             if (playlist != Playlist.EmptyPlaylist) {
-                                MusicPlayer.openQueue(playlist.getSongs(), position)
+                                emit(result.copy(songs = playlist.getSongs(), position = position))
+                            } else {
+                                emit(result)
                             }
-                            emit(result)
                         }
                     }
 
@@ -551,8 +495,7 @@ class LibraryViewModel(
                         val id = parseIdFromIntent(intent, "albumId", "album")
                         if (id >= 0) {
                             val position = intent.getIntExtra("position", 0)
-                            MusicPlayer.openQueue(albumById(id).songs, position)
-                            emit(result)
+                            emit(result.copy(songs = albumById(id).songs, position = position))
                         }
                     }
 
@@ -560,8 +503,7 @@ class LibraryViewModel(
                         val id = parseIdFromIntent(intent, "artistId", "artist")
                         if (id >= 0) {
                             val position = intent.getIntExtra("position", 0)
-                            MusicPlayer.openQueue(artistById(id).songs, position)
-                            emit(result)
+                            emit(result.copy(songs = artistById(id).songs, position = position))
                         }
                     }
 

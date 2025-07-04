@@ -37,7 +37,6 @@ import com.mardous.booming.fragments.player.base.AbsPlayerFragment
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
 import com.mardous.booming.model.theme.NowPlayingScreen
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.Preferences
 
 class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_player), View.OnClickListener {
@@ -79,8 +78,8 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
     }
 
     private fun updateNextSong() {
-        val nextSong = MusicPlayer.getNextSong()
-        if (nextSong != null) {
+        val nextSong = playerViewModel.nextSong
+        if (nextSong != Song.emptySong) {
             binding.nextSongLabel.text = nextSong.title
         } else {
             binding.nextSongLabel.setText(R.string.now_playing)

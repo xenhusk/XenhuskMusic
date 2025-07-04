@@ -47,14 +47,14 @@ class MediaSessionCallback(private val musicService: MusicService, private val c
 
     override fun onPrepare() {
         super.onPrepare()
-        if (musicService.getCurrentSong() != Song.emptySong) {
+        if (musicService.currentSong != Song.emptySong) {
             musicService.restoreState(::onPlay)
         }
     }
 
     override fun onPlay() {
         super.onPlay()
-        if (musicService.getCurrentSong() != Song.emptySong) {
+        if (musicService.currentSong != Song.emptySong) {
             musicService.play()
         }
     }
@@ -71,14 +71,14 @@ class MediaSessionCallback(private val musicService: MusicService, private val c
 
     override fun onFastForward() {
         super.onFastForward()
-        val currentPosition = musicService.getSongProgressMillis()
-        val songDuration = musicService.getSongDurationMillis()
+        val currentPosition = musicService.currentSongProgress
+        val songDuration = musicService.currentSongDuration
         musicService.seek((currentPosition + FAST_FORWARD_THRESHOLD).coerceAtMost(songDuration))
     }
 
     override fun onRewind() {
         super.onRewind()
-        val currentPosition = musicService.getSongProgressMillis()
+        val currentPosition = musicService.currentSongProgress
         musicService.seek((currentPosition - REWIND_THRESHOLD).coerceAtLeast(0))
     }
 
@@ -97,6 +97,10 @@ class MediaSessionCallback(private val musicService: MusicService, private val c
 
     override fun onCustomAction(action: String, extras: Bundle) {
         when (action) {
+            SessionCommand.RESTORE_PLAYBACK -> {
+                musicService.restorePlayback()
+            }
+
             SessionCommand.CYCLE_REPEAT -> {
                 musicService.cycleRepeatMode()
                 musicService.updateMediaSessionPlaybackState()

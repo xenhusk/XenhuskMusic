@@ -29,10 +29,8 @@ import com.mardous.booming.extensions.media.playlistInfo
 import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.model.Song
 import com.mardous.booming.repository.Repository
-import com.mardous.booming.service.MusicPlayer
-import com.mardous.booming.service.MusicService
+import com.mardous.booming.service.queue.QueueManager
 import com.mardous.booming.util.Preferences
-import java.lang.ref.WeakReference
 
 /**
  * Created by Beesham Sarendranauth (Beesham)
@@ -40,13 +38,8 @@ import java.lang.ref.WeakReference
 class AutoMusicProvider(
     private val mContext: Context,
     private val repository: Repository,
+    private val queueManager: QueueManager
 ) {
-    private var mMusicService: WeakReference<MusicService>? = null
-
-    fun setMusicService(service: MusicService) {
-        mMusicService = WeakReference(service)
-    }
-
     suspend fun getChildren(mediaId: String?, resources: Resources): List<MediaBrowserCompat.MediaItem> {
         val mediaItems: MutableList<MediaBrowserCompat.MediaItem> = ArrayList()
         when (mediaId) {
@@ -115,18 +108,16 @@ class AutoMusicProvider(
                 }
 
             AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_QUEUE ->
-                mMusicService?.get()?.getPlayingQueue()?.let {
-                    for (song in it) {
-                        mediaItems.add(
-                            AutoMediaItem.with(mContext)
-                                .asPlayable()
-                                .path(mediaId, song.id)
-                                .title(song.title)
-                                .subTitle(song.displayArtistName())
-                                .icon(song.id.albumCoverUri())
-                                .build()
-                        )
-                    }
+                for (song in queueManager.playingQueue) {
+                    mediaItems.add(
+                        AutoMediaItem.with(mContext)
+                            .asPlayable()
+                            .path(mediaId, song.id)
+                            .title(song.title)
+                            .subTitle(song.displayArtistName())
+                            .icon(song.id.albumCoverUri())
+                            .build()
+                    )
                 }
 
             else -> {
@@ -229,7 +220,7 @@ class AutoMusicProvider(
                 .path(AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_QUEUE)
                 .icon(R.drawable.ic_queue_music_24dp)
                 .title(resources.getString(R.string.playing_queue_label))
-                .subTitle(MusicPlayer.playingQueue.playlistInfo(mContext))
+                .subTitle(queueManager.playingQueue.playlistInfo(mContext))
                 .asBrowsable().build()
         )
         mediaItems.add(

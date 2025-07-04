@@ -6,26 +6,36 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.mardous.booming.http.Result
 import com.mardous.booming.model.Song
-import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
 import com.mardous.booming.repository.LyricsRepository
+import com.mardous.booming.service.queue.QueueManager
+import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
  * @author Christians M. A. (mardous)
  */
-class LyricsViewModel(private val lyricsRepository: LyricsRepository) : ViewModel() {
+class LyricsViewModel(
+    queueManager: QueueManager,
+    private val lyricsRepository: LyricsRepository
+) : ViewModel() {
 
     private val _lyricsResult = MutableStateFlow(LyricsResult.Companion.Empty)
     val lyricsResult = _lyricsResult.asStateFlow()
 
     private val silentHandler = CoroutineExceptionHandler { _, _ -> }
 
-    fun updateSong(song: Song) = viewModelScope.launch {
+    init {
+        queueManager.currentSongFlow
+            .onEach { updateSong(it) }
+            .flowOn(Dispatchers.IO)
+            .launchIn(viewModelScope)
+    }
+
+    private fun updateSong(song: Song) = viewModelScope.launch {
         _lyricsResult.value = LyricsResult(id = song.id, loading = true)
         val result = withContext(Dispatchers.IO) {
             lyricsRepository.allLyrics(song, allowDownload = true, fromEditor = false)

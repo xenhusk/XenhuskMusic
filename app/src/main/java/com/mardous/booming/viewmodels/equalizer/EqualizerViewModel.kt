@@ -12,17 +12,9 @@ import com.mardous.booming.extensions.MIME_TYPE_APPLICATION
 import com.mardous.booming.extensions.files.getContentUri
 import com.mardous.booming.extensions.files.readString
 import com.mardous.booming.model.EQPreset
-import com.mardous.booming.viewmodels.equalizer.model.ExportRequestResult
-import com.mardous.booming.viewmodels.equalizer.model.ImportRequestResult
-import com.mardous.booming.viewmodels.equalizer.model.PresetExportResult
-import com.mardous.booming.viewmodels.equalizer.model.PresetImportResult
-import com.mardous.booming.viewmodels.equalizer.model.PresetOpResult
-import com.mardous.booming.viewmodels.equalizer.model.EqEffectUpdate
-import com.mardous.booming.viewmodels.equalizer.model.EqState
-import com.mardous.booming.viewmodels.equalizer.model.EqUpdate
 import com.mardous.booming.providers.MediaStoreWriter
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.equalizer.EqualizerManager
+import com.mardous.booming.viewmodels.equalizer.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -31,7 +23,8 @@ import java.io.File
 class EqualizerViewModel(
     private val contentResolver: ContentResolver,
     private val equalizerManager: EqualizerManager,
-    private val mediaStoreWriter: MediaStoreWriter
+    private val mediaStoreWriter: MediaStoreWriter,
+    private val audioSessionId: Int
 ) : ViewModel() {
 
     val eqStateFlow get() = equalizerManager.eqStateFlow
@@ -58,12 +51,12 @@ class EqualizerViewModel(
 
     fun setEqualizerState(isEnabled: Boolean, apply: Boolean = true) {
         // update equalizer session
-        equalizerManager.closeAudioEffectSession(MusicPlayer.audioSessionId, !isEnabled)
-        equalizerManager.openAudioEffectSession(MusicPlayer.audioSessionId, isEnabled)
+        equalizerManager.closeAudioEffectSession(audioSessionId, !isEnabled)
+        equalizerManager.openAudioEffectSession(audioSessionId, isEnabled)
 
         // set parameter and state
         viewModelScope.launch(Dispatchers.Default) {
-            equalizerManager.setEqualizerState(EqUpdate<EqState>(eqState, isEnabled), apply)
+            equalizerManager.setEqualizerState(EqUpdate(eqState, isEnabled), apply)
         }
     }
 

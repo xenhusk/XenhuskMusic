@@ -52,14 +52,14 @@ import com.mardous.booming.extensions.resources.setTrackingTouchListener
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.interfaces.IEQPresetCallback
 import com.mardous.booming.model.EQPreset
-import com.mardous.booming.viewmodels.equalizer.model.ExportRequestResult
-import com.mardous.booming.viewmodels.equalizer.model.ImportRequestResult
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.equalizer.OpenSLESConstants
 import com.mardous.booming.viewmodels.equalizer.EqualizerViewModel
+import com.mardous.booming.viewmodels.equalizer.model.ExportRequestResult
+import com.mardous.booming.viewmodels.equalizer.model.ImportRequestResult
 import com.mardous.booming.views.AnimSlider
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 import java.util.Formatter
 import java.util.Locale
 
@@ -72,7 +72,9 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
     private var _binding: FragmentEqualizerBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: EqualizerViewModel by viewModel()
+    private val viewModel: EqualizerViewModel by viewModel {
+        parametersOf(playerViewModel.audioSessionId)
+    }
 
     private lateinit var presetAdapter: EQPresetAdapter
 
@@ -291,7 +293,7 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
             }
 
             R.id.action_open_dsp -> {
-                val sessionId = MusicPlayer.audioSessionId
+                val sessionId = playerViewModel.audioSessionId
                 if (sessionId != AudioEffect.ERROR_BAD_VALUE) {
                     try {
                         val equalizer = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL)

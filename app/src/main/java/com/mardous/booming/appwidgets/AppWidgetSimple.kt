@@ -50,7 +50,7 @@ class AppWidgetSimple : BaseAppWidget() {
         val appWidgetView = RemoteViews(service.packageName, R.layout.app_widget_simple)
 
         val isPlaying = service.isPlaying
-        val song = service.getCurrentSong()
+        val song = service.currentSong
 
         // Set the titles and artwork
         if (song.title.isEmpty() && song.artistName.isEmpty()) {

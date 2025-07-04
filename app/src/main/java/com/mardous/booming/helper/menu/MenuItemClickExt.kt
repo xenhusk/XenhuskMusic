@@ -37,17 +37,19 @@ import com.mardous.booming.dialogs.songs.SetRingtoneDialog
 import com.mardous.booming.extensions.getShareSongIntent
 import com.mardous.booming.extensions.getShareSongsIntent
 import com.mardous.booming.extensions.navigation.*
+import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.toChooser
-import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.helper.m3u.M3UWriter
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Song
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.service.playback.Playback
+import com.mardous.booming.viewmodels.library.LibraryViewModel
+import com.mardous.booming.viewmodels.player.PlayerViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import org.koin.androidx.viewmodel.ext.android.getActivityViewModel
 
 fun Song.onSongMenu(
     fragment: Fragment,
@@ -59,12 +61,18 @@ fun Song.onSongMenu(
     }
     return when (menuItem.itemId) {
         R.id.action_play_next -> {
-            MusicPlayer.playNext(this)
+            val playerViewModel = fragment.getActivityViewModel<PlayerViewModel>()
+            playerViewModel.queueNext(this).observe(fragment.viewLifecycleOwner) {
+                fragment.showToast(R.string.added_title_to_playing_queue)
+            }
             true
         }
 
         R.id.action_add_to_playing_queue -> {
-            MusicPlayer.enqueue(this)
+            val playerViewModel = fragment.getActivityViewModel<PlayerViewModel>()
+            playerViewModel.enqueue(this).observe(fragment.viewLifecycleOwner) {
+                fragment.showToast(R.string.added_title_to_playing_queue)
+            }
             true
         }
 
@@ -87,7 +95,7 @@ fun Song.onSongMenu(
         }
 
         R.id.action_go_to_genre -> {
-            val libraryViewModel = fragment.activityViewModel<LibraryViewModel>().value
+            val libraryViewModel = fragment.getActivityViewModel<LibraryViewModel>()
             libraryViewModel.genreBySong(this).observe(fragment.viewLifecycleOwner) {
                 val navController = fragment.findActivityNavController(R.id.fragment_container)
                 navController.navigate(R.id.nav_genre_detail, genreDetailArgs(it))
@@ -138,22 +146,38 @@ fun List<Song>.onSongsMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
     }
     return when (menuItem.itemId) {
         R.id.action_play -> {
-            MusicPlayer.openQueue(this, keepShuffleMode = false)
+            val playerViewModel = fragment.getActivityViewModel<PlayerViewModel>()
+            playerViewModel.openQueue(this, shuffleMode = Playback.ShuffleMode.Off)
             true
         }
 
         R.id.action_shuffle_play -> {
-            MusicPlayer.openQueueShuffle(this, true)
+            val playerViewModel = fragment.getActivityViewModel<PlayerViewModel>()
+            playerViewModel.openQueue(this, shuffleMode = Playback.ShuffleMode.On)
             true
         }
 
         R.id.action_play_next -> {
-            MusicPlayer.playNext(this)
+            val playerViewModel = fragment.getActivityViewModel<PlayerViewModel>()
+            playerViewModel.queueNext(this).observe(fragment.viewLifecycleOwner) { added ->
+                if (added == 1) {
+                    fragment.showToast(R.string.added_title_to_playing_queue)
+                } else {
+                    fragment.showToast(R.string.added_x_titles_to_playing_queue, added)
+                }
+            }
             true
         }
 
         R.id.action_add_to_playing_queue -> {
-            MusicPlayer.enqueue(this)
+            val playerViewModel = fragment.getActivityViewModel<PlayerViewModel>()
+            playerViewModel.enqueue(this).observe(fragment.viewLifecycleOwner) { added ->
+                if (added == 1) {
+                    fragment.showToast(R.string.added_title_to_playing_queue)
+                } else {
+                    fragment.showToast(R.string.added_x_titles_to_playing_queue, added)
+                }
+            }
             true
         }
 

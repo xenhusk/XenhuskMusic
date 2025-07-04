@@ -38,7 +38,6 @@ import com.mardous.booming.repository.*
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.playback.PlaybackManager
 import com.mardous.booming.service.queue.QueueManager
-import com.mardous.booming.service.queue.ShuffleManager
 import com.mardous.booming.viewmodels.albumdetail.AlbumDetailViewModel
 import com.mardous.booming.viewmodels.artistdetail.ArtistDetailViewModel
 import com.mardous.booming.viewmodels.equalizer.EqualizerViewModel
@@ -62,31 +61,31 @@ import org.koin.dsl.module
 
 val networkModule = module {
     factory {
-        jsonHttpClient(get())
+        jsonHttpClient(okHttpClient = get())
     }
     factory {
         provideDefaultCache()
     }
     factory {
-        provideOkHttp(get(), get())
+        provideOkHttp(context = get(), cache = get())
     }
     single {
-        GitHubService(androidContext(), get())
+        GitHubService(context = androidContext(), client = get())
     }
     single {
-        DeezerService(get())
+        DeezerService(client = get())
     }
     single {
-        LastFmService(get())
+        LastFmService(client = get())
     }
     single {
-        LyricsDownloadService(get())
+        LyricsDownloadService(client = get())
     }
 }
 
 private val autoModule = module {
     single {
-        AutoMusicProvider(androidContext(), get(), get())
+        AutoMusicProvider(mContext = androidContext(), repository = get(), queueManager = get())
     }
 }
 
@@ -98,7 +97,7 @@ private val mainModule = module {
         PreferenceManager.getDefaultSharedPreferences(androidContext())
     }
     single {
-        EqualizerManager(androidContext())
+        EqualizerManager(context = androidContext())
     }
     single {
         QueueManager(context = androidContext())
@@ -153,117 +152,151 @@ private val roomModule = module {
 private val dataModule = module {
     single {
         RealRepository(
-            androidContext(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get()
+            context = androidContext(),
+            queueManager = get(),
+            deezerService = get(),
+            lastFmService = get(),
+            songRepository = get(),
+            albumRepository = get(),
+            artistRepository = get(),
+            genreRepository = get(),
+            smartRepository = get(),
+            specialRepository = get(),
+            playlistRepository = get(),
+            searchRepository = get()
         )
     } bind Repository::class
 
     single {
-        RealSongRepository(get())
+        RealSongRepository(inclExclDao = get())
     } bind SongRepository::class
 
     single {
-        RealAlbumRepository(get())
+        RealAlbumRepository(songRepository = get())
     } bind AlbumRepository::class
 
     single {
-        RealArtistRepository(get(), get())
+        RealArtistRepository(songRepository = get(), albumRepository = get())
     } bind ArtistRepository::class
 
     single {
-        RealPlaylistRepository(androidContext(), get(), get())
+        RealPlaylistRepository(
+            context = androidContext(),
+            songRepository = get(),
+            playlistDao = get()
+        )
     } bind PlaylistRepository::class
 
     single {
-        RealGenreRepository(get(), get())
+        RealGenreRepository(contentResolver = get(), songRepository = get())
     } bind GenreRepository::class
 
     single {
-        RealSearchRepository(get(), get(), get(), get(), get(), get())
+        RealSearchRepository(
+            albumRepository = get(),
+            songRepository = get(),
+            artistRepository = get(),
+            playlistRepository = get(),
+            genreRepository = get(),
+            specialRepository = get()
+        )
     } bind SearchRepository::class
 
     single {
-        RealSmartRepository(androidContext(), get(), get(), get(), get(), get())
+        RealSmartRepository(
+            context = androidContext(),
+            songRepository = get(),
+            albumRepository = get(),
+            artistRepository = get(),
+            historyDao = get(),
+            playCountDao = get()
+        )
     } bind SmartRepository::class
 
     single {
-        RealSpecialRepository(get())
+        RealSpecialRepository(songRepository = get())
     } bind SpecialRepository::class
 
     single {
-        RealLyricsRepository(androidContext(), get(), get(), get(), get())
+        RealLyricsRepository(
+            context = androidContext(),
+            contentResolver = get(),
+            lyricsDownloadService = get(),
+            lyricsParser = get(),
+            lyricsDao = get()
+        )
     } bind LyricsRepository::class
 }
 
 private val viewModule = module {
     viewModel {
-        LibraryViewModel(get(), get(), get())
+        LibraryViewModel(repository = get(), inclExclDao = get(), uriSongResolver = get())
     }
 
     viewModel {
-        PlayerViewModel(get(), get(), get())
+        PlayerViewModel(
+            mediaEventBus = get(),
+            queueManager = get(),
+            playbackManager = get(),
+            saveCoverWorker = get()
+        )
     }
 
     viewModel { (audioSessionId: Int) ->
-        EqualizerViewModel(get(), get(), get(), audioSessionId)
+        EqualizerViewModel(
+            contentResolver = get(),
+            equalizerManager = get(),
+            mediaStoreWriter = get(),
+            audioSessionId = audioSessionId
+        )
     }
 
     viewModel { (albumId: Long) ->
-        AlbumDetailViewModel(get(), albumId)
+        AlbumDetailViewModel(repository = get(), albumId = albumId)
     }
 
     viewModel { (artistId: Long, artistName: String?) ->
-        ArtistDetailViewModel(get(), artistId, artistName)
+        ArtistDetailViewModel(repository = get(), artistId = artistId, artistName = artistName)
     }
 
     viewModel { (playlistId: Long) ->
-        PlaylistDetailViewModel(get(), playlistId)
+        PlaylistDetailViewModel(playlistRepository = get(), playlistId = playlistId)
     }
 
     viewModel { (genre: Genre) ->
-        GenreDetailViewModel(get(), genre)
+        GenreDetailViewModel(repository = get(), genre = genre)
     }
 
     viewModel { (year: Int) ->
-        YearDetailViewModel(get(), year)
+        YearDetailViewModel(repository = get(), year = year)
     }
 
     viewModel { (path: String) ->
-        FolderDetailViewModel(get(), path)
+        FolderDetailViewModel(repository = get(), folderPath = path)
     }
 
     viewModel {
-        SearchViewModel(get())
+        SearchViewModel(repository = get())
     }
 
     viewModel { (id: Long, name: String?) ->
-        TagEditorViewModel(get(), id, name)
+        TagEditorViewModel(repository = get(), id = id, name = name)
     }
 
     viewModel {
-        LyricsViewModel(get(), get())
+        LyricsViewModel(queueManager = get(), lyricsRepository = get())
     }
 
     viewModel {
-        InfoViewModel(get())
+        InfoViewModel(repository = get())
     }
 
     viewModel {
-        SoundSettingsViewModel(get(), get())
+        SoundSettingsViewModel(audioOutputObserver = get(), soundSettings = get())
     }
 
     viewModel {
-        UpdateViewModel(get())
+        UpdateViewModel(updateService = get())
     }
 }
 

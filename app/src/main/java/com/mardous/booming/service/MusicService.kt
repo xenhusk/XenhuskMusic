@@ -461,6 +461,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                             play()
                             if (success && needsToRestorePlayback) {
                                 needsToRestorePlayback = false
+                                mediaEventBus.proposeEvent(MediaEvent.PlaybackRestored)
                             }
                             if (receivedHeadsetConnected) {
                                 receivedHeadsetConnected = false
@@ -834,6 +835,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         if (!playbackRestored) {
             if (queuesRestored) {
                 play()
+                mediaEventBus.proposeEvent(MediaEvent.PlaybackRestored)
             } else {
                 needsToRestorePlayback = true
             }

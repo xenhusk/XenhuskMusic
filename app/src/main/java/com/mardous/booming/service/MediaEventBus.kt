@@ -17,4 +17,8 @@ class MediaEventBus {
     suspend fun submitEvent(event: MediaEvent) {
         _mediaEventFlow.emit(event)
     }
+
+    fun proposeEvent(event: MediaEvent) {
+        _mediaEventFlow.tryEmit(event)
+    }
 }

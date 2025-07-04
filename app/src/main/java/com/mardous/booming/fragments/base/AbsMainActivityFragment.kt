@@ -35,6 +35,8 @@ import com.mardous.booming.extensions.applyWindowInsets
 import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.showToast
+import com.mardous.booming.util.PlayOnStartupMode.Companion.WITH_EXPANDED_PLAYER
+import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.player.PlayerViewModel
 import com.mardous.booming.viewmodels.player.model.MediaEvent
@@ -63,6 +65,11 @@ abstract class AbsMainActivityFragment @JvmOverloads constructor(@LayoutRes layo
                     when (it) {
                         MediaEvent.FavoriteContentChanged -> onFavoriteContentChanged()
                         MediaEvent.MediaContentChanged -> onMediaContentChanged()
+                        MediaEvent.PlaybackRestored -> {
+                            if (Preferences.playOnStartupMode == WITH_EXPANDED_PLAYER) {
+                                mainActivity.expandPanel()
+                            }
+                        }
                         is MediaEvent.PlaybackError -> showToast(it.message)
                     }
                 }

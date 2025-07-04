@@ -20,6 +20,7 @@ package com.mardous.booming
 import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.mardous.booming.androidauto.AutoMusicProvider
+import com.mardous.booming.audio.AudioOutputObserver
 import com.mardous.booming.audio.SoundSettings
 import com.mardous.booming.database.BoomingDatabase
 import com.mardous.booming.helper.UriSongResolver
@@ -116,6 +117,9 @@ private val mainModule = module {
     }
     single {
         UriSongResolver(context = androidContext(), contentResolver = get(), songRepository = get())
+    }
+    single {
+        MediaEventBus()
     }
     single {
         LrcLyricsParser()

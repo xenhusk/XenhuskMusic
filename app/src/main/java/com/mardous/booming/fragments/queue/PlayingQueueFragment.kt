@@ -49,8 +49,9 @@ import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.helper.menu.onSongMenu
 import com.mardous.booming.model.QueueQuickAction
 import com.mardous.booming.model.Song
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.viewmodels.player.PlayerViewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
@@ -62,6 +63,7 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
     View.OnClickListener,
     PlayingQueueSongAdapter.Callback {
 
+    private val playerViewModel: PlayerViewModel by activityViewModel()
     private var _binding: FragmentQueueBinding? = null
     private val binding get() = _binding!!
 
@@ -84,14 +86,14 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
     private val queueInfo: CharSequence
         get() = buildInfoString(
             playingQueue.songCountStr(requireContext()),
-            MusicPlayer.getQueueDurationInfo()
+            playerViewModel.queueDurationAsString
         )
 
     private val playingQueue: List<Song>
-        get() = MusicPlayer.playingQueue
+        get() = playerViewModel.playingQueue
 
     private val queuePosition: Int
-        get() = MusicPlayer.position
+        get() = playerViewModel.currentPosition
 
     private val mainActivity: MainActivity
         get() = activity as MainActivity
@@ -121,7 +123,7 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
             Glide.with(this),
             arrayListOf(),
             this,
-            MusicPlayer.position
+            queuePosition
         ).also { adapter ->
             dragDropManager = RecyclerViewDragDropManager().also { manager ->
                 wrappedAdapter = manager.createWrappedAdapter(adapter)
@@ -176,12 +178,12 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
             }
 
             R.id.action_clear_playing_queue -> {
-                MusicPlayer.clearQueue()
+                playerViewModel.clearQueue()
                 true
             }
 
             R.id.action_shuffle_queue -> {
-                MusicPlayer.shuffleQueue()
+                playerViewModel.shuffleQueue()
                 true
             }
 
@@ -206,7 +208,7 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
             Snackbar.LENGTH_LONG
         )
             .setAction(R.string.undo_action) {
-                MusicPlayer.enqueue(song, fromPosition)
+                playerViewModel.enqueue(song, fromPosition)
             }
             .addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
                 override fun onDismissed(snackbar: Snackbar, event: Int) {
@@ -214,7 +216,7 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
                 }
 
                 override fun onShown(snackbar: Snackbar) {
-                    MusicPlayer.removeFromQueue(fromPosition)
+                    playerViewModel.removePosition(fromPosition)
                 }
             }).also { newSnackbar ->
                 newSnackbar.show()
@@ -268,7 +270,7 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
 
     override fun onQueueChanged() {
         super.onQueueChanged()
-        if (MusicPlayer.playingQueue.isEmpty()) {
+        if (playerViewModel.playingQueue.isEmpty()) {
             findNavController().navigateUp()
             return
         }
@@ -300,7 +302,7 @@ class PlayingQueueFragment : AbsMusicServiceFragment(R.layout.fragment_queue),
         linearLayoutManager = null
 
         super.onDestroyView()
-        if (MusicPlayer.playingQueue.isNotEmpty())
+        if (playerViewModel.playingQueue.isNotEmpty())
             mainActivity.expandPanel()
     }
 }

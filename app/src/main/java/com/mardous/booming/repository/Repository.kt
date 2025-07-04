@@ -34,7 +34,7 @@ import com.mardous.booming.model.*
 import com.mardous.booming.model.filesystem.FileSystemQuery
 import com.mardous.booming.search.SearchFilter
 import com.mardous.booming.search.SearchQuery
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.service.queue.QueueManager
 import java.io.File
 
 interface Repository {
@@ -127,6 +127,7 @@ interface Repository {
 
 class RealRepository(
     private val context: Context,
+    private val queueManager: QueueManager,
     private val deezerService: DeezerService,
     private val lastFmService: LastFmService,
     private val songRepository: SongRepository,
@@ -235,7 +236,7 @@ class RealRepository(
         val song = songRepository.song(songId)
         if (song != Song.emptySong) {
             playlistRepository.deleteSongFromAllPlaylists(songId)
-            MusicPlayer.removeFromQueue(song)
+            queueManager.removeSong(song)
         }
         return song
     }
@@ -245,7 +246,7 @@ class RealRepository(
         deletableSongs.forEach { song ->
             playlistRepository.deleteSongFromAllPlaylists(song.id)
         }
-        MusicPlayer.removeFromQueue(deletableSongs)
+        queueManager.removeSongs(deletableSongs)
     }
 
     override suspend fun deleteMissingContent() {

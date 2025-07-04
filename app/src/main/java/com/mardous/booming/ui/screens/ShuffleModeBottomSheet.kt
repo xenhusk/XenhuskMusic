@@ -24,13 +24,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mardous.booming.service.queue.ShuffleManager
+import com.mardous.booming.service.queue.SpecialShuffleMode
 import com.mardous.booming.ui.components.lists.ShuffleModeItem
 
 @Composable
 fun ShuffleModeBottomSheet(
-    modes: Array<ShuffleManager.ShuffleMode>,
-    onModeClick: (ShuffleManager.ShuffleMode) -> Unit,
+    modes: Array<SpecialShuffleMode>,
+    onModeClick: (SpecialShuffleMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier

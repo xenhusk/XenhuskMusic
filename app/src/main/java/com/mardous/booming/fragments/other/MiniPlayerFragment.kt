@@ -43,7 +43,6 @@ import com.mardous.booming.extensions.resources.textColorSecondary
 import com.mardous.booming.extensions.resources.toForegroundColorSpan
 import com.mardous.booming.extensions.utilities.DEFAULT_INFO_DELIMITER
 import com.mardous.booming.fragments.base.AbsMusicServiceFragment
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -129,7 +128,7 @@ class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_player
     }
 
     private fun updateCurrentSong() {
-        val song = MusicPlayer.currentSong
+        val song = playerViewModel.currentSong
 
         val builder = SpannableStringBuilder()
         val title = SpannableString(song.title).apply {

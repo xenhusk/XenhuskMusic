@@ -19,20 +19,16 @@ package com.mardous.booming.viewmodels.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mardous.booming.extensions.media.indexOfSong
+import com.mardous.booming.model.Song
 import com.mardous.booming.repository.Repository
 import com.mardous.booming.search.SearchFilter
 import com.mardous.booming.search.SearchQuery
-import kotlinx.coroutines.Dispatchers
+import com.mardous.booming.util.Preferences
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 class SearchViewModel(private val repository: Repository) : ViewModel() {
 
@@ -44,6 +40,9 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
     private val _searchResult = MutableStateFlow<List<Any>>(emptyList())
     val searchResult: StateFlow<List<Any>> = _searchResult.asStateFlow()
 
+    private val _queueFlow = MutableSharedFlow<Pair<List<Song>, Int>>(replay = 0)
+    val queueFlow: SharedFlow<Pair<List<Song>, Int>> = _queueFlow
+
     init {
         @OptIn(FlowPreview::class)
         combine(searchQuery, searchFilter) { query, filter -> query to filter }
@@ -53,7 +52,7 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
                 val result = repository.search(query, filter)
                 _searchResult.value = result
             }
-            .flowOn(Dispatchers.IO)
+            .flowOn(IO)
             .launchIn(viewModelScope)
     }
 
@@ -66,6 +65,15 @@ class SearchViewModel(private val repository: Repository) : ViewModel() {
         query: String? = searchQuery.value.searched
     ) {
         searchQuery.value = searchQuery.value.copy(filterMode = mode, searched = query)
+    }
+
+    fun songClick(song: Song, results: List<Any>) = viewModelScope.launch(IO) {
+        val songs = results.filterIsInstance<Song>()
+        val queue = if (Preferences.searchAutoQueue) songs else listOf(song)
+        val startPos = if (Preferences.searchAutoQueue) {
+            songs.indexOfSong(song.id).coerceAtLeast(0)
+        } else 0
+        _queueFlow.emit(queue to startPos)
     }
 
     fun refresh() {

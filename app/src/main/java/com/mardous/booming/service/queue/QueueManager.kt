@@ -17,54 +17,85 @@
 
 package com.mardous.booming.service.queue
 
-import android.content.SharedPreferences
-import androidx.core.content.edit
+import android.content.Context
 import com.mardous.booming.model.Song
+import com.mardous.booming.model.SongProvider
 import com.mardous.booming.providers.databases.PlaybackQueueStore
-import com.mardous.booming.service.MusicService
 import com.mardous.booming.service.playback.Playback
-import com.mardous.booming.util.SAVED_REPEAT_MODE
-import com.mardous.booming.util.SAVED_SHUFFLE_MODE
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.sort.SortOrder
+import com.mardous.booming.util.sort.sortedSongs
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.*
 
-/**
- * @author Christians M. A. (mardous)
- */
-class QueueManager(
-    private val musicService: MusicService,
-    private val sharedPreferences: SharedPreferences,
-    private val coroutineScope: CoroutineScope,
-    private var isSequentialQueue: Boolean
-) {
+private typealias MutablePlayQueue = MutableList<QueueSong>
 
-    var shuffleMode = Playback.ShuffleMode.Off
-    var repeatMode = Playback.RepeatMode.Off
-    var stopPosition = -1
-    var nextPosition = -1
-    var position = -1
+class QueueManager(private val context: Context) {
 
-    var playingQueue: MutableList<QueueSong> = ArrayList()
-    var originalPlayingQueue: MutableList<QueueSong> = ArrayList()
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val shuffleManager = ShuffleManager()
+    private val defaultShuffleMode: Playback.ShuffleMode
+        get() = if (Preferences.rememberShuffleMode) {
+            Playback.ShuffleMode.On
+        } else {
+            Playback.ShuffleMode.Off
+        }
 
     private val lastUpcomingPosition: Int
         get() = playingQueue.indexOfLast { it.isUpcoming }
 
-    val currentSong: Song
-        get() = getSongAt(position)
+    private val mutableRepeatModeFlow = MutableStateFlow(Playback.RepeatMode.Off)
+    val repeatModeFlow = mutableRepeatModeFlow.asStateFlow()
+    val repeatMode get() = repeatModeFlow.value
 
-    val isEmpty: Boolean
-        get() = playingQueue.isEmpty()
+    private val mutableShuffleModeFlow = MutableStateFlow(Playback.ShuffleMode.Off)
+    val shuffleModeFlow = mutableShuffleModeFlow.asStateFlow()
+    val shuffleMode get() = shuffleModeFlow.value
 
-    val isFirstTrack: Boolean
-        get() = position == 0
+    private val mutablePositionFlow = MutableStateFlow(QueuePosition.Unspecified)
+    val positionFlow = mutablePositionFlow.asStateFlow()
+    val position get() = positionFlow.value.value
 
-    val isLastTrack: Boolean
-        get() = position == playingQueue.lastIndex
+    private val mutablePlayingQueueFlow = MutableStateFlow(emptyList<QueueSong>())
+    val playingQueueFlow = mutablePlayingQueueFlow.asStateFlow()
+    val playingQueue get() = playingQueueFlow.value
 
+    private val mutableStopPositionFlow = MutableStateFlow(StopPosition.Unspecified)
+    val stopPositionFlow = mutableStopPositionFlow.asStateFlow()
+    val stopPosition get() = stopPositionFlow.value.value
+
+    val currentSongFlow = mutablePositionFlow.map {
+        getSongAt(it.value)
+    }.stateIn(
+        scope = coroutineScope,
+        started = SharingStarted.Eagerly,
+        initialValue = Song.emptySong
+    )
+    val currentSong get() = currentSongFlow.value
+
+    val nextSongFlow = mutablePositionFlow.map {
+        getSongAt(getNextPosition(true))
+    }.stateIn(
+        scope = coroutineScope,
+        started = SharingStarted.Eagerly,
+        initialValue = Song.emptySong
+    )
+    val nextSong get() = nextSongFlow.value
+
+    var nextPosition = -1
+    var originalPlayingQueue: MutableList<QueueSong> = ArrayList()
+
+    val isEmpty get() = playingQueue.isEmpty()
+    val isFirstTrack get() = position == 0
+    val isLastTrack get() = position == playingQueue.lastIndex
+    val isStopPosition get() = stopPosition == position
+
+    init {
+        setSequentialMode(Preferences.queueNextSequentially)
+    }
+
+    var isSequentialQueue: Boolean = false
     fun setSequentialMode(isSequentialQueue: Boolean) {
         this.isSequentialQueue = isSequentialQueue
         if (!isSequentialQueue) {
@@ -72,24 +103,45 @@ class QueueManager(
         }
     }
 
-    fun open(queue: List<Song>, startPosition: Int, onCompleted: (position: Int) -> Unit) {
-        if (queue.isNotEmpty() && startPosition >= 0 && startPosition < queue.size) {
-            // it is important to copy the playing queue here first as we might add/remove songs later
-            this.originalPlayingQueue = ArrayList(queue.toQueueSongs())
-            this.playingQueue = ArrayList(originalPlayingQueue)
-            var position = startPosition
+    suspend fun open(
+        queue: List<Song>,
+        startPosition: Int,
+        startPlaying: Boolean,
+        shuffleMode: Playback.ShuffleMode?
+    ) {
+        var position = startPosition
+        val result = createQueue(queue, startPosition, shuffleMode ?: defaultShuffleMode) {
             if (shuffleMode == Playback.ShuffleMode.On) {
-                makeShuffleList(playingQueue, startPosition)
                 position = 0
+                makeShuffleList(this, startPosition)
+            } else {
+                this
             }
-            onCompleted(position)
+        }
+        if (result) {
+            setPositionTo(QueuePosition.initial(position, startPlaying))
         }
     }
 
+    suspend fun shuffleUsingProviders(
+        providers: List<SongProvider>,
+        shuffleMode: GroupShuffleMode,
+        defaultSortKey: String? = null
+    ): Boolean {
+        val songs = providers.flatMap { it.songs }.sortedSongs(SortOrder.songSortOrder)
+        val result = createQueue(songs, 0, Playback.ShuffleMode.On) {
+            shuffleManager.shuffleByProvider(providers, shuffleMode, defaultSortKey)
+                .toQueueSongs()
+                .toMutableList()
+        }
+        if (result) {
+            setPositionTo(QueuePosition.play())
+        }
+        return result
+    }
+
     fun getSongAt(position: Int): Song {
-        return if (position >= 0 && position < playingQueue.size) {
-            playingQueue[position]
-        } else Song.emptySong
+        return playingQueue.getOrElse(position) { Song.emptySong }
     }
 
     fun getDuration(position: Int) = playingQueue.drop(position).sumOf { it.duration }
@@ -138,162 +190,346 @@ class QueueManager(
         return newPosition
     }
 
-    fun playNext(song: Song) {
+    fun queueNext(song: Song) {
         if (!isSequentialQueue) {
             addSong(position + 1, song)
         } else {
-            val queueSong = song.toQueueSong(true)
-            if (position == playingQueue.lastIndex) {
-                playingQueue.add(queueSong)
-                originalPlayingQueue.add(queueSong)
-            } else for (i in (position + 1) until playingQueue.size) {
-                val item = playingQueue[i]
-                if (item.isUpcoming) {
-                    if (i == playingQueue.lastIndex) {
-                        playingQueue.add(queueSong)
-                        originalPlayingQueue.add(queueSong)
+            modifyQueue { playingQueue, originalPlayingQueue ->
+                val queueSong = song.toQueueSong(true)
+                if (position == playingQueue.lastIndex) {
+                    playingQueue.add(queueSong)
+                    originalPlayingQueue.add(queueSong)
+                } else for (i in (position + 1) until playingQueue.size) {
+                    val item = playingQueue[i]
+                    if (item.isUpcoming) {
+                        if (i == playingQueue.lastIndex) {
+                            playingQueue.add(queueSong)
+                            originalPlayingQueue.add(queueSong)
+                            break
+                        }
+                    } else {
+                        playingQueue.add(i, queueSong)
+                        originalPlayingQueue.add(i, queueSong)
                         break
                     }
-                } else {
-                    playingQueue.add(i, queueSong)
-                    originalPlayingQueue.add(i, queueSong)
-                    break
                 }
             }
         }
     }
 
-    fun playNext(songs: List<Song>) {
+    fun queueNext(songs: List<Song>) {
         if (!isSequentialQueue) {
             addSongs(position + 1, songs)
         } else {
-            val queueSong = songs.toQueueSongs(true)
-            if (position == playingQueue.lastIndex) {
-                playingQueue.addAll(queueSong)
-                originalPlayingQueue.addAll(queueSong)
-            } else for (i in (position + 1) until playingQueue.size) {
-                val item = playingQueue[i]
-                if (item.isUpcoming) {
-                    if (i == playingQueue.lastIndex) {
-                        playingQueue.addAll(queueSong)
-                        originalPlayingQueue.addAll(queueSong)
+            modifyQueue { playingQueue, originalPlayingQueue ->
+                val queueSong = songs.toQueueSongs(true)
+                if (position == playingQueue.lastIndex) {
+                    playingQueue.addAll(queueSong)
+                    originalPlayingQueue.addAll(queueSong)
+                } else for (i in (position + 1) until playingQueue.size) {
+                    val item = playingQueue[i]
+                    if (item.isUpcoming) {
+                        if (i == playingQueue.lastIndex) {
+                            playingQueue.addAll(queueSong)
+                            originalPlayingQueue.addAll(queueSong)
+                            break
+                        }
+                    } else {
+                        playingQueue.addAll(i, queueSong)
+                        originalPlayingQueue.addAll(i, queueSong)
                         break
                     }
-                } else {
-                    playingQueue.addAll(i, queueSong)
-                    originalPlayingQueue.addAll(i, queueSong)
-                    break
                 }
             }
         }
     }
 
     fun addSong(position: Int, song: Song) {
-        val isUpcomingRange = isInUpcomingRange(position)
-        val queueSong = song.toQueueSong(isUpcomingRange)
-        playingQueue.add(position, queueSong)
-        originalPlayingQueue.add(position, queueSong)
+        modifyQueue { playingQueue, originalPlayingQueue ->
+            val isUpcomingRange = isInUpcomingRange(position)
+            val queueSong = song.toQueueSong(isUpcomingRange)
+            playingQueue.add(position, queueSong)
+            originalPlayingQueue.add(position, queueSong)
+        }
     }
 
     fun addSong(song: Song) {
-        val queueSong = song.toQueueSong()
-        playingQueue.add(queueSong)
-        originalPlayingQueue.add(queueSong)
+        modifyQueue { playingQueue, originalPlayingQueue ->
+            val queueSong = song.toQueueSong()
+            playingQueue.add(queueSong)
+            originalPlayingQueue.add(queueSong)
+        }
     }
 
     fun addSongs(position: Int, songs: List<Song>) {
-        val isUpcomingRange = isInUpcomingRange(position)
-        val queueSongs = songs.toQueueSongs(isUpcomingRange)
-        playingQueue.addAll(position, queueSongs)
-        originalPlayingQueue.addAll(position, queueSongs)
+        modifyQueue { playingQueue, originalPlayingQueue ->
+            val isUpcomingRange = isInUpcomingRange(position)
+            val queueSongs = songs.toQueueSongs(isUpcomingRange)
+            playingQueue.addAll(position, queueSongs)
+            originalPlayingQueue.addAll(position, queueSongs)
+        }
     }
 
     fun addSongs(songs: List<Song>) {
-        val queueSongs = songs.toQueueSongs()
-        playingQueue.addAll(queueSongs)
-        originalPlayingQueue.addAll(queueSongs)
+        modifyQueue { playingQueue, originalPlayingQueue ->
+            val queueSongs = songs.toQueueSongs()
+            playingQueue.addAll(queueSongs)
+            originalPlayingQueue.addAll(queueSongs)
+        }
     }
 
     fun moveSong(from: Int, to: Int) {
         if (from == to)
             return
 
-        val lastUpcomingIndex = lastUpcomingPosition
-        val currPosition = this.position
-        val songToMove = playingQueue.removeAt(from)
-        songToMove.isUpcoming = isInUpcomingRange(to)
-        playingQueue.add(to, songToMove)
-        if (shuffleMode == Playback.ShuffleMode.Off) {
-            val tmpSong = originalPlayingQueue.removeAt(from)
-            originalPlayingQueue.add(to, tmpSong)
-        }
-        when {
-            currPosition in to until from -> position = currPosition + 1
-            currPosition in (from + 1)..to -> position = currPosition - 1
-            from == currPosition -> {
-                this.position = to
-                if (to < currPosition) {
-                    realignUpcomingRange(lastIndex = lastUpcomingIndex)
-                } else if (to >= lastUpcomingIndex) {
-                    removeAllRanges()
+        modifyQueue { playingQueue, originalPlayingQueue ->
+            val playingQueue = playingQueue.toMutableList()
+            val lastUpcomingIndex = lastUpcomingPosition
+            val currPosition = this.position
+            val songToMove = playingQueue.removeAt(from)
+            songToMove.isUpcoming = isInUpcomingRange(to)
+            playingQueue.add(to, songToMove)
+            if (shuffleMode == Playback.ShuffleMode.Off) {
+                val tmpSong = originalPlayingQueue.removeAt(from)
+                originalPlayingQueue.add(to, tmpSong)
+            }
+            when {
+                currPosition in to until from -> {
+                    setPositionTo(QueuePosition.passive(currPosition + 1))
+                }
+                currPosition in (from + 1)..to -> {
+                    setPositionTo(QueuePosition.passive(currPosition - 1))
+                }
+                from == currPosition -> {
+                    setPositionTo(QueuePosition.passive(to))
+                    if (to < currPosition) {
+                        realignUpcomingRange(lastIndex = lastUpcomingIndex)
+                    } else if (to >= lastUpcomingIndex) {
+                        removeAllRanges()
+                    }
                 }
             }
         }
     }
 
     fun removeSong(position: Int) {
-        if (shuffleMode == Playback.ShuffleMode.Off) {
-            playingQueue.removeAt(position)
-            originalPlayingQueue.removeAt(position)
-        } else {
-            originalPlayingQueue.remove(playingQueue.removeAt(position))
+        modifyQueue { playingQueue, originalPlayingQueue ->
+            if (shuffleMode == Playback.ShuffleMode.Off) {
+                playingQueue.removeAt(position)
+                originalPlayingQueue.removeAt(position)
+            } else {
+                originalPlayingQueue.remove(playingQueue.removeAt(position))
+            }
+            rePosition(position, playingQueue)
         }
-        rePosition(position)
     }
 
     fun removeSong(song: Song) {
-        removeSongImpl(song)
+        modifyQueue { playingQueue, originalPlayingQueue ->
+            playingQueue.removeSong(song)
+            originalPlayingQueue.removeSong(song)
+        }
     }
 
     fun removeSongs(songs: List<Song>) {
-        for (song in songs) {
-            removeSongImpl(song)
-        }
-    }
-
-    private fun removeSongImpl(song: Song) {
-        val deletePosition = playingQueue.indexOf(song)
-        if (deletePosition != -1) {
-            playingQueue.removeAt(deletePosition)
-            rePosition(deletePosition)
-        }
-
-        val originalDeletePosition = originalPlayingQueue.indexOf(song)
-        if (originalDeletePosition != -1) {
-            originalPlayingQueue.removeAt(originalDeletePosition)
-            rePosition(originalDeletePosition)
-        }
-    }
-
-    private fun rePosition(deletedPosition: Int) {
-        val currentPosition = this.position
-        if (deletedPosition < currentPosition) {
-            position = currentPosition - 1
-        } else if (deletedPosition == currentPosition) {
-            if (playingQueue.size > deletedPosition) {
-                musicService.setPosition(position)
-            } else {
-                musicService.setPosition(position - 1)
+        modifyQueue { playingQueue, originalPlayingQueue ->
+            for (song in songs) {
+                playingQueue.removeSong(song)
+                originalPlayingQueue.removeSong(song)
             }
         }
     }
 
-    private fun isInUpcomingRange(index: Int, firstIndex: Int = position, lastIndex: Int = lastUpcomingPosition): Boolean {
+    fun playSongAt(newPosition: Int) {
+        setPositionTo(QueuePosition.play(newPosition), realign = true)
+    }
+
+    fun prepareSongAt(newPosition: Int) {
+        setPositionTo(QueuePosition.prepare(newPosition), realign = true)
+    }
+
+    fun syncNextPosition() {
+        setPositionTo(QueuePosition.passive(nextPosition), realign = true)
+    }
+
+    fun setPositionTo(position: QueuePosition, realign: Boolean = false) {
+        val oldPosition = this.position
+        if (realign) {
+            val lastUpcomingPosition = this.lastUpcomingPosition
+            val isUpcomingRange = isInUpcomingRange(
+                targetIndex = position.value,
+                firstIndex = oldPosition,
+                lastIndex = lastUpcomingPosition
+            )
+            if (position.value < oldPosition || isUpcomingRange) {
+                // First we check if the new position is further back than the
+                // current one or further forward but within the allowed range.
+                // If so, it will only be necessary to realign the upcoming tracks.
+                realignUpcomingRange(firstIndex = position.value, lastIndex = lastUpcomingPosition)
+            } else if (position.value > lastUpcomingPosition) {
+                // In case the new position has exceeded the allowed range,
+                // we discard it completely.
+                removeAllRanges()
+            }
+        }
+        mutablePositionFlow.value = position
+    }
+
+    fun setStopPosition(stopPosition: Int, fromUser: Boolean = false) {
+        mutableStopPositionFlow.value = StopPosition(stopPosition, fromUser)
+    }
+
+    fun syncStopPosition() {
+        if (stopPosition < position) {
+            setStopPosition(StopPosition.INFINITE)
+        }
+    }
+
+    fun shuffleQueue() {
+        val currentPosition = position
+        val endPosition = playingQueue.lastIndex
+        if (currentPosition == endPosition)
+            return
+
+        modifyQueue { playingQueue, _ ->
+            // Check that there are at least two tracks to make a shuffle list
+            if (endPosition - currentPosition >= 2) {
+                playingQueue.subList(currentPosition + 1, endPosition + 1).shuffle()
+                removeAllRanges()
+            }
+        }
+    }
+
+    suspend fun restoreQueues(
+        restoredQueue: List<Song>,
+        restoredOriginalQueue: List<Song>,
+        restoredPosition: Int
+    ): Boolean {
+        return createQueue(restoredOriginalQueue, restoredPosition, shuffleMode) {
+            restoredQueue.toQueueSongs().toMutableList()
+        }.also { restored ->
+            if (restored) {
+                setPositionTo(QueuePosition.passive(restoredPosition))
+            }
+        }
+    }
+
+    fun setRepeatMode(mode: Playback.RepeatMode) {
+        mutableRepeatModeFlow.value = mode
+    }
+
+    fun setShuffleMode(mode: Playback.ShuffleMode) {
+        removeAllRanges()
+        val newPlayingQueue = when (mode) {
+            Playback.ShuffleMode.On -> {
+                playingQueue.toMutableList().also {
+                    makeShuffleList(it, position)
+                    setPositionTo(QueuePosition.passive(0))
+                }
+            }
+
+            Playback.ShuffleMode.Off -> {
+                val currentSongId = currentSong.id
+                val playingQueue = originalPlayingQueue.toMutableList()
+                var newPosition = 0
+                for (song in playingQueue) {
+                    if (song.id == currentSongId) {
+                        newPosition = playingQueue.indexOf(song)
+                    }
+                }
+                setPositionTo(QueuePosition.passive(newPosition))
+                playingQueue
+            }
+        }
+        mutableShuffleModeFlow.value = mode
+        mutablePlayingQueueFlow.value = newPlayingQueue
+    }
+
+    fun clearQueue() {
+        setPositionTo(QueuePosition.prepare(-1))
+        originalPlayingQueue = mutableListOf()
+        mutablePlayingQueueFlow.value = emptyList()
+    }
+
+    fun release() {
+        coroutineScope.cancel()
+    }
+
+    private fun modifyQueue(
+        dispatch: Boolean = true,
+        modifier: (playingQueue: MutablePlayQueue, originalPlayingQueue: MutablePlayQueue) -> Unit
+    ) {
+        val playingQueue = playingQueue.toMutableList()
+        modifier(playingQueue, originalPlayingQueue)
+        if (dispatch) {
+            mutablePlayingQueueFlow.value = playingQueue
+        }
+    }
+
+    private suspend fun createQueue(
+        songs: List<Song>,
+        startPosition: Int,
+        shuffleMode: Playback.ShuffleMode,
+        onCreated: suspend MutableList<QueueSong>.() -> List<QueueSong>
+    ): Boolean {
+        if (songs.isNotEmpty() && startPosition >= 0 && startPosition < songs.size) {
+            // it is important to copy the playing queue here first as we might add/remove songs later
+            originalPlayingQueue = songs.toQueueSongs().toMutableList()
+            mutablePlayingQueueFlow.value = onCreated(originalPlayingQueue.toMutableList())
+            mutableShuffleModeFlow.value = shuffleMode
+            return true
+        }
+        return false
+    }
+
+    private fun rePosition(deletedPosition: Int, playingQueue: List<QueueSong>) {
+        val currentPosition = this.position
+        if (deletedPosition < currentPosition) {
+            setPositionTo(QueuePosition.passive(currentPosition + 1))
+        } else if (deletedPosition == currentPosition) {
+            if (playingQueue.size > deletedPosition) {
+                setPositionTo(QueuePosition.prepare(position), realign = true)
+            } else {
+                setPositionTo(QueuePosition.prepare(position + 1), realign = true)
+            }
+        }
+    }
+
+    private fun MutableList<QueueSong>.removeSong(song: Song): Int {
+        val deletePosition = indexOf(song)
+        if (deletePosition != -1) {
+            removeAt(deletePosition)
+            rePosition(deletePosition, playingQueue)
+        }
+        return deletePosition
+    }
+
+    private fun <T : Song> makeShuffleList(listToShuffle: MutableList<T>, current: Int): List<T> {
+        if (listToShuffle.isNotEmpty()) {
+            if (current >= 0) {
+                val song = listToShuffle.removeAt(current)
+                listToShuffle.shuffle()
+                listToShuffle.add(0, song)
+            } else {
+                listToShuffle.shuffle()
+            }
+        }
+        return listToShuffle
+    }
+
+    internal fun saveQueues() {
+        coroutineScope.launch(IO) {
+            PlaybackQueueStore.getInstance(context)
+                .saveQueues(playingQueue, originalPlayingQueue)
+        }
+    }
+
+    private fun isInUpcomingRange(targetIndex: Int, firstIndex: Int = position, lastIndex: Int = lastUpcomingPosition): Boolean {
         if (!isSequentialQueue)
             return false
 
         if (lastIndex == -1) return false
-        return index in (firstIndex + 1)..lastIndex
+        return targetIndex in (firstIndex + 1)..lastIndex
     }
 
     /**
@@ -327,106 +563,5 @@ class QueueManager(
             return
 
         playingQueue.forEach { it.isUpcoming = false }
-    }
-
-    fun setPositionTo(newPosition: Int) {
-        val oldPosition = this.position
-        val lastUpcomingPosition = this.lastUpcomingPosition
-        this.position = newPosition
-        if (newPosition < oldPosition || isInUpcomingRange(newPosition, firstIndex = oldPosition, lastIndex = lastUpcomingPosition)) {
-            // First we check if the new position is further back than the
-            // current one or further forward but within the allowed range.
-            // If so, it will only be necessary to realign the upcoming tracks.
-            realignUpcomingRange(firstIndex = newPosition, lastIndex = lastUpcomingPosition)
-        } else if (newPosition > lastUpcomingPosition) {
-            // In case the new position has exceeded the allowed range,
-            // we discard it completely.
-            removeAllRanges()
-        }
-    }
-
-    fun setPositionToNext() {
-        setPositionTo(nextPosition)
-    }
-
-    fun shuffleQueue(onCompleted: () -> Unit) {
-        coroutineScope.launch(IO) {
-            val currentPosition = position
-            val endPosition = playingQueue.lastIndex
-            if (currentPosition == endPosition)
-                return@launch
-
-            // Check that there are at least two tracks to make a shuffle list
-            if (endPosition - currentPosition >= 2) {
-                playingQueue.subList(currentPosition + 1, endPosition + 1).shuffle()
-                removeAllRanges()
-            }
-
-            withContext(Dispatchers.Main) {
-                onCompleted()
-            }
-        }
-    }
-
-    fun clearQueue() {
-        playingQueue.clear()
-        originalPlayingQueue.clear()
-    }
-
-    fun setRepeatMode(mode: Playback.RepeatMode, onCompleted: () -> Unit) {
-        this.repeatMode = mode
-
-        sharedPreferences.edit {
-            putInt(SAVED_REPEAT_MODE, repeatMode.ordinal)
-        }
-
-        onCompleted()
-    }
-
-    fun setShuffleMode(mode: Playback.ShuffleMode, onCompleted: () -> Unit) {
-        this.shuffleMode = mode
-
-        sharedPreferences.edit {
-            putInt(SAVED_SHUFFLE_MODE, shuffleMode.ordinal)
-        }
-
-        when (mode) {
-            Playback.ShuffleMode.On -> {
-                makeShuffleList(playingQueue, position)
-                position = 0
-            }
-
-            Playback.ShuffleMode.Off -> {
-                val currentSongId = currentSong.id
-                playingQueue = ArrayList(originalPlayingQueue)
-                var newPosition = 0
-                for (song in playingQueue) {
-                    if (song.id == currentSongId) {
-                        newPosition = playingQueue.indexOf(song)
-                    }
-                }
-                position = newPosition
-            }
-        }
-        removeAllRanges()
-        onCompleted()
-    }
-
-    private fun <T : Song> makeShuffleList(listToShuffle: MutableList<T>, current: Int) {
-        if (listToShuffle.isEmpty()) return
-        if (current >= 0) {
-            val song = listToShuffle.removeAt(current)
-            listToShuffle.shuffle()
-            listToShuffle.add(0, song)
-        } else {
-            listToShuffle.shuffle()
-        }
-    }
-
-    internal fun saveQueues() {
-        coroutineScope.launch(IO) {
-            PlaybackQueueStore.getInstance(musicService)
-                .saveQueues(playingQueue, originalPlayingQueue)
-        }
     }
 }

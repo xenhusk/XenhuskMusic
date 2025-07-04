@@ -31,16 +31,18 @@ import com.mardous.booming.adapters.album.AlbumAdapter
 import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.asFragmentExtras
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onAlbumMenu
 import com.mardous.booming.helper.menu.onAlbumsMenu
 import com.mardous.booming.interfaces.IAlbumCallback
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.GridViewType
+import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.sort.SortKeys
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
+import com.mardous.booming.viewmodels.library.ReloadType
 
 class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, GridLayoutManager>(),
     IAlbumCallback {
@@ -59,9 +61,15 @@ class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, Gr
 
     override fun onShuffleClicked() {
         super.onShuffleClicked()
-        libraryViewModel.albumsShuffle(adapter?.dataSet).observe(viewLifecycleOwner) { success ->
-            if (success) {
-                showToast(R.string.albums_shuffle)
+        adapter?.dataSet?.let {
+            playerViewModel.openShuffle(
+                providers = it,
+                mode = Preferences.albumShuffleMode,
+                sortKey = SortKeys.TRACK_NUMBER
+            ).observe(viewLifecycleOwner) { success ->
+                if (success) {
+                    showToast(R.string.albums_shuffle)
+                }
             }
         }
     }

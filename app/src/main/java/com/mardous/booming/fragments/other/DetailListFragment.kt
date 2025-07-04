@@ -60,7 +60,7 @@ import com.mardous.booming.model.ContentType
 import com.mardous.booming.model.Song
 import com.mardous.booming.search.lastAddedSearchFilter
 import com.mardous.booming.search.searchFilter
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.Preferences
 
 class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list), ISongCallback, IArtistCallback,
@@ -99,11 +99,15 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
             contentType == ContentType.TopTracks || contentType == ContentType.RecentSongs ||
             contentType == ContentType.NotRecentlyPlayed
         ) {
-            binding.shuffleAction.setOnClickListener { MusicPlayer.openQueueShuffle(songList) }
+            binding.shuffleAction.setOnClickListener {
+                playerViewModel.openQueue(songList, shuffleMode = Playback.ShuffleMode.On)
+            }
         } else {
             binding.shuffleAction.hide()
         }
-        binding.playAction.setOnClickListener { MusicPlayer.openQueue(songList, keepShuffleMode = false) }
+        binding.playAction.setOnClickListener {
+            playerViewModel.openQueue(songList, shuffleMode = Playback.ShuffleMode.Off)
+        }
     }
 
     private fun songs(songs: List<Song>, emptyMessageRes: Int = 0) {

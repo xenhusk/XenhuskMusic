@@ -1,28 +1,35 @@
-/*
- * Copyright (c) 2024 Christians Martínez Alvarado
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package com.mardous.booming.service.queue
 
 import com.mardous.booming.model.Song
 import kotlinx.parcelize.Parcelize
 
-/**
- * @author Christians M. A. (mardous)
- */
+data class QueueRestorationEvent(
+    val restored: Boolean = false,
+    val restoredPosition: Int,
+    val restoredPositionInTrack: Int
+)
+
+class QueuePosition private constructor(val value: Int, val passive: Boolean, val play: Boolean) {
+    companion object {
+        val Unspecified = QueuePosition(-1, passive = true, play = false)
+
+        fun initial(position: Int, play: Boolean) = QueuePosition(position, passive = !play, play = play)
+
+        fun passive(position: Int) = QueuePosition(position, passive = true, play = false)
+
+        fun prepare(position: Int) = QueuePosition(position, passive = false, play = false)
+
+        fun play(position: Int = 0) = QueuePosition(position, passive = false, play = true)
+    }
+}
+
+class StopPosition(val value: Int, val fromUser: Boolean) {
+    companion object {
+        const val INFINITE = -1
+        val Unspecified = StopPosition(INFINITE, false)
+    }
+}
+
 @Parcelize
 class QueueSong(
     override val id: Long,

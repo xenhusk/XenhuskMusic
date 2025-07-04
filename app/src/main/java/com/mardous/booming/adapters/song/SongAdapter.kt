@@ -27,7 +27,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import com.bumptech.glide.RequestManager
 import com.mardous.booming.R
-import com.mardous.booming.activities.base.AbsSlidingMusicPanelActivity
 import com.mardous.booming.adapters.base.AbsMultiSelectAdapter
 import com.mardous.booming.adapters.base.MediaEntryViewHolder
 import com.mardous.booming.adapters.extension.isActivated
@@ -46,11 +45,11 @@ import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.helper.menu.OnClickMenu
 import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.Song
-import com.mardous.booming.service.MusicPlayer
-import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.sort.SortKeys
 import com.mardous.booming.util.sort.SortOrder
+import com.mardous.booming.viewmodels.player.PlayerViewModel
 import me.zhanghai.android.fastscroll.PopupTextProvider
+import org.koin.androidx.viewmodel.ext.android.getViewModel
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
@@ -175,12 +174,6 @@ open class SongAdapter(
             return callback?.songMenuItemClick(song, item, sharedElements) ?: false
         }
 
-        protected open fun onExpandNowPlayingPanel() {
-            if (Preferences.openOnPlay) {
-                (activity as? AbsSlidingMusicPanelActivity)?.expandPanel()
-            }
-        }
-
         override fun onClick(view: View) {
             if (!isValidPosition)
                 return
@@ -188,8 +181,8 @@ open class SongAdapter(
             if (isInQuickSelectMode) {
                 toggleChecked(layoutPosition)
             } else {
-                MusicPlayer.openQueue(dataSet, layoutPosition)
-                onExpandNowPlayingPanel()
+                val playerViewModel = activity.getViewModel<PlayerViewModel>()
+                playerViewModel.openQueue(dataSet, layoutPosition)
             }
         }
 

@@ -17,7 +17,6 @@
 
 package com.mardous.booming.service.queue
 
-import com.mardous.booming.R
 import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.model.Song
 import com.mardous.booming.model.SongProvider
@@ -25,68 +24,23 @@ import com.mardous.booming.repository.Repository
 import com.mardous.booming.util.sort.sortedSongs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.random.Random
 
-class ShuffleManager(private val repository: Repository) {
+class ShuffleManager() : KoinComponent {
 
-    enum class ShuffleMode(val iconRes: Int, val titleRes: Int, val descriptionRes: Int) {
-        PureRandom(
-            R.drawable.ic_shuffle_24dp,
-            R.string.shuffle_mode_pure_random,
-            R.string.shuffle_mode_pure_random_description
-        ),
-        MostPlayed(
-            R.drawable.ic_trending_up_24dp,
-            R.string.shuffle_mode_most_played,
-            R.string.shuffle_mode_most_played_description
-        ),
-        MostPlayedArtists(
-            R.drawable.ic_artist_24dp,
-            R.string.shuffle_mode_most_played_artists,
-            R.string.shuffle_mode_most_played_artists_description
-        ),
-        MostPlayedAlbums(
-            R.drawable.ic_album_24dp,
-            R.string.shuffle_mode_most_played_albums,
-            R.string.shuffle_mode_most_played_albums_description
-        ),
-        FavoriteSongs(
-            R.drawable.ic_favorite_outline_24dp,
-            R.string.shuffle_mode_favorite_songs,
-            R.string.shuffle_mode_favorite_songs_description
-        ),
-        ForgottenSongs(
-            R.drawable.ic_trending_down_24dp,
-            R.string.shuffle_mode_forgotten_songs,
-            R.string.shuffle_mode_forgotten_songs_description
-        ),
-        RecentlyAdded(
-            R.drawable.ic_library_add_24dp,
-            R.string.shuffle_mode_recently_added,
-            R.string.shuffle_mode_recently_added_description
-        ),
-        Combined(
-            R.drawable.ic_shuffle_on_24dp,
-            R.string.shuffle_mode_combined,
-            R.string.shuffle_mode_combined_description
-        )
-    }
+    private val repository: Repository by inject()
 
-    enum class GroupShuffleMode {
-        ByGroup,
-        BySong,
-        FullRandom
-    }
-
-    suspend fun applySmartShuffle(songs: List<Song>, mode: ShuffleMode): List<Song> {
+    suspend fun applySmartShuffle(songs: List<Song>, mode: SpecialShuffleMode): List<Song> {
         val now = System.currentTimeMillis()
         val expandedSongs = songs.expandSongs()
         return when (mode) {
-            ShuffleMode.PureRandom -> songs.shuffled()
+            SpecialShuffleMode.PureRandom -> songs.shuffled()
 
-            ShuffleMode.MostPlayed -> weightedShuffle(expandedSongs) { 1.0 + it.playCount }
+            SpecialShuffleMode.MostPlayed -> weightedShuffle(expandedSongs) { 1.0 + it.playCount }
 
-            ShuffleMode.MostPlayedArtists -> {
+            SpecialShuffleMode.MostPlayedArtists -> {
                 val artistWeights = expandedSongs
                     .groupBy { it.displayArtistName() }
                     .mapValues { entry ->
@@ -98,7 +52,7 @@ class ShuffleManager(private val repository: Repository) {
                 }
             }
 
-            ShuffleMode.MostPlayedAlbums -> {
+            SpecialShuffleMode.MostPlayedAlbums -> {
                 val albumWeights = expandedSongs
                     .groupBy { it.albumId }
                     .mapValues { entry ->
@@ -108,21 +62,21 @@ class ShuffleManager(private val repository: Repository) {
                 weightedShuffle(songs) { song -> 1.0 + (albumWeights[song.albumId] ?: 1.0) }
             }
 
-            ShuffleMode.FavoriteSongs -> weightedShuffle(expandedSongs) {
+            SpecialShuffleMode.FavoriteSongs -> weightedShuffle(expandedSongs) {
                 if (it.isFavorite) 10.0 else 1.0
             }
 
-            ShuffleMode.ForgottenSongs -> weightedShuffle(expandedSongs) {
+            SpecialShuffleMode.ForgottenSongs -> weightedShuffle(expandedSongs) {
                 val days = (now - it.lastPlayedAt).coerceAtLeast(1L) / 86400000.0
                 1.0 + days
             }
 
-            ShuffleMode.RecentlyAdded -> weightedShuffle(expandedSongs) {
+            SpecialShuffleMode.RecentlyAdded -> weightedShuffle(expandedSongs) {
                 val age = (now - it.dateAdded).coerceAtLeast(1L) / 86400000.0
                 1.0 / age
             }
 
-            ShuffleMode.Combined -> weightedShuffle(expandedSongs) {
+            SpecialShuffleMode.Combined -> weightedShuffle(expandedSongs) {
                 val daysSincePlayed = (now - it.lastPlayedAt).coerceAtLeast(1L) / 86400000.0
                 val recencyWeight = 1.0 / ((now - it.dateAdded).coerceAtLeast(1L) / 86400000.0)
                 val favWeight = if (it.isFavorite) 2.0 else 1.0

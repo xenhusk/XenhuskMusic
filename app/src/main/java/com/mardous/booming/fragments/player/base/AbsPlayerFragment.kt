@@ -47,9 +47,7 @@ import com.mardous.booming.dialogs.WebSearchDialog
 import com.mardous.booming.dialogs.playlists.AddToPlaylistDialog
 import com.mardous.booming.dialogs.songs.ShareSongDialog
 import com.mardous.booming.extensions.currentFragment
-import com.mardous.booming.extensions.media.albumArtistName
-import com.mardous.booming.extensions.media.extraInfo
-import com.mardous.booming.extensions.media.refreshFavoriteState
+import com.mardous.booming.extensions.media.*
 import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.artistDetailArgs
 import com.mardous.booming.extensions.navigation.genreDetailArgs
@@ -73,7 +71,6 @@ import com.mardous.booming.model.Genre
 import com.mardous.booming.model.GestureOnCover
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.player.PlayerViewModel
@@ -144,7 +141,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     }
 
     override fun onMenuItemClick(menuItem: MenuItem): Boolean {
-        val currentSong = MusicPlayer.currentSong
+        val currentSong = playerViewModel.currentSong
         return when (menuItem.itemId) {
             R.id.action_playing_queue -> {
                 onQuickActionEvent(NowPlayingAction.OpenPlayQueue)
@@ -199,7 +196,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
             }
 
             R.id.action_share_now_playing -> {
-                ShareSongDialog.create(MusicPlayer.currentSong)
+                ShareSongDialog.create(playerViewModel.currentSong)
                     .show(childFragmentManager, "SHARE_SONG")
                 true
             }
@@ -271,19 +268,19 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        playerControlsFragment.onQueueInfoChanged(MusicPlayer.getNextSongInfo(requireContext()))
+        playerControlsFragment.onQueueInfoChanged(getNextSongInfo())
         updateIsFavorite(withAnim = false)
     }
 
     override fun onPlayingMetaChanged() {
         super.onPlayingMetaChanged()
-        playerControlsFragment.onQueueInfoChanged(MusicPlayer.getNextSongInfo(requireContext()))
+        playerControlsFragment.onQueueInfoChanged(getNextSongInfo())
         updateIsFavorite(withAnim = false)
     }
 
     override fun onQueueChanged() {
         super.onQueueChanged()
-        playerControlsFragment.onQueueInfoChanged(MusicPlayer.getNextSongInfo(requireContext()))
+        playerControlsFragment.onQueueInfoChanged(getNextSongInfo())
     }
 
     override fun onDestroyView() {
@@ -293,7 +290,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     }
 
     internal fun onQuickActionEvent(action: NowPlayingAction): Boolean {
-        val currentSong = MusicPlayer.currentSong
+        val currentSong = playerViewModel.currentSong
         return when (action) {
             NowPlayingAction.OpenAlbum -> {
                 goToAlbum(requireActivity(), currentSong)
@@ -326,7 +323,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
             }
 
             NowPlayingAction.ShufflePlayQueue -> {
-                MusicPlayer.shuffleQueue()
+                playerViewModel.shuffleQueue()
                 true
             }
 
@@ -423,13 +420,13 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         showToast(textId)
     }
 
-    private fun updateIsFavorite(song: Song = MusicPlayer.currentSong, withAnim: Boolean = false) {
+    private fun updateIsFavorite(song: Song = playerViewModel.currentSong, withAnim: Boolean = false) {
         libraryViewModel.isSongFavorite(song).observe(viewLifecycleOwner) { isFavorite ->
             onIsFavoriteChanged(isFavorite, withAnim)
         }
     }
 
-    private fun toggleFavorite(song: Song = MusicPlayer.currentSong) {
+    private fun toggleFavorite(song: Song = playerViewModel.currentSong) {
         libraryViewModel.toggleFavorite(song).observe(viewLifecycleOwner) {
             requireContext().refreshFavoriteState()
         }
@@ -451,6 +448,15 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     fun isExtraInfoEnabled(): Boolean =
         Preferences.displayExtraInfo && Preferences.nowPlayingExtraInfoList.any { it.isEnabled }
 
+    fun getNextSongInfo(): String {
+        val nextSong = playerViewModel.nextSong
+        return if (!nextSong.isArtistNameUnknown()) {
+            getString(R.string.next_song_x_by_artist_x, nextSong.title, nextSong.displayArtistName())
+        } else {
+            getString(R.string.next_song_x, nextSong.title)
+        }
+    }
+
     fun getExtraInfoString(song: Song) =
         if (isExtraInfoEnabled()) song.extraInfo(Preferences.nowPlayingExtraInfoList) else null
 
@@ -466,7 +472,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         } else {
-            playerViewModel.saveCover(MusicPlayer.currentSong).observe(viewLifecycleOwner) { result ->
+            playerViewModel.saveCover(playerViewModel.currentSong).observe(viewLifecycleOwner) { result ->
                 requestView { view ->
                     if (result.isWorking) {
                         Snackbar.make(view, R.string.saving_cover_please_wait, Snackbar.LENGTH_SHORT)

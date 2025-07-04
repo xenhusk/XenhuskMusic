@@ -39,19 +39,16 @@ import com.mardous.booming.dialogs.SAFDialog
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.files.isSAFAccessGranted
 import com.mardous.booming.extensions.files.isSAFRequiredForSongs
-import com.mardous.booming.extensions.media.isPlayingSong
 import com.mardous.booming.model.Song
 import com.mardous.booming.recordException
-import com.mardous.booming.repository.Repository
 import com.mardous.booming.util.MusicUtil
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.player.PlayerViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
@@ -59,13 +56,13 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
  */
 class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
 
+    private val libraryViewModel: LibraryViewModel by activityViewModel()
     private val playerViewModel: PlayerViewModel by activityViewModel()
 
     private lateinit var songs: MutableList<Song>
 
     private var binding: DialogDeleteSongsBinding? = null
 
-    private val repository: Repository by inject()
     private val ioExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         recordException(throwable)
     }
@@ -96,15 +93,11 @@ class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
             val deleteResultLauncher =
                 registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
                     if (result.resultCode == Activity.RESULT_OK) {
-                        if ((songs.size == 1) && songs.single().isPlayingSong) {
+                        if ((songs.size == 1) && playerViewModel.isPlayingSong(songs.single())) {
                             playerViewModel.playNext()
                         }
-                        lifecycleScope.launch(IO) {
-                            repository.deleteSongs(songs)
-                            withContext(Main) {
-                                dismiss()
-                            }
-                        }
+                        libraryViewModel.deleteSongs(songs)
+                        dismiss()
                     } else {
                         dismiss()
                     }
@@ -136,7 +129,8 @@ class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
                 .setCancelable(false)
                 .create { dialog ->
                     dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
-                        if (songs.singleOrNull()?.isPlayingSong == true) {
+                        val song = songs.singleOrNull()
+                        if (song != null && playerViewModel.isPlayingSong(song)) {
                             playerViewModel.playNext()
                         }
                         onStartDeletion(songs)

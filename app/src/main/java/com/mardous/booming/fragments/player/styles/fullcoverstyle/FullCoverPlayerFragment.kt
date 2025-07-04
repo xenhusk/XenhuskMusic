@@ -47,7 +47,6 @@ import com.mardous.booming.fragments.player.tintTarget
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
 import com.mardous.booming.model.theme.NowPlayingScreen
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.util.Preferences
 
 /**
@@ -113,8 +112,8 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
 
     private fun updateNextSongInfo() {
         Glide.with(this).clear(target)
-        val nextSong = MusicPlayer.getNextSong()
-        if (nextSong != null) {
+        val nextSong = playerViewModel.nextSong
+        if (nextSong != Song.emptySong) {
             _binding?.nextSongText?.text = nextSong.title
             target = _binding?.nextSongAlbumArt?.let {
                 Glide.with(this)

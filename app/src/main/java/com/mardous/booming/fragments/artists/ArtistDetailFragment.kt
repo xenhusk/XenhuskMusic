@@ -61,7 +61,7 @@ import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Song
 import com.mardous.booming.search.searchFilter
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
@@ -130,10 +130,10 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
         setupSortOrder()
 
         binding.playAction.setOnClickListener {
-            MusicPlayer.openQueue(getArtist().sortedSongs, keepShuffleMode = false)
+            playerViewModel.openQueue(getArtist().sortedSongs, shuffleMode = Playback.ShuffleMode.Off)
         }
         binding.shuffleAction.setOnClickListener {
-            MusicPlayer.openQueueShuffle(getArtist().songs)
+            playerViewModel.openQueue(getArtist().sortedSongs, shuffleMode = Playback.ShuffleMode.On)
         }
         binding.searchAction?.setOnClickListener {
             goToSearch()

@@ -27,17 +27,17 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.song.SongAdapter
-import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onSongMenu
 import com.mardous.booming.helper.menu.onSongsMenu
 import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.GridViewType
 import com.mardous.booming.model.Song
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
+import com.mardous.booming.viewmodels.library.ReloadType
 
 /**
  * @author Christians M. A. (mardous)
@@ -62,9 +62,8 @@ class SongListFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, Grid
 
     override fun onShuffleClicked() {
         super.onShuffleClicked()
-        val songs = adapter?.dataSet
-        if (!songs.isNullOrEmpty()) {
-            MusicPlayer.openQueueShuffle(songs)
+        adapter?.dataSet?.let { songs ->
+            playerViewModel.openQueue(songs, shuffleMode = Playback.ShuffleMode.On)
         }
     }
 

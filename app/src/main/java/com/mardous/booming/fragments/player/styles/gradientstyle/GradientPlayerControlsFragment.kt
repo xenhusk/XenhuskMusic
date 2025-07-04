@@ -38,7 +38,6 @@ import com.mardous.booming.fragments.player.PlayerTintTarget
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.iconButtonTintTarget
 import com.mardous.booming.fragments.player.tintTarget
-import com.mardous.booming.helper.handler.PrevNextButtonOnTouchHandler
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
 
@@ -86,8 +85,8 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
     private fun setupListeners() {
         binding.text.setOnClickListener(this)
         binding.playPauseButton.setOnClickListener(this)
-        binding.nextButton.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_NEXT))
-        binding.previousButton.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_PREVIOUS))
+        binding.nextButton.setOnClickListener(this)
+        binding.previousButton.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)
         binding.repeatButton.setOnClickListener(this)
     }
@@ -95,6 +94,8 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
     override fun onClick(view: View) {
         super.onClick(view)
         when (view) {
+            binding.nextButton -> playerViewModel.playNext()
+            binding.previousButton -> playerViewModel.playPrevious()
             binding.shuffleButton -> playerViewModel.toggleShuffleMode()
             binding.repeatButton -> playerViewModel.cycleRepeatMode()
             binding.playPauseButton -> playerViewModel.togglePlayPause()

@@ -44,11 +44,12 @@ import com.mardous.booming.extensions.resources.setupStatusBarForeground
 import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.extensions.toHtml
 import com.mardous.booming.extensions.topLevelTransition
-import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.helper.menu.*
 import com.mardous.booming.interfaces.*
 import com.mardous.booming.model.*
+import com.mardous.booming.service.playback.Playback
+import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.viewmodels.library.model.SuggestedResult
 
 /**
@@ -155,7 +156,11 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
                 findNavController().navigate(R.id.nav_detail_list, detailArgs(ContentType.History))
             }
 
-            binding.shuffleButton -> libraryViewModel.shuffleAll()
+            binding.shuffleButton -> {
+                libraryViewModel.allSongs().observe(viewLifecycleOwner) {
+                    playerViewModel.openQueue(it, shuffleMode = Playback.ShuffleMode.On)
+                }
+            }
         }
     }
 

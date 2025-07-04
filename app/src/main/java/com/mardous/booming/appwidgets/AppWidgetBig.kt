@@ -81,7 +81,7 @@ class AppWidgetBig : BaseAppWidget() {
         val primaryTextColor = getPrimaryTextColor(service, isDark = false)
 
         val isPlaying = service.isPlaying
-        val song = service.getCurrentSong()
+        val song = service.currentSong
 
         // Set the titles and artwork
         if (song.title.isEmpty() && song.artistName.isEmpty()) {

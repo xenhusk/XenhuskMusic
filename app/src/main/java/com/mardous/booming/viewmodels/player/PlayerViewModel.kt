@@ -6,19 +6,33 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.lifecycle.*
+import com.mardous.booming.extensions.media.durationStr
 import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.PlayerColorSchemeMode
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.model.Song
+import com.mardous.booming.model.SongProvider
 import com.mardous.booming.service.constants.SessionCommand
 import com.mardous.booming.service.playback.Playback
+import com.mardous.booming.service.playback.PlaybackManager
+import com.mardous.booming.service.queue.GroupShuffleMode
+import com.mardous.booming.service.queue.QueueManager
+import com.mardous.booming.service.queue.StopPosition
+import com.mardous.booming.util.PlayOnStartupMode
+import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.player.model.PlayerProgress
 import com.mardous.booming.viewmodels.player.model.SaveCoverResult
 import com.mardous.booming.worker.SaveCoverWorker
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class PlayerViewModel(
+    private val queueManager: QueueManager,
+    private val playbackManager: PlaybackManager,
     private val saveCoverWorker: SaveCoverWorker
 ) : ViewModel() {
 
@@ -41,17 +55,15 @@ class PlayerViewModel(
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             val mediaMetadata = MediaMetadataCompat.fromMediaMetadata(metadata?.mediaMetadata)
-            _songDurationFlow.value = mediaMetadata?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) ?: 0
+            _songDurationFlow.value =
+                mediaMetadata?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) ?: 0
         }
 
-        override fun onRepeatModeChanged(repeatMode: Int) {
-            _repeatModeFlow.value = Playback.RepeatMode.fromValue(repeatMode)
-        }
-
-        override fun onShuffleModeChanged(shuffleMode: Int) {
-            _shuffleModeFlow.value = Playback.ShuffleMode.fromValue(shuffleMode)
-        }
+        override fun onRepeatModeChanged(repeatMode: Int) {}
+        override fun onShuffleModeChanged(shuffleMode: Int) {}
     }
+
+    val audioSessionId get() = playbackManager.getAudioSessionId()
 
     private val _songProgressFlow = MutableStateFlow(0L)
     val songProgressFlow = _songProgressFlow.asStateFlow()
@@ -59,7 +71,7 @@ class PlayerViewModel(
     private val _songDurationFlow = MutableStateFlow(0L)
     val songDurationFlow = _songDurationFlow.asStateFlow()
 
-    val progressFlow = combine(_songProgressFlow, _songDurationFlow) { progress, total ->
+    val progressFlow = combine(songProgressFlow, songDurationFlow) { progress, total ->
         PlayerProgress(progress, total)
     }.stateIn(
         scope = viewModelScope,
@@ -71,22 +83,35 @@ class PlayerViewModel(
     val isPlayingFlow = _isPlayingFlow.asStateFlow()
     val isPlaying get() = isPlayingFlow.value
 
-    private val _repeatModeFlow = MutableStateFlow(Playback.RepeatMode.Off)
-    val repeatModeFlow = _repeatModeFlow.asStateFlow()
+    val repeatModeFlow = queueManager.repeatModeFlow
     val repeatMode get() = repeatModeFlow.value
 
-    private val _shuffleModeFlow = MutableStateFlow(Playback.ShuffleMode.Off)
-    val shuffleModeFlow = _shuffleModeFlow.asStateFlow()
+    val shuffleModeFlow = queueManager.shuffleModeFlow
     val shuffleMode get() = shuffleModeFlow.value
 
-    private val _currentSongFlow = MutableStateFlow(Song.emptySong)
-    val currentSongFlow = _currentSongFlow.asStateFlow()
+    val currentPositionFlow = queueManager.positionFlow
+    val currentPosition get() = currentPositionFlow.value.value
+
+    val currentSongFlow = queueManager.currentSongFlow
     val currentSong get() = currentSongFlow.value
+
+    val nextSongFlow = queueManager.nextSongFlow
+    val nextSong get() = nextSongFlow.value
+
+    val playingQueueFlow = queueManager.playingQueueFlow
+    val playingQueue get() = playingQueueFlow.value
+
+    val queueDuration get() = queueManager.getDuration(currentPosition)
+    val queueDurationAsString get() = queueDuration.durationStr()
 
     private val _colorScheme = MutableLiveData<PlayerColorScheme>()
     val colorSchemeObservable: LiveData<PlayerColorScheme> = _colorScheme
     val colorSchemeFlow = _colorScheme.asFlow()
     val colorScheme get() = colorSchemeObservable.value
+
+    var pendingQuit: Boolean
+        get() = playbackManager.pendingQuit
+        set(value) { playbackManager.pendingQuit = value }
 
     private var progressObserver: Job? = null
 
@@ -151,15 +176,120 @@ class PlayerViewModel(
         transportControls?.seekTo(positionMillis)
     }
 
-    fun updateSong(song: Song) {
-        _currentSongFlow.value = song
+    fun isPlayingSong(song: Song) = song.id == currentSong.id
+
+    fun playSongAt(position: Int) {
+        queueManager.playSongAt(position)
+    }
+
+    fun openQueue(
+        queue: List<Song>,
+        position: Int = 0,
+        startPlaying: Boolean = true,
+        shuffleMode: Playback.ShuffleMode? = null
+    ) = viewModelScope.launch(IO) {
+        queueManager.open(queue, position, startPlaying, shuffleMode)
+    }
+
+    fun openShuffle(
+        providers: List<SongProvider>,
+        mode: GroupShuffleMode,
+        sortKey: String? = null
+    ) = liveData(IO) {
+        emit(queueManager.shuffleUsingProviders(providers, mode, sortKey))
+    }
+
+    fun queueNext(song: Song) = liveData(IO) {
+        if (playingQueue.isNotEmpty()) {
+            queueManager.queueNext(song)
+        } else {
+            openQueue(listOf(song), startPlaying = false)
+        }
+        emit(Unit)
+    }
+
+    fun queueNext(songs: List<Song>) = liveData(IO) {
+        if (playingQueue.isNotEmpty()) {
+            queueManager.queueNext(songs)
+        } else {
+            openQueue(songs, startPlaying = false)
+        }
+        emit(songs.size)
+    }
+
+    fun enqueue(song: Song, to: Int = -1) = liveData(IO) {
+        if (playingQueue.isNotEmpty()) {
+            if (to >= 0) {
+                queueManager.addSong(to, song)
+            } else {
+                queueManager.addSong(song)
+            }
+        } else {
+            openQueue(listOf(song), startPlaying = false)
+        }
+        emit(Unit)
+    }
+
+    fun enqueue(songs: List<Song>) = liveData(IO) {
+        if (playingQueue.isNotEmpty()) {
+            queueManager.addSongs(songs)
+        } else {
+            openQueue(songs, startPlaying = false)
+        }
+        emit(songs.size)
+    }
+
+    fun shuffleQueue() = viewModelScope.launch(IO) {
+        queueManager.shuffleQueue()
+    }
+
+    fun clearQueue() = viewModelScope.launch(IO) {
+        queueManager.clearQueue()
+    }
+
+    fun stopAt(stopPosition: Int) = liveData(IO) {
+        if ((currentPosition..playingQueue.lastIndex).contains(stopPosition)) {
+            var canceled = false
+            if (queueManager.stopPosition == stopPosition) {
+                queueManager.setStopPosition(StopPosition.INFINITE, fromUser = true)
+                canceled = true
+            } else {
+                queueManager.setStopPosition(stopPosition, fromUser = true)
+            }
+            emit(!canceled)
+        }
+    }
+
+    fun moveSong(from: Int, to: Int) {
+        if (playingQueue.indices.contains(from) && playingQueue.indices.contains(to)) {
+            queueManager.moveSong(from, to)
+        }
+    }
+
+    fun moveToNextPosition(fromPosition: Int) {
+        val nextPosition = queueManager.getNextPosition(false)
+        queueManager.moveSong(fromPosition, nextPosition)
+    }
+
+    fun removePosition(position: Int) {
+        queueManager.removeSong(position)
+    }
+
+    fun restorePlayback() = viewModelScope.launch(IO) {
+        if (!isPlaying && Preferences.playOnStartupMode != PlayOnStartupMode.NEVER) {
+            if (queueManager.isEmpty) {
+                transportControls?.sendCustomAction(SessionCommand.RESTORE_PLAYBACK, null)
+            } else {
+                transportControls?.play()
+            }
+        }
     }
 
     fun loadColorScheme(
         context: Context,
         mode: PlayerColorScheme.Mode,
         mediaColor: MediaNotificationProcessor
-    ) = viewModelScope.launch(Dispatchers.IO) {
+    ) = viewModelScope.launch(IO) {
         val currentScheme = colorScheme?.mode?.takeIf { it == PlayerColorSchemeMode.AppTheme }
         if (currentScheme == mode)
             return@launch

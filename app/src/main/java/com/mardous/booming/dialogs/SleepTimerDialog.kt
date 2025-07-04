@@ -42,12 +42,15 @@ import com.mardous.booming.extensions.hasS
 import com.mardous.booming.extensions.media.durationStr
 import com.mardous.booming.extensions.requireAlertDialog
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.MusicService
 import com.mardous.booming.service.constants.ServiceAction
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.viewmodels.player.PlayerViewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class SleepTimerDialog : DialogFragment() {
+
+    private val playerViewModel: PlayerViewModel by activityViewModel()
 
     private val am: AlarmManager by lazy { requireContext().getSystemService()!! }
     private var _binding: DialogSleepTimerBinding? = null
@@ -130,8 +133,8 @@ class SleepTimerDialog : DialogFragment() {
                     showToast(R.string.sleep_timer_canceled)
                 }
 
-                if (MusicPlayer.pendingQuit) {
-                    MusicPlayer.pendingQuit = false
+                if (playerViewModel.pendingQuit) {
+                    playerViewModel.pendingQuit = false
                     showToast(R.string.sleep_timer_canceled)
                 }
             }
@@ -174,7 +177,7 @@ class SleepTimerDialog : DialogFragment() {
     }
 
     private fun updateCancelButton() {
-        if (MusicPlayer.pendingQuit) {
+        if (playerViewModel.pendingQuit) {
             requireAlertDialog().getButton(DialogInterface.BUTTON_NEUTRAL)
                 .setText(R.string.sleep_timer_cancel_current_timer)
         } else {

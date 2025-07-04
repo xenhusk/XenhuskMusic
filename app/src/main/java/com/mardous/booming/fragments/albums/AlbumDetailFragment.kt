@@ -58,7 +58,7 @@ import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Song
 import com.mardous.booming.search.searchFilter
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
@@ -127,10 +127,10 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
             goToArtist()
         }
         binding.playAction.setOnClickListener {
-            MusicPlayer.openQueue(getAlbum().songs, keepShuffleMode = false)
+            playerViewModel.openQueue(getAlbum().songs, shuffleMode = Playback.ShuffleMode.Off)
         }
         binding.shuffleAction.setOnClickListener {
-            MusicPlayer.openQueueShuffle(getAlbum().songs)
+            playerViewModel.openQueue(getAlbum().songs, shuffleMode = Playback.ShuffleMode.On)
         }
         binding.searchAction?.setOnClickListener {
             goToSearch()

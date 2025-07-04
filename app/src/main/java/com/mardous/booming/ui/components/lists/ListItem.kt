@@ -38,12 +38,12 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.mardous.booming.R
 import com.mardous.booming.model.about.Contribution
-import com.mardous.booming.service.queue.ShuffleManager
+import com.mardous.booming.service.queue.SpecialShuffleMode
 import dev.jeziellago.compose.markdowntext.MarkdownText
 
 @Composable
 fun ShuffleModeItem(
-    mode: ShuffleManager.ShuffleMode,
+    mode: SpecialShuffleMode,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {

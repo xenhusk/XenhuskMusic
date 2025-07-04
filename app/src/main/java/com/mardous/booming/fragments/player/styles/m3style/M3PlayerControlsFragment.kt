@@ -31,7 +31,6 @@ import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentM3PlayerPlaybackControlsBinding
 import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
-import com.mardous.booming.helper.handler.PrevNextButtonOnTouchHandler
 import com.mardous.booming.model.Song
 import com.mardous.booming.util.Preferences
 import java.util.LinkedList
@@ -69,8 +68,8 @@ class M3PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_m3_
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentM3PlayerPlaybackControlsBinding.bind(view)
         binding.playPauseButton.setOnClickListener(this)
-        binding.nextButton.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_NEXT))
-        binding.previousButton.setOnTouchListener(PrevNextButtonOnTouchHandler(PrevNextButtonOnTouchHandler.DIRECTION_PREVIOUS))
+        binding.nextButton.setOnClickListener(this)
+        binding.previousButton.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)
         binding.repeatButton.setOnClickListener(this)
     }
@@ -142,6 +141,8 @@ class M3PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_m3_
     override fun onClick(view: View) {
         super.onClick(view)
         when (view) {
+            binding.nextButton -> playerViewModel.playNext()
+            binding.previousButton -> playerViewModel.playPrevious()
             binding.repeatButton -> playerViewModel.cycleRepeatMode()
             binding.shuffleButton -> playerViewModel.toggleShuffleMode()
             binding.playPauseButton -> playerViewModel.togglePlayPause()

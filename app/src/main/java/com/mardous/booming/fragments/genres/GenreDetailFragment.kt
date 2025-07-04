@@ -47,7 +47,7 @@ import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.Genre
 import com.mardous.booming.model.Song
 import com.mardous.booming.search.searchFilter
-import com.mardous.booming.service.MusicPlayer
+import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.viewmodels.genredetail.GenreDetailViewModel
@@ -87,10 +87,10 @@ class GenreDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_lis
 
     private fun setupButtons() {
         binding.playAction.setOnClickListener {
-            MusicPlayer.openQueue(songAdapter.dataSet, keepShuffleMode = false)
+            playerViewModel.openQueue(songAdapter.dataSet, shuffleMode = Playback.ShuffleMode.Off)
         }
         binding.shuffleAction.setOnClickListener {
-            MusicPlayer.openQueueShuffle(songAdapter.dataSet)
+            playerViewModel.openQueue(songAdapter.dataSet, shuffleMode = Playback.ShuffleMode.On)
         }
     }
 

@@ -20,6 +20,7 @@ package com.mardous.booming.activities.base
 import android.Manifest.permission.*
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -30,6 +31,8 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import com.google.android.material.snackbar.Snackbar
 import com.mardous.booming.R
+import com.mardous.booming.extensions.hasR
+import com.mardous.booming.extensions.hasT
 import com.mardous.booming.extensions.rootView
 
 abstract class AbsBaseActivity : AbsThemeActivity() {
@@ -48,6 +51,7 @@ abstract class AbsBaseActivity : AbsThemeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        volumeControlStream = AudioManager.STREAM_MUSIC
         permissions = getPermissionsToRequest()
         hadPermissions = hasPermissions()
     }
@@ -68,7 +72,17 @@ abstract class AbsBaseActivity : AbsThemeActivity() {
     }
 
     protected open fun getPermissionsToRequest(): Array<String> {
-        return emptyArray()
+        return mutableSetOf<String>().apply {
+            if (hasT()) {
+                add(READ_MEDIA_AUDIO)
+                add(POST_NOTIFICATIONS)
+            } else {
+                add(READ_EXTERNAL_STORAGE)
+            }
+            if (!hasR()) {
+                add(WRITE_EXTERNAL_STORAGE)
+            }
+        }.toTypedArray()
     }
 
     protected fun hasPermissions(): Boolean {

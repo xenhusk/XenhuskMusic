@@ -19,7 +19,6 @@ package com.mardous.booming.service
 
 import android.database.ContentObserver
 import android.os.Handler
-import com.mardous.booming.service.constants.ServiceEvent
 
 open class MediaStoreObserver(private val service: MusicService, private val uiHandler: Handler) :
     ContentObserver(uiHandler), Runnable {
@@ -35,7 +34,7 @@ open class MediaStoreObserver(private val service: MusicService, private val uiH
     override fun run() {
         // actually call refresh when the delayed callback fires
         // do not send a sticky broadcast here
-        service.handleAndSendChangeInternal(ServiceEvent.MEDIA_STORE_CHANGED)
+        service.mediaStoreChanged()
     }
 
     companion object {

@@ -32,6 +32,7 @@ import com.mardous.booming.extensions.applyWindowInsets
 import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.viewmodels.library.LibraryViewModel
+import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
@@ -40,6 +41,7 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 abstract class AbsMainActivityFragment @JvmOverloads constructor(@LayoutRes layoutRes: Int = 0) :
     AbsMusicServiceFragment(layoutRes), MenuProvider {
 
+    val playerViewModel: PlayerViewModel by activityViewModel()
     val libraryViewModel: LibraryViewModel by activityViewModel()
 
     protected val mainActivity: MainActivity

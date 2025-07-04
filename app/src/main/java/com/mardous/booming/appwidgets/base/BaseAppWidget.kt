@@ -35,7 +35,6 @@ import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.model.Song
 import com.mardous.booming.service.MusicService
 import com.mardous.booming.service.constants.ServiceAction
-import com.mardous.booming.service.constants.ServiceEvent
 
 abstract class BaseAppWidget : AppWidgetProvider() {
     /**
@@ -58,11 +57,9 @@ abstract class BaseAppWidget : AppWidgetProvider() {
      * Handle a change notification coming over from
      * [MusicService]
      */
-    fun notifyChange(service: MusicService, what: String) {
+    fun notifyChange(service: MusicService) {
         if (hasInstances(service)) {
-            if (ServiceEvent.META_CHANGED == what || ServiceEvent.PLAY_STATE_CHANGED == what) {
-                performUpdate(service, null)
-            }
+            performUpdate(service, null)
         }
     }
 

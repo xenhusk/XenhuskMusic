@@ -41,7 +41,6 @@ import com.mardous.booming.fragments.player.PlayerTintTarget
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
 import com.mardous.booming.preferences.dialog.NowPlayingExtraInfoPreferenceDialog
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.*
 import com.mardous.booming.viewmodels.player.PlayerViewModel
@@ -163,15 +162,15 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     override fun onClick(view: View) {
         when (view.id) {
+            R.id.title -> {
+                goToAlbum(requireActivity(), playerViewModel.currentSong)
+            }
             R.id.text -> {
-                Preferences.let {
-                    it.preferAlbumArtistName = !it.preferAlbumArtistName
-                }
-                (view as? TextView)?.text = getSongArtist(MusicPlayer.currentSong)
+                goToArtist(requireActivity(), playerViewModel.currentSong)
             }
             R.id.songInfo -> {
                 val playerView = this.view
-                val infoString = getExtraInfoString(MusicPlayer.currentSong)
+                val infoString = getExtraInfoString(playerViewModel.currentSong)
                 if (playerView != null && !infoString.isNullOrEmpty()) {
                     Snackbar.make(playerView, infoString, Snackbar.LENGTH_LONG).show()
                 }

@@ -36,6 +36,8 @@ import com.mardous.booming.model.Genre
 import com.mardous.booming.providers.MediaStoreWriter
 import com.mardous.booming.repository.*
 import com.mardous.booming.service.equalizer.EqualizerManager
+import com.mardous.booming.service.playback.PlaybackManager
+import com.mardous.booming.service.queue.QueueManager
 import com.mardous.booming.service.queue.ShuffleManager
 import com.mardous.booming.viewmodels.albumdetail.AlbumDetailViewModel
 import com.mardous.booming.viewmodels.artistdetail.ArtistDetailViewModel
@@ -84,7 +86,7 @@ val networkModule = module {
 
 private val autoModule = module {
     single {
-        AutoMusicProvider(androidContext(), get())
+        AutoMusicProvider(androidContext(), get(), get())
     }
 }
 
@@ -93,25 +95,28 @@ private val mainModule = module {
         androidContext().contentResolver
     }
     single {
+        PreferenceManager.getDefaultSharedPreferences(androidContext())
+    }
+    single {
         EqualizerManager(androidContext())
     }
     single {
-        SoundSettings(androidContext())
+        QueueManager(context = androidContext())
     }
     single {
-        MediaStoreWriter(androidContext(), get())
+        PlaybackManager(context = androidContext(), equalizerManager = get(), soundSettings = get())
     }
     single {
-        SaveCoverWorker(androidContext(), get())
+        SoundSettings(context = androidContext())
     }
     single {
-        UriSongResolver(androidContext(), get(), get())
+        MediaStoreWriter(context = androidContext(), contentResolver = get())
     }
     single {
-        ShuffleManager(get())
+        SaveCoverWorker(context = androidContext(), mediaStoreWriter = get())
     }
     single {
-        PreferenceManager.getDefaultSharedPreferences(androidContext())
+        UriSongResolver(context = androidContext(), contentResolver = get(), songRepository = get())
     }
     single {
         LrcLyricsParser()
@@ -149,6 +154,7 @@ private val dataModule = module {
     single {
         RealRepository(
             androidContext(),
+            get(),
             get(),
             get(),
             get(),
@@ -201,15 +207,15 @@ private val dataModule = module {
 
 private val viewModule = module {
     viewModel {
-        LibraryViewModel(get(), get(), get(), get())
+        LibraryViewModel(get(), get(), get())
     }
 
     viewModel {
-        PlayerViewModel(get())
+        PlayerViewModel(get(), get(), get())
     }
 
-    viewModel {
-        EqualizerViewModel(get(), get(), get())
+    viewModel { (audioSessionId: Int) ->
+        EqualizerViewModel(get(), get(), get(), audioSessionId)
     }
 
     viewModel { (albumId: Long) ->
@@ -245,7 +251,7 @@ private val viewModule = module {
     }
 
     viewModel {
-        LyricsViewModel(get())
+        LyricsViewModel(get(), get())
     }
 
     viewModel {
@@ -253,7 +259,7 @@ private val viewModule = module {
     }
 
     viewModel {
-        SoundSettingsViewModel(get())
+        SoundSettingsViewModel(get(), get())
     }
 
     viewModel {

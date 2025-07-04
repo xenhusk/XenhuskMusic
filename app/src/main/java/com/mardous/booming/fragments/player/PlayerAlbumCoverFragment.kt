@@ -38,15 +38,18 @@ import com.mardous.booming.fragments.base.AbsMusicServiceFragment
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.model.GestureOnCover
 import com.mardous.booming.model.theme.NowPlayingScreen
-import com.mardous.booming.service.MusicPlayer
 import com.mardous.booming.transform.CarouselPagerTransformer
 import com.mardous.booming.transform.ParallaxPagerTransformer
 import com.mardous.booming.util.LEFT_RIGHT_SWIPING
 import com.mardous.booming.util.LYRICS_ON_COVER
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.viewmodels.player.PlayerViewModel
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChangeListener,
     SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private val playerViewModel: PlayerViewModel by activityViewModel()
 
     private var _binding: FragmentPlayerAlbumCoverBinding? = null
     private val binding get() = _binding!!
@@ -159,8 +162,8 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
     override fun onPageSelected(position: Int) {
         currentPosition = position
         requestColor(position)
-        if (position != MusicPlayer.position) {
-            MusicPlayer.playSongAt(position)
+        if (position != playerViewModel.currentPosition) {
+            playerViewModel.playSongAt(position)
         }
     }
 
@@ -179,7 +182,7 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
 
     override fun onPlayingMetaChanged() {
         super.onPlayingMetaChanged()
-        val position = MusicPlayer.position
+        val position = playerViewModel.currentPosition
         if (viewPager.currentItem != position) {
             viewPager.setCurrentItem(position, true)
         }
@@ -258,14 +261,14 @@ class PlayerAlbumCoverFragment : AbsMusicServiceFragment(), ViewPager.OnPageChan
 
     private fun updatePlayingQueue() {
         _binding?.viewPager?.apply {
-            adapter = AlbumCoverPagerAdapter(parentFragmentManager, MusicPlayer.playingQueue)
-            currentItem = MusicPlayer.position
+            adapter = AlbumCoverPagerAdapter(parentFragmentManager, playerViewModel.playingQueue)
+            currentItem = playerViewModel.currentPosition
         }
-        onPageSelected(MusicPlayer.position)
+        onPageSelected(playerViewModel.currentPosition)
     }
 
     private fun requestColor(position: Int) {
-        if (MusicPlayer.playingQueue.isNotEmpty()) {
+        if (playerViewModel.playingQueue.isNotEmpty()) {
             (viewPager.adapter as AlbumCoverPagerAdapter?)?.receiveColor(colorReceiver, position)
         }
     }

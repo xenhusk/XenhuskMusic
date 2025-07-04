@@ -59,7 +59,7 @@ import com.mardous.booming.model.Song
 import com.mardous.booming.search.SearchFilter
 import com.mardous.booming.search.SearchQuery
 import com.mardous.booming.viewmodels.search.SearchViewModel
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Locale
@@ -78,8 +78,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     private lateinit var searchAdapter: SearchAdapter
     private lateinit var voiceSearchLauncher: ActivityResultLauncher<Intent>
     private var fabWindowInsets: WindowInsetsCompat? = null
-
-    private var playSongJob: Job? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -111,6 +109,12 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             viewModel.searchResult.collect { result ->
                 searchAdapter.dataSet = result
+            }
+        }
+
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            viewModel.queueFlow.collectLatest { (songs, startPos) ->
+                playerViewModel.openQueue(songs, startPos)
             }
         }
 
@@ -238,8 +242,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     }
 
     override fun songClick(song: Song, results: List<Any>) {
-        playSongJob?.cancel()
-        playSongJob = libraryViewModel.playFromSearch(song, results)
+        viewModel.songClick(song, results)
     }
 
     override fun songMenuItemClick(song: Song, menuItem: MenuItem): Boolean {
@@ -328,7 +331,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     }
 
     override fun onDestroyView() {
-        playSongJob?.cancel()
         super.onDestroyView()
         searchAdapter.unregisterAdapterDataObserver(adapterDataObserver)
         binding.searchView.setOnKeyListener(null)

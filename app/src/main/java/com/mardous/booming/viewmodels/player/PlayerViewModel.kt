@@ -48,7 +48,7 @@ class PlayerViewModel(
                 _songProgressFlow.value = state?.position ?: 0
             }
             if (isPlayingFlow.value) {
-                if (progressObserver == null) {
+                if (progressObserver == null || progressObserver?.isActive == false) {
                     startProgressObserver()
                 }
             } else {

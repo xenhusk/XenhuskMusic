@@ -20,11 +20,7 @@
 package com.mardous.booming.extensions
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.SearchManager
-import android.app.UiModeManager
+import android.app.*
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -55,6 +51,7 @@ import com.mardous.booming.extensions.resources.getTinted
 import com.mardous.booming.model.theme.AppTheme
 import com.mardous.booming.util.AutoDownloadMetadataPolicy
 import com.mardous.booming.util.Preferences
+import io.ktor.http.encodeURLParameter
 
 val Context.fileProviderAuthority: String
     get() = "$packageName.provider"
@@ -107,15 +104,17 @@ fun Context.openUrl(url: String) {
 }
 
 fun Context.webSearch(vararg keys: String?) {
-    val stringBuilder = StringBuilder()
-    for (key in keys) {
-        stringBuilder.append(key)
-        stringBuilder.append(" ")
+    val query = keys.filterNotNull().joinToString(" ")
+    try {
+        val intent = Intent(Intent.ACTION_WEB_SEARCH)
+        intent.putExtra(SearchManager.QUERY, query)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+    } catch (_: SecurityException) {
+        openUrl("https://google.com/search?q=${query.encodeURLParameter(spaceToPlus = true)}")
+    } catch (_: ActivityNotFoundException) {
+        openUrl("https://google.com/search?q=${query.encodeURLParameter(spaceToPlus = true)}")
     }
-    val intent = Intent(Intent.ACTION_WEB_SEARCH)
-    intent.putExtra(SearchManager.QUERY, stringBuilder.trim().toString())
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    startActivity(intent)
 }
 
 fun Context.isOnline(requestOnlyWifi: Boolean): Boolean {

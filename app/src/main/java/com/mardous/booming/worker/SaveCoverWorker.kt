@@ -63,19 +63,22 @@ class SaveCoverWorker(
         if (song.id == Song.emptySong.id)
             return null
 
-        val bytes: ByteArray?
         val retriever = MediaMetadataRetriever()
-        try {
+        return try {
             retriever.setDataSource(context, song.mediaStoreUri)
-            bytes = retriever.embeddedPicture
+            val bytes = retriever.embeddedPicture
+            bytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, "Invalid URI or inaccessible mediaStoreUri: ${song.mediaStoreUri}", e)
+            null
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Missing permission to access mediaStoreUri: ${song.mediaStoreUri}", e)
+            null
         } catch (e: Exception) {
-            Log.e(TAG, "Couldn't extract bitmap from ${song.mediaStoreUri}", e)
-            return null
+            Log.e(TAG, "Failed to extract bitmap from ${song.mediaStoreUri}", e)
+            null
         } finally {
             retriever.release()
-        }
-        return bytes?.let {
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
         }
     }
 

@@ -464,7 +464,9 @@ class QueueManager(private val context: Context) {
         modifier: (playingQueue: MutablePlayQueue, originalPlayingQueue: MutablePlayQueue) -> Unit
     ) {
         val playingQueue = playingQueue.toMutableList()
+        val originalPlayingQueue = originalPlayingQueue.toMutableList()
         modifier(playingQueue, originalPlayingQueue)
+        this.originalPlayingQueue = originalPlayingQueue
         if (dispatch) {
             mutablePlayingQueueFlow.value = playingQueue
         }

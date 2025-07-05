@@ -34,6 +34,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.mardous.booming.R
 import com.mardous.booming.extensions.getShapeAppearanceModel
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
+import com.mardous.booming.extensions.media.durationStr
 import com.mardous.booming.extensions.resources.applyColor
 import com.mardous.booming.fragments.player.PlayerAnimator
 import com.mardous.booming.fragments.player.PlayerColorScheme
@@ -118,27 +119,9 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.progressFlow.collect {
-                if (seekBar == null) {
-                    progressSlider?.valueTo = it.total.toFloat().coerceAtLeast(1f)
-                    progressSlider?.value = it.progress.toFloat().coerceIn(progressSlider?.valueFrom, progressSlider?.valueTo)
-                } else {
-                    if (isSeeking) {
-                        seekBar?.max = it.total.toInt()
-                        seekBar?.progress = it.progress.toInt()
-                    } else {
-                        progressAnimator = ObjectAnimator.ofInt(seekBar, "progress", it.progress.toInt()).apply {
-                            duration = SLIDER_ANIMATION_TIME
-                            interpolator = LinearInterpolator()
-                            start()
-                        }
-                    }
-                }
-                songCurrentProgress?.text = it.progressAsString
-                songTotalTime?.text = if (Preferences.preferRemainingTime){
-                    it.remainingTimeAsString
-                } else {
-                    it.totalAsString
+            playerViewModel.progressFlow.collect { progress ->
+                if (!isSeeking) {
+                    onUpdateSlider(progress.progress, progress.total)
                 }
             }
         }
@@ -215,9 +198,33 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         })
     }
 
+    private fun onUpdateSlider(progress: Long, total: Long) {
+        if (seekBar == null) {
+            progressSlider?.valueTo = total.toFloat().coerceAtLeast(1f)
+            progressSlider?.value = progress.toFloat().coerceIn(progressSlider?.valueFrom, progressSlider?.valueTo)
+        } else {
+            if (isSeeking) {
+                seekBar?.max = total.toInt()
+                seekBar?.progress = progress.toInt()
+            } else {
+                progressAnimator = ObjectAnimator.ofInt(seekBar, "progress", progress.toInt()).apply {
+                    duration = SLIDER_ANIMATION_TIME
+                    interpolator = LinearInterpolator()
+                    start()
+                }
+            }
+        }
+        songCurrentProgress?.text = progress.durationStr()
+        songTotalTime?.text = if (Preferences.preferRemainingTime){
+            (total - progress).coerceAtLeast(0L).durationStr()
+        } else {
+            total.durationStr()
+        }
+    }
+
     private fun onProgressChange(value: Long, fromUser: Boolean) {
         if (fromUser) {
-            playerViewModel.seekTo(value)
+            onUpdateSlider(value, playerViewModel.songDuration)
         }
     }
 
@@ -228,7 +235,7 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     private fun onStopTrackingTouch(value: Int) {
         isSeeking = false
-        //MusicPlayer.seekTo(value)
+        playerViewModel.seekTo(value.toLong())
     }
 
     protected open fun onCreatePlayerAnimator(): PlayerAnimator? = null

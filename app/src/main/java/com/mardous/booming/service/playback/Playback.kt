@@ -33,7 +33,6 @@ interface Playback {
 
         companion object {
             fun fromOrdinal(ordinal: Int) = RepeatMode.entries.getOrElse(ordinal) { Off }
-            fun fromValue(value: Int) = RepeatMode.entries.firstOrNull { it.value == value } ?: Off
         }
     }
 
@@ -45,7 +44,6 @@ interface Playback {
 
         companion object {
             fun fromOrdinal(ordinal: Int) = ShuffleMode.entries.getOrElse(ordinal) { Off }
-            fun fromValue(value: Int) = ShuffleMode.entries.firstOrNull { it.value == value } ?: Off
         }
     }
 

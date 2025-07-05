@@ -274,7 +274,8 @@ class PlayerAlbumCoverFragment : Fragment(), ViewPager.OnPageChangeListener,
         pager.post { // mitigation for occasional IndexOutOfBoundsException
             if (!isAdded || _binding == null || view == null) return@post
 
-            val target = playerViewModel.currentPosition.coerceIn(0, newAdapter.count - 1)
+            val lastIndex = (newAdapter.count - 1).coerceAtLeast(0)
+            val target = playerViewModel.currentPosition.coerceIn(0, lastIndex)
             if (newAdapter.count > 0) {
                 pager.setCurrentItem(target, false)
                 onPageSelected(target)

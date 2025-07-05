@@ -126,6 +126,16 @@ class QueueManager(private val context: Context) {
         }
     }
 
+    suspend fun specialShuffleQueue(songs: List<Song>, shuffleMode: SpecialShuffleMode): Boolean {
+        val result = createQueue(songs, 0, Playback.ShuffleMode.On) {
+            shuffleManager.applySmartShuffle(this, shuffleMode).toQueueSongs()
+        }
+        if (result) {
+            setPositionTo(QueuePosition.play())
+        }
+        return false
+    }
+
     suspend fun shuffleUsingProviders(
         providers: List<SongProvider>,
         shuffleMode: GroupShuffleMode,
@@ -133,9 +143,7 @@ class QueueManager(private val context: Context) {
     ): Boolean {
         val songs = providers.flatMap { it.songs }.sortedSongs(SortOrder.songSortOrder)
         val result = createQueue(songs, 0, Playback.ShuffleMode.On) {
-            shuffleManager.shuffleByProvider(providers, shuffleMode, defaultSortKey)
-                .toQueueSongs()
-                .toMutableList()
+            shuffleManager.shuffleByProvider(providers, shuffleMode, defaultSortKey).toQueueSongs()
         }
         if (result) {
             setPositionTo(QueuePosition.play())

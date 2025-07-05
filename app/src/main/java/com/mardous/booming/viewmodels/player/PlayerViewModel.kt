@@ -18,6 +18,7 @@ import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.service.playback.PlaybackManager
 import com.mardous.booming.service.queue.GroupShuffleMode
 import com.mardous.booming.service.queue.QueueManager
+import com.mardous.booming.service.queue.SpecialShuffleMode
 import com.mardous.booming.service.queue.StopPosition
 import com.mardous.booming.util.PlayOnStartupMode
 import com.mardous.booming.util.Preferences
@@ -219,6 +220,10 @@ class PlayerViewModel(
         sortKey: String? = null
     ) = liveData(IO) {
         emit(queueManager.shuffleUsingProviders(providers, mode, sortKey))
+    }
+
+    fun openSpecialShuffle(songs: List<Song>, mode: SpecialShuffleMode) = liveData(IO) {
+        emit(queueManager.specialShuffleQueue(songs, mode))
     }
 
     fun queueNext(song: Song) = liveData(IO) {

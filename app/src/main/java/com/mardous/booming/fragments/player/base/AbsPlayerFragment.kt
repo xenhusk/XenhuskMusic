@@ -348,7 +348,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
             }
 
             NowPlayingAction.ToggleFavoriteState -> {
-                toggleFavorite(currentSong)
+                toggleFavorite()
                 true
             }
 
@@ -420,10 +420,8 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         }
     }
 
-    private fun toggleFavorite(song: Song = playerViewModel.currentSong) {
-        libraryViewModel.toggleFavorite(song).observe(viewLifecycleOwner) {
-            playerViewModel.submitEvent(MediaEvent.FavoriteContentChanged)
-        }
+    private fun toggleFavorite() {
+        playerViewModel.toggleFavorite()
     }
 
     fun setViewAction(view: View, action: NowPlayingAction) {

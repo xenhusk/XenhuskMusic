@@ -27,7 +27,6 @@ import com.mardous.booming.extensions.withArgs
 import com.mardous.booming.model.Song
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.player.PlayerViewModel
-import com.mardous.booming.viewmodels.player.model.MediaEvent
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class CreatePlaylistDialog : InputDialog() {
@@ -66,9 +65,6 @@ class CreatePlaylistDialog : InputDialog() {
                     return@observe
 
                 if (it.playlistCreated) {
-                    if (it.isFavoritePlaylist) {
-                        playerViewModel.submitEvent(MediaEvent.FavoriteContentChanged)
-                    }
                     showToast(getString(R.string.created_playlist_x, it.playlistName))
                     callback?.playlistCreated()
                 } else {

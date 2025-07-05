@@ -390,19 +390,6 @@ class LibraryViewModel(
         emit(repository.favoritePlaylist())
     }
 
-    fun toggleFavorite(song: Song): LiveData<Boolean> = liveData(IO) {
-        val playlist = repository.favoritePlaylist()
-        val songEntity = song.toSongEntity(playlist.playListId)
-        val isFavorite = repository.isSongFavorite(song.id)
-        if (isFavorite) {
-            removeSongFromPlaylist(songEntity)
-        } else {
-            insertSongs(listOf(songEntity))
-        }
-        forceReload(ReloadType.Playlists)
-        emit(!isFavorite)
-    }
-
     fun isSongFavorite(song: Song): LiveData<Boolean> = liveData(IO) {
         emit(repository.isSongFavorite(song.id))
     }

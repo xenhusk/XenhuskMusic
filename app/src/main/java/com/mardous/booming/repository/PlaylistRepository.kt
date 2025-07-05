@@ -24,10 +24,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.mardous.booming.R
-import com.mardous.booming.database.PlaylistDao
-import com.mardous.booming.database.PlaylistEntity
-import com.mardous.booming.database.PlaylistWithSongs
-import com.mardous.booming.database.SongEntity
+import com.mardous.booming.database.*
 import com.mardous.booming.extensions.utilities.mapIfValid
 import com.mardous.booming.extensions.utilities.takeOrDefault
 import com.mardous.booming.model.Playlist
@@ -58,6 +55,7 @@ interface PlaylistRepository {
     suspend fun checkFavoritePlaylist(): PlaylistEntity?
     suspend fun favoriteSongs(): List<SongEntity>
     fun favoriteObservable(): LiveData<List<SongEntity>>
+    suspend fun toggleFavorite(song: Song): Boolean
     suspend fun isSongFavorite(songEntity: SongEntity): List<SongEntity>
     suspend fun isSongFavorite(songId: Long): Boolean
     suspend fun removeSongFromPlaylist(songEntity: SongEntity)
@@ -168,6 +166,19 @@ class RealPlaylistRepository(
 
     override fun favoriteObservable(): LiveData<List<SongEntity>> =
         playlistDao.favoritesSongsLiveData(context.getString(R.string.favorites_label))
+
+    override suspend fun toggleFavorite(song: Song): Boolean {
+        val playlist = favoritePlaylist()
+        val songEntity = song.toSongEntity(playlist.playListId)
+        val isFavorite = isSongFavorite(songEntity).isNotEmpty()
+        return if (isFavorite) {
+            removeSongFromPlaylist(songEntity)
+            false
+        } else {
+            insertSongs(listOf(songEntity))
+            true
+        }
+    }
 
     override suspend fun isSongFavorite(songEntity: SongEntity): List<SongEntity> =
         playlistDao.isSongExistsInPlaylist(

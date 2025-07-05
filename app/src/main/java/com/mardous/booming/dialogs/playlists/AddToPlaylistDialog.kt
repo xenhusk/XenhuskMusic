@@ -33,7 +33,6 @@ import com.mardous.booming.extensions.*
 import com.mardous.booming.model.Song
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.player.PlayerViewModel
-import com.mardous.booming.viewmodels.player.model.MediaEvent
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
@@ -95,9 +94,6 @@ class AddToPlaylistDialog : DialogFragment(), AddToPlaylistAdapter.IAddToPlaylis
             if (it.isWorking) {
                 adapter.adding(playlist.playlistEntity.playListId)
             } else {
-                if (it.isFavoritePlaylist && it.insertedSongs > 0) {
-                    playerViewModel.submitEvent(MediaEvent.FavoriteContentChanged)
-                }
                 if (it.insertedSongs > 1) {
                     showToast(
                         getString(

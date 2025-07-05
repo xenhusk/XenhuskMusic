@@ -25,15 +25,18 @@ import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.sortedSongs
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
 
 private typealias MutablePlayQueue = MutableList<QueueSong>
 
 class QueueManager(private val context: Context) {
 
-    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val shuffleManager = ShuffleManager()
     private val defaultShuffleMode: Playback.ShuffleMode
         get() = if (Preferences.rememberShuffleMode) {
@@ -451,8 +454,9 @@ class QueueManager(private val context: Context) {
         mutablePlayingQueueFlow.value = emptyList()
     }
 
-    fun release() {
-        coroutineScope.cancel()
+    fun disconnect() {
+        setStopPosition(StopPosition.INFINITE)
+        mutablePositionFlow.value = positionFlow.value.copy(passive = true, play = false)
     }
 
     private fun modifyQueue(
@@ -517,11 +521,9 @@ class QueueManager(private val context: Context) {
         return listToShuffle
     }
 
-    internal fun saveQueues() {
-        coroutineScope.launch(IO) {
-            PlaybackQueueStore.getInstance(context)
-                .saveQueues(playingQueue, originalPlayingQueue)
-        }
+    suspend fun saveQueues() = withContext(IO) {
+        PlaybackQueueStore.getInstance(context)
+            .saveQueues(playingQueue, originalPlayingQueue)
     }
 
     private fun isInUpcomingRange(targetIndex: Int, firstIndex: Int = position, lastIndex: Int = lastUpcomingPosition): Boolean {

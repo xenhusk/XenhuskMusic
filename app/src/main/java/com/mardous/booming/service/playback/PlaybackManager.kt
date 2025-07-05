@@ -34,9 +34,6 @@ import com.mardous.booming.service.MultiPlayer
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class PlaybackManager(
@@ -44,8 +41,6 @@ class PlaybackManager(
     private val equalizerManager: EqualizerManager,
     private val soundSettings: SoundSettings
 ) : AudioManager.OnAudioFocusChangeListener {
-
-    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val audioManager: AudioManager? = context.getSystemService()
     private val audioFocusRequest: AudioFocusRequestCompat =
@@ -66,7 +61,7 @@ class PlaybackManager(
     private val equalizerEnabled: Boolean
         get() = equalizerManager.eqState.isUsable
 
-    fun initialize(callbacks: Playback.PlaybackCallbacks) {
+    fun initialize(callbacks: Playback.PlaybackCallbacks, coroutineScope: CoroutineScope) {
         playback = MultiPlayer(context)
         playback?.setCallbacks(callbacks)
         coroutineScope.launch {
@@ -169,7 +164,6 @@ class PlaybackManager(
     }
 
     fun release() {
-        coroutineScope.cancel()
         equalizerManager.release()
         playback?.release()
         playback = null

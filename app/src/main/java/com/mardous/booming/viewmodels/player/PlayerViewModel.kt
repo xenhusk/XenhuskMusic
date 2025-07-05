@@ -1,6 +1,7 @@
 package com.mardous.booming.viewmodels.player
 
 import android.content.Context
+import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -12,7 +13,6 @@ import com.mardous.booming.fragments.player.PlayerColorSchemeMode
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.model.Song
 import com.mardous.booming.model.SongProvider
-import com.mardous.booming.service.MediaEventBus
 import com.mardous.booming.service.constants.SessionCommand
 import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.service.playback.PlaybackManager
@@ -27,13 +27,13 @@ import com.mardous.booming.viewmodels.player.model.SaveCoverResult
 import com.mardous.booming.worker.SaveCoverWorker
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class PlayerViewModel(
-    private val mediaEventBus: MediaEventBus,
     private val queueManager: QueueManager,
     private val playbackManager: PlaybackManager,
     private val saveCoverWorker: SaveCoverWorker
@@ -62,12 +62,15 @@ class PlayerViewModel(
                 mediaMetadata?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) ?: 0
         }
 
-        override fun onRepeatModeChanged(repeatMode: Int) {}
-        override fun onShuffleModeChanged(shuffleMode: Int) {}
+        override fun onSessionEvent(event: String?, extras: Bundle?) {
+            val mediaEvent = MediaEvent.fromSessionEvent(event)
+            if (mediaEvent != null) {
+                submitEvent(mediaEvent)
+            }
+        }
     }
 
     val audioSessionId get() = playbackManager.getAudioSessionId()
-    val mediaEvent get() = mediaEventBus.mediaEvent
 
     private val _songProgressFlow = MutableStateFlow(0L)
     val songProgressFlow = _songProgressFlow.asStateFlow()
@@ -108,6 +111,13 @@ class PlayerViewModel(
     val queueDuration get() = queueManager.getDuration(currentPosition)
     val queueDurationAsString get() = queueDuration.durationStr()
 
+    private val _mediaEventFlow = MutableSharedFlow<MediaEvent>(
+        replay = 1,
+        extraBufferCapacity = 32,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val mediaEvent = _mediaEventFlow.asSharedFlow()
+
     private val _colorScheme = MutableLiveData<PlayerColorScheme>()
     val colorSchemeObservable: LiveData<PlayerColorScheme> = _colorScheme
     val colorSchemeFlow = _colorScheme.asFlow()
@@ -137,14 +147,18 @@ class PlayerViewModel(
         progressObserver = null
     }
 
+    private fun submitEvent(event: MediaEvent) = viewModelScope.launch {
+        _mediaEventFlow.emit(event)
+    }
+
     fun setMediaController(controller: MediaControllerCompat?) {
         mediaController?.unregisterCallback(controllerCallback)
         mediaController = controller
         controller?.registerCallback(controllerCallback)
     }
 
-    fun submitEvent(event: MediaEvent) = viewModelScope.launch {
-        mediaEventBus.submitEvent(event)
+    fun toggleFavorite() {
+        transportControls?.sendCustomAction(SessionCommand.TOGGLE_FAVORITE, null)
     }
 
     fun cycleRepeatMode() {

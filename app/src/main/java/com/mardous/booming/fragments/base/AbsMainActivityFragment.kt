@@ -34,7 +34,6 @@ import com.mardous.booming.activities.MainActivity
 import com.mardous.booming.extensions.applyWindowInsets
 import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.isLandscape
-import com.mardous.booming.extensions.showToast
 import com.mardous.booming.util.PlayOnStartupMode.Companion.WITH_EXPANDED_PLAYER
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.library.LibraryViewModel
@@ -70,7 +69,6 @@ abstract class AbsMainActivityFragment @JvmOverloads constructor(@LayoutRes layo
                                 mainActivity.expandPanel()
                             }
                         }
-                        is MediaEvent.PlaybackError -> showToast(it.message)
                     }
                 }
             }

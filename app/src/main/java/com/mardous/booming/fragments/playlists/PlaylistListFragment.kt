@@ -33,7 +33,6 @@ import com.mardous.booming.database.PlaylistWithSongs
 import com.mardous.booming.dialogs.playlists.CreatePlaylistDialog
 import com.mardous.booming.dialogs.playlists.ImportPlaylistDialog
 import com.mardous.booming.extensions.navigation.playlistDetailArgs
-import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onPlaylistMenu
 import com.mardous.booming.helper.menu.onPlaylistsMenu
@@ -42,6 +41,7 @@ import com.mardous.booming.model.GridViewType
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
+import com.mardous.booming.viewmodels.library.ReloadType
 
 /**
  * @author Christians M. A. (mardous)
@@ -97,7 +97,10 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<PlaylistAdapt
     }
 
     override fun onMediaContentChanged() {
-        super.onMediaContentChanged()
+        libraryViewModel.forceReload(ReloadType.Playlists)
+    }
+
+    override fun onFavoriteContentChanged() {
         libraryViewModel.forceReload(ReloadType.Playlists)
     }
 

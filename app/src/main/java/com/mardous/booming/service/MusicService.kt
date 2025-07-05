@@ -19,6 +19,7 @@ package com.mardous.booming.service
 
 import android.annotation.SuppressLint
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.bluetooth.BluetoothDevice
 import android.content.*
@@ -75,6 +76,7 @@ import com.mardous.booming.service.constants.ServiceAction.Extras.Companion.EXTR
 import com.mardous.booming.service.constants.ServiceAction.Extras.Companion.EXTRA_SHUFFLE_MODE
 import com.mardous.booming.service.constants.SessionCommand.Companion.CYCLE_REPEAT
 import com.mardous.booming.service.constants.SessionCommand.Companion.TOGGLE_SHUFFLE
+import com.mardous.booming.service.constants.SessionEvent
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.notification.PlayingNotification
 import com.mardous.booming.service.notification.PlayingNotificationClassic
@@ -86,7 +88,6 @@ import com.mardous.booming.service.queue.QueueManager
 import com.mardous.booming.service.queue.QueueSong
 import com.mardous.booming.service.queue.StopPosition
 import com.mardous.booming.util.*
-import com.mardous.booming.viewmodels.player.model.MediaEvent
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -105,7 +106,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     private val repository by inject<Repository>()
     private val queueManager by inject<QueueManager>()
     private val playbackManager by inject<PlaybackManager>()
-    private val mediaEventBus by inject<MediaEventBus>()
 
     private val appWidgetBig = AppWidgetBig.instance
     private val appWidgetSimple = AppWidgetSimple.instance
@@ -136,14 +136,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     private var packageValidator: PackageValidator? = null
 
     private val songPlayCountHelper = SongPlayCountHelper()
-
-    private val updateFavoriteReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == FAVORITE_STATE_CHANGED) {
-                updateFavoriteState()
-            }
-        }
-    }
 
     private var bluetoothConnectedRegistered = false
     private val bluetoothConnectedIntentFilter = IntentFilter().apply {
@@ -209,15 +201,13 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         musicPlayerHandlerThread!!.start()
         playerHandler = Handler(musicPlayerHandlerThread!!.looper)
 
-        playbackManager.initialize(this)
+        playbackManager.initialize(this, serviceScope)
         setupMediaSession()
 
         // Create the UI-thread handler.
         uiThreadHandler = Handler(Looper.getMainLooper())
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(widgetIntentReceiver, IntentFilter(ServiceAction.ACTION_APP_WIDGET_UPDATE))
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(updateFavoriteReceiver, IntentFilter(FAVORITE_STATE_CHANGED))
         sessionToken = mediaSession?.sessionToken
         notificationManager = getSystemService()
         initNotification()
@@ -335,7 +325,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     override fun onDestroy() {
         super.onDestroy()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(widgetIntentReceiver)
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateFavoriteReceiver)
         if (headsetReceiverRegistered) {
             unregisterReceiver(headsetReceiver)
             headsetReceiverRegistered = false
@@ -352,6 +341,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         quit()
         releaseResources()
         serviceScope.cancel()
+        queueManager.disconnect()
         contentResolver.unregisterContentObserver(mediaStoreObserver)
         wakeLock?.release()
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
@@ -401,22 +391,22 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         super.onTaskRemoved(rootIntent)
     }
 
+    private fun saveState() = serviceScope.launch(IO) {
+        saveQueues()
+        savePosition()
+        savePositionInTrack()
+    }
+
+    private suspend fun saveQueues() {
+        queueManager.saveQueues()
+    }
+
     private fun savePosition() {
         sharedPreferences.edit { putInt(SAVED_QUEUE_POSITION, currentPosition) }
     }
 
     internal fun savePositionInTrack() {
         sharedPreferences.edit { putInt(SAVED_POSITION_IN_TRACK, currentSongProgress) }
-    }
-
-    private fun saveState() {
-        saveQueues()
-        savePosition()
-        savePositionInTrack()
-    }
-
-    private fun saveQueues() {
-        queueManager.saveQueues()
     }
 
     fun restoreState(completion: () -> Unit = {}) = serviceScope.launch {
@@ -461,7 +451,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                             play()
                             if (success && needsToRestorePlayback) {
                                 needsToRestorePlayback = false
-                                mediaEventBus.proposeEvent(MediaEvent.PlaybackRestored)
+                                mediaSession?.sendSessionEvent(SessionEvent.PLAYBACK_RESTORED, null)
                             }
                             if (receivedHeadsetConnected) {
                                 receivedHeadsetConnected = false
@@ -479,14 +469,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     private fun launchObserver() {
         serviceScope.launch {
-            mediaEventBus.mediaEvent.collect {
-                if (it == MediaEvent.FavoriteContentChanged) {
-                    LocalBroadcastManager.getInstance(this@MusicService)
-                        .sendBroadcast(Intent(FAVORITE_STATE_CHANGED))
-                }
-            }
-        }
-        serviceScope.launch {
             queueManager.positionFlow.collect { position ->
                 if (!position.passive) {
                     openCurrentAndPrepareNext { success ->
@@ -498,9 +480,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
                             } else {
                                 getString(R.string.unplayable_file)
                             }
-                            serviceScope.launch {
-                                mediaEventBus.submitEvent(MediaEvent.PlaybackError(message))
-                            }
+                            showToast(message)
                         }
                     }
                 }
@@ -570,7 +550,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     private fun releaseResources() {
         playerHandler?.removeCallbacksAndMessages(null)
         musicPlayerHandlerThread?.quitSafely()
-        queueManager.release()
         playbackManager.release()
         mediaSession?.release()
     }
@@ -685,31 +664,27 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     }
 
     fun toggleFavorite() = serviceScope.launch {
-        MusicUtil.toggleFavorite(currentSong)
-        mediaEventBus.submitEvent(MediaEvent.FavoriteContentChanged)
-    }
-
-    fun isCurrentFavorite(completion: (isFavorite: Boolean) -> Unit) {
-        serviceScope.launch {
-            val isFavorite = MusicUtil.isFavorite(currentSong)
-            completion(isFavorite)
+        val isFavorite = withContext(IO) {
+            repository.toggleFavorite(currentSong)
         }
-    }
-
-    private fun updateFavoriteState() {
-        isCurrentFavorite { isFavorite ->
-            if (!isForeground) {
-                playingNotification?.updateMetadata(currentSong) {
-                    playingNotification?.setPlaying(isPlaying)
-                    playingNotification?.updateFavorite(isFavorite)
-                    startForegroundOrNotify()
-                }
-            } else {
+        if (!isForeground) {
+            playingNotification?.updateMetadata(currentSong) {
+                playingNotification?.setPlaying(isPlaying)
                 playingNotification?.updateFavorite(isFavorite)
                 startForegroundOrNotify()
             }
-
+        } else {
+            playingNotification?.updateFavorite(isFavorite)
+            startForegroundOrNotify()
         }
+        mediaSession?.sendSessionEvent(SessionEvent.FAVORITE_CONTENT_CHANGED, null)
+    }
+
+    private fun isCurrentFavorite(completion: (isFavorite: Boolean) -> Unit) = serviceScope.launch {
+        val isFavorite = withContext(IO) {
+            repository.isSongFavorite(currentSong.id)
+        }
+        completion(isFavorite)
     }
 
     private fun initNotification() {
@@ -835,7 +810,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         if (!playbackRestored) {
             if (queuesRestored) {
                 play()
-                mediaEventBus.proposeEvent(MediaEvent.PlaybackRestored)
+                mediaSession?.sendSessionEvent(SessionEvent.PLAYBACK_RESTORED, null)
             } else {
                 needsToRestorePlayback = true
             }
@@ -977,13 +952,18 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     }
 
     internal fun mediaStoreChanged() = serviceScope.launch {
-        mediaEventBus.submitEvent(MediaEvent.MediaContentChanged)
+        mediaSession?.sendSessionEvent(SessionEvent.MEDIA_CONTENT_CHANGED, null)
     }
 
     private fun setupMediaSession() {
-        mediaSession = MediaSessionCompat(this, BuildConfig.APPLICATION_ID)
-        mediaSession!!.isActive = true
-        mediaSession!!.setCallback(MediaSessionCallback(this, serviceScope))
+        val activityPi = packageManager?.getLaunchIntentForPackage(packageName)?.let { intent ->
+            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        }
+        mediaSession = MediaSessionCompat(this, BuildConfig.APPLICATION_ID).apply {
+            isActive = true
+            setSessionActivity(activityPi)
+            setCallback(MediaSessionCallback(this@MusicService, serviceScope))
+        }
     }
 
     private fun setCustomAction(stateBuilder: PlaybackStateCompat.Builder) {

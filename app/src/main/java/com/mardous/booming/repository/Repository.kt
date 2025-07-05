@@ -61,6 +61,7 @@ interface Repository {
     fun favoriteSongsObservable(): LiveData<List<SongEntity>>
     suspend fun favoritePlaylist(): PlaylistEntity
     suspend fun checkFavoritePlaylist(): PlaylistEntity?
+    suspend fun toggleFavorite(song: Song): Boolean
     fun checkPlaylistExists(playListId: Long): LiveData<Boolean>
     suspend fun checkPlaylistExists(playlistName: String): List<PlaylistEntity>
     suspend fun checkSongExistInPlaylist(playlistEntity: PlaylistEntity, song: Song): Boolean
@@ -198,6 +199,9 @@ class RealRepository(
 
     override suspend fun checkFavoritePlaylist(): PlaylistEntity? =
         playlistRepository.checkFavoritePlaylist()
+
+    override suspend fun toggleFavorite(song: Song): Boolean =
+        playlistRepository.toggleFavorite(song)
 
     override fun checkPlaylistExists(playListId: Long): LiveData<Boolean> =
         playlistRepository.checkPlaylistExists(playListId)

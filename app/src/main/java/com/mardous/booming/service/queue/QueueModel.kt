@@ -3,13 +3,7 @@ package com.mardous.booming.service.queue
 import com.mardous.booming.model.Song
 import kotlinx.parcelize.Parcelize
 
-data class QueueRestorationEvent(
-    val restored: Boolean = false,
-    val restoredPosition: Int,
-    val restoredPositionInTrack: Int
-)
-
-class QueuePosition private constructor(val value: Int, val passive: Boolean, val play: Boolean) {
+data class QueuePosition(val value: Int, val passive: Boolean, val play: Boolean) {
     companion object {
         val Unspecified = QueuePosition(-1, passive = true, play = false)
 

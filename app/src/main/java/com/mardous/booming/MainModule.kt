@@ -36,7 +36,6 @@ import com.mardous.booming.lyrics.parser.LyricsParser
 import com.mardous.booming.model.Genre
 import com.mardous.booming.providers.MediaStoreWriter
 import com.mardous.booming.repository.*
-import com.mardous.booming.service.MediaEventBus
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.playback.PlaybackManager
 import com.mardous.booming.service.queue.QueueManager
@@ -121,9 +120,6 @@ private val mainModule = module {
     }
     single {
         AudioOutputObserver(context = androidContext(), playbackManager = get())
-    }
-    single {
-        MediaEventBus()
     }
     single {
         LrcLyricsParser()
@@ -243,7 +239,6 @@ private val viewModule = module {
 
     viewModel {
         PlayerViewModel(
-            mediaEventBus = get(),
             queueManager = get(),
             playbackManager = get(),
             saveCoverWorker = get()

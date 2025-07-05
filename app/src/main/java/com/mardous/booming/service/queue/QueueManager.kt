@@ -117,9 +117,8 @@ class QueueManager(private val context: Context) {
             if (shuffleMode == Playback.ShuffleMode.On) {
                 position = 0
                 makeShuffleList(this, startPosition)
-            } else {
-                this
             }
+            this
         }
         if (result) {
             setPositionTo(QueuePosition.initial(position, startPlaying))
@@ -518,17 +517,14 @@ class QueueManager(private val context: Context) {
         return deletePosition
     }
 
-    private fun <T : Song> makeShuffleList(listToShuffle: MutableList<T>, current: Int): List<T> {
-        if (listToShuffle.isNotEmpty()) {
-            if (current >= 0) {
-                val song = listToShuffle.removeAt(current)
-                listToShuffle.shuffle()
-                listToShuffle.add(0, song)
-            } else {
-                listToShuffle.shuffle()
-            }
+    private fun <T : Song> makeShuffleList(listToShuffle: MutableList<T>, current: Int) {
+        if (current >= 0) {
+            val song = listToShuffle.removeAt(current)
+            listToShuffle.shuffle()
+            listToShuffle.add(0, song)
+        } else {
+            listToShuffle.shuffle()
         }
-        return listToShuffle
     }
 
     suspend fun saveQueues() = withContext(IO) {

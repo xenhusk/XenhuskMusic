@@ -151,11 +151,14 @@ class PlayerAlbumCoverFragment : Fragment(), ViewPager.OnPageChangeListener,
     override fun onStart() {
         super.onStart()
         viewPager.addOnPageChangeListener(this)
-        viewPager.setOnTouchListener { _: View?, motionEvent: MotionEvent? ->
-            if (motionEvent != null) {
-                gestureDetector?.onTouchEvent(motionEvent) == true
-            } else false
+        viewPager.setOnTouchListener { _, event ->
+            val adapter = viewPager.adapter ?: return@setOnTouchListener false
+            if (!isAdded || adapter.count == 0) {
+                return@setOnTouchListener false
+            }
+            gestureDetector?.onTouchEvent(event) ?: false
         }
+
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
@@ -188,11 +191,12 @@ class PlayerAlbumCoverFragment : Fragment(), ViewPager.OnPageChangeListener,
     }
 
     override fun onDestroyView() {
+        viewPager.adapter = null
         viewPager.removeOnPageChangeListener(this)
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
+        super.onDestroyView()
         gestureDetector = null
         _binding = null
-        super.onDestroyView()
     }
 
     val isAllowedToLoadLyrics: Boolean
@@ -262,16 +266,26 @@ class PlayerAlbumCoverFragment : Fragment(), ViewPager.OnPageChangeListener,
     }
 
     private fun updatePlayingQueue(playingQueue: List<Song>) {
-        _binding?.viewPager?.apply {
-            adapter = AlbumCoverPagerAdapter(parentFragmentManager, playingQueue)
-            currentItem = playerViewModel.currentPosition
+        val pager = _binding?.viewPager ?: return
+        pager.adapter = null
+
+        val newAdapter = AlbumCoverPagerAdapter(parentFragmentManager, playingQueue)
+        pager.adapter = newAdapter
+        pager.post { // mitigation for occasional IndexOutOfBoundsException
+            if (!isAdded || _binding == null || view == null) return@post
+
+            val target = playerViewModel.currentPosition.coerceIn(0, newAdapter.count - 1)
+            if (newAdapter.count > 0) {
+                pager.setCurrentItem(target, false)
+                onPageSelected(target)
+            }
         }
-        onPageSelected(playerViewModel.currentPosition)
     }
 
     private fun requestColor(position: Int) {
         if (playerViewModel.playingQueue.isNotEmpty()) {
-            (viewPager.adapter as AlbumCoverPagerAdapter?)?.receiveColor(colorReceiver, position)
+            (viewPager.adapter as? AlbumCoverPagerAdapter)
+                ?.receiveColor(colorReceiver, position)
         }
     }
 

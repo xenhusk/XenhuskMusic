@@ -88,13 +88,13 @@ class PlayingNotificationImpl24(service: MusicService, mediaSessionToken: MediaS
         addAction(playPauseAction) //2
         addAction(nextAction) //3
         if (hasS()) {
-            addAction(dismissAction) //3
+            addAction(dismissAction) //4
         }
 
         setStyle(
             MediaStyle()
                 .setMediaSession(mediaSessionToken)
-                .setShowActionsInCompactView(0, 1, 2)
+                .setShowActionsInCompactView(1, 2, 3)
         )
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         priority = notificationPriority

@@ -84,6 +84,8 @@ import com.mardous.booming.service.notification.PlayingNotificationImpl24
 import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.service.playback.Playback.PlaybackCallbacks
 import com.mardous.booming.service.playback.PlaybackManager
+import com.mardous.booming.service.queue.EmptyPlayQueue
+import com.mardous.booming.service.queue.EmptyQueuePosition
 import com.mardous.booming.service.queue.QueueManager
 import com.mardous.booming.service.queue.QueueSong
 import com.mardous.booming.service.queue.StopPosition
@@ -91,6 +93,7 @@ import com.mardous.booming.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.flow.filterNot
 import org.koin.android.ext.android.inject
 import org.koin.java.KoinJavaComponent.get
 import kotlin.math.log10
@@ -469,7 +472,9 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     private fun launchObserver() {
         serviceScope.launch {
-            queueManager.positionFlow.collect { position ->
+            queueManager.positionFlow.filterNot {
+                it == EmptyQueuePosition
+            }.collect { position ->
                 if (!position.passive) {
                     openCurrentAndPrepareNext { success ->
                         if (success && position.play) {
@@ -487,6 +492,21 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
             }
         }
         serviceScope.launch {
+            queueManager.playingQueueFlow.filterNot {
+                it == EmptyPlayQueue
+            }.collect { playingQueue ->
+                updateQueue(playingQueue)
+            }
+        }
+        serviceScope.launch {
+            queueManager.currentSongFlow.filterNot {
+                it == Song.emptySong
+            }.collect { song ->
+                updateMetadata(song)
+                updateWidgets()
+            }
+        }
+        serviceScope.launch {
             queueManager.repeatModeFlow.collect { repeatMode ->
                 mediaSession?.setRepeatMode(repeatMode.value)
             }
@@ -494,17 +514,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         serviceScope.launch {
             queueManager.shuffleModeFlow.collect { shuffleMode ->
                 mediaSession?.setShuffleMode(shuffleMode.value)
-            }
-        }
-        serviceScope.launch {
-            queueManager.currentSongFlow.collect { currentSong ->
-                updateMetadata(currentSong)
-                updateWidgets()
-            }
-        }
-        serviceScope.launch {
-            queueManager.playingQueueFlow.collect { playingQueue ->
-                updateQueue(playingQueue)
             }
         }
     }

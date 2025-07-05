@@ -22,6 +22,7 @@ import com.mardous.booming.model.Song
 import com.mardous.booming.model.SongProvider
 import com.mardous.booming.providers.databases.PlaybackQueueStore
 import com.mardous.booming.service.playback.Playback
+import com.mardous.booming.service.queue.StopPosition.Companion.INFINITE
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.sortedSongs
@@ -31,6 +32,10 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
+
+val EmptyPlayQueue = emptyList<QueueSong>()
+val EmptyQueuePosition = QueuePosition(-1, passive = true, play = false)
+val EmptyStopPosition = StopPosition(INFINITE, false)
 
 private typealias MutablePlayQueue = MutableList<QueueSong>
 
@@ -56,15 +61,15 @@ class QueueManager(private val context: Context) {
     val shuffleModeFlow = mutableShuffleModeFlow.asStateFlow()
     val shuffleMode get() = shuffleModeFlow.value
 
-    private val mutablePositionFlow = MutableStateFlow(QueuePosition.Unspecified)
+    private val mutablePositionFlow = MutableStateFlow(EmptyQueuePosition)
     val positionFlow = mutablePositionFlow.asStateFlow()
     val position get() = positionFlow.value.value
 
-    private val mutablePlayingQueueFlow = MutableStateFlow(emptyList<QueueSong>())
+    private val mutablePlayingQueueFlow = MutableStateFlow(EmptyPlayQueue)
     val playingQueueFlow = mutablePlayingQueueFlow.asStateFlow()
     val playingQueue get() = playingQueueFlow.value
 
-    private val mutableStopPositionFlow = MutableStateFlow(StopPosition.Unspecified)
+    private val mutableStopPositionFlow = MutableStateFlow(EmptyStopPosition)
     val stopPositionFlow = mutableStopPositionFlow.asStateFlow()
     val stopPosition get() = stopPositionFlow.value.value
 
@@ -77,8 +82,8 @@ class QueueManager(private val context: Context) {
     )
     val currentSong get() = currentSongFlow.value
 
-    val nextSongFlow = mutablePositionFlow.map {
-        getSongAt(getNextPosition(true))
+    val nextSongFlow = combine(playingQueueFlow, positionFlow) { playingQueue, position ->
+        getSongAt(getNextPosition(true, position.value), playingQueue)
     }.stateIn(
         scope = coroutineScope,
         started = SharingStarted.Eagerly,
@@ -150,32 +155,32 @@ class QueueManager(private val context: Context) {
         return result
     }
 
-    fun getSongAt(position: Int): Song {
+    fun getSongAt(position: Int, playingQueue: List<QueueSong> = this.playingQueue): Song {
         return playingQueue.getOrElse(position) { Song.emptySong }
     }
 
     fun getDuration(position: Int) = playingQueue.drop(position).sumOf { it.duration }
 
-    fun getNextPosition(force: Boolean): Int {
-        var position = this.position + 1
+    fun getNextPosition(force: Boolean, position: Int = this.position): Int {
+        var nextPosition = position + 1
         when (repeatMode) {
             Playback.RepeatMode.All -> if (isLastTrack) {
-                position = 0
+                nextPosition = 0
             }
 
             Playback.RepeatMode.One -> if (force) {
                 if (isLastTrack) {
-                    position = 0
+                    nextPosition = 0
                 }
             } else {
-                position -= 1
+                nextPosition -= 1
             }
 
             Playback.RepeatMode.Off -> if (isLastTrack) {
-                position -= 1
+                nextPosition -= 1
             }
         }
-        return position
+        return nextPosition
     }
 
     fun getPreviousPosition(force: Boolean): Int {

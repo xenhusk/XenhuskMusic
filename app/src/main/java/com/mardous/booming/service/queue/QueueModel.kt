@@ -5,8 +5,6 @@ import kotlinx.parcelize.Parcelize
 
 data class QueuePosition(val value: Int, val passive: Boolean, val play: Boolean) {
     companion object {
-        val Unspecified = QueuePosition(-1, passive = true, play = false)
-
         fun initial(position: Int, play: Boolean) = QueuePosition(position, passive = !play, play = play)
 
         fun passive(position: Int) = QueuePosition(position, passive = true, play = false)
@@ -20,7 +18,6 @@ data class QueuePosition(val value: Int, val passive: Boolean, val play: Boolean
 class StopPosition(val value: Int, val fromUser: Boolean) {
     companion object {
         const val INFINITE = -1
-        val Unspecified = StopPosition(INFINITE, false)
     }
 }
 

@@ -52,6 +52,9 @@ class PlaybackManager(
     private val crossFadeDuration: Int
         get() = Preferences.crossFadeDuration
 
+    private val audioFadeDuration: Int
+        get() = Preferences.audioFadeDuration
+
     private var progressObserver: Job? = null
     val isProgressObserverRunning: Boolean
         get() = progressObserver?.isActive == true
@@ -89,7 +92,7 @@ class PlaybackManager(
 
     fun isPlaying(): Boolean = playback?.isPlaying() == true
 
-    fun play(coroutineScope: CoroutineScope, onNotInitialized: () -> Unit) {
+    fun play(force: Boolean = false, coroutineScope: CoroutineScope, onNotInitialized: () -> Unit) {
         if (playback != null && !playback!!.isPlaying()) {
             if (!playback!!.isInitialized()) {
                 onNotInitialized()
@@ -99,24 +102,26 @@ class PlaybackManager(
                 updateBalance()
                 updateTempo()
 
-                if (playback is CrossFadePlayer) {
-                    if (!(playback as CrossFadePlayer).isCrossFading) {
+                if (!force) {
+                    if (playback is CrossFadePlayer) {
+                        if (!(playback as CrossFadePlayer).isCrossFading) {
+                            AudioFader.startFadeAnimator(
+                                playback = playback!!,
+                                fadeDuration = audioFadeDuration,
+                                balanceLeft = soundSettings.balance.left,
+                                balanceRight = soundSettings.balance.right,
+                                fadeIn = true
+                            )
+                        }
+                    } else {
                         AudioFader.startFadeAnimator(
                             playback = playback!!,
-                            crossFadeDuration = crossFadeDuration,
+                            fadeDuration = audioFadeDuration,
                             balanceLeft = soundSettings.balance.left,
                             balanceRight = soundSettings.balance.right,
                             fadeIn = true
                         )
                     }
-                } else {
-                    AudioFader.startFadeAnimator(
-                        playback = playback!!,
-                        crossFadeDuration = crossFadeDuration,
-                        balanceLeft = soundSettings.balance.left,
-                        balanceRight = soundSettings.balance.right,
-                        fadeIn = true
-                    )
                 }
 
                 if (!isProgressObserverRunning) {
@@ -145,7 +150,7 @@ class PlaybackManager(
             } else {
                 AudioFader.startFadeAnimator(
                     playback = playback!!,
-                    crossFadeDuration = crossFadeDuration,
+                    fadeDuration = audioFadeDuration,
                     balanceLeft = soundSettings.balance.left,
                     balanceRight = soundSettings.balance.right,
                     fadeIn = false

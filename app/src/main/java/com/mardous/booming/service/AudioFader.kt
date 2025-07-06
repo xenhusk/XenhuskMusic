@@ -50,19 +50,19 @@ class AudioFader {
 
         fun startFadeAnimator(
             playback: Playback,
-            crossFadeDuration: Int,
+            fadeDuration: Int,
             balanceLeft: Float,
             balanceRight: Float,
             fadeIn: Boolean, /* fadeIn -> true  fadeOut -> false*/
             callback: Runnable? = null, /* Code to run when Animator Ends*/
         ) {
-            val duration = crossFadeDuration
+            val duration = fadeDuration * 1000
             if (duration == 0) {
                 callback?.run()
                 return
             }
-            val startValue = if (fadeIn) 0f else 1.0f
-            val endValue = if (fadeIn) 1.0f else 0f
+            val startValue = if (fadeIn) 0.0f else 1.0f
+            val endValue = if (fadeIn) 1.0f else 0.0f
             val animator = ValueAnimator.ofFloat(startValue, endValue)
             animator.duration = duration.toLong()
             animator.addUpdateListener { animation: ValueAnimator ->

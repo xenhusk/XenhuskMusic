@@ -248,6 +248,9 @@ object Preferences : KoinComponent {
     val crossFadeDuration: Int
         get() = preferences.getInt(CROSSFADE_DURATION, 0)
 
+    val audioFadeDuration: Int
+        get() = preferences.getInt(AUDIO_FADE_DURATION, 0)
+
     val autoPlayOnSkip: Boolean
         get() = preferences.getBoolean(AUTO_PLAY_ON_SKIP, true)
 
@@ -632,6 +635,7 @@ const val PLAYBACK_SPEED = "playback_speed"
 const val PLAYBACK_PITCH = "playback_pitch"
 const val GAPLESS_PLAYBACK = "gapless_playback"
 const val CROSSFADE_DURATION = "crossfade_duration"
+const val AUDIO_FADE_DURATION = "audio_fade_duration"
 const val AUTO_PLAY_ON_SKIP = "auto_play_on_skip"
 const val REWIND_WITH_BACK = "rewind_with_back"
 const val FAST_FORWARD = "fast_forward"

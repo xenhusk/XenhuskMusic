@@ -113,13 +113,6 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
         }
     }
 
-    override fun setVolume(leftVol: Float, rightVol: Float) {
-        cancelFade()
-        getCurrentPlayer()?.execSafe {
-            setVolume(leftVol, rightVol)
-        }
-    }
-
     override fun setDataSource(song: Song, force: Boolean, completion: (Boolean) -> Unit) {
         if (force) hasDataSource = false
         mIsInitialized = false
@@ -223,6 +216,13 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
         getCurrentPlayer()?.setPlaybackSpeedPitch(speed, pitch)
         if (getNextPlayer()?.isPlaying == true) {
             getNextPlayer()?.setPlaybackSpeedPitch(speed, pitch)
+        }
+    }
+
+    override fun setVolume(leftVol: Float, rightVol: Float) {
+        cancelFade()
+        getCurrentPlayer()?.execSafe {
+            setVolume(leftVol, rightVol)
         }
     }
 

@@ -876,12 +876,12 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks,
     }
 
     @Synchronized
-    fun play() {
+    fun play(force: Boolean = false) {
         if (!requestFocus()) {
             showToast(R.string.audio_focus_denied)
             return
         }
-        playbackManager.play(serviceScope) {
+        playbackManager.play(force, serviceScope) {
             queueManager.playSongAt(currentPosition)
         }
     }

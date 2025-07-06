@@ -133,7 +133,7 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
             setSpan(secondaryColorSpan, 0, length, 0)
         }
 
-        //binding.songInfo.isSelected = true
+        binding.songInfo.isSelected = true
         binding.songInfo.text = builder.append(title).append(DEFAULT_INFO_DELIMITER).append(text)
 
         target = Glide.with(this@MiniPlayerFragment)

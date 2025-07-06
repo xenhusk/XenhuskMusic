@@ -17,7 +17,7 @@
   },
   {
     "contrib_name": "Hebrew",
-    "contrib_description": "[elid1](https://crowdin.com/profile/elid1)"
+    "contrib_description": "[elid1](https://crowdin.com/profile/elid1), [Walbeg Tronael](https://crowdin.com/profile/tronael)"
   },
   {
     "contrib_name": "Hindi",
@@ -32,7 +32,15 @@
     "contrib_description": "[Szuwax](https://crowdin.com/profile/szuwax)"
   },
   {
+    "contrib_name": "Portuguese",
+    "contrib_description": "[Matt](https://crowdin.com/profile/me-at-the-age-of-git)"
+  },
+  {
     "contrib_name": "Portuguese (Brazilian)",
     "contrib_description": "[Matt](https://crowdin.com/profile/me-at-the-age-of-git), [wbellato](https://crowdin.com/profile/wbellato), [Walbeg Tronael](https://crowdin.com/profile/tronael)"
+  },
+  {
+    "contrib_name": "Turkish",
+    "contrib_description": "[Holi](https://crowdin.com/profile/mikropsoft)"
   }
 ]

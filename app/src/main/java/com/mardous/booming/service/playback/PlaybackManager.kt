@@ -30,17 +30,23 @@ import androidx.media.AudioManagerCompat
 import com.mardous.booming.R
 import com.mardous.booming.audio.SoundSettings
 import com.mardous.booming.extensions.showToast
+import com.mardous.booming.model.Song
+import com.mardous.booming.service.CrossFadePlayer
 import com.mardous.booming.service.MultiPlayer
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.util.Preferences
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class PlaybackManager(
     private val context: Context,
     private val equalizerManager: EqualizerManager,
     private val soundSettings: SoundSettings
 ) : AudioManager.OnAudioFocusChangeListener {
+
+    private val _progressFlow = MutableStateFlow(-1L)
+    val progressFlow = _progressFlow.asStateFlow()
 
     private val audioManager: AudioManager? = context.getSystemService()
     private val audioFocusRequest: AudioFocusRequestCompat =
@@ -61,8 +67,21 @@ class PlaybackManager(
     private val equalizerEnabled: Boolean
         get() = equalizerManager.eqState.isUsable
 
+    private var progressObserver: Job? = null
+    val isProgressObserverRunning: Boolean
+        get() = progressObserver?.isActive == true
+
+    private fun createLocalPlayback(): Playback {
+        // Set MultiPlayer when crossfade duration is 0 i.e. off
+        return if (Preferences.crossFadeDuration == 0) {
+            MultiPlayer(context)
+        } else {
+            CrossFadePlayer(context)
+        }
+    }
+
     fun initialize(callbacks: Playback.PlaybackCallbacks, coroutineScope: CoroutineScope) {
-        playback = MultiPlayer(context)
+        playback = createLocalPlayback()
         playback?.setCallbacks(callbacks)
         coroutineScope.launch {
             soundSettings.balanceFlow.collect { balance ->
@@ -83,15 +102,11 @@ class PlaybackManager(
     @RequiresApi(Build.VERSION_CODES.P)
     fun getRoutedDevice(): AudioDeviceInfo? = playback?.getRoutedDevice()
 
-    fun getSongDurationMillis(): Int = playback?.duration() ?: -1
-
-    fun getSongProgressMillis(): Int = playback?.position() ?: -1
-
     fun isPlaying(): Boolean = playback?.isPlaying() == true
 
     fun mayResume(): Boolean = isPausedByTransientLossOfFocus
 
-    fun play(onNotInitialized: () -> Unit) {
+    fun play(coroutineScope: CoroutineScope, onNotInitialized: () -> Unit) {
         if (!requestFocus()) {
             context.showToast(R.string.audio_focus_denied)
             return
@@ -104,6 +119,10 @@ class PlaybackManager(
 
                 updateBalance()
                 updateTempo()
+
+                if (!isProgressObserverRunning) {
+                    startProgressObserver(coroutineScope)
+                }
 
                 if (equalizerEnabled) {
                     //Shutdown any existing external audio sessions
@@ -119,26 +138,71 @@ class PlaybackManager(
     }
 
     fun pause() {
+        stopProgressObserver()
         if (playback != null && playback!!.isPlaying()) {
             playback?.pause()
             closeAudioEffectSession(false)
         }
     }
 
-    fun seek(millis: Int) {
-        playback?.seek(millis)
+    fun position() = playback?.position() ?: -1
+
+    fun duration(): Int = playback?.duration() ?: -1
+
+    fun seek(millis: Int, force: Boolean) {
+        if (!isProgressObserverRunning) {
+            _progressFlow.value = millis.toLong()
+        }
+        playback?.seek(millis, force)
     }
 
-    fun setDataSource(path: String, completion: (success: Boolean) -> Unit) {
-        playback?.setDataSource(path, completion)
+    fun setCallbacks(callbacks: Playback.PlaybackCallbacks) {
+        playback?.setCallbacks(callbacks)
     }
 
-    fun setNextDataSource(path: String?) {
-        playback?.setNextDataSource(path)
+    fun setDataSource(song: Song, force: Boolean, completion: (success: Boolean) -> Unit) {
+        playback?.setDataSource(song, force, completion)
+    }
+
+    fun setNextDataSource(song: Song?) {
+        playback?.setNextDataSource(song)
+    }
+
+    fun setCrossFadeDuration(duration: Int) {
+        playback?.setCrossFadeDuration(duration)
+    }
+
+    fun setCrossFadeNextDataSource(song: Song) {
+        if (playback is CrossFadePlayer) {
+            playback?.setNextDataSource(song)
+        }
     }
 
     fun setReplayGain(rg: Float) {
         playback?.setReplayGain(rg)
+    }
+
+    fun maybeSwitchToCrossFade(crossFadeDuration: Int): Boolean {
+        /* Switch to MultiPlayer if CrossFade duration is 0 and
+           Playback is not an instance of MultiPlayer
+        */
+        if (playback !is MultiPlayer && crossFadeDuration == 0) {
+            if (playback != null) {
+                playback?.release()
+            }
+            playback = null
+            playback = MultiPlayer(context)
+            return true
+        } else if (playback !is CrossFadePlayer && crossFadeDuration > 0) {
+            if (playback != null) {
+                playback?.release()
+            }
+            playback = null
+            playback = CrossFadePlayer(context)
+            playback?.setCrossFadeDuration(crossFadeDuration)
+            return true
+        }
+        return false
     }
 
     fun openAudioEffectSession(internal: Boolean) {
@@ -164,11 +228,32 @@ class PlaybackManager(
     }
 
     fun release() {
+        progressObserver?.cancel()
+        progressObserver = null
         equalizerManager.release()
         playback?.release()
         playback = null
         abandonFocus()
         closeAudioEffectSession(true)
+    }
+
+    private fun startProgressObserver(coroutineScope: CoroutineScope) {
+        progressObserver = coroutineScope.launch(Dispatchers.Default) {
+            while (isActive) {
+                if (isPlaying()) {
+                    _progressFlow.value = position().toLong()
+                    playback?.setProgressState(position(), duration())
+                    delay(100L)
+                } else {
+                    delay(300L)
+                }
+            }
+        }
+    }
+
+    private fun stopProgressObserver() {
+        progressObserver?.cancel()
+        progressObserver = null
     }
 
     private fun requestFocus(): Boolean {
@@ -194,7 +279,7 @@ class PlaybackManager(
             AudioManager.AUDIOFOCUS_LOSS -> {
                 // Lost focus for an unbounded amount of time: stop playback and release media playback
                 if (!Preferences.ignoreAudioFocus) {
-                    playback?.pause()
+                    pause()
                 }
             }
 
@@ -204,7 +289,7 @@ class PlaybackManager(
                 // is likely to resume
                 if (Preferences.pauseOnTransientFocusLoss) {
                     val wasPlaying = isPlaying()
-                    playback?.pause()
+                    pause()
                     isPausedByTransientLossOfFocus = wasPlaying
                 }
             }

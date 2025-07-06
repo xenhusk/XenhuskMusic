@@ -84,11 +84,7 @@ import com.mardous.booming.service.notification.PlayingNotificationImpl24
 import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.service.playback.Playback.PlaybackCallbacks
 import com.mardous.booming.service.playback.PlaybackManager
-import com.mardous.booming.service.queue.EmptyPlayQueue
-import com.mardous.booming.service.queue.EmptyQueuePosition
-import com.mardous.booming.service.queue.QueueManager
-import com.mardous.booming.service.queue.QueueSong
-import com.mardous.booming.service.queue.StopPosition
+import com.mardous.booming.service.queue.*
 import com.mardous.booming.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
@@ -117,6 +113,8 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     private var queuesRestored = false
     private var playbackRestored = false
     private var needsToRestorePlayback = false
+
+    private var trackEndedByCrossfade = false
 
     private val sharedPreferences: SharedPreferences by inject()
     private val equalizerManager: EqualizerManager by inject()
@@ -507,6 +505,13 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
             }
         }
         serviceScope.launch {
+            queueManager.nextSongFlow.filterNot {
+                it == Song.emptySong
+            }.collect { song ->
+                playbackManager.setCrossFadeNextDataSource(song)
+            }
+        }
+        serviceScope.launch {
             queueManager.repeatModeFlow.collect { repeatMode ->
                 mediaSession?.setRepeatMode(repeatMode.value)
             }
@@ -603,8 +608,8 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     }
 
     val isPlaying get() = playbackManager.isPlaying()
-    val currentSongProgress get() = playbackManager.getSongProgressMillis()
-    val currentSongDuration get() = playbackManager.getSongDurationMillis()
+    val currentSongProgress get() = playbackManager.position()
+    val currentSongDuration get() = playbackManager.duration()
 
     private val playbackSpeed get() = playbackManager.getPlaybackSpeed()
     private val shuffleMode get() = queueManager.shuffleMode
@@ -649,7 +654,13 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     @Synchronized
     private fun openCurrent(completion: (success: Boolean) -> Unit) {
-        playbackManager.setDataSource(getTrackUri(currentSong)) { success ->
+        val force = if (!trackEndedByCrossfade) {
+            true
+        } else {
+            trackEndedByCrossfade = false
+            false
+        }
+        playbackManager.setDataSource(currentSong, force) { success ->
             completion(success)
         }
     }
@@ -665,7 +676,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
             if (nextPosition == queueManager.stopPosition) {
                 playbackManager.setNextDataSource(null)
             } else {
-                playbackManager.setNextDataSource(getTrackUri(getSongAt(nextPosition)))
+                playbackManager.setNextDataSource(getSongAt(nextPosition))
             }
             queueManager.nextPosition = nextPosition
         } catch (_: Exception) {
@@ -837,7 +848,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
     @Synchronized
     fun play() {
-        playbackManager.play {
+        playbackManager.play(serviceScope) {
             queueManager.playSongAt(currentPosition)
         }
     }
@@ -861,9 +872,9 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     private fun getPreviousPosition(force: Boolean) = queueManager.getPreviousPosition(force)
 
     @Synchronized
-    fun seek(millis: Int) {
+    fun seek(millis: Int, force: Boolean = true) {
         try {
-            playbackManager.seek(millis)
+            playbackManager.seek(millis, force)
             throttledSeekHandler?.notifySeek()
         } catch (_: Exception) {
         }
@@ -1059,8 +1070,18 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         }
     }
 
-    private fun getTrackUri(song: Song): String {
-        return song.mediaStoreUri.toString()
+    private fun restorePlaybackState(wasPlaying: Boolean, progress: Int) {
+        playbackManager.setCallbacks(this)
+        openCurrentAndPrepareNext { success ->
+            if (success) {
+                seek(progress)
+                if (wasPlaying) {
+                    play()
+                } else {
+                    pause()
+                }
+            }
+        }
     }
 
     override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String?) {
@@ -1078,6 +1099,18 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
 
             PLAYBACK_SPEED -> {
                 updateMediaSessionPlaybackState()
+            }
+
+            CROSSFADE_DURATION -> {
+                val progress = currentSongProgress
+                val wasPlaying = isPlaying
+
+                val crossFadeDuration = Preferences.crossFadeDuration
+                if (playbackManager.maybeSwitchToCrossFade(crossFadeDuration)) {
+                    restorePlaybackState(wasPlaying, progress)
+                } else {
+                    playbackManager.setCrossFadeDuration(crossFadeDuration)
+                }
             }
 
             GAPLESS_PLAYBACK -> {
@@ -1125,7 +1158,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         if (checkShouldStop(false) || (queueManager.repeatMode == Playback.RepeatMode.Off && isLastTrack)) {
             playbackManager.setNextDataSource(null)
             pause()
-            seek(0)
+            seek(0, false)
             if (checkShouldStop(true)) {
                 queueManager.syncNextPosition()
                 quit()
@@ -1146,7 +1179,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         // if there is a timer finished, don't continue
         if ((queueManager.repeatMode == Playback.RepeatMode.Off && isLastTrack) || checkShouldStop(false)) {
             pause()
-            seek(0)
+            seek(0, false)
             if (checkShouldStop(true)) {
                 quit()
             }
@@ -1154,6 +1187,11 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
             playNextSong(false)
         }
         releaseWakeLock()
+    }
+
+    override fun onTrackEndedWithCrossFade() {
+        trackEndedByCrossfade = true
+        onTrackEnded()
     }
 
     override fun onPlayStateChanged() {

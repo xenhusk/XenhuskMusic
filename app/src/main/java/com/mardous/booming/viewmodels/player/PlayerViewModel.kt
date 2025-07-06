@@ -2,7 +2,6 @@ package com.mardous.booming.viewmodels.player
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
@@ -27,11 +26,8 @@ import com.mardous.booming.viewmodels.player.model.PlayerProgress
 import com.mardous.booming.viewmodels.player.model.SaveCoverResult
 import com.mardous.booming.worker.SaveCoverWorker
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class PlayerViewModel(
@@ -45,22 +41,6 @@ class PlayerViewModel(
     private val controllerCallback = object : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             _isPlayingFlow.value = state?.state == PlaybackStateCompat.STATE_PLAYING
-            if (progressObserver == null) {
-                _songProgressFlow.value = state?.position ?: 0
-            }
-            if (isPlayingFlow.value) {
-                if (progressObserver == null || progressObserver?.isActive == false) {
-                    startProgressObserver()
-                }
-            } else {
-                stopProgressObserver()
-            }
-        }
-
-        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            val mediaMetadata = MediaMetadataCompat.fromMediaMetadata(metadata?.mediaMetadata)
-            _songDurationFlow.value =
-                mediaMetadata?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) ?: 0
         }
 
         override fun onSessionEvent(event: String?, extras: Bundle?) {
@@ -73,19 +53,15 @@ class PlayerViewModel(
 
     val audioSessionId get() = playbackManager.getAudioSessionId()
 
-    private val _songProgressFlow = MutableStateFlow(0L)
-    val songProgressFlow = _songProgressFlow.asStateFlow()
-
-    private val _songDurationFlow = MutableStateFlow(0L)
-    val songDurationFlow = _songDurationFlow.asStateFlow()
-
-    val progressFlow = combine(songProgressFlow, songDurationFlow) { progress, total ->
-        PlayerProgress(progress, total)
+    val progressFlow = playbackManager.progressFlow.map { progress ->
+        PlayerProgress(progress, playbackManager.duration().toLong())
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.Lazily,
+        started = SharingStarted.Eagerly,
         initialValue = PlayerProgress.Unspecified
     )
+    val songProgress get() = progressFlow.value.progress
+    val songDuration get() = progressFlow.value.total
 
     private val _isPlayingFlow = MutableStateFlow(false)
     val isPlayingFlow = _isPlayingFlow.asStateFlow()
@@ -127,26 +103,6 @@ class PlayerViewModel(
     var pendingQuit: Boolean
         get() = playbackManager.pendingQuit
         set(value) { playbackManager.pendingQuit = value }
-
-    private var progressObserver: Job? = null
-
-    private fun startProgressObserver() {
-        progressObserver = viewModelScope.launch {
-            while (isActive) {
-                if (_isPlayingFlow.value) {
-                    _songProgressFlow.value = mediaController?.playbackState?.position ?: 0L
-                    delay(100L)
-                } else {
-                    delay(300L)
-                }
-            }
-        }
-    }
-
-    private fun stopProgressObserver() {
-        progressObserver?.cancel()
-        progressObserver = null
-    }
 
     private fun submitEvent(event: MediaEvent) = viewModelScope.launch {
         _mediaEventFlow.emit(event)
@@ -338,7 +294,6 @@ class PlayerViewModel(
     }
 
     override fun onCleared() {
-        stopProgressObserver()
         mediaController?.unregisterCallback(controllerCallback)
         super.onCleared()
     }

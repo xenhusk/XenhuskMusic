@@ -83,7 +83,7 @@ class QueueManager(private val context: Context) {
     val currentSong get() = currentSongFlow.value
 
     val nextSongFlow = combine(playingQueueFlow, positionFlow) { playingQueue, position ->
-        getSongAt(getNextPosition(true, position.value), playingQueue)
+        getSongAt(getNextPosition(false, position.value), playingQueue)
     }.stateIn(
         scope = coroutineScope,
         started = SharingStarted.Eagerly,

@@ -35,13 +35,13 @@ fun LyricsScreen(
     modifier: Modifier = Modifier
 ) {
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
-    val songProgress by playerViewModel.songProgressFlow.collectAsState()
+    val songProgress by playerViewModel.progressFlow.collectAsState()
     val lyricsViewState = remember(lyricsResult.syncedLyrics) {
         LyricsViewState(lyricsResult.syncedLyrics)
     }
 
     LaunchedEffect(songProgress) {
-        lyricsViewState.updatePosition(songProgress)
+        lyricsViewState.updatePosition(songProgress.progress)
     }
 
     val plainScrollState = rememberScrollState()
@@ -90,13 +90,13 @@ fun CoverLyricsScreen(
     modifier: Modifier = Modifier
 ) {
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
-    val songProgress by playerViewModel.songProgressFlow.collectAsState()
+    val songProgress by playerViewModel.progressFlow.collectAsState()
     val lyricsViewState = remember(lyricsResult.syncedLyrics) {
         LyricsViewState(lyricsResult.syncedLyrics)
     }
 
     LaunchedEffect(songProgress) {
-        lyricsViewState.updatePosition(songProgress)
+        lyricsViewState.updatePosition(songProgress.progress)
     }
 
     val plainScrollState = rememberScrollState()

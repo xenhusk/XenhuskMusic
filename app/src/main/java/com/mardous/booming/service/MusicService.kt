@@ -43,6 +43,9 @@ import androidx.core.content.edit
 import androidx.core.content.getSystemService
 import androidx.core.util.Predicate
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.media.AudioAttributesCompat
+import androidx.media.AudioFocusRequestCompat
+import androidx.media.AudioManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -96,7 +99,8 @@ import kotlin.math.log10
 import kotlin.math.min
 import kotlin.random.Random.Default.nextInt
 
-class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPreferenceChangeListener {
+class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks,
+    OnSharedPreferenceChangeListener, AudioManager.OnAudioFocusChangeListener {
 
     private val mBinder: IBinder = MusicBinder()
 
@@ -115,6 +119,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     private var needsToRestorePlayback = false
 
     private var trackEndedByCrossfade = false
+    private var isPausedByTransientLossOfFocus = false
 
     private val sharedPreferences: SharedPreferences by inject()
     private val equalizerManager: EqualizerManager by inject()
@@ -189,6 +194,17 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         }
     }
 
+    private val audioManager by lazy { getSystemService<AudioManager>() }
+    private val audioFocusRequest: AudioFocusRequestCompat =
+        AudioFocusRequestCompat.Builder(AudioManagerCompat.AUDIOFOCUS_GAIN)
+            .setOnAudioFocusChangeListener(this)
+            .setAudioAttributes(
+                AudioAttributesCompat.Builder()
+                    .setUsage(AudioAttributesCompat.USAGE_MEDIA)
+                    .setContentType(AudioAttributesCompat.CONTENT_TYPE_MUSIC)
+                    .build()
+            ).build()
+
     override fun onCreate() {
         super.onCreate()
         val powerManager = getSystemService<PowerManager>()
@@ -247,7 +263,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        if (!isPlaying && !playbackManager.mayResume()) {
+        if (!isPlaying && !isPausedByTransientLossOfFocus) {
             stopSelf()
         }
         return true
@@ -341,6 +357,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         mediaSession?.isActive = false
         quit()
         releaseResources()
+        abandonFocus()
         serviceScope.cancel()
         queueManager.disconnect()
         contentResolver.unregisterContentObserver(mediaStoreObserver)
@@ -386,7 +403,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
     }
 
     override fun onTaskRemoved(rootIntent: Intent) {
-        if (!isPlaying && !playbackManager.mayResume()) {
+        if (!isPlaying && !isPausedByTransientLossOfFocus) {
             quit()
         }
         super.onTaskRemoved(rootIntent)
@@ -842,12 +859,28 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         queueManager.open(queue, startPosition, startPlaying, null)
     }
 
-    fun pause() {
-        playbackManager.pause()
+    private fun requestFocus(): Boolean {
+        return audioManager?.let {
+            AudioManagerCompat.requestAudioFocus(it, audioFocusRequest) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        } ?: false
+    }
+
+    private fun abandonFocus() {
+        audioManager?.let {
+            AudioManagerCompat.abandonAudioFocusRequest(it, audioFocusRequest)
+        }
+    }
+
+    fun pause(force: Boolean = false) {
+        playbackManager.pause(force)
     }
 
     @Synchronized
     fun play() {
+        if (!requestFocus()) {
+            showToast(R.string.audio_focus_denied)
+            return
+        }
         playbackManager.play(serviceScope) {
             queueManager.playSongAt(currentPosition)
         }
@@ -1153,11 +1186,44 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         }
     }
 
+    override fun onAudioFocusChange(focusChange: Int) {
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                if (!isPlaying && isPausedByTransientLossOfFocus) {
+                    play()
+                    isPausedByTransientLossOfFocus = false
+                }
+            }
+
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                // Lost focus for an unbounded amount of time: stop playback and release media playback
+                if (!Preferences.ignoreAudioFocus) {
+                    val force = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                    // Starting with Android 12, the system automatically fades out
+                    // the output when focus is lost; we simply pause without fading
+                    // out on our own.
+                    pause(force)
+                }
+            }
+
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                // Lost focus for a short time, but we have to stop
+                // playback. We don't release the media playback because playback
+                // is likely to resume
+                if (Preferences.pauseOnTransientFocusLoss) {
+                    val wasPlaying = isPlaying
+                    pause(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    isPausedByTransientLossOfFocus = wasPlaying
+                }
+            }
+        }
+    }
+
     override fun onTrackWentToNext() {
         bumpPlayCount()
         if (checkShouldStop(false) || (queueManager.repeatMode == Playback.RepeatMode.Off && isLastTrack)) {
             playbackManager.setNextDataSource(null)
-            pause()
+            pause(true)
             seek(0, false)
             if (checkShouldStop(true)) {
                 queueManager.syncNextPosition()
@@ -1236,8 +1302,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, OnSharedPre
         const val FAST_FORWARD_THRESHOLD = 5000
         const val REWIND_THRESHOLD = 5000
         private const val REWIND_INSTEAD_PREVIOUS_MILLIS = REWIND_THRESHOLD
-
-        private const val FAVORITE_STATE_CHANGED = "${BuildConfig.APPLICATION_ID}.favoritestatechanged"
 
         private const val MEDIA_SESSION_ACTIONS = (PlaybackStateCompat.ACTION_PLAY
                 or PlaybackStateCompat.ACTION_PAUSE

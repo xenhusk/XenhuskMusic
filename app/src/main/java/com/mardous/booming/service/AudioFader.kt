@@ -51,6 +51,8 @@ class AudioFader {
         fun startFadeAnimator(
             playback: Playback,
             crossFadeDuration: Int,
+            balanceLeft: Float,
+            balanceRight: Float,
             fadeIn: Boolean, /* fadeIn -> true  fadeOut -> false*/
             callback: Runnable? = null, /* Code to run when Animator Ends*/
         ) {
@@ -64,8 +66,8 @@ class AudioFader {
             val animator = ValueAnimator.ofFloat(startValue, endValue)
             animator.duration = duration.toLong()
             animator.addUpdateListener { animation: ValueAnimator ->
-                val newVol = animation.animatedValue as Float
-                playback.setVolume(newVol, newVol)
+                val progress = animation.animatedValue as Float
+                playback.setVolume(progress * balanceLeft, progress * balanceRight)
             }
             animator.doOnEnd {
                 callback?.run()

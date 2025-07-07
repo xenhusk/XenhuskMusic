@@ -138,16 +138,16 @@ fun Song.asQueueItem(itemId: Long): MediaSessionCompat.QueueItem {
 fun Song.audioFile(): AudioFile? = File(data).toAudioFile()
 
 fun Song.replayGainStr(context: Context): String? {
-    val gainValues = ReplayGainTagExtractor.getReplayGain(this)
+    val rg = ReplayGainTagExtractor.getReplayGain(mediaStoreUri)
     val builder = StringBuilder()
-    if (gainValues.rgTrack.toDouble() != 0.0) {
-        builder.append(String.format(Locale.ROOT, "%s: %.2f dB", context.getString(R.string.track), gainValues.rgTrack))
+    if (rg.trackGain != 0f) {
+        builder.append(String.format(Locale.ROOT, "%s: %.2f dB", context.getString(R.string.track), rg.trackGain))
     }
-    if (gainValues.rgAlbum.toDouble() != 0.0) {
+    if (rg.albumGain != 0f) {
         if (builder.isNotEmpty())
             builder.append(" - ")
 
-        builder.append(String.format(Locale.ROOT, "%s: %.2f dB", context.getString(R.string.album), gainValues.rgAlbum))
+        builder.append(String.format(Locale.ROOT, "%s: %.2f dB", context.getString(R.string.album), rg.albumGain))
     }
     val replayGainValues = builder.toString()
     return replayGainValues.ifEmpty { null }

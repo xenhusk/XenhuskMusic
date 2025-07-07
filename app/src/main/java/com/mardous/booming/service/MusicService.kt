@@ -1067,14 +1067,14 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks,
     private fun applyReplayGain(song: Song) {
         val mode = Preferences.replayGainSourceMode
         if (mode != ReplayGainSourceMode.MODE_NONE) {
-            val gainValues = ReplayGainTagExtractor.getReplayGain(song)
+            val rg = ReplayGainTagExtractor.getReplayGain(song.mediaStoreUri)
             var adjustDB = 0.0f
             var peak = 1.0f
 
-            val rgTrack: Float = gainValues.rgTrack
-            val rgAlbum: Float = gainValues.rgAlbum
-            val rgpTrack: Float = gainValues.peakTrack
-            val rgpAlbum: Float = gainValues.peakAlbum
+            val rgTrack: Float = rg.trackGain
+            val rgAlbum: Float = rg.albumGain
+            val rgpTrack: Float = rg.trackPeak
+            val rgpAlbum: Float = rg.albumPeak
 
             if (mode == ReplayGainSourceMode.MODE_ALBUM) {
                 adjustDB = (if (rgTrack == 0.0f) adjustDB else rgTrack)

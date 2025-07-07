@@ -31,13 +31,9 @@ import com.mardous.booming.databinding.FragmentPeekPlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.whichFragment
-import com.mardous.booming.fragments.player.PlayerColorScheme
-import com.mardous.booming.fragments.player.PlayerColorSchemeMode
-import com.mardous.booming.fragments.player.PlayerTintTarget
+import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
-import com.mardous.booming.fragments.player.surfaceTintTarget
-import com.mardous.booming.fragments.player.tintTarget
 import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.util.Preferences
 
@@ -77,8 +73,14 @@ class PeekPlayerFragment : AbsPlayerFragment(R.layout.fragment_peek_player) {
                 _binding?.let { nonNullBinding ->
                     nonNullBinding.title.text = song.title
                     nonNullBinding.text.text = getSongArtist(song)
+                }
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.extraInfoFlow.collect {
+                _binding?.let { nonNullBinding ->
                     if (isExtraInfoEnabled()) {
-                        nonNullBinding.songInfo.text = getExtraInfoString(song)
+                        nonNullBinding.songInfo.text = it
                         nonNullBinding.songInfo.isVisible = true
                     } else {
                         nonNullBinding.songInfo.isVisible = false

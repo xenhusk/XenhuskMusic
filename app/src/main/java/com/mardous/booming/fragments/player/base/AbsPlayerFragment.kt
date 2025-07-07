@@ -50,7 +50,6 @@ import com.mardous.booming.dialogs.songs.ShareSongDialog
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.displayArtistName
-import com.mardous.booming.extensions.media.extraInfo
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.extensions.navigation.albumDetailArgs
 import com.mardous.booming.extensions.navigation.artistDetailArgs
@@ -448,9 +447,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
             getString(R.string.next_song_x, nextSong.title)
         }
     }
-
-    fun getExtraInfoString(song: Song) =
-        if (isExtraInfoEnabled()) song.extraInfo(Preferences.nowPlayingExtraInfoList) else null
 
     private fun requestSaveCover() {
         if (!Preferences.savedArtworkCopyrightNoticeShown) {

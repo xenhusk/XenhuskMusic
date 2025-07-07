@@ -7,6 +7,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.lifecycle.*
 import com.mardous.booming.extensions.media.durationStr
+import com.mardous.booming.extensions.media.extraInfo
 import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.PlayerColorSchemeMode
 import com.mardous.booming.helper.color.MediaNotificationProcessor
@@ -26,10 +27,12 @@ import com.mardous.booming.viewmodels.player.model.PlayerProgress
 import com.mardous.booming.viewmodels.player.model.SaveCoverResult
 import com.mardous.booming.worker.SaveCoverWorker
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+@OptIn(FlowPreview::class)
 class PlayerViewModel(
     private val queueManager: QueueManager,
     private val playbackManager: PlaybackManager,
@@ -100,12 +103,25 @@ class PlayerViewModel(
     val colorSchemeFlow = _colorScheme.asFlow()
     val colorScheme get() = colorSchemeObservable.value
 
+    private val _extraInfoFlow = MutableStateFlow<String?>(null)
+    val extraInfoFlow = _extraInfoFlow.asStateFlow()
+
     var pendingQuit: Boolean
         get() = playbackManager.pendingQuit
         set(value) { playbackManager.pendingQuit = value }
 
     private fun submitEvent(event: MediaEvent) = viewModelScope.launch {
         _mediaEventFlow.emit(event)
+    }
+
+    init {
+        currentSongFlow.debounce(500)
+            .distinctUntilChangedBy { it.id }
+            .onEach { song ->
+                _extraInfoFlow.value = song.extraInfo(Preferences.nowPlayingExtraInfoList)
+            }
+            .flowOn(IO)
+            .launchIn(viewModelScope)
     }
 
     fun setMediaController(controller: MediaControllerCompat?) {

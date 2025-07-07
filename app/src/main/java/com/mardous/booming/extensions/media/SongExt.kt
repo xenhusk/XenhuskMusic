@@ -32,13 +32,15 @@ import com.mardous.booming.extensions.resources.textColorPrimary
 import com.mardous.booming.extensions.resources.textColorSecondary
 import com.mardous.booming.extensions.resources.toForegroundColorSpan
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.extensions.utilities.appendWithDelimiter
+import com.mardous.booming.extensions.utilities.DEFAULT_INFO_DELIMITER
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.misc.ReplayGainTagExtractor
 import com.mardous.booming.model.NowPlayingInfo
 import com.mardous.booming.model.Song
 import com.mardous.booming.model.WebSearchEngine
-import org.jaudiotagger.audio.AudioFile
+import com.mardous.booming.taglib.MetadataReader
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Locale
 
@@ -100,28 +102,21 @@ fun Song.songInfo(isForWidget: Boolean = false): String {
     } else buildInfoString(songDurationStr(), displayArtistName())
 }
 
-fun Song.extraInfo(requestedInfo: List<NowPlayingInfo>): String? {
+suspend fun Song.extraInfo(requestedInfo: List<NowPlayingInfo>) = withContext(Dispatchers.IO) {
     if (requestedInfo.isNotEmpty()) {
-        try {
-            val audioFile = audioFile()
-                ?: return null
-
-            val sb = StringBuilder()
-            for (songMetadata in requestedInfo) {
-                if (songMetadata.isEnabled) {
-                    val readableInfo = songMetadata.info
-                        .toReadableFormat(audioFile.tagOrCreateAndSetDefault, audioFile.audioHeader)
-                    if (!readableInfo.isNullOrEmpty()) {
-                        sb.appendWithDelimiter(readableInfo)
-                    }
-                }
+        runCatching {
+            val metadataReader = MetadataReader(mediaStoreUri)
+            val audioFile = File(data).toAudioFile()
+            val readableContent = requestedInfo.mapNotNull {
+                if (it.isEnabled) {
+                    it.info.toReadableFormat(metadataReader, audioFile?.audioHeader)
+                } else null
             }
-            return sb.toString()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+            readableContent.joinToString(separator = DEFAULT_INFO_DELIMITER)
+        }.getOrNull()
+    } else {
+        null
     }
-    return null
 }
 
 fun Song.asQueueItem(itemId: Long): MediaSessionCompat.QueueItem {
@@ -134,8 +129,6 @@ fun Song.asQueueItem(itemId: Long): MediaSessionCompat.QueueItem {
         .build()
     return MediaSessionCompat.QueueItem(mediaDescription, itemId)
 }
-
-fun Song.audioFile(): AudioFile? = File(data).toAudioFile()
 
 fun Song.replayGainStr(context: Context): String? {
     val rg = ReplayGainTagExtractor.getReplayGain(mediaStoreUri)

@@ -114,10 +114,12 @@ class PlainPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_
         return PlainPlayerAnimator(binding, Preferences.animateControls)
     }
 
-    override fun onSongInfoChanged(song: Song) {
+    override fun onSongInfoChanged(song: Song) {}
+
+    override fun onExtraInfoChanged(extraInfo: String?) {
         _binding?.let { nonNullBinding ->
             if (isExtraInfoEnabled()) {
-                nonNullBinding.songInfo.text = getExtraInfoString(song)
+                nonNullBinding.songInfo.text = extraInfo
                 nonNullBinding.songInfo.isVisible = true
             } else {
                 nonNullBinding.songInfo.isVisible = false

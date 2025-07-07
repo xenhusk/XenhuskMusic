@@ -104,6 +104,11 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.extraInfoFlow.collect { extraInfo ->
+                onExtraInfoChanged(extraInfo)
+            }
+        }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.isPlayingFlow.collect { isPlaying ->
                 onUpdatePlayPause(isPlaying)
             }
@@ -153,7 +158,7 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
             }
             R.id.songInfo -> {
                 val playerView = this.view
-                val infoString = getExtraInfoString(playerViewModel.currentSong)
+                val infoString = playerViewModel.extraInfoFlow.value
                 if (playerView != null && !infoString.isNullOrEmpty()) {
                     Snackbar.make(playerView, infoString, Snackbar.LENGTH_LONG).show()
                 }
@@ -242,6 +247,8 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     protected abstract fun onSongInfoChanged(song: Song)
 
+    protected abstract fun onExtraInfoChanged(extraInfo: String?)
+
     abstract fun onQueueInfoChanged(newInfo: String?)
 
     protected abstract fun onUpdatePlayPause(isPlaying: Boolean)
@@ -302,9 +309,6 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     protected fun isExtraInfoEnabled() =
         playerFragment?.isExtraInfoEnabled() ?: false
-
-    protected fun getExtraInfoString(song: Song) =
-        playerFragment?.getExtraInfoString(song)
 
     protected fun getPlaybackControlsColor(
         isEnabled: Boolean,

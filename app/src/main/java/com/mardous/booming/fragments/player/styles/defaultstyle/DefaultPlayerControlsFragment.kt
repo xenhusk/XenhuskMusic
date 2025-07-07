@@ -91,8 +91,13 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
         _binding?.let { nonNullBinding ->
             nonNullBinding.title.text = song.title
             nonNullBinding.text.text = getSongArtist(song)
+        }
+    }
+
+    override fun onExtraInfoChanged(extraInfo: String?) {
+        _binding?.let { nonNullBinding ->
             if (isExtraInfoEnabled()) {
-                nonNullBinding.songInfo?.text = getExtraInfoString(song)
+                nonNullBinding.songInfo?.text = extraInfo
                 nonNullBinding.songInfo?.isVisible = true
             } else {
                 nonNullBinding.songInfo?.isVisible = false

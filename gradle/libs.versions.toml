@@ -39,6 +39,7 @@ keyboardvisibilityevent = "3.0.0-RC3"
 markdown = "4.6.2"
 ktor = "3.2.1"
 m3color = "2025.4"
+taglib = "1.0.0-alpha25"
 
 [libraries]
 androidx-palette-ktx = { module = "androidx.palette:palette-ktx", version.ref = "paletteKtx" }
@@ -109,6 +110,7 @@ versioncompare = { module = "io.github.g00fy2:versioncompare", version.ref = "ve
 keyboardvisibilityevent = { module = "net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent", version.ref = "keyboardvisibilityevent" }
 balloon = { module = "com.github.skydoves:balloon", version = "1.6.12" }
 m3color = { module = "com.github.Kyant0:m3color", version.ref = "m3color" }
+taglib = { module = "com.github.Kyant0:taglib", version.ref = "taglib" }
 
 markdown-core = { module = "io.noties.markwon:core", version.ref = "markdown" }
 markdown-html = { module = "io.noties.markwon:html", version.ref = "markdown" }

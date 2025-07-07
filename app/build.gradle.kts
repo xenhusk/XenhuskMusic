@@ -260,5 +260,6 @@ dependencies {
     implementation(libs.glide.okhttp3)
     ksp(libs.glide.ksp)
 
+    implementation(libs.taglib)
     implementation(libs.jaudiotagger)
 }

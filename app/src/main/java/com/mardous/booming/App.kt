@@ -33,11 +33,8 @@ import com.mardous.booming.fragments.settings.SettingsScreen
 import com.mardous.booming.misc.ReplayGainTagExtractor
 import com.mardous.booming.util.EXPERIMENTAL_UPDATES
 import com.mardous.booming.util.Preferences.getDayNightMode
-import org.jaudiotagger.tag.TagOptionSingleton
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import java.util.logging.Level
-import java.util.logging.Logger
 
 fun appInstance(): App = App.instance
 fun appContext(): Context = appInstance().applicationContext
@@ -54,12 +51,6 @@ class App : Application() {
         }
 
         if (BuildConfig.DEBUG) enableStrictMode()
-
-        // Turn off logging for jaudiotagger.
-        Logger.getLogger("org.jaudiotagger").level = Level.OFF
-        Logger.getLogger("org.jaudiotagger.audio").level = Level.OFF
-
-        TagOptionSingleton.getInstance().isPadNumbers = true
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         // we cannot call setDefaultValues for multiple fragment based XML preference

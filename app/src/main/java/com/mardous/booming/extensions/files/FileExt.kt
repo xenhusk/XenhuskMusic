@@ -19,7 +19,6 @@ package com.mardous.booming.extensions.files
 
 import android.content.Context
 import android.net.Uri
-import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import com.mardous.booming.extensions.fileProviderAuthority
 import com.mardous.booming.util.StorageUtil
@@ -57,42 +56,6 @@ fun Long.asReadableFileSize(): String {
         DecimalFormat("#,##0.#").format(this / 1024.0.pow(digitGroups.toDouble())),
         units[digitGroups]
     )
-}
-
-fun String.asFileNameExtension(): String {
-    if (isEmpty() || !contains(".")) return this
-
-    val pos = lastIndexOf(".")
-    return if (pos == -1) this else substring(pos + 1)
-}
-
-fun File.isMimeType(mimeType: String?, mimeTypeMap: MimeTypeMap = MimeTypeMap.getSingleton()): Boolean {
-    return if (mimeType == null || mimeType == "*/*") {
-        true
-    } else {
-        val fileExtension = name.asFileNameExtension()
-        val fileType = mimeTypeMap.getMimeTypeFromExtension(fileExtension) ?: return false
-        // check the 'type/subtype' pattern
-        if (fileType == mimeType) {
-            return true
-        }
-        // check the 'type/*' pattern
-        val mimeTypeDelimiter = mimeType.lastIndexOf('/')
-        if (mimeTypeDelimiter == -1) {
-            return false
-        }
-        val mimeTypeMainType = mimeType.substring(0, mimeTypeDelimiter)
-        val mimeTypeSubtype = mimeType.substring(mimeTypeDelimiter + 1)
-        if (mimeTypeSubtype != "*") {
-            return false
-        }
-        val fileTypeDelimiter = fileType.lastIndexOf('/')
-        if (fileTypeDelimiter == -1) {
-            return false
-        }
-        val fileTypeMainType = fileType.substring(0, fileTypeDelimiter)
-        fileTypeMainType == mimeTypeMainType
-    }
 }
 
 fun File.getPrettyAbsolutePath(): String {

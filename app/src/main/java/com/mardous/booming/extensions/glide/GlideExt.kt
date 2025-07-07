@@ -83,7 +83,7 @@ fun <TranscodeType> getDefaultGlideTransition(): GenericTransitionOptions<Transc
 
 fun Song.getSongGlideModel(ignoreMediaStore: Boolean = Preferences.ignoreMediaStore): Any {
     return if (ignoreMediaStore) {
-        AudioFileCover(data, Preferences.useFolderImages)
+        AudioFileCover(mediaStoreUri, data, Preferences.useFolderImages)
     } else {
         albumId.albumCoverUri()
     }

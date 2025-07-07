@@ -17,4 +17,6 @@
 
 package com.mardous.booming.glide.audiocover
 
-class AudioFileCover(internal val filePath: String, internal val useFolderArt: Boolean)
+import android.net.Uri
+
+class AudioFileCover(val uri: Uri, val path: String, val useFolderArt: Boolean)

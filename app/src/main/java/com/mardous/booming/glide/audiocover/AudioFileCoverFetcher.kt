@@ -17,50 +17,53 @@
 
 package com.mardous.booming.glide.audiocover
 
-import android.media.MediaMetadataRetriever
+import android.content.ContentResolver
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.data.DataFetcher
+import com.kyant.taglib.TagLib
 import okhttp3.internal.closeQuietly
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 
-class AudioFileCoverFetcher internal constructor(private val model: AudioFileCover) :
-    DataFetcher<InputStream> {
+class AudioFileCoverFetcher(
+    private val contentResolver: ContentResolver,
+    private val model: AudioFileCover
+) : DataFetcher<InputStream> {
 
     private var stream: InputStream? = null
 
     override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in InputStream?>) {
-        val retriever = MediaMetadataRetriever()
         try {
-            retriever.setDataSource(model.filePath)
-            val picture = retriever.embeddedPicture
-            stream = if (picture != null) {
-                ByteArrayInputStream(picture)
-            } else {
-                AudioFileCoverUtils.fallback(model.filePath, model.useFolderArt)
+            stream = contentResolver.openFileDescriptor(model.uri, "r")?.use { fd ->
+                val picture = TagLib.getFrontCover(fd.dup().detachFd())
+                val binaryData = picture?.data
+
+                if (binaryData != null) {
+                    ByteArrayInputStream(binaryData)
+                } else {
+                    AudioFileCoverUtils.fallback(model.path, model.useFolderArt)
+                }
             }
-            callback.onDataReady(stream)
+            if (stream != null) {
+                callback.onDataReady(stream)
+            } else {
+                callback.onLoadFailed(IllegalStateException("File descriptor is null"))
+            }
         } catch (e: Exception) {
             callback.onLoadFailed(e)
-        } finally {
-            retriever.release()
         }
     }
 
-    override fun getDataClass(): Class<InputStream> {
-        return InputStream::class.java
-    }
+    override fun getDataClass(): Class<InputStream> = InputStream::class.java
 
-    override fun getDataSource(): DataSource {
-        return DataSource.LOCAL
-    }
+    override fun getDataSource(): DataSource = DataSource.LOCAL
 
     override fun cleanup() {
         stream?.closeQuietly()
     }
 
     override fun cancel() {
-        // cannot cancel
+        // Glide doesn't support canceling this fetcher
     }
 }

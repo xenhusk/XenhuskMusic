@@ -17,32 +17,40 @@
 
 package com.mardous.booming.glide.audiocover
 
+import android.content.ContentResolver
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.model.ModelLoader
 import com.bumptech.glide.load.model.ModelLoader.LoadData
 import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.signature.ObjectKey
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.io.InputStream
 
-class AudioFileCoverLoader private constructor() :
-    ModelLoader<AudioFileCover, InputStream> {
+class AudioFileCoverLoader private constructor(
+    private val contentResolver: ContentResolver
+) : ModelLoader<AudioFileCover, InputStream> {
+
     override fun buildLoadData(
         model: AudioFileCover,
         width: Int,
         height: Int,
         options: Options
     ): LoadData<InputStream> {
-        return LoadData(ObjectKey(model.filePath), AudioFileCoverFetcher(model))
+        return LoadData(ObjectKey(model.uri), AudioFileCoverFetcher(contentResolver, model))
     }
 
     override fun handles(audioFileCover: AudioFileCover): Boolean {
         return true
     }
 
-    class Factory : ModelLoaderFactory<AudioFileCover, InputStream> {
+    class Factory : ModelLoaderFactory<AudioFileCover, InputStream>, KoinComponent {
+
+        private val contentResolver: ContentResolver by inject()
+
         override fun build(multiFactory: MultiModelLoaderFactory): ModelLoader<AudioFileCover, InputStream> {
-            return AudioFileCoverLoader()
+            return AudioFileCoverLoader(contentResolver)
         }
 
         override fun teardown() {}

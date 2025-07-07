@@ -3,27 +3,26 @@ package com.mardous.booming.repository
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import com.mardous.booming.lyrics.parser.LyricsParser
 import com.mardous.booming.appContext
 import com.mardous.booming.database.LyricsDao
 import com.mardous.booming.database.toLyricsEntity
-import com.mardous.booming.extensions.files.getBestTag
 import com.mardous.booming.extensions.files.getContentUri
-import com.mardous.booming.extensions.files.toAudioFile
 import com.mardous.booming.extensions.hasR
 import com.mardous.booming.extensions.isAllowedToDownloadMetadata
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.http.Result
 import com.mardous.booming.http.lyrics.LyricsDownloadService
-import com.mardous.booming.worker.TagEditorWorker
+import com.mardous.booming.lyrics.parser.LyricsParser
 import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
+import com.mardous.booming.util.LyricsUtil
+import com.mardous.booming.util.UriUtil
 import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
 import com.mardous.booming.viewmodels.lyrics.model.LyricsSource
 import com.mardous.booming.viewmodels.lyrics.model.LyricsType
 import com.mardous.booming.viewmodels.lyrics.model.SaveLyricsResult
-import com.mardous.booming.util.LyricsUtil
-import com.mardous.booming.util.UriUtil
+import com.mardous.booming.taglib.MetadataReader
+import com.mardous.booming.worker.TagEditorWorker
 import org.jaudiotagger.tag.FieldKey
 import java.io.File
 import java.util.EnumMap
@@ -135,19 +134,15 @@ class RealLyricsRepository(
 
     override suspend fun embeddedLyrics(song: Song, requirePlainText: Boolean): LyricsResult {
         if (song.id != Song.emptySong.id) {
-            val result = runCatching {
-                File(song.data).toAudioFile()
-                    ?.getBestTag(false)
-                    ?.getFirst(FieldKey.LYRICS)
-            }
-            val content = result.getOrNull()
-            if (requirePlainText && !content.isNullOrBlank()) {
-                val syncedData = lyricsParser.parse(content)
+            val metadataReader = MetadataReader(song.mediaStoreUri)
+            val lyrics = metadataReader.value(MetadataReader.LYRICS)
+            if (requirePlainText && !lyrics.isNullOrBlank()) {
+                val syncedData = lyricsParser.parse(lyrics)
                 if (syncedData?.hasContent == true) {
                     return LyricsResult(song.id, plainLyrics = syncedData.plainText)
                 }
             }
-            return LyricsResult(song.id, plainLyrics = result.getOrNull())
+            return LyricsResult(song.id, plainLyrics = lyrics)
         }
         return LyricsResult(song.id)
     }

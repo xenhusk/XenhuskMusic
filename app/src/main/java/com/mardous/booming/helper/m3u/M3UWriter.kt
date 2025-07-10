@@ -21,6 +21,7 @@ import android.content.Context
 import android.provider.MediaStore
 import com.mardous.booming.R
 import com.mardous.booming.database.PlaylistWithSongs
+import com.mardous.booming.database.SongEntity
 import com.mardous.booming.database.toSongs
 import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.extensions.showToast
@@ -83,7 +84,7 @@ object M3UWriter : KoinComponent {
                 MediaStoreWriter.Request.forPlaylist(exportedPlaylistName)
             ) { stream ->
                 stream.bufferedWriter().use {
-                    writeImpl(it, playlist.songs.toSongs())
+                    writeImpl(it, playlist.songs)
                 }
             }
             if (scopedStorageResult.resultCode == MediaStoreWriter.Result.Code.NO_SCOPED_STORAGE) {
@@ -103,7 +104,7 @@ object M3UWriter : KoinComponent {
         val exportFile = File(dir, String.format("%s.%s", playlist.playlistEntity.playlistName, M3UConstants.EXTENSION))
         if (exportFile.createNewFile()) {
             exportFile.bufferedWriter().use {
-                if (!writeImpl(it, playlist.songs.toSongs())) {
+                if (!writeImpl(it, playlist.songs)) {
                     exportFile.delete()
                 }
             }
@@ -112,7 +113,10 @@ object M3UWriter : KoinComponent {
     }
 
     @Throws(IOException::class)
-    private fun writeImpl(bw: BufferedWriter, songs: List<Song>): Boolean {
+    private fun writeImpl(bw: BufferedWriter, songs: List<SongEntity>): Boolean {
+        val songs: List<Song> = songs.sortedBy {
+            it.songPrimaryKey
+        }.toSongs()
         if (songs.isNotEmpty()) {
             bw.write(M3UConstants.HEADER)
             for (song in songs) {

@@ -217,7 +217,7 @@
     <string name="song_stat_one_time_label">joué une fois sur %s</string>
     <string name="song_stat_label">joué %1$d fois, dernière fois le %2$s</string>
     <string name="horizontal_albums">Albums horizontaux</string>
-    <string name="ignore_singles">Ignore singles</string>
+    <string name="ignore_singles">Ignorer les singles</string>
     <string name="compact_song_view">Compact song view</string>
     <string name="action_view_type">Type de vue</string>
     <string name="view_type_normal">Normale</string>
@@ -511,7 +511,7 @@
     <string name="fork_on_github">Fork on GitHub</string>
     <string name="licenses">Licences</string>
     <string name="author">Auteur</string>
-    <string name="acknowledgments_title">Acknowledgment</string>
+    <string name="acknowledgments_title">Reconnaissance</string>
     <string name="translators_title">Translators</string>
     <string name="translators_summary">Thanks to those who make Booming Music available in many languages.</string>
     <string name="telegram_chat">Chat Telegram</string>
@@ -622,6 +622,10 @@
     <string name="play_on_startup_title">Play on startup</string>
     <string name="gapless_playback_title">Lecture sans faille</string>
     <string name="gapless_playback_summary">Transition douce entre les morceaux. Peut causer des problèmes de lecture sur certains appareils.</string>
+    <string name="crossfade_title">Crossfade (experimental)</string>
+    <string name="crossfade_summary">Seconds it takes to crossfade between songs (set to 0 to disable).</string>
+    <string name="audio_fade_duration_title">Audio fade duration (experimental)</string>
+    <string name="audio_fade_duration_summary">Seconds it takes to fade the volume in or out when playback starts or pauses (set to 0 to disable).</string>
     <string name="replaygain_source_mode_title">Mode source</string>
     <string name="replaygain_preamp_title">Niveau de Pré-Amp</string>
     <string name="replaygain_preamp_summary">Définir le niveau de volume lorsque ReplayGain est activé.</string>

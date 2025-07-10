@@ -70,6 +70,7 @@ import com.mardous.booming.model.Genre
 import com.mardous.booming.model.GestureOnCover
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
+import com.mardous.booming.taglib.EditTarget
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.player.PlayerViewModel
@@ -353,7 +354,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
             NowPlayingAction.TagEditor -> {
                 val tagEditorIntent = Intent(requireContext(), SongTagEditorActivity::class.java)
-                tagEditorIntent.putExtra(AbsTagEditorActivity.EXTRA_ID, currentSong.id)
+                tagEditorIntent.putExtra(AbsTagEditorActivity.EXTRA_TARGET, EditTarget.song(currentSong))
                 startActivity(tagEditorIntent)
                 true
             }

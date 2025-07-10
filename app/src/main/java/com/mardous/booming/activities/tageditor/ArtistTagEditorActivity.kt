@@ -33,12 +33,10 @@ import com.mardous.booming.extensions.glide.*
 import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.extensions.webSearch
 import com.mardous.booming.glide.BoomingSimpleTarget
-import com.mardous.booming.worker.TagEditorWorker
+import com.mardous.booming.taglib.MetadataReader
 import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
-import org.jaudiotagger.tag.FieldKey
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
-import java.util.EnumMap
 
 /**
  * @author Christians M. A. (mardous)
@@ -46,7 +44,7 @@ import java.util.EnumMap
 class ArtistTagEditorActivity : AbsTagEditorActivity() {
 
     override val viewModel by viewModel<TagEditorViewModel> {
-        parametersOf(getExtraId(), intent?.getStringExtra(EXTRA_NAME))
+        parametersOf(getEditTarget())
     }
 
     private lateinit var artistBinding: TagEditorArtistFieldBinding
@@ -57,14 +55,14 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupImageView()
-        viewModel.getTags().observe(this) {
+        viewModel.tagResult.observe(this) {
             artistName = it.artist
             albumArtistName = it.albumArtist
             artistBinding.albumArtist.setText(it.albumArtist)
             artistBinding.genre.setText(it.genre)
             artistBinding.discTotal.setText(it.discTotal)
         }
-        viewModel.loadArtistTags()
+        viewModel.loadContent()
         viewModel.requestArtist().observe(this) { artist ->
             Glide.with(this)
                 .asBitmap()
@@ -141,26 +139,15 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
         }
     }
 
-    override val fieldKeyValueMap: EnumMap<FieldKey, String?>
-        get() = EnumMap<FieldKey, String?>(FieldKey::class.java).apply {
-            val enteredAlbumArtist = artistBinding.albumArtist.text?.toString()
-            if (enteredAlbumArtist.isNullOrEmpty()
-                && !artistName.equals(albumArtistName, true)
-                && getSongPaths().size == 1
-            ) {
-                put(FieldKey.ARTIST, enteredAlbumArtist)
+    override val propertyMap: Map<String, String?>
+        get() = buildMap {
+            val albumArtist = artistBinding.albumArtist.text?.toString()
+            val isSingleSong = viewModel.uris.size == 1
+            if (albumArtist.isNullOrEmpty() && !artistName.equals(albumArtistName, true) && isSingleSong) {
+                put(MetadataReader.ARTIST, albumArtist)
             }
-
-            put(FieldKey.ALBUM_ARTIST, enteredAlbumArtist)
-            put(FieldKey.GENRE, artistBinding.genre.text?.toString())
-            put(FieldKey.DISC_TOTAL, artistBinding.discTotal.text?.toString())
+            put(MetadataReader.ALBUM_ARTIST, albumArtist)
+            put(MetadataReader.GENRE, artistBinding.genre.text?.toString())
+            put(MetadataReader.DISC_TOTAL, artistBinding.discTotal.text?.toString())
         }
-
-    override val artworkInfo: TagEditorWorker.ArtworkInfo? = null
-
-    override fun getSongPaths(): List<String> = viewModel.getPaths()
-
-    override fun getSongUris(): List<Uri> = viewModel.getUris()
-
-    override fun getArtworkId(): Long = viewModel.getArtworkId()
 }

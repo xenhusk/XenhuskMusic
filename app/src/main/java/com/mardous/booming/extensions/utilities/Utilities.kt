@@ -38,14 +38,6 @@ fun buildInfoString(vararg parts: String?, delimiter: String = DEFAULT_INFO_DELI
     return sb.toString()
 }
 
-fun StringBuilder.appendWithDelimiter(text: CharSequence, delimiter: String = DEFAULT_INFO_DELIMITER) =
-    apply {
-        if (isNotEmpty()) {
-            append(delimiter)
-        }
-        append(text)
-    }
-
 inline fun <reified T : Enum<T>> String.toEnum() =
     enumValues<T>().firstOrNull { it.name.equals(this, ignoreCase = true) }
 

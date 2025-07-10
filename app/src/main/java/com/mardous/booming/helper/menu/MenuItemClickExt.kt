@@ -44,6 +44,7 @@ import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Song
 import com.mardous.booming.service.playback.Playback
+import com.mardous.booming.taglib.EditTarget
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.player.PlayerViewModel
 import kotlinx.coroutines.Dispatchers
@@ -126,7 +127,7 @@ fun Song.onSongMenu(
         R.id.action_tag_editor -> {
             val tagEditorIntent =
                 Intent(fragment.requireContext(), SongTagEditorActivity::class.java)
-            tagEditorIntent.putExtra(AbsTagEditorActivity.EXTRA_ID, this.id)
+            tagEditorIntent.putExtra(AbsTagEditorActivity.EXTRA_TARGET, EditTarget.song(this))
             fragment.startActivity(tagEditorIntent)
             true
         }
@@ -216,7 +217,7 @@ fun Album.onAlbumMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
         R.id.action_tag_editor -> {
             val tagEditorIntent =
                 Intent(fragment.requireContext(), AlbumTagEditorActivity::class.java)
-            tagEditorIntent.putExtra(AbsTagEditorActivity.EXTRA_ID, this.id)
+            tagEditorIntent.putExtra(AbsTagEditorActivity.EXTRA_TARGET, EditTarget.album(this))
             fragment.startActivity(tagEditorIntent)
             true
         }
@@ -238,11 +239,8 @@ fun List<Album>.onAlbumsMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
 fun Artist.onArtistMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
     return when (menuItem.itemId) {
         R.id.action_tag_editor -> {
-            val tagEditorIntent =
-                Intent(fragment.requireContext(), ArtistTagEditorActivity::class.java)
-            if (this.isAlbumArtist)
-                tagEditorIntent.putExtra(AbsTagEditorActivity.EXTRA_NAME, this.name)
-            else tagEditorIntent.putExtra(AbsTagEditorActivity.EXTRA_ID, this.id)
+            val tagEditorIntent = Intent(fragment.requireContext(), ArtistTagEditorActivity::class.java)
+            tagEditorIntent.putExtra(AbsTagEditorActivity.EXTRA_TARGET, EditTarget.artist(this))
             fragment.startActivity(tagEditorIntent)
             true
         }

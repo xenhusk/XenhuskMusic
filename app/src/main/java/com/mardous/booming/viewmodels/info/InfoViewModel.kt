@@ -7,12 +7,9 @@ import androidx.lifecycle.liveData
 import com.mardous.booming.R
 import com.mardous.booming.database.toPlayCount
 import com.mardous.booming.extensions.files.asReadableFileSize
-import com.mardous.booming.extensions.files.getBestTag
-import com.mardous.booming.extensions.files.getGenres
 import com.mardous.booming.extensions.files.getHumanReadableSize
 import com.mardous.booming.extensions.files.getPrettyAbsolutePath
-import com.mardous.booming.extensions.files.merge
-import com.mardous.booming.extensions.media.audioFile
+import com.mardous.booming.extensions.files.toAudioFile
 import com.mardous.booming.extensions.media.replayGainStr
 import com.mardous.booming.extensions.media.songDurationStr
 import com.mardous.booming.extensions.media.timesStr
@@ -21,12 +18,12 @@ import com.mardous.booming.extensions.utilities.format
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Song
+import com.mardous.booming.repository.Repository
 import com.mardous.booming.viewmodels.info.model.PlayInfoResult
 import com.mardous.booming.viewmodels.info.model.SongInfoResult
-import com.mardous.booming.repository.Repository
+import com.mardous.booming.taglib.MetadataReader
 import kotlinx.coroutines.Dispatchers
 import org.jaudiotagger.audio.AudioHeader
-import org.jaudiotagger.tag.FieldKey
 import java.io.File
 
 class InfoViewModel(private val repository: Repository) : ViewModel() {
@@ -72,8 +69,8 @@ class InfoViewModel(private val repository: Repository) : ViewModel() {
                 val trackLength = song.songDurationStr()
                 val replayGain = song.replayGainStr(context)
 
-                val audioFile = song.audioFile()
-                if (audioFile == null) {
+                val metadataReader = MetadataReader(song.mediaStoreUri)
+                if (!metadataReader.hasMetadata) {
                     SongInfoResult(
                         playCount = playCount,
                         skipCount = skipCount,
@@ -87,34 +84,37 @@ class InfoViewModel(private val repository: Repository) : ViewModel() {
                         replayGain = replayGain
                     )
                 } else {
-                    val tag = audioFile.getBestTag()
-
                     // FILE
-                    val filePath = audioFile.file.getPrettyAbsolutePath()
-                    val fileSize = audioFile.file.getHumanReadableSize()
+                    val file = File(song.data)
+                    val filePath = file.getPrettyAbsolutePath()
+                    val fileSize = file.getHumanReadableSize()
 
-                    val audioHeader = getAudioHeader(context, audioFile.audioHeader)
+                    val audioHeader = getAudioHeader(
+                        context,
+                        file.toAudioFile()?.audioHeader,
+                        metadataReader
+                    )
 
                     // MEDIA
-                    val title = tag?.getFirst(FieldKey.TITLE)
-                    val album = tag?.getFirst(FieldKey.ALBUM)
-                    val artist = tag?.getAll(FieldKey.ARTIST)?.merge()
-                    val albumArtist = tag?.getFirst(FieldKey.ALBUM_ARTIST)
+                    val title = metadataReader.first(MetadataReader.TITLE)
+                    val album = metadataReader.first(MetadataReader.ALBUM_ARTIST)
+                    val artist = metadataReader.merge(MetadataReader.ARTIST)
+                    val albumArtist = metadataReader.first(MetadataReader.ALBUM_ARTIST)
 
                     val trackNumber = getNumberAndTotal(
-                        tag?.getFirst(FieldKey.TRACK),
-                        tag?.getFirst(FieldKey.TRACK_TOTAL)
+                        metadataReader.value(MetadataReader.TRACK_NUMBER),
+                        metadataReader.value(MetadataReader.TRACK_TOTAL)
                     )
                     val discNumber = getNumberAndTotal(
-                        tag?.getFirst(FieldKey.DISC_NO),
-                        tag?.getFirst(FieldKey.DISC_TOTAL)
+                        metadataReader.value(MetadataReader.DISC_NUMBER),
+                        metadataReader.value(MetadataReader.DISC_TOTAL)
                     )
 
-                    val composer = tag?.getAll(FieldKey.COMPOSER)?.merge()
-                    val conductor = tag?.getAll(FieldKey.CONDUCTOR)?.merge()
-                    val publisher = tag?.getAll(FieldKey.RECORD_LABEL)?.merge()
-                    val genre = tag?.getGenres()?.merge()
-                    val comment = tag?.getFirst(FieldKey.COMMENT)
+                    val composer = metadataReader.merge(MetadataReader.COMPOSER)
+                    val conductor = metadataReader.merge(MetadataReader.PRODUCER)
+                    val publisher = metadataReader.merge(MetadataReader.COPYRIGHT)
+                    val genre = metadataReader.merge(MetadataReader.GENRE)
+                    val comment = metadataReader.value(MetadataReader.COMMENT)
 
                     SongInfoResult(
                         playCount,
@@ -148,34 +148,33 @@ class InfoViewModel(private val repository: Repository) : ViewModel() {
             }
         }
 
-    private fun getAudioHeader(context: Context, ah: AudioHeader): String {
-        var baseHeader = String.format(
-            "%s - %s KB/s %s Hz - %s",
-            ah.format,
-            ah.bitRate,
-            ah.sampleRate,
-            ah.channels
-        )
-        if (ah.isVariableBitRate) {
-            baseHeader =
-                "$baseHeader, ${context.getString(R.string.label_variable_bitrate).lowercase()}"
+    private fun getNumberAndTotal(number: String?, total: String?): String? {
+        val numberInt = number?.toIntOrNull() ?: return null
+        val totalInt = total?.toIntOrNull()
+        return if (totalInt == null || totalInt == 0) {
+            numberInt.toString().padStart(2, '0')
+        } else {
+            "%02d/%02d".format(numberInt, totalInt)
         }
-        if (ah.isLossless) {
-            baseHeader = "$baseHeader, ${context.getString(R.string.label_loss_less).lowercase()}"
-        }
-        return baseHeader
     }
 
-    private fun getNumberAndTotal(number: String?, total: String?): String? {
-        val intNumber = number?.toIntOrNull()
-        if (intNumber == null || intNumber == 0) {
-            return null
-        }
-        val intTotal = total?.toIntOrNull()
-        return if (intTotal == null || intTotal == 0) number else String.format(
-            "%s/%s",
-            number,
-            total
+    private fun getAudioHeader(context: Context, header: AudioHeader?, metadataReader: MetadataReader): String {
+        val properties = arrayOf(
+            header?.format,
+            metadataReader.bitrate(),
+            metadataReader.sampleRate(),
+            metadataReader.channelName(),
+            header?.let {
+                if (header.isVariableBitRate)
+                    context.getString(R.string.label_variable_bitrate).lowercase()
+                else null
+            },
+            header?.let {
+                if (header.isLossless)
+                    context.getString(R.string.label_loss_less).lowercase()
+                else null
+            }
         )
+        return properties.filterNotNull().joinToString(separator = " - ")
     }
 }

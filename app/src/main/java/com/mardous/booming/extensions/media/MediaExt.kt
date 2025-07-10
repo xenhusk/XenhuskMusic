@@ -33,7 +33,10 @@ import java.io.File
 import java.util.Locale
 
 fun createAlbumArtThumbFile(): File =
-    File(FileUtil.thumbsDirectory(), String.format(Locale.ROOT, "Thumb_%d", System.currentTimeMillis()))
+    File(
+        FileUtil.thumbsDirectory(),
+        "Thumb_%d".format(System.currentTimeMillis())
+    )
 
 fun ContentResolver.insertAlbumArt(albumId: Long, path: String) {
     val artworkUri = "content://media/external/audio/albumart".toUri()

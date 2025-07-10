@@ -25,6 +25,7 @@ class MetadataReader(uri: Uri, readPictures: Boolean = false) : KoinComponent {
     private val tags get() = metadata?.propertyMap
 
     val hasMetadata get() = metadata != null
+    val hasPictures get() = pictures?.isNotEmpty() == true
 
     init {
         try {

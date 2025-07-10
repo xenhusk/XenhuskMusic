@@ -17,8 +17,6 @@
 
 package com.mardous.booming.viewmodels.tageditor.model
 
-import java.io.File
-
 data class TagEditorResult(
     val title: String? = null,
     val album: String? = null,
@@ -38,8 +36,4 @@ data class TagEditorResult(
     val comment: String? = null
 )
 
-class SaveTagsResult(
-    val isLoading: Boolean,
-    val isSuccess: Boolean,
-    val cacheFiles: List<File>? = null
-)
+class SaveTagsResult(val isLoading: Boolean, val isSuccess: Boolean)

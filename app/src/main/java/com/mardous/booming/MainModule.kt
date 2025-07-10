@@ -39,6 +39,7 @@ import com.mardous.booming.repository.*
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.playback.PlaybackManager
 import com.mardous.booming.service.queue.QueueManager
+import com.mardous.booming.taglib.EditTarget
 import com.mardous.booming.viewmodels.albumdetail.AlbumDetailViewModel
 import com.mardous.booming.viewmodels.artistdetail.ArtistDetailViewModel
 import com.mardous.booming.viewmodels.equalizer.EqualizerViewModel
@@ -282,8 +283,8 @@ private val viewModule = module {
         SearchViewModel(repository = get())
     }
 
-    viewModel { (id: Long, name: String?) ->
-        TagEditorViewModel(repository = get(), id = id, name = name)
+    viewModel { (target: EditTarget) ->
+        TagEditorViewModel(repository = get(), target = target)
     }
 
     viewModel {

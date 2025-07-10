@@ -18,13 +18,11 @@
 package com.mardous.booming.activities.tageditor
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -35,7 +33,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
+import androidx.core.content.IntentCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.ImageViewTarget
@@ -43,27 +41,18 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.activities.base.AbsBaseActivity
 import com.mardous.booming.databinding.ActivityTagEditorBinding
-import com.mardous.booming.dialogs.SAFDialog
 import com.mardous.booming.extensions.*
-import com.mardous.booming.extensions.files.isSAFRequiredForPaths
-import com.mardous.booming.extensions.files.isSAFAccessGranted
 import com.mardous.booming.extensions.resources.getResized
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
-import com.mardous.booming.worker.TagEditorWorker
-import com.mardous.booming.worker.TagEditorWorker.WriteInfo
-import com.mardous.booming.viewmodels.tageditor.model.SaveTagsResult
+import com.mardous.booming.taglib.EditTarget
 import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
-import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.reference.GenreTypes
-import java.io.File
-import java.util.EnumMap
 
 /**
  * @author Christians M. A. (mardous)
  */
 abstract class AbsTagEditorActivity : AbsBaseActivity(),
-    View.OnClickListener,
-    SAFDialog.SAFResultListener {
+    View.OnClickListener {
 
     protected abstract val viewModel: TagEditorViewModel
 
@@ -71,12 +60,8 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
     private lateinit var imagePickerLauncher: ActivityResultLauncher<PickVisualMediaRequest>
     private lateinit var writeRequestLauncher: ActivityResultLauncher<IntentSenderRequest>
 
-    private var deleteAlbumArt = false
-    private var albumArtBitmap: Bitmap? = null
-
-    private var cacheFiles = listOf<File>()
-
-    protected fun getExtraId(): Long = intent?.getLongExtra(EXTRA_ID, -1) ?: -1
+    protected fun getEditTarget() =
+        IntentCompat.getParcelableExtra(intent, EXTRA_TARGET, EditTarget::class.java) ?: EditTarget.Empty
 
     @SuppressLint("InlinedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,8 +72,8 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
             }
         writeRequestLauncher =
             registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
-                if (it.resultCode == Activity.RESULT_OK) {
-                    writeToFiles(getSongUris(), cacheFiles)
+                if (it.resultCode == RESULT_OK) {
+                    writeTags()
                 }
             }
 
@@ -103,8 +88,6 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
         binding.image.setOnClickListener(this@AbsTagEditorActivity)
         binding.actionSave.setOnClickListener(this@AbsTagEditorActivity)
         binding.appBar.setupStatusBarForeground()
-
-        deleteAlbumArt = false
     }
 
     override fun onClick(view: View) {
@@ -120,12 +103,6 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
             return true
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onSAFResult(treeUri: Uri?) {
-        if (treeUri != null) {
-            writeTags(getSongPaths())
-        }
     }
 
     protected abstract fun onWrapFieldViews(inflater: LayoutInflater, parent: ViewGroup)
@@ -166,7 +143,7 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
 
     protected open fun deleteImage() {
         setImageBitmap(null)
-        deleteAlbumArt = true
+        viewModel.setPictureDeleted(true)
     }
 
     protected open fun loadImageFromUrl(url: String?) {
@@ -192,9 +169,9 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
         object : ImageViewTarget<Bitmap>(binding.image) {
             override fun setResource(resource: Bitmap?) {
                 if (resource != null) {
-                    albumArtBitmap = resource.getResized(2048)
+                    val albumArtBitmap = resource.getResized(2048)
                     setImageBitmap(albumArtBitmap)
-                    deleteAlbumArt = false
+                    viewModel.setPictureBitmap(albumArtBitmap)
                 } else {
                     setImageBitmap(null)
                 }
@@ -213,69 +190,30 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
     protected open fun save() {
         hideSoftKeyboard()
         if (hasR()) {
-            writeTagsR(getSongPaths())
+            val pendingIntent = MediaStore.createWriteRequest(contentResolver, viewModel.uris)
+            writeRequestLauncher.launch(IntentSenderRequest.Builder(pendingIntent).build())
         } else {
-            if (!getSongPaths().isSAFRequiredForPaths()) {
-                writeTags(getSongPaths())
+            writeTags()
+        }
+    }
+
+    private fun writeTags() {
+        viewModel.write(this, propertyMap).observe(this) { result ->
+            if (result.isLoading) {
+                binding.actionSave.hide()
+                showToast(R.string.saving_changes)
             } else {
-                if (isSAFAccessGranted()) {
-                    writeTags(getSongPaths())
+                binding.actionSave.show()
+                if (result.isSuccess) {
+                    showToast(R.string.changes_saved_successfully)
                 } else {
-                    SAFDialog.show(this)
+                    showToast(R.string.could_not_save_some_changes)
                 }
             }
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
-    private fun writeTagsR(songPaths: List<String>) {
-        viewModel.createCacheFiles(this, WriteInfo(songPaths, fieldKeyValueMap, artworkInfo))
-            .observe(this) { result ->
-                updateState(result)
-                if (!result.cacheFiles.isNullOrEmpty()) {
-                    cacheFiles = result.cacheFiles
-                    if (cacheFiles.isNotEmpty()) {
-                        val pendingIntent =
-                            MediaStore.createWriteRequest(contentResolver, getSongUris())
-                        writeRequestLauncher.launch(
-                            IntentSenderRequest.Builder(pendingIntent).build()
-                        )
-                    }
-                }
-            }
-    }
-
-    private fun writeTags(songPaths: List<String>) {
-        viewModel.writeTags(this, WriteInfo(songPaths, fieldKeyValueMap, artworkInfo))
-            .observe(this) { result -> updateState(result) }
-    }
-
-    private fun writeToFiles(songUris: List<Uri>, cacheFiles: List<File>) {
-        viewModel.persistChanges(this, getSongPaths(), songUris, cacheFiles)
-    }
-
-    private fun updateState(result: SaveTagsResult) {
-        if (result.isLoading) {
-            binding.actionSave.hide()
-            showToast(R.string.saving_changes)
-        } else {
-            binding.actionSave.show()
-            if (result.isSuccess) {
-                showToast(R.string.changes_saved_successfully)
-            } else {
-                showToast(R.string.could_not_save_some_changes)
-            }
-        }
-    }
-
-    protected abstract val fieldKeyValueMap: EnumMap<FieldKey, String?>
-
-    protected open val artworkInfo: TagEditorWorker.ArtworkInfo?
-        get() = when {
-            deleteAlbumArt -> TagEditorWorker.ArtworkInfo(getArtworkId(), null)
-            albumArtBitmap == null -> null
-            else -> TagEditorWorker.ArtworkInfo(getArtworkId(), albumArtBitmap)
-        }
+    protected abstract val propertyMap: Map<String, String?>
 
     private val defaultGenreSelector: Dialog by lazy {
         val titles = GenreTypes.getInstanceOf()
@@ -293,20 +231,7 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
 
     protected abstract fun getDefaultPlaceholder(): Drawable
 
-    protected abstract fun getSongPaths(): List<String>
-    protected abstract fun getSongUris(): List<Uri>
-    protected abstract fun getArtworkId(): Long
-
-    override fun onDestroy() {
-        super.onDestroy()
-        // Delete Cache Files
-        cacheFiles.forEach { file ->
-            file.delete()
-        }
-    }
-
     companion object {
-        const val EXTRA_ID = "extra_id"
-        const val EXTRA_NAME = "extra_name"
+        const val EXTRA_TARGET = "extra_target"
     }
 }

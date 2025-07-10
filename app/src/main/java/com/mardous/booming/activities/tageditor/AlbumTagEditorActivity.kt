@@ -18,24 +18,22 @@
 package com.mardous.booming.activities.tageditor
 
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.mardous.booming.R
 import com.mardous.booming.databinding.TagEditorAlbumFieldBinding
-import com.mardous.booming.extensions.files.toBitmap
 import com.mardous.booming.extensions.glide.DEFAULT_ALBUM_IMAGE
 import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.extensions.resources.getResized
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.webSearch
 import com.mardous.booming.http.Result
+import com.mardous.booming.taglib.MetadataReader
+import com.mardous.booming.taglib.toBitmap
 import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
-import org.jaudiotagger.tag.FieldKey
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
-import java.util.EnumMap
 
 /**
  * @author Christians M. A. (mardous)
@@ -43,17 +41,17 @@ import java.util.EnumMap
 class AlbumTagEditorActivity : AbsTagEditorActivity() {
 
     override val viewModel by viewModel<TagEditorViewModel> {
-        parametersOf(getExtraId(), null)
+        parametersOf(getEditTarget())
     }
 
     private lateinit var albumBinding: TagEditorAlbumFieldBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.getArtwork().observe(this) { artwork ->
+        viewModel.artworkResult.observe(this) { artwork ->
             setImageBitmap(artwork?.toBitmap()?.getResized(1080))
         }
-        viewModel.getTags().observe(this) { tagResult ->
+        viewModel.tagResult.observe(this) { tagResult ->
             albumBinding.album.setText(tagResult.album)
             albumBinding.albumArtist.setText(tagResult.albumArtist)
             albumBinding.conductor.setText(tagResult.conductor)
@@ -64,7 +62,7 @@ class AlbumTagEditorActivity : AbsTagEditorActivity() {
             albumBinding.discNumber.setText(tagResult.discNumber)
             albumBinding.discTotal.setText(tagResult.discTotal)
         }
-        viewModel.loadAlbumTags()
+        viewModel.loadContent()
     }
 
     override fun onWrapFieldViews(inflater: LayoutInflater, parent: ViewGroup) {
@@ -113,23 +111,16 @@ class AlbumTagEditorActivity : AbsTagEditorActivity() {
         viewModel.loadArtwork()
     }
 
-    override val fieldKeyValueMap: EnumMap<FieldKey, String?>
-        get() = EnumMap<FieldKey, String?>(FieldKey::class.java).apply {
-            put(FieldKey.ALBUM, albumBinding.album.text?.toString())
-            put(FieldKey.ALBUM_ARTIST, albumBinding.albumArtist.text?.toString())
-            put(FieldKey.CONDUCTOR, albumBinding.conductor.text?.toString())
-            put(FieldKey.RECORD_LABEL, albumBinding.publisher.text?.toString())
-            put(FieldKey.GENRE, albumBinding.genre.text?.toString())
-            put(FieldKey.YEAR, albumBinding.year.text?.toString())
-            put(FieldKey.TRACK_TOTAL, albumBinding.trackTotal.text?.toString())
-            put(FieldKey.DISC_NO, albumBinding.discNumber.text?.toString())
-            put(FieldKey.DISC_TOTAL, albumBinding.discTotal.text?.toString())
-        }
-
-    override fun getSongPaths(): List<String> = viewModel.getPaths()
-
-    override fun getSongUris(): List<Uri> = viewModel.getUris()
-
-    override fun getArtworkId(): Long = viewModel.getArtworkId()
-
+    override val propertyMap: Map<String, String?>
+        get() = hashMapOf(
+            MetadataReader.ALBUM to albumBinding.album.text?.toString(),
+            MetadataReader.ALBUM_ARTIST to albumBinding.albumArtist.text?.toString(),
+            MetadataReader.PRODUCER to albumBinding.conductor.text?.toString(),
+            MetadataReader.COPYRIGHT to albumBinding.publisher.text?.toString(),
+            MetadataReader.GENRE to albumBinding.genre.text?.toString(),
+            MetadataReader.YEAR to albumBinding.year.text?.toString(),
+            MetadataReader.TRACK_TOTAL to albumBinding.trackTotal.text?.toString(),
+            MetadataReader.DISC_NUMBER to albumBinding.discNumber.text?.toString(),
+            MetadataReader.DISC_TOTAL to albumBinding.discTotal.text?.toString()
+        )
 }

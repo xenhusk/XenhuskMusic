@@ -124,18 +124,21 @@ class RealSpecialRepository(private val songRepository: RealSongRepository) : Sp
         if (allSongs.isEmpty()) {
             return FileSystemQuery(path, parentPath, emptyList())
         }
-        val subFolderPaths = allSongs
+        val subFoldersMap = allSongs
             .mapNotNull { song ->
                 val folderPath = song.folderPath()
                 if (folderPath != path && folderPath.startsWith("$path/")) {
                     val relative = folderPath.removePrefix("$path/")
                     val firstSegment = relative.substringBefore("/")
-                    if (firstSegment.isNotEmpty()) "$path/$firstSegment" else null
+                    if (firstSegment.isNotEmpty()) {
+                        val normalized = "$path/${firstSegment.lowercase()}"
+                        normalized to "$path/$firstSegment"
+                    } else null
                 } else null
             }
-            .toSet()
+            .toMap()
 
-        val subfolders = subFolderPaths.map { subPath ->
+        val subfolders = subFoldersMap.values.map { subPath ->
             val innerMusicFiles = if (recursiveSubfolders) {
                 musicFilesInPath(subPath, recursiveSubfolders = false).children
             } else emptyList()

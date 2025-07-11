@@ -28,6 +28,7 @@ import com.mardous.booming.R
 import com.mardous.booming.database.PlaylistWithSongs
 import com.mardous.booming.extensions.glide.*
 import com.mardous.booming.extensions.media.*
+import com.mardous.booming.glide.playlistPreview.PlaylistPreview
 import com.mardous.booming.helper.menu.OnClickMenu
 import com.mardous.booming.interfaces.ISearchCallback
 import com.mardous.booming.model.Album
@@ -58,10 +59,6 @@ class SearchAdapter(
         if (viewType == HEADER) {
             return ViewHolder(
                 LayoutInflater.from(parent.context).inflate(R.layout.sub_header, parent, false), viewType
-            )
-        } else if (viewType == PLAYLIST) {
-            return ViewHolder(
-                LayoutInflater.from(parent.context).inflate(R.layout.item_list_single_row, parent, false), viewType
             )
         }
         return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_list, parent, false), viewType)
@@ -103,11 +100,28 @@ class SearchAdapter(
                 val song = dataSet[position] as Song
                 holder.title?.text = song.title
                 holder.text?.text = song.songInfo()
+                holder.image?.let {
+                    Glide.with(it)
+                        .asBitmap()
+                        .load(song.getSongGlideModel())
+                        .transition(getDefaultGlideTransition())
+                        .songOptions(song)
+                        .into(it)
+                }
             }
 
             PLAYLIST -> {
                 val playlist = dataSet[position] as PlaylistWithSongs
                 holder.title?.text = playlist.playlistEntity.playlistName
+                holder.text?.text = playlist.songCount.songsStr(holder.itemView.context)
+                holder.image?.let {
+                    Glide.with(it)
+                        .asBitmap()
+                        .load(PlaylistPreview(playlist))
+                        .transition(getDefaultGlideTransition())
+                        .playlistOptions()
+                        .into(it)
+                }
             }
 
             GENRE -> {
@@ -181,7 +195,7 @@ class SearchAdapter(
                 }
             }
 
-            if (itemViewType != ALBUM && itemViewType != ARTIST) {
+            if (itemViewType == GENRE) {
                 image?.isVisible = false
             }
         }

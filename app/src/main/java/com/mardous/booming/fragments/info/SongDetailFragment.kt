@@ -31,8 +31,8 @@ import com.mardous.booming.extensions.resources.secondaryColor
 import com.mardous.booming.extensions.resources.show
 import com.mardous.booming.extensions.toHtml
 import com.mardous.booming.model.Song
-import com.mardous.booming.viewmodels.info.model.SongInfoResult
 import com.mardous.booming.viewmodels.info.InfoViewModel
+import com.mardous.booming.viewmodels.info.model.SongInfoResult
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**

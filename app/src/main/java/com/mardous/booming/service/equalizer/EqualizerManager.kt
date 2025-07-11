@@ -25,11 +25,7 @@ import androidx.core.content.edit
 import com.mardous.booming.extensions.files.getFormattedFileName
 import com.mardous.booming.model.EQPreset
 import com.mardous.booming.model.EQPreset.Companion.getEmptyPreset
-import com.mardous.booming.viewmodels.equalizer.model.EqEffectState
-import com.mardous.booming.viewmodels.equalizer.model.EqEffectUpdate
-import com.mardous.booming.viewmodels.equalizer.model.EqPresetList
-import com.mardous.booming.viewmodels.equalizer.model.EqState
-import com.mardous.booming.viewmodels.equalizer.model.EqUpdate
+import com.mardous.booming.viewmodels.equalizer.model.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
 import java.util.Locale

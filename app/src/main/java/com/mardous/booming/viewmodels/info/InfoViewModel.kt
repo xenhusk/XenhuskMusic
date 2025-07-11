@@ -19,9 +19,9 @@ import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
 import com.mardous.booming.model.Song
 import com.mardous.booming.repository.Repository
+import com.mardous.booming.taglib.MetadataReader
 import com.mardous.booming.viewmodels.info.model.PlayInfoResult
 import com.mardous.booming.viewmodels.info.model.SongInfoResult
-import com.mardous.booming.taglib.MetadataReader
 import kotlinx.coroutines.Dispatchers
 import org.jaudiotagger.audio.AudioHeader
 import java.io.File

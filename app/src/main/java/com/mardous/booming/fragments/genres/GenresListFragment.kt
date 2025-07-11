@@ -30,7 +30,6 @@ import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.GenreAdapter
 import com.mardous.booming.extensions.navigation.genreDetailArgs
-import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.interfaces.IGenreCallback
 import com.mardous.booming.model.Genre
@@ -38,6 +37,7 @@ import com.mardous.booming.model.GridViewType
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
+import com.mardous.booming.viewmodels.library.ReloadType
 
 class GenresListFragment : AbsRecyclerViewCustomGridSizeFragment<GenreAdapter, GridLayoutManager>(),
     IGenreCallback {

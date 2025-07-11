@@ -21,8 +21,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import com.mardous.booming.R
-import com.mardous.booming.fragments.player.PlayerColorSchemeMode
 import com.mardous.booming.fragments.player.PlayerColorSchemeList
+import com.mardous.booming.fragments.player.PlayerColorSchemeMode
 
 enum class NowPlayingScreen(
     @StringRes

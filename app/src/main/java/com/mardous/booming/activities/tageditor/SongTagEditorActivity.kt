@@ -30,12 +30,10 @@ import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.webSearch
 import com.mardous.booming.http.Result
 import com.mardous.booming.taglib.MetadataReader
-import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
 import com.mardous.booming.taglib.toBitmap
-import org.jaudiotagger.tag.FieldKey
+import com.mardous.booming.viewmodels.tageditor.TagEditorViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
-import java.util.EnumMap
 
 /**
  * @author Christians M. A. (mardous)

@@ -28,13 +28,9 @@ import androidx.core.view.updatePadding
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentDefaultPlayerBinding
 import com.mardous.booming.extensions.whichFragment
-import com.mardous.booming.fragments.player.PlayerColorScheme
-import com.mardous.booming.fragments.player.PlayerColorSchemeMode
-import com.mardous.booming.fragments.player.PlayerTintTarget
+import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
-import com.mardous.booming.fragments.player.surfaceTintTarget
-import com.mardous.booming.fragments.player.tintTarget
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.util.Preferences

@@ -1,10 +1,6 @@
 package com.mardous.booming.viewmodels.artistdetail
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.mardous.booming.http.Result
 import com.mardous.booming.http.lastfm.LastFmArtist
 import com.mardous.booming.model.Artist

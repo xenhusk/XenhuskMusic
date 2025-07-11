@@ -28,7 +28,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.YearAdapter
-import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import com.mardous.booming.helper.menu.onSongsMenu
 import com.mardous.booming.interfaces.IYearCallback
@@ -37,6 +36,7 @@ import com.mardous.booming.model.ReleaseYear
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
+import com.mardous.booming.viewmodels.library.ReloadType
 
 class YearsListFragment : AbsRecyclerViewCustomGridSizeFragment<YearAdapter, GridLayoutManager>(),
     IYearCallback {

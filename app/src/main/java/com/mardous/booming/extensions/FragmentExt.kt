@@ -35,8 +35,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.NavHostFragment
 import androidx.transition.Fade
-import com.mardous.booming.R
 import com.google.android.material.transition.MaterialSharedAxis
+import com.mardous.booming.R
 import com.mardous.booming.extensions.resources.createBoomingMusicBalloon
 import com.skydoves.balloon.Balloon
 import kotlinx.coroutines.CoroutineScope

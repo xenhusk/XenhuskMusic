@@ -67,7 +67,6 @@ import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.glide.transformation.BlurTransformation
-import com.mardous.booming.taglib.ReplayGainTagExtractor
 import com.mardous.booming.model.Playlist
 import com.mardous.booming.model.Song
 import com.mardous.booming.providers.databases.HistoryStore
@@ -88,6 +87,7 @@ import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.service.playback.Playback.PlaybackCallbacks
 import com.mardous.booming.service.playback.PlaybackManager
 import com.mardous.booming.service.queue.*
+import com.mardous.booming.taglib.ReplayGainTagExtractor
 import com.mardous.booming.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO

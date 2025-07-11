@@ -23,10 +23,10 @@ import androidx.preference.Preference
 import com.mardous.booming.R
 import com.mardous.booming.extensions.requestContext
 import com.mardous.booming.extensions.utilities.dateStr
-import com.mardous.booming.viewmodels.update.model.UpdateSearchResult
 import com.mardous.booming.preferences.ProgressIndicatorPreference
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.update.UpdateViewModel
+import com.mardous.booming.viewmodels.update.model.UpdateSearchResult
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class UpdatePreferencesFragment : PreferencesScreenFragment() {

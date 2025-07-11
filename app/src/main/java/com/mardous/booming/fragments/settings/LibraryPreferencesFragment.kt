@@ -24,13 +24,13 @@ import com.mardous.booming.R
 import com.mardous.booming.database.InclExclDao
 import com.mardous.booming.dialogs.library.BlacklistWhitelistDialog
 import com.mardous.booming.extensions.hasR
-import com.mardous.booming.viewmodels.library.LibraryViewModel
-import com.mardous.booming.viewmodels.library.ReloadType
 import com.mardous.booming.preferences.SwitchWithButtonPreference
 import com.mardous.booming.util.BLACKLIST_ENABLED
 import com.mardous.booming.util.LAST_ADDED_CUTOFF
 import com.mardous.booming.util.TRASH_MUSIC_FILES
 import com.mardous.booming.util.WHITELIST_ENABLED
+import com.mardous.booming.viewmodels.library.LibraryViewModel
+import com.mardous.booming.viewmodels.library.ReloadType
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**

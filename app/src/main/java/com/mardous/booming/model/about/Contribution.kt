@@ -19,12 +19,10 @@ package com.mardous.booming.model.about
 
 import android.content.Context
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.mardous.booming.extensions.files.readString
 import com.mardous.booming.extensions.readStringFromAsset
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.io.IOException
 
 @Serializable
 class Contribution(

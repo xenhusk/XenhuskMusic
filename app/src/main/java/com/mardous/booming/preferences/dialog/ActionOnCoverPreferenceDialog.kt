@@ -21,6 +21,7 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.os.Bundle
+import androidx.core.content.edit
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -28,7 +29,6 @@ import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.util.COVER_DOUBLE_TAP_ACTION
 import com.mardous.booming.util.Preferences
 import org.koin.android.ext.android.get
-import androidx.core.content.edit
 
 /**
  * @author Christians M. A. (mardous)

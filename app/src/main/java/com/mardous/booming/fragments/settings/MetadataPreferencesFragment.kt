@@ -26,8 +26,8 @@ import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.extensions.glide.clearCache
 import com.mardous.booming.extensions.showToast
-import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import com.mardous.booming.util.*
+import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 

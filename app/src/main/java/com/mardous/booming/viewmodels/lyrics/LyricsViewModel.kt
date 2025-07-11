@@ -5,11 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.mardous.booming.http.Result
-import com.mardous.booming.lyrics.Lyrics
 import com.mardous.booming.model.Song
 import com.mardous.booming.repository.LyricsRepository
 import com.mardous.booming.service.queue.QueueManager
-import com.mardous.booming.viewmodels.lyrics.model.DisplayableLyrics
 import com.mardous.booming.viewmodels.lyrics.model.EditableLyrics
 import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
 import kotlinx.coroutines.CoroutineExceptionHandler

@@ -22,13 +22,11 @@ import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout.LayoutParams
 import android.widget.TextView
-import androidx.core.view.doOnPreDraw
 import androidx.core.view.updateMargins
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.google.android.material.divider.MaterialDivider
-import com.google.android.material.transition.MaterialSharedAxis
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentPlayInfoBinding
 import com.mardous.booming.extensions.*

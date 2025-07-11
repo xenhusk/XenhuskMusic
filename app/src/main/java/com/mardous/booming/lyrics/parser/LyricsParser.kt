@@ -21,6 +21,8 @@ interface LyricsParser {
 
     fun parse(reader: Reader): Lyrics?
 
+    fun handles(file: File): Boolean
+
     fun isValid(input: String): Boolean =
         if (input.isNotBlank()) isValid(input.reader()) else false
 

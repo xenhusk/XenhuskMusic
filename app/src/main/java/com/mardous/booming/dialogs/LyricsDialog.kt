@@ -27,9 +27,9 @@ import com.mardous.booming.R
 import com.mardous.booming.extensions.EXTRA_SONG
 import com.mardous.booming.extensions.create
 import com.mardous.booming.extensions.withArgs
-import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import com.mardous.booming.fragments.player.base.goToDestination
 import com.mardous.booming.model.Song
+import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class LyricsDialog : DialogFragment() {
@@ -46,8 +46,8 @@ class LyricsDialog : DialogFragment() {
             }
             .create { dialog ->
                 lyricsViewModel.getLyrics(song).observe(this) { result ->
-                    if (result.hasPlainLyrics) {
-                        dialog.setMessage(result.plainLyrics)
+                    if (!result.isNullOrBlank()) {
+                        dialog.setMessage(result)
                     }
                 }
             }

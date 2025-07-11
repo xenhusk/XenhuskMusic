@@ -37,7 +37,7 @@ fun LyricsScreen(
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
     val songProgress by playerViewModel.progressFlow.collectAsState()
     val lyricsViewState = remember(lyricsResult.syncedLyrics) {
-        LyricsViewState(lyricsResult.syncedLyrics)
+        LyricsViewState(lyricsResult.syncedLyrics.content)
     }
 
     LaunchedEffect(songProgress) {
@@ -92,7 +92,7 @@ fun CoverLyricsScreen(
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
     val songProgress by playerViewModel.progressFlow.collectAsState()
     val lyricsViewState = remember(lyricsResult.syncedLyrics) {
-        LyricsViewState(lyricsResult.syncedLyrics)
+        LyricsViewState(lyricsResult.syncedLyrics.content)
     }
 
     LaunchedEffect(songProgress) {
@@ -177,7 +177,7 @@ private fun LyricsSurface(
                     )
                 }
 
-                !lyricsResult.plainLyrics.isNullOrBlank() -> {
+                !lyricsResult.plainLyrics.content.isNullOrBlank() -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -185,7 +185,7 @@ private fun LyricsSurface(
                             .padding(contentPadding)
                     ) {
                         Text(
-                            text = lyricsResult.plainLyrics,
+                            text = lyricsResult.plainLyrics.content,
                             textAlign = plainTextAlign,
                             fontSize = plainFontSize,
                             color = plainContentColor,

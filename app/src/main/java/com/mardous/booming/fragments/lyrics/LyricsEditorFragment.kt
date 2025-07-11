@@ -20,6 +20,7 @@ package com.mardous.booming.fragments.lyrics
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ClipboardManager
+import android.content.ContentResolver
 import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
@@ -38,18 +39,17 @@ import androidx.core.app.ShareCompat
 import androidx.core.content.getSystemService
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import androidx.core.view.postDelayed
 import androidx.core.widget.doOnTextChanged
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.databinding.DialogLyricsSelectorBinding
 import com.mardous.booming.databinding.DialogSongSearchBinding
 import com.mardous.booming.databinding.FragmentLyricsEditorBinding
 import com.mardous.booming.extensions.*
-import com.mardous.booming.extensions.files.copyToUri
 import com.mardous.booming.extensions.glide.getDefaultGlideTransition
 import com.mardous.booming.extensions.glide.getSongGlideModel
 import com.mardous.booming.extensions.glide.songOptions
@@ -60,13 +60,14 @@ import com.mardous.booming.extensions.resources.animateToggle
 import com.mardous.booming.extensions.resources.requestInputMethod
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.http.Result
+import com.mardous.booming.lyrics.LyricsSource
 import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
-import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
-import com.mardous.booming.viewmodels.lyrics.model.LyricsType
 import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
+import com.mardous.booming.viewmodels.lyrics.model.EditableLyrics
+import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
+import org.koin.android.ext.android.get
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import java.io.File
 
 /**
  * @author Christians M. A. (mardous)
@@ -80,12 +81,11 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
     private var _binding: FragmentLyricsEditorBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var editLyricsLauncher: ActivityResultLauncher<IntentSenderRequest>
+    private lateinit var permissionLauncher: ActivityResultLauncher<IntentSenderRequest>
     private lateinit var importLyricsLauncher: ActivityResultLauncher<Array<String>>
 
-    private var pendingWrite: List<Pair<File, Uri>>? = null
-
-    private var plainLyricsModified = false
+    private var plainLyrics: EditableLyrics? = null
+    private var syncedLyrics: EditableLyrics? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -94,15 +94,13 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         materialSharedAxis(view)
         view.applyWindowInsets(left = true, right = true, bottom = true)
         setSupportActionBar(binding.toolbar)
-        editLyricsLauncher = registerForActivityResult(StartIntentSenderForResult()) {
-            if (it.resultCode == Activity.RESULT_OK && pendingWrite != null) {
-                pendingWrite?.forEach { (file, uri) ->
-                    file.copyToUri(requireContext(), uri)
-                }
+        permissionLauncher = registerForActivityResult(StartIntentSenderForResult()) {
+            if (it.resultCode != Activity.RESULT_OK) {
+                findNavController().navigateUp()
             }
         }
         importLyricsLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { data: Uri? ->
-            data?.let { importLRCFile(song, it) }
+            data?.let { importLyrics(song, it) }
         }
 
         binding.search.setOnClickListener { searchLyrics() }
@@ -127,9 +125,27 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             binding.progressIndicator.hide()
             binding.embeddedButton.isEnabled = true
             binding.externalButton.isEnabled = true
-            binding.plainInput.setText(it.plainLyrics)
-            binding.plainInput.doOnTextChanged { _, _, _, _ -> plainLyricsModified = true }
-            binding.syncedInput.setText(it.syncedLyrics?.rawText)
+            binding.plainInput.setText(it.plainLyrics.content)
+            binding.plainInput.doOnTextChanged { text, _, _, _ ->
+                plainLyrics = it.plainLyrics.edit(text?.toString())
+            }
+            binding.syncedInput.setText(it.syncedLyrics.content?.rawText)
+            binding.syncedInput.doOnTextChanged { text, _, _, _ ->
+                syncedLyrics = it.syncedLyrics.edit(text?.toString())
+            }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        view?.postDelayed(1000) {
+            lyricsViewModel.getWritableUris(song).observe(viewLifecycleOwner) {
+                if (hasR()) {
+                    val contentResolver = get<ContentResolver>()
+                    val pendingIntent = MediaStore.createWriteRequest(contentResolver, it)
+                    permissionLauncher.launch(IntentSenderRequest.Builder(pendingIntent).build())
+                }
+            }
         }
     }
 
@@ -138,26 +154,24 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             return
 
         lyrics.sources.forEach {
-            val button = requireView().findViewById<Button>(it.key.idRes)
-            button?.setText(it.value.titleRes)
+            val button = requireView().findViewById<Button>(it.applicableButtonId)
+            button?.setText(it.titleRes)
         }
-        binding.toggleGroup.addOnButtonCheckedListener(object : MaterialButtonToggleGroup.OnButtonCheckedListener {
-            override fun onButtonChecked(group: MaterialButtonToggleGroup?, checkedId: Int, isChecked: Boolean) {
-                applyCheckedButtonState(lyrics, checkedId, isChecked)
-            }
-        })
+
+        binding.toggleGroup.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            applyCheckedButtonState(lyrics, checkedId, isChecked)
+        }
         applyCheckedButtonState(lyrics, binding.toggleGroup.checkedButtonId, true)
     }
 
     private fun applyCheckedButtonState(lyrics: LyricsResult, checkedId: Int, isChecked: Boolean) {
-        val type = LyricsType.entries.first { it.idRes == checkedId }
-        showLyricsInput(type, isChecked)
+        val source = lyrics.sources.first { it.applicableButtonId == checkedId }
+        showLyricsInput(source, isChecked)
 
         val button = binding.toggleGroup.findViewById<Button>(checkedId)
         if (!isChecked) return
 
-        val source = lyrics.sources[type]
-        if (source != null && source.canShowHelp(requireContext())) {
+        if (source.canShowHelp(requireContext())) {
             val balloon = createBoomingMusicBalloon {
                 setDismissWhenClicked(true)
                 setText(getString(source.descriptionRes))
@@ -171,10 +185,10 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         }
     }
 
-    private fun showLyricsInput(type: LyricsType, isChecked: Boolean) {
+    private fun showLyricsInput(source: LyricsSource, isChecked: Boolean) {
         binding.plainInput.clearFocus()
         binding.syncedInput.clearFocus()
-        if (type.isExternal) {
+        if (source.isExternalSource) {
             binding.plainInputLayout.isGone = isChecked
             binding.syncedInputLayout.isVisible = isChecked
         } else {
@@ -305,28 +319,14 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
     }
 
     private fun saveLyrics() {
-        lyricsViewModel.saveLyrics(
-            song,
-            binding.plainInput.text?.toString(),
-            binding.syncedInput.text?.toString(),
-            plainLyricsModified
-        ).observe(viewLifecycleOwner) {
-            if (it.isPending && hasR() && it.pendingWrite != null) {
-                val safePendingWrite = it.pendingWrite.filter { it.second != Uri.EMPTY }.also {
-                    pendingWrite = it
-                }
-                val pendingIntent = MediaStore.createWriteRequest(
-                    requireContext().contentResolver, safePendingWrite.map { it.second }
-                )
-                editLyricsLauncher.launch(IntentSenderRequest.Builder(pendingIntent).build())
-            } else {
-                if (it.isSuccess) {
+        lyricsViewModel.saveLyrics(song, plainLyrics, syncedLyrics)
+            .observe(viewLifecycleOwner) { isSuccess ->
+                if (isSuccess) {
                     showToast(R.string.lyrics_were_updated_successfully, Toast.LENGTH_SHORT)
                 } else {
                     showToast(R.string.failed_to_update_lyrics, Toast.LENGTH_SHORT)
                 }
             }
-        }
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -386,8 +386,8 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
             .show()
     }
 
-    private fun importLRCFile(song: Song, data: Uri) {
-        lyricsViewModel.setLRCContentFromUri(song, data)
+    private fun importLyrics(song: Song, data: Uri) {
+        lyricsViewModel.importLyrics(song, data)
             .observe(viewLifecycleOwner) { isSuccess ->
                 if (isSuccess) {
                     showToast(getString(R.string.import_lyrics_for_song_x, song.title))

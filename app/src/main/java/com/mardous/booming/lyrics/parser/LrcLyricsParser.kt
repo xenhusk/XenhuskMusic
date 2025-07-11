@@ -1,11 +1,16 @@
 package com.mardous.booming.lyrics.parser
 
 import com.mardous.booming.lyrics.Lyrics
+import java.io.File
 import java.io.IOException
 import java.io.Reader
 import java.util.Locale
 
 class LrcLyricsParser : LyricsParser {
+
+    override fun handles(file: File): Boolean {
+        return file.name.endsWith(".lrc")
+    }
 
     override fun isValid(reader: Reader): Boolean {
         val content = reader.buffered().use { it.readText() }

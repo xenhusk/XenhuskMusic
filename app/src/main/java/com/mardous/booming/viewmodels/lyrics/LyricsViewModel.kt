@@ -5,9 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.mardous.booming.http.Result
+import com.mardous.booming.lyrics.Lyrics
 import com.mardous.booming.model.Song
 import com.mardous.booming.repository.LyricsRepository
 import com.mardous.booming.service.queue.QueueManager
+import com.mardous.booming.viewmodels.lyrics.model.DisplayableLyrics
+import com.mardous.booming.viewmodels.lyrics.model.EditableLyrics
 import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -65,17 +68,17 @@ class LyricsViewModel(
         emit(lyricsRepository.shareSyncedLyrics(song))
     }
 
-    fun saveLyrics(
-        song: Song,
-        plainLyrics: String?,
-        syncedLyrics: String?,
-        plainLyricsModified: Boolean
-    ) = liveData(Dispatchers.IO) {
-        emit(lyricsRepository.saveLyrics(song, plainLyrics, syncedLyrics, plainLyricsModified))
+    fun getWritableUris(song: Song) = liveData(Dispatchers.IO) {
+        emit(lyricsRepository.writableUris(song))
     }
 
-    fun setLRCContentFromUri(song: Song, uri: Uri?) = liveData(Dispatchers.IO) {
-        emit(lyricsRepository.saveSyncedLyricsFromUri(song, uri))
+    fun saveLyrics(song: Song, plainLyrics: EditableLyrics?, syncedLyrics: EditableLyrics?) =
+        liveData(Dispatchers.IO) {
+            emit(lyricsRepository.saveLyrics(song, plainLyrics, syncedLyrics))
+        }
+
+    fun importLyrics(song: Song, uri: Uri) = liveData(Dispatchers.IO) {
+        emit(lyricsRepository.importLyrics(song, uri))
     }
 
     fun deleteLyrics() = viewModelScope.launch(Dispatchers.IO) {

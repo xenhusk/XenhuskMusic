@@ -14,11 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.mardous.booming.misc
+package com.mardous.booming.taglib
 
 import android.net.Uri
 import android.util.LruCache
-import com.mardous.booming.taglib.MetadataReader
 
 data class ReplayGain(
     val albumGain: Float,

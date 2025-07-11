@@ -67,7 +67,7 @@ import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.glide.transformation.BlurTransformation
-import com.mardous.booming.misc.ReplayGainTagExtractor
+import com.mardous.booming.taglib.ReplayGainTagExtractor
 import com.mardous.booming.model.Playlist
 import com.mardous.booming.model.Song
 import com.mardous.booming.providers.databases.HistoryStore

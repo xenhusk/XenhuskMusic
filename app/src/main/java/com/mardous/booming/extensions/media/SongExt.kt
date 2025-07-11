@@ -34,7 +34,7 @@ import com.mardous.booming.extensions.resources.toForegroundColorSpan
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.DEFAULT_INFO_DELIMITER
 import com.mardous.booming.extensions.utilities.buildInfoString
-import com.mardous.booming.misc.ReplayGainTagExtractor
+import com.mardous.booming.taglib.ReplayGainTagExtractor
 import com.mardous.booming.model.NowPlayingInfo
 import com.mardous.booming.model.Song
 import com.mardous.booming.model.WebSearchEngine

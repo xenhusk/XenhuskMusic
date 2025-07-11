@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> nu este listat în magazinul media.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Unele fișiere nu sunt listate în magazinul media.</string>
     <string name="nothing_to_scan">Nimic de scanat</string>
-    <string name="scanned_x_of_x_files">Fișiere %1$d din %2$d scanate.</string>
-    <string name="could_not_scan_files">Nu s-au putut scana fişierele %d.</string>
     <string name="select_storage_title">Selectați stocarea</string>
     <string name="app_widget_big_name">Mare</string>
     <string name="app_widget_simple_name">Simplu</string>
@@ -495,7 +493,6 @@
     <string name="lyrics_were_updated_successfully">Versurile au fost actualizate cu succes.</string>
     <string name="failed_to_update_lyrics">Actualizarea versurilor a eșuat.</string>
     <string name="lyrics_source_lrc_file">Versurile sincronizate provin dintr-un fișier LRC. Modificările vor fi salvate direct în acel fișier.</string>
-    <string name="lyrics_source_embedded_synced">Versurile integrate sunt sincronizate. Ele vor avea prioritate mai mare decât versurile descărcate.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Cronometru somn</string>
     <string name="sleep_timer_cancel_current_timer">Anulează cronometrul curent</string>

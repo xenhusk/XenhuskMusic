@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> is not listed in the media store.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Some files are not listed in the media store.</string>
     <string name="nothing_to_scan">Nothing to scan</string>
-    <string name="scanned_x_of_x_files">Scanned %1$d of %2$d files.</string>
-    <string name="could_not_scan_files">Couldn\'t scan %d files.</string>
     <string name="select_storage_title">Select storage</string>
     <string name="app_widget_big_name">Big</string>
     <string name="app_widget_simple_name">Simple</string>
@@ -479,7 +477,6 @@
     <string name="lyrics_were_updated_successfully">Lyrics were updated successfully.</string>
     <string name="failed_to_update_lyrics">Failed to update lyrics.</string>
     <string name="lyrics_source_lrc_file">Synced lyrics come from an LRC file. Changes will be saved directly to that file.</string>
-    <string name="lyrics_source_embedded_synced">Embedded lyrics are synced. They will have higher priority than downloaded lyrics.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Sleep timer</string>
     <string name="sleep_timer_cancel_current_timer">Cancel current timer</string>

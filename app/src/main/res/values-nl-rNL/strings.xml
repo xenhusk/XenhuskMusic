@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> is niet in de media-winkel vermeld.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Sommige bestanden staan niet vermeld in de media-winkel.</string>
     <string name="nothing_to_scan">Niets te scannen</string>
-    <string name="scanned_x_of_x_files">%1$d van %2$d bestanden gescand.</string>
-    <string name="could_not_scan_files">Kon %d bestanden niet scannen.</string>
     <string name="select_storage_title">Opslag selecteren</string>
     <string name="app_widget_big_name">Groot</string>
     <string name="app_widget_simple_name">Eenvoudig</string>
@@ -487,7 +485,6 @@
     <string name="lyrics_were_updated_successfully">Songteksten zijn bijgewerkt.</string>
     <string name="failed_to_update_lyrics">Songtekst bijwerken mislukt.</string>
     <string name="lyrics_source_lrc_file">Gesynchroniseerde songteksten komen uit een LRC-bestand. Wijzigingen zullen direct in dat bestand worden opgeslagen.</string>
-    <string name="lyrics_source_embedded_synced">Ingesloten songteksten worden gesynchroniseerd. Ze zullen hogere prioriteit hebben dan de gedownloade songteksten.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Slaaptimer</string>
     <string name="sleep_timer_cancel_current_timer">Annuleer huidige timer</string>

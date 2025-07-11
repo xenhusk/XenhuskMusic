@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> 没有在媒体商店中列出。]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">某些文件未在媒体存储中列出。</string>
     <string name="nothing_to_scan">没有要扫描</string>
-    <string name="scanned_x_of_x_files">扫描了 %1$d 的 %2$d 文件。</string>
-    <string name="could_not_scan_files">无法扫描 %d 文件。</string>
     <string name="select_storage_title">选择存储</string>
     <string name="app_widget_big_name">大的</string>
     <string name="app_widget_simple_name">简单的</string>
@@ -479,7 +477,6 @@
     <string name="lyrics_were_updated_successfully">歌词更新成功。</string>
     <string name="failed_to_update_lyrics">更新歌词失败。</string>
     <string name="lyrics_source_lrc_file">同步歌词来自LRC文件。更改将直接保存到该文件。</string>
-    <string name="lyrics_source_embedded_synced">嵌入式歌词已同步。它们的优先级将高于下载的歌词。</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">睡眠计时器</string>
     <string name="sleep_timer_cancel_current_timer">取消当前计时器</string>

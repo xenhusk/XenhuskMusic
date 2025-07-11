@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> er ikke oppført i media butikken.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Noen filer vises ikke i media butikken.</string>
     <string name="nothing_to_scan">Ingenting å skanne</string>
-    <string name="scanned_x_of_x_files">Skannede %1$d av %2$d filer.</string>
-    <string name="could_not_scan_files">Kunne ikke skanne %d filer.</string>
     <string name="select_storage_title">Velg lagring</string>
     <string name="app_widget_big_name">Stor</string>
     <string name="app_widget_simple_name">Enkel</string>
@@ -487,7 +485,6 @@
     <string name="lyrics_were_updated_successfully">Teksten ble oppdatert.</string>
     <string name="failed_to_update_lyrics">Kunne ikke oppdatere sangtekstene.</string>
     <string name="lyrics_source_lrc_file">Synkroniserte sangtekster kommer fra en LRC-fil. Endringer vil bli lagret direkte i den filen.</string>
-    <string name="lyrics_source_embedded_synced">Innebygde sangtekster er synkronisert. De vil ha høyere prioritet enn nedlastede sangtekster.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Sleep Timer</string>
     <string name="sleep_timer_cancel_current_timer">Avbryt gjeldende tidtaker</string>

@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> मीडिया स्टोर में सूचीबद्ध नहीं है।]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">कुछ फ़ाइलें मीडिया स्टोर में सूचीबद्ध नहीं हैं।</string>
     <string name="nothing_to_scan">स्कैन करने के लिए कुछ नहीं</string>
-    <string name="scanned_x_of_x_files">स्कैन किए गए %1$d में से %2$d फ़ाइलें।</string>
-    <string name="could_not_scan_files">%d फ़ाइलों को स्कैन नहीं किया जा सका</string>
     <string name="select_storage_title">स्टोरेज चुनें</string>
     <string name="app_widget_big_name">बड़ा</string>
     <string name="app_widget_simple_name">सरल</string>
@@ -485,7 +483,6 @@
     <string name="lyrics_were_updated_successfully">गाने के बोल सफलतापूर्वक अपडेट कर दिए गए।</string>
     <string name="failed_to_update_lyrics">गीत का अपडेट करना असफल रहा।</string>
     <string name="lyrics_source_lrc_file">सिंक की गई गीतों की पंक्तियाँ एक LRC फ़ाइल से आती हैं। परिवर्तन सीधे उस फ़ाइल में सहेजे जाएंगे।</string>
-    <string name="lyrics_source_embedded_synced">एंबेडेड गीत के बोल समन्वित हैं। इन्हें डाउनलोड किए गए बोलों की तुलना में उच्च प्राथमिकता दी जाएगी।</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">स्लीप टाइमर</string>
     <string name="sleep_timer_cancel_current_timer">वर्तमान टाइमर रद्द करें</string>

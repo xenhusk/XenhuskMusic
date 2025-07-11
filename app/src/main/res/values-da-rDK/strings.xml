@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> er ikke listet i medielageret.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Nogle filer er ikke opført i medielageren.</string>
     <string name="nothing_to_scan">Intet at scanne</string>
-    <string name="scanned_x_of_x_files">Scannede %1$d af %2$d filer.</string>
-    <string name="could_not_scan_files">Kunne ikke scanne %d filer.</string>
     <string name="select_storage_title">Vælg lagerplads</string>
     <string name="app_widget_big_name">Stor</string>
     <string name="app_widget_simple_name">Simpel</string>
@@ -487,7 +485,6 @@
     <string name="lyrics_were_updated_successfully">Sangtekster blev opdateret.</string>
     <string name="failed_to_update_lyrics">Kunne ikke opdatere sangtekster.</string>
     <string name="lyrics_source_lrc_file">Synkroniserede sangtekster kommer fra en LRC-fil. Ændringer gemmes direkte til filen.</string>
-    <string name="lyrics_source_embedded_synced">Indlejrede sangtekster synkroniseres. De vil have højere prioritet end downloadede sangtekster.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Sove timer</string>
     <string name="sleep_timer_cancel_current_timer">Annuller aktuel tidtagning</string>

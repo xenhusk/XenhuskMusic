@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> לא רשום בחנות המדיה.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">קבצים מסוימים לא רשומים בחנות המדיה.</string>
     <string name="nothing_to_scan">אין מה לסרוק</string>
-    <string name="scanned_x_of_x_files">נסרקו %1$d מתוך %2$d קבצים.</string>
-    <string name="could_not_scan_files">לא ניתן היה לסרוק %d קבצים.</string>
     <string name="select_storage_title">בחר אחסון</string>
     <string name="app_widget_big_name">גדול</string>
     <string name="app_widget_simple_name">פשוט</string>
@@ -503,7 +501,6 @@
     <string name="lyrics_were_updated_successfully">Lyrics were updated successfully.</string>
     <string name="failed_to_update_lyrics">Failed to update lyrics.</string>
     <string name="lyrics_source_lrc_file">Synced lyrics come from an LRC file. Changes will be saved directly to that file.</string>
-    <string name="lyrics_source_embedded_synced">Embedded lyrics are synced. They will have higher priority than downloaded lyrics.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">טיימר שינה</string>
     <string name="sleep_timer_cancel_current_timer">בטל טיימר נוכחי</string>

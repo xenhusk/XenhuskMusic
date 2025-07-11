@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> medya deposunda listelenmiyor.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Bazı dosyalar medya deposunda listelenmiyor.</string>
     <string name="nothing_to_scan">Taranacak bir şey yok</string>
-    <string name="scanned_x_of_x_files">%2$d dosyadan %1$d tanesi tarandı.</string>
-    <string name="could_not_scan_files">%d dosya taranamadı.</string>
     <string name="select_storage_title">Depolama birimi seç</string>
     <string name="app_widget_big_name">Büyük</string>
     <string name="app_widget_simple_name">Basit</string>
@@ -487,7 +485,6 @@
     <string name="lyrics_were_updated_successfully">Şarkı sözleri başarıyla güncellendi.</string>
     <string name="failed_to_update_lyrics">Şarkı sözleri güncellenemedi.</string>
     <string name="lyrics_source_lrc_file">Senkronize şarkı sözleri bir LRC dosyasından geliyor. Değişiklikler doğrudan o dosyaya kaydedilecek.</string>
-    <string name="lyrics_source_embedded_synced">Gömülü şarkı sözleri senkronizedir. İndirilen şarkı sözlerine göre daha yüksek önceliğe sahip olacaklardır.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Uyku zamanlayıcısı</string>
     <string name="sleep_timer_cancel_current_timer">Mevcut zamanlayıcıyı iptal et</string>

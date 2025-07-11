@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> ist nicht im MediaStore gelistet.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Einige Dateien sind nicht im MediaStore gelistet.</string>
     <string name="nothing_to_scan">Nichts zu scannen</string>
-    <string name="scanned_x_of_x_files">%1$d von %2$d Dateien gescannt.</string>
-    <string name="could_not_scan_files">Konnte %d Dateien nicht scannen.</string>
     <string name="select_storage_title">Verzeichnis auswählen</string>
     <string name="app_widget_big_name">Groß</string>
     <string name="app_widget_simple_name">Einfach</string>
@@ -487,7 +485,6 @@
     <string name="lyrics_were_updated_successfully">Liedtexte wurden erfolgreich aktualisiert.</string>
     <string name="failed_to_update_lyrics">Liedtexte konnten nicht aktualisiert werden.</string>
     <string name="lyrics_source_lrc_file">Synchronisierte Liedtexte stammen aus einer LRC-Datei. Änderungen werden direkt in dieser Datei gespeichert.</string>
-    <string name="lyrics_source_embedded_synced">Eingebettete Liedtexte wurden synchronisiert. Sie werden Vorrang vor heruntergeladenen Liedtexten haben.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Sleeptimer</string>
     <string name="sleep_timer_cancel_current_timer">Aktuellen Timer abbrechen</string>

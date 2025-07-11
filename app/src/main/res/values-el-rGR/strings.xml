@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> δεν είναι καταχωρημένη στο κατάστημα πολυμέσων.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Ορισμένα αρχεία δεν εμφανίζονται στο κατάστημα πολυμέσων.</string>
     <string name="nothing_to_scan">Τίποτα για σάρωση</string>
-    <string name="scanned_x_of_x_files">Scanned %1$d of %2$d files.</string>
-    <string name="could_not_scan_files">Αδυναμία σάρωσης αρχείων %d</string>
     <string name="select_storage_title">Επιλογή αποθ. χώρου</string>
     <string name="app_widget_big_name">Μεγάλο</string>
     <string name="app_widget_simple_name">Απλό</string>
@@ -487,7 +485,6 @@
     <string name="lyrics_were_updated_successfully">Οι στίχοι ενημερώθηκαν με επιτυχία.</string>
     <string name="failed_to_update_lyrics">Αποτυχία ενημέρωσης στίχων.</string>
     <string name="lyrics_source_lrc_file">Οι συγχρονισμένοι στίχοι προέρχονται από ένα αρχείο LRC. Οι αλλαγές θα αποθηκευτούν απευθείας σε αυτό το αρχείο.</string>
-    <string name="lyrics_source_embedded_synced">Οι ενσωματωμένοι στίχοι είναι συγχρονισμένοι. Θα έχουν υψηλότερη προτεραιότητα από τους ληφθέντες στίχους.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Χρονοδιακόπτης ύπνου</string>
     <string name="sleep_timer_cancel_current_timer">Ακύρωση τρέχοντος χρονομέτρου</string>

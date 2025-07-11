@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> não foi encontrado.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Alguns arquivos não estão listados no armazenamento de mídia.</string>
     <string name="nothing_to_scan">Nada para escanear</string>
-    <string name="scanned_x_of_x_files">Escaneado %1$d de %2$d arquivos.</string>
-    <string name="could_not_scan_files">Não foi possível escanear %d arquivos.</string>
     <string name="select_storage_title">Selecionar armazenamento</string>
     <string name="app_widget_big_name">Grande</string>
     <string name="app_widget_simple_name">Simples</string>
@@ -486,7 +484,6 @@
     <string name="lyrics_were_updated_successfully">A letra foi atualizada com sucesso.</string>
     <string name="failed_to_update_lyrics">Falha ao atualizar a letra.</string>
     <string name="lyrics_source_lrc_file">As letras sincronizadas vêm de um arquivo LRC. As alterações serão salvas diretamente nesse arquivo.</string>
-    <string name="lyrics_source_embedded_synced">As letras incorporadas estão sincronizadas. Elas terão maior prioridade do que as letras baixadas.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Temporizador</string>
     <string name="sleep_timer_cancel_current_timer">Cancelar o temporizador atual</string>

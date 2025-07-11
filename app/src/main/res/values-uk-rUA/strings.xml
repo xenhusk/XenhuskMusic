@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> не вказано в медіа сховищі.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Деякі файли не зазначені в медіа сховищі.</string>
     <string name="nothing_to_scan">Нічого шукати</string>
-    <string name="scanned_x_of_x_files">Scanned %1$d of %2$d files.</string>
-    <string name="could_not_scan_files">Не вдалося просканувати файли %d</string>
     <string name="select_storage_title">Виберіть сховище</string>
     <string name="app_widget_big_name">Великий</string>
     <string name="app_widget_simple_name">Просте</string>
@@ -503,7 +501,6 @@
     <string name="lyrics_were_updated_successfully">Текст успішно оновлено.</string>
     <string name="failed_to_update_lyrics">Не вдалося оновити текст пісні.</string>
     <string name="lyrics_source_lrc_file">Синхронізовані тексти пісень беруться з LRC файлу. Зміни будуть збережені безпосередньо в цей файл.</string>
-    <string name="lyrics_source_embedded_synced">Вбудовані тексти пісень синхронізовані. Вони матимуть більший пріоритет, ніж завантажені тексти.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Таймер сну</string>
     <string name="sleep_timer_cancel_current_timer">Скасувати поточний таймер</string>

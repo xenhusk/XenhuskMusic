@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> отсутствует в списке медиа магазина.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Некоторые файлы не перечислены в медиа-магазине.</string>
     <string name="nothing_to_scan">Нечего сканировать</string>
-    <string name="scanned_x_of_x_files">Отсканировано %1$d из %2$d файлов.</string>
-    <string name="could_not_scan_files">Не удалось просканировать файлы %d.</string>
     <string name="select_storage_title">Выберите хранилище</string>
     <string name="app_widget_big_name">Большой</string>
     <string name="app_widget_simple_name">Простой</string>
@@ -503,7 +501,6 @@
     <string name="lyrics_were_updated_successfully">Тексты песен были успешно обновлены.</string>
     <string name="failed_to_update_lyrics">Не удалось обновить текст песни.</string>
     <string name="lyrics_source_lrc_file">Синхронизированные тексты песен приходят из файла LRC. Изменения будут сохранены непосредственно в этот файл.</string>
-    <string name="lyrics_source_embedded_synced">Встроенные тексты синхронизируются. Они будут иметь более высокий приоритет, чем загруженные тексты песен.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Таймер сна</string>
     <string name="sleep_timer_cancel_current_timer">Отменить текущий таймер</string>

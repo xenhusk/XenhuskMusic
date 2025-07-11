@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> غير مدرج في متجر الوسائط.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">بعض الملفات غير مدرجة في متجر الوسائط.</string>
     <string name="nothing_to_scan">لا شيء للمسح</string>
-    <string name="scanned_x_of_x_files">تم فحص %1$d من ملفات %2$d.</string>
-    <string name="could_not_scan_files">تعذر مسح ملفات %d.</string>
     <string name="select_storage_title">حدد وحدة التخزين</string>
     <string name="app_widget_big_name">كبير</string>
     <string name="app_widget_simple_name">بسيط</string>
@@ -519,7 +517,6 @@
     <string name="lyrics_were_updated_successfully">تم تحديث الكلمات بنجاح.</string>
     <string name="failed_to_update_lyrics">فشل تحديث كلمات الأغنية.</string>
     <string name="lyrics_source_lrc_file">الكلمات المتزامنة تأتي من ملف LRC. سيتم حفظ التغييرات مباشرة إلى هذا الملف.</string>
-    <string name="lyrics_source_embedded_synced">يتم مزامنة كلمات الأغاني المضمنة. سيكون لها أولوية أعلى من كلمات الأغاني المحملة.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">مؤقت النوم</string>
     <string name="sleep_timer_cancel_current_timer">إلغاء المؤقت الحالي</string>

@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> はメディアストアに記載されていません。]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">一部のファイルはメディアストアに表示されません。</string>
     <string name="nothing_to_scan">スキャンするものがありません</string>
-    <string name="scanned_x_of_x_files">%2$d 個のファイル中 %1$d 個をスキャンしました。</string>
-    <string name="could_not_scan_files">%d個のファイルをスキャンできませんでした。</string>
     <string name="select_storage_title">ストレージを選択</string>
     <string name="app_widget_big_name">大</string>
     <string name="app_widget_simple_name">シンプル</string>
@@ -479,7 +477,6 @@
     <string name="lyrics_were_updated_successfully">歌詞が更新されました。</string>
     <string name="failed_to_update_lyrics">歌詞の更新に失敗しました。</string>
     <string name="lyrics_source_lrc_file">同期された歌詞はLRCファイルから来ています。変更内容は直接そのファイルに保存されます。</string>
-    <string name="lyrics_source_embedded_synced">埋め込まれた歌詞が同期されています。ダウンロードした歌詞よりも優先度が高いです。</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">スリープタイマー</string>
     <string name="sleep_timer_cancel_current_timer">現在のタイマーをキャンセル</string>

@@ -139,8 +139,6 @@
     <string name="not_listed_in_media_store"><![CDATA[<b>%s</b> är inte listad i mediebutiken.]]></string>
     <string name="some_files_are_not_listed_in_the_media_store">Vissa filer är inte listade i mediebutiken.</string>
     <string name="nothing_to_scan">Inget att skanna</string>
-    <string name="scanned_x_of_x_files">Skannade %1$d av %2$d filer.</string>
-    <string name="could_not_scan_files">Kunde inte skanna %d filer.</string>
     <string name="select_storage_title">Välj lagringsutrymme</string>
     <string name="app_widget_big_name">Stor</string>
     <string name="app_widget_simple_name">Enkel</string>
@@ -487,7 +485,6 @@
     <string name="lyrics_were_updated_successfully">Låttexter har uppdaterats.</string>
     <string name="failed_to_update_lyrics">Det gick inte att uppdatera låttexter.</string>
     <string name="lyrics_source_lrc_file">Synkroniserade texter kommer från en LRC-fil. Ändringar kommer att sparas direkt till den filen.</string>
-    <string name="lyrics_source_embedded_synced">Inbäddade texter synkroniseras. De kommer att ha högre prioritet än nedladdade texter.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Sov timer</string>
     <string name="sleep_timer_cancel_current_timer">Avbryt nuvarande timer</string>

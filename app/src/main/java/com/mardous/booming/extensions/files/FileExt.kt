@@ -80,14 +80,6 @@ fun File.getContentUri(context: Context): Uri =
 
 fun File.toAudioFile(): AudioFile? = runCatching { AudioFileIO.read(this) }.getOrNull()
 
-fun File.copyToUri(context: Context, toUri: Uri) {
-    context.contentResolver.openOutputStream(toUri)?.use { output ->
-        this.inputStream().use { input ->
-            input.copyTo(output)
-        }
-    }
-}
-
 /**
  * Reads this stream completely as a String.
  *

@@ -26,24 +26,15 @@ import androidx.documentfile.provider.DocumentFile
 import com.mardous.booming.R
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.model.Song
-import org.jaudiotagger.audio.AudioFile
-import org.jaudiotagger.audio.exceptions.CannotWriteException
-import org.jaudiotagger.audio.generic.Utils
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 
 private const val TAG = "SAF"
 
 fun File.isSAFRequired(): Boolean = !canWrite()
 
-fun AudioFile.isSAFRequired(): Boolean = file.isSAFRequired()
-
 fun Song.isSAFRequiredForSong(): Boolean = data.isSAFRequiredForPath()
 
 fun String.isSAFRequiredForPath(): Boolean = File(this).isSAFRequired()
-
-fun List<String>.isSAFRequiredForPaths(): Boolean = any { it.isSAFRequiredForPath() }
 
 fun List<Song>.isSAFRequiredForSongs(): Boolean = any { it.isSAFRequiredForSong() }
 
@@ -87,49 +78,6 @@ private fun DocumentFile.findDocument(segments: MutableList<String>): Uri? {
         }
     }
     return null
-}
-
-fun Context.writeUsingSAF(audio: AudioFile) {
-    if (!audio.isSAFRequired()) {
-        try {
-            audio.commit()
-            return
-        } catch (e: CannotWriteException) {
-            e.printStackTrace()
-        }
-    }
-
-    val uri = findSAFDocument(audio.file.absolutePath)
-    if (uri == null) {
-        showToast(R.string.saf_error_uri)
-        Log.e(TAG, "write: Can't get SAF URI")
-        return
-    }
-
-    try {
-        val original = audio.file
-        val temp = File.createTempFile("tmp-media", "." + Utils.getExtension(original)).also {
-            Utils.copy(original, it)
-            audio.file = it
-            audio.commit()
-        }
-
-        val pfd = contentResolver.openFileDescriptor(uri, "rw") ?: run {
-            Log.e(TAG, "write: SAF provided incorrect URI: $uri")
-            return
-        }
-
-        FileInputStream(temp).use { fis ->
-            FileOutputStream(pfd.fileDescriptor).use { fos ->
-                fos.write(fis.readBytes())
-            }
-        }
-
-        temp.delete()
-    } catch (e: Exception) {
-        showToast(getString(R.string.saf_write_failed, e.localizedMessage))
-        Log.e(TAG, "write: Failed to write to file descriptor provided by SAF", e)
-    }
 }
 
 fun Context.deleteUsingSAF(path: String): Boolean {

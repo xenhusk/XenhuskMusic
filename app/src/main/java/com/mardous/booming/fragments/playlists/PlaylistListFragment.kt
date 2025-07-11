@@ -26,7 +26,6 @@ import android.view.View
 import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.PlaylistAdapter
 import com.mardous.booming.database.PlaylistWithSongs
@@ -81,7 +80,7 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<PlaylistAdapt
     override fun createAdapter(): PlaylistAdapter {
         notifyLayoutResChanged(itemLayoutRes)
         val dataSet = adapter?.dataSet ?: ArrayList()
-        return PlaylistAdapter(mainActivity, Glide.with(this), dataSet, itemLayoutRes, this)
+        return PlaylistAdapter(mainActivity, dataSet, itemLayoutRes, this)
     }
 
     override fun playlistClick(playlist: PlaylistWithSongs) {

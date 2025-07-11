@@ -35,7 +35,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import androidx.transition.TransitionManager
-import com.bumptech.glide.Glide
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.mardous.booming.R
@@ -197,7 +196,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupRecyclerView() {
-        searchAdapter = SearchAdapter(Glide.with(this), emptyList(), this).apply {
+        searchAdapter = SearchAdapter(emptyList(), this).apply {
             registerAdapterDataObserver(adapterDataObserver)
         }
         binding.recyclerView.apply {

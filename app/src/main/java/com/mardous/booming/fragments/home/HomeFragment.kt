@@ -26,8 +26,6 @@ import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 import com.mardous.booming.R
 import com.mardous.booming.adapters.HomeAdapter
 import com.mardous.booming.adapters.album.AlbumAdapter
@@ -67,14 +65,12 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
     private val binding get() = _binding!!
 
     private var homeAdapter: HomeAdapter? = null
-    private lateinit var requestManager: RequestManager
 
     private val currentContent: SuggestedResult
         get() = libraryViewModel.getSuggestions().value ?: SuggestedResult.Idle
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requestManager = Glide.with(this)
         val homeBinding = FragmentHomeBinding.bind(view)
         _binding = HomeBinding(homeBinding)
         binding.appBarLayout.setupStatusBarForeground()
@@ -197,7 +193,6 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
             ContentType.TopArtists,
             ContentType.RecentArtists -> ArtistAdapter(
                 mainActivity,
-                requestManager,
                 (suggestion.items as List<Artist>),
                 R.layout.item_artist,
                 this
@@ -206,7 +201,6 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
             ContentType.TopAlbums,
             ContentType.RecentAlbums -> AlbumAdapter(
                 mainActivity,
-                requestManager,
                 (suggestion.items as List<Album>),
                 R.layout.item_album_gradient,
                 callback = this
@@ -215,7 +209,6 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
             ContentType.Favorites,
             ContentType.NotRecentlyPlayed -> SongAdapter(
                 mainActivity,
-                requestManager,
                 (suggestion.items as List<Song>),
                 R.layout.item_image,
                 callback = this

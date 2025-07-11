@@ -34,7 +34,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.mardous.booming.R
@@ -88,7 +87,6 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
     private var lang: String? = null
     private var biography: String? = null
 
-    private lateinit var requestManager: RequestManager
     private lateinit var songAdapter: SimpleSongAdapter
     private lateinit var albumAdapter: AlbumAdapter
 
@@ -107,7 +105,6 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requestManager = Glide.with(this)
         _binding = ArtistDetailBinding(FragmentArtistDetailBinding.bind(view))
         setSupportActionBar(binding.toolbar, "")
 
@@ -158,7 +155,6 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
         }
         songAdapter = SimpleSongAdapter(
             requireActivity(),
-            requestManager,
             getArtist().sortedSongs,
             itemLayoutRes,
             SortOrder.artistSongSortOrder,
@@ -215,7 +211,6 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
     private fun createAlbumAdapter(horizontal: Boolean): AlbumAdapter {
         albumAdapter = SimpleAlbumAdapter(
             requireActivity(),
-            requestManager,
             getArtist().sortedAlbums,
             if (horizontal) R.layout.item_image else R.layout.item_album,
             callback = this
@@ -299,7 +294,8 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
     }
 
     private fun loadArtistImage(artist: Artist) {
-        requestManager.asBitmap()
+        Glide.with(this)
+            .asBitmap()
             .load(artist.getArtistGlideModel())
             .artistOptions(artist)
             .into(binding.image)
@@ -317,7 +313,7 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
             binding.similarArtistRecyclerView.apply {
                 isVisible = true
                 layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-                adapter = ArtistAdapter(requireActivity(), requestManager, artists, R.layout.item_artist, this@ArtistDetailFragment)
+                adapter = ArtistAdapter(requireActivity(), artists, R.layout.item_artist, this@ArtistDetailFragment)
                 destroyOnDetach()
             }
         }

@@ -24,7 +24,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.core.view.isGone
 import androidx.fragment.app.FragmentActivity
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.base.AbsMultiSelectAdapter
 import com.mardous.booming.adapters.extension.isActivated
@@ -51,7 +51,6 @@ import kotlin.reflect.KProperty
 
 open class AlbumAdapter(
     activity: FragmentActivity,
-    protected val requestManager: RequestManager,
     dataSet: List<Album>,
     @LayoutRes
     protected val itemLayoutRes: Int,
@@ -92,7 +91,8 @@ open class AlbumAdapter(
 
     protected open fun loadAlbumCover(album: Album, holder: ViewHolder) {
         if (holder.image != null) {
-            requestManager.asBitmapPalette()
+            Glide.with(holder.image)
+                .asBitmapPalette()
                 .load(album.getAlbumGlideModel())
                 .transition(getDefaultGlideTransition())
                 .albumOptions(album)

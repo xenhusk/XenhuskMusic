@@ -31,7 +31,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.mardous.booming.R
@@ -83,7 +82,6 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
     private var _binding: AlbumDetailBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var requestManager: RequestManager
     private lateinit var simpleSongAdapter: SimpleSongAdapter
 
     private var albumArtistExists = false
@@ -102,7 +100,6 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        requestManager = Glide.with(this)
         _binding = AlbumDetailBinding(FragmentAlbumDetailBinding.bind(view))
         setSupportActionBar(binding.toolbar, "")
 
@@ -155,7 +152,6 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
         }
         simpleSongAdapter = SimpleSongAdapter(
             requireActivity(),
-            requestManager,
             getAlbum().songs,
             itemLayoutRes,
             SortOrder.albumSongSortOrder,
@@ -242,7 +238,8 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
     }
 
     private fun loadAlbumCover(album: Album) {
-        requestManager.asBitmap()
+        Glide.with(this)
+            .asBitmap()
             .albumOptions(album)
             .load(album.getAlbumGlideModel())
             .into(binding.image)
@@ -260,7 +257,7 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
             )
 
             val albumAdapter =
-                AlbumAdapter(requireActivity(), requestManager, albums, R.layout.item_image, callback = this)
+                AlbumAdapter(requireActivity(), albums, R.layout.item_image, callback = this)
             binding.similarAlbumRecyclerView.layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             binding.similarAlbumRecyclerView.adapter = albumAdapter

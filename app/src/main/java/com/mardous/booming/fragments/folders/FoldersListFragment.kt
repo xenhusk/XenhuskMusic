@@ -26,7 +26,6 @@ import android.view.View
 import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.FileAdapter
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
@@ -105,7 +104,7 @@ class FoldersListFragment : AbsRecyclerViewCustomGridSizeFragment<FileAdapter, G
     override fun createAdapter(): FileAdapter {
         notifyLayoutResChanged(itemLayoutRes)
         val dataSet = adapter?.files ?: ArrayList()
-        return FileAdapter(mainActivity, Glide.with(this), dataSet, itemLayoutRes, this)
+        return FileAdapter(mainActivity, dataSet, itemLayoutRes, this)
     }
 
     override fun fileClick(file: FileSystemItem) {

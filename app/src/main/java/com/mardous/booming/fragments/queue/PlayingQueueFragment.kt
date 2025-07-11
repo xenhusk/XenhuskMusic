@@ -27,7 +27,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Fade
-import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
@@ -121,7 +120,6 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
 
         playingQueueAdapter = PlayingQueueSongAdapter(
             requireActivity(),
-            Glide.with(this),
             arrayListOf(),
             this,
             queuePosition

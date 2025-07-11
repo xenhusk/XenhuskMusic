@@ -24,7 +24,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.content.edit
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.song.SongAdapter
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
@@ -84,7 +83,7 @@ class SongListFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, Grid
     override fun createAdapter(): SongAdapter {
         notifyLayoutResChanged(itemLayoutRes)
         val dataSet = adapter?.dataSet ?: ArrayList()
-        return SongAdapter(mainActivity, Glide.with(this), dataSet, itemLayoutRes, SortOrder.songSortOrder, this)
+        return SongAdapter(mainActivity, dataSet, itemLayoutRes, SortOrder.songSortOrder, this)
     }
 
     override fun songMenuItemClick(

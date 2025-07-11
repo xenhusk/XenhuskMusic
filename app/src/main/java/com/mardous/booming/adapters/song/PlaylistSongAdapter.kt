@@ -22,7 +22,6 @@ import androidx.annotation.LayoutRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.RequestManager
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemState
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemViewHolder
@@ -41,12 +40,11 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlaylistSongAdapter(
     activity: FragmentActivity,
-    requestManager: RequestManager,
     dataSet: List<Song>,
     @LayoutRes
     itemLayoutRes: Int,
     callback: ISongCallback? = null
-) : SongAdapter(activity, requestManager, dataSet, itemLayoutRes, null, callback),
+) : SongAdapter(activity, dataSet, itemLayoutRes, null, callback),
     DraggableItemAdapter<PlaylistSongAdapter.ViewHolder> {
 
     private val libraryViewModel: LibraryViewModel by activity.viewModel()

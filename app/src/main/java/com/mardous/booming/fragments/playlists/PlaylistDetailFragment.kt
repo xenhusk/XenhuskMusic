@@ -28,8 +28,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator
@@ -80,8 +78,6 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_
 
     private var playlist: PlaylistWithSongs = PlaylistWithSongs.Empty
 
-    private lateinit var requestManager: RequestManager
-
     private var playlistSongAdapter: PlaylistSongAdapter? = null
     private var wrappedAdapter: RecyclerView.Adapter<*>? = null
     private var recyclerViewDragDropManager: RecyclerViewDragDropManager? = null
@@ -99,7 +95,6 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentDetailListBinding.bind(view)
-        requestManager = Glide.with(this)
 
         setupButtons()
         setupRecyclerView()
@@ -146,7 +141,6 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_
     private fun setupRecyclerView() {
         playlistSongAdapter = PlaylistSongAdapter(
             mainActivity,
-            requestManager,
             emptyList(),
             R.layout.item_list_draggable,
             this

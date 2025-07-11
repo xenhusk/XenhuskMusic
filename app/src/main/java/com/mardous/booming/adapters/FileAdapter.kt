@@ -24,7 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isGone
 import androidx.fragment.app.FragmentActivity
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.base.AbsMultiSelectAdapter
 import com.mardous.booming.adapters.base.MediaEntryViewHolder
@@ -40,7 +40,6 @@ import com.mardous.booming.model.filesystem.FileSystemItem
 
 class FileAdapter(
     activity: FragmentActivity,
-    private val requestManager: RequestManager,
     files: List<FileSystemItem>,
     private val itemLayoutRes: Int,
     private val callback: IFileCallback?,
@@ -72,7 +71,8 @@ class FileAdapter(
         if (getItemViewType(position) == VIEW_TYPE_SONG) {
             if (holder.image == null) return
             val song = file as? Song ?: return
-            requestManager.asBitmap()
+            Glide.with(holder.image)
+                .asBitmap()
                 .load(song.getSongGlideModel())
                 .songOptions(song)
                 .into(holder.image)

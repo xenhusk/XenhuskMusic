@@ -25,7 +25,6 @@ import android.view.View
 import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.YearAdapter
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
@@ -71,7 +70,7 @@ class YearsListFragment : AbsRecyclerViewCustomGridSizeFragment<YearAdapter, Gri
     override fun createAdapter(): YearAdapter {
         notifyLayoutResChanged(itemLayoutRes)
         val dataSet = adapter?.dataSet ?: ArrayList()
-        return YearAdapter(mainActivity, Glide.with(this), dataSet, itemLayoutRes, this)
+        return YearAdapter(mainActivity, dataSet, itemLayoutRes, this)
     }
 
     override fun yearClick(year: ReleaseYear) {

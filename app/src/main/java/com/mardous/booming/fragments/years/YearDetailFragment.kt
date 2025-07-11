@@ -97,7 +97,7 @@ class YearDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
     }
 
     private fun setupRecyclerView() {
-        songAdapter = SongAdapter(requireActivity(), requestManager, ArrayList(), R.layout.item_list, callback = this)
+        songAdapter = SongAdapter(requireActivity(), ArrayList(), R.layout.item_list, callback = this)
         binding.recyclerView.apply {
             itemAnimator = DefaultItemAnimator()
             layoutManager = LinearLayoutManager(requireContext())

@@ -21,7 +21,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.FragmentActivity
-import com.bumptech.glide.RequestManager
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemAdapter
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemState
 import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemViewHolder
@@ -37,11 +36,10 @@ import kotlin.reflect.KProperty
 
 class PlayingQueueSongAdapter(
     activity: FragmentActivity,
-    requestManager: RequestManager,
     dataSet: List<Song>,
     callback: Callback? = null,
     current: Int
-) : SongAdapter(activity, requestManager, dataSet, R.layout.item_list_draggable, callback = callback),
+) : SongAdapter(activity, dataSet, R.layout.item_list_draggable, callback = callback),
     DraggableItemAdapter<PlayingQueueSongAdapter.ViewHolder> {
 
     interface Callback : ISongCallback {

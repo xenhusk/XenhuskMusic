@@ -23,7 +23,7 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
 import androidx.core.widget.TextViewCompat
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.base.AbsMultiSelectAdapter
 import com.mardous.booming.adapters.base.MediaEntryViewHolder
@@ -46,7 +46,6 @@ import kotlin.reflect.KProperty
 @SuppressLint("NotifyDataSetChanged")
 class YearAdapter(
     activity: AppCompatActivity,
-    private val requestManager: RequestManager,
     dataSet: List<ReleaseYear>,
     @LayoutRes
     private val itemLayoutRes: Int,
@@ -83,7 +82,8 @@ class YearAdapter(
 
     private fun loadImage(holder: ViewHolder, year: ReleaseYear) {
         if (holder.image != null) {
-            requestManager.asBitmapPalette()
+            Glide.with(holder.image)
+                .asBitmapPalette()
                 .load(year.safeGetFirstSong().getSongGlideModel())
                 .songOptions(year.safeGetFirstSong())
                 .into(object : BoomingColoredTarget(holder.image) {

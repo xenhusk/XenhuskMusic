@@ -25,7 +25,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.mardous.booming.R
 import com.mardous.booming.adapters.base.MediaEntryViewHolder
@@ -42,7 +42,6 @@ import com.mardous.booming.interfaces.IPlaylistCallback
  */
 @SuppressLint("NotifyDataSetChanged")
 class AddToPlaylistAdapter(
-    private val requestManager: RequestManager,
     private val callback: IAddToPlaylistCallback? = null
 ) : RecyclerView.Adapter<AddToPlaylistAdapter.ViewHolder>() {
 
@@ -79,7 +78,8 @@ class AddToPlaylistAdapter(
             val playlist = dataSet[position - 1]
             holder.title?.text = playlist.playlistEntity.playlistName
             if (holder.image != null) {
-                requestManager.asBitmap()
+                Glide.with(holder.image)
+                    .asBitmap()
                     .load(PlaylistPreview(playlist))
                     .playlistOptions()
                     .transition(getDefaultGlideTransition())

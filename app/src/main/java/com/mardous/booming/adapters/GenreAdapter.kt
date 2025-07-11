@@ -23,7 +23,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.base.MediaEntryViewHolder
 import com.mardous.booming.adapters.extension.setColors
@@ -54,7 +54,6 @@ import kotlin.reflect.KProperty
  * @author Christians M. A. (mardous)
  */
 class GenreAdapter(
-    private val requestManager: RequestManager,
     dataSet: List<Genre>,
     @LayoutRes
     private val itemLayoutRes: Int,
@@ -93,7 +92,8 @@ class GenreAdapter(
         if (holder.image != null) {
             uiScope.launch {
                 val song = withContext(Dispatchers.IO) { repository.songByGenre(genre.id) }
-                requestManager.asBitmapPalette()
+                Glide.with(holder.image)
+                    .asBitmapPalette()
                     .load(song.getSongGlideModel())
                     .songOptions(song)
                     .into(object : BoomingColoredTarget(holder.image) {

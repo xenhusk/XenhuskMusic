@@ -26,7 +26,6 @@ import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.GenreAdapter
 import com.mardous.booming.extensions.navigation.genreDetailArgs
@@ -73,7 +72,7 @@ class GenresListFragment : AbsRecyclerViewCustomGridSizeFragment<GenreAdapter, G
     override fun createAdapter(): GenreAdapter {
         notifyLayoutResChanged(itemLayoutRes)
         val dataSet = adapter?.dataSet ?: ArrayList()
-        return GenreAdapter(Glide.with(this), dataSet, itemLayoutRes, lifecycleScope, this)
+        return GenreAdapter(dataSet, itemLayoutRes, lifecycleScope, this)
     }
 
     override fun genreClick(genre: Genre) {

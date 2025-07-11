@@ -23,7 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.database.PlaylistWithSongs
 import com.mardous.booming.extensions.glide.*
@@ -38,7 +38,6 @@ import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
 class SearchAdapter(
-    private val requestManager: RequestManager,
     dataSet: List<Any>,
     private val callback: ISearchCallback? = null
 ) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
@@ -76,7 +75,8 @@ class SearchAdapter(
                 holder.text?.text = album.albumInfo()
                 holder.image?.let {
                     it.transitionName = album.id.toString()
-                    requestManager.asDrawable()
+                    Glide.with(it)
+                        .asDrawable()
                         .load(album.getAlbumGlideModel())
                         .transition(getDefaultGlideTransition())
                         .albumOptions(album)
@@ -90,7 +90,8 @@ class SearchAdapter(
                 holder.text?.text = artist.artistInfo(holder.itemView.context)
                 holder.image?.let {
                     it.transitionName = if (artist.isAlbumArtist) artist.name else artist.id.toString()
-                    requestManager.asBitmap()
+                    Glide.with(it)
+                        .asBitmap()
                         .load(artist.getArtistGlideModel())
                         .transition(getDefaultGlideTransition())
                         .artistOptions(artist)

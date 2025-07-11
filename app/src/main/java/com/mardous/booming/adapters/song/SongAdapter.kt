@@ -25,7 +25,7 @@ import androidx.annotation.MenuRes
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.base.AbsMultiSelectAdapter
 import com.mardous.booming.adapters.base.MediaEntryViewHolder
@@ -57,7 +57,6 @@ import kotlin.reflect.KProperty
 @Suppress("LeakingThis")
 open class SongAdapter(
     protected val activity: FragmentActivity,
-    protected val requestManager: RequestManager?,
     dataSet: List<Song>,
     @LayoutRes protected val itemLayoutRes: Int = R.layout.item_list,
     protected val sortOrder: SortOrder? = null,
@@ -95,8 +94,9 @@ open class SongAdapter(
     }
 
     protected open fun loadAlbumCover(song: Song, holder: ViewHolder) {
-        if (requestManager != null && holder.image != null) {
-            requestManager.asBitmapPalette()
+        if (holder.image != null) {
+            Glide.with(holder.image)
+                .asBitmapPalette()
                 .load(song.getSongGlideModel())
                 .transition(getDefaultGlideTransition())
                 .songOptions(song)

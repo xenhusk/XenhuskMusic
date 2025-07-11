@@ -25,7 +25,6 @@ import android.view.View
 import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.artist.ArtistAdapter
 import com.mardous.booming.extensions.navigation.artistDetailArgs
@@ -87,7 +86,7 @@ class ArtistListFragment : AbsRecyclerViewCustomGridSizeFragment<ArtistAdapter, 
         val itemLayoutRes = itemLayoutRes
         notifyLayoutResChanged(itemLayoutRes)
         val dataSet: List<Artist> = if (adapter == null) ArrayList() else adapter!!.dataSet
-        return ArtistAdapter(mainActivity, Glide.with(this), dataSet, itemLayoutRes, this)
+        return ArtistAdapter(mainActivity, dataSet, itemLayoutRes, this)
     }
 
     override fun artistClick(artist: Artist, sharedElements: Array<Pair<View, String>>?) {

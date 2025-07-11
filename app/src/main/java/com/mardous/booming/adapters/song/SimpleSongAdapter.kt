@@ -20,7 +20,7 @@ package com.mardous.booming.adapters.song
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
 import com.mardous.booming.extensions.glide.getDefaultGlideTransition
 import com.mardous.booming.extensions.glide.getSongGlideModel
 import com.mardous.booming.extensions.glide.songOptions
@@ -35,12 +35,11 @@ import com.mardous.booming.util.sort.SortOrder
 
 class SimpleSongAdapter(
     context: FragmentActivity,
-    requestManager: RequestManager,
     songs: List<Song>,
     layoutRes: Int,
     sortOrder: SortOrder,
     callback: ISongCallback
-) : SongAdapter(context, requestManager, songs, layoutRes, sortOrder, callback) {
+) : SongAdapter(context, songs, layoutRes, sortOrder, callback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(parent.context).inflate(itemLayoutRes, parent, false))
@@ -55,9 +54,10 @@ class SimpleSongAdapter(
     }
 
     override fun loadAlbumCover(song: Song, holder: ViewHolder) {
-        if (requestManager != null && holder.image != null) {
+        if (holder.image != null) {
             // actually we don't need color extraction here
-            requestManager.asBitmap()
+            Glide.with(holder.image)
+                .asBitmap()
                 .load(song.getSongGlideModel())
                 .transition(getDefaultGlideTransition())
                 .songOptions(song)

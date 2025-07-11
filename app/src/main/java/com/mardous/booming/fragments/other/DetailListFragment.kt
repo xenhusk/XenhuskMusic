@@ -28,8 +28,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 import com.google.android.material.snackbar.Snackbar
 import com.mardous.booming.R
 import com.mardous.booming.adapters.album.AlbumAdapter
@@ -72,14 +70,12 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
     private val binding get() = _binding!!
 
     private lateinit var contentType: ContentType
-    private lateinit var requestManager: RequestManager
 
     private var songList: List<Song> = arrayListOf()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         contentType = args.type
-        requestManager = Glide.with(this)
         _binding = FragmentDetailListBinding.bind(view)
 
         mainActivity.setSupportActionBar(binding.toolbar)
@@ -249,13 +245,13 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
     }
 
     private fun songAdapter(songs: List<Song> = listOf()): SongAdapter =
-        SongAdapter(requireActivity(), requestManager, songs, R.layout.item_list, callback = this)
+        SongAdapter(requireActivity(), songs, R.layout.item_list, callback = this)
 
     private fun artistAdapter(artists: List<Artist> = listOf()): ArtistAdapter =
-        ArtistAdapter(requireActivity(), requestManager, artists, R.layout.item_grid_circle_single_row, this)
+        ArtistAdapter(requireActivity(), artists, R.layout.item_grid_circle_single_row, this)
 
     private fun albumAdapter(albums: List<Album> = listOf()): AlbumAdapter =
-        AlbumAdapter(requireActivity(), requestManager, albums, R.layout.item_grid, callback = this)
+        AlbumAdapter(requireActivity(), albums, R.layout.item_grid, callback = this)
 
     private fun linearLayoutManager(): LinearLayoutManager =
         LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

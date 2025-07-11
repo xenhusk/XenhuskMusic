@@ -25,7 +25,6 @@ import android.view.View
 import androidx.core.content.edit
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.album.AlbumAdapter
 import com.mardous.booming.extensions.navigation.albumDetailArgs
@@ -94,7 +93,6 @@ class AlbumListFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, Gr
         val dataSet: List<Album> = adapter?.dataSet ?: ArrayList()
         return AlbumAdapter(
             mainActivity,
-            Glide.with(this),
             dataSet,
             itemLayoutRes,
             SortOrder.albumSortOrder,

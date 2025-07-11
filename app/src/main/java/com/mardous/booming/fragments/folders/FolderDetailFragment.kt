@@ -25,8 +25,6 @@ import android.view.View
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
 import com.mardous.booming.R
 import com.mardous.booming.adapters.song.SongAdapter
 import com.mardous.booming.databinding.FragmentDetailListBinding
@@ -63,7 +61,6 @@ class FolderDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
     private val binding get() = _binding!!
 
     private lateinit var songAdapter: SongAdapter
-    private lateinit var requestManager: RequestManager
 
     private val folder: Folder
         get() = detailViewModel.getFolder().value ?: Folder.empty
@@ -71,8 +68,6 @@ class FolderDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentDetailListBinding.bind(view)
-        requestManager = Glide.with(this)
-
         materialSharedAxis(view)
         setSupportActionBar(binding.toolbar)
         view.applyScrollableContentInsets(binding.recyclerView)
@@ -98,7 +93,6 @@ class FolderDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
     private fun setupRecyclerView() {
         songAdapter = SongAdapter(
             requireActivity(),
-            requestManager,
             ArrayList(),
             R.layout.item_list,
             SortOrder.folderSongSortOrder,

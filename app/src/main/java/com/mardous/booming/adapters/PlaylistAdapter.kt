@@ -25,7 +25,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.adapters.base.AbsMultiSelectAdapter
 import com.mardous.booming.adapters.extension.isValidPosition
@@ -48,7 +48,6 @@ import kotlin.reflect.KProperty
  */
 class PlaylistAdapter(
     activity: AppCompatActivity,
-    private val requestManager: RequestManager,
     dataSet: List<PlaylistWithSongs>,
     @LayoutRes
     private val itemLayoutRes: Int,
@@ -89,7 +88,8 @@ class PlaylistAdapter(
         }
         if (holder.image != null) {
             if (itemLayoutRes == R.layout.item_playlist) {
-                requestManager.asBitmap()
+                Glide.with(holder.image)
+                    .asBitmap()
                     .load(PlaylistPreview(playlist))
                     .playlistOptions()
                     .transition(getDefaultGlideTransition())

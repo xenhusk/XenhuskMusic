@@ -23,7 +23,6 @@ import android.os.Bundle
 import android.view.animation.AnimationUtils
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.adapters.AddToPlaylistAdapter
@@ -32,7 +31,6 @@ import com.mardous.booming.databinding.DialogProgressRecyclerViewBinding
 import com.mardous.booming.extensions.*
 import com.mardous.booming.model.Song
 import com.mardous.booming.viewmodels.library.LibraryViewModel
-import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
@@ -40,7 +38,6 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
  */
 class AddToPlaylistDialog : DialogFragment(), AddToPlaylistAdapter.IAddToPlaylistCallback {
 
-    private val playerViewModel: PlayerViewModel by activityViewModel()
     private val libraryViewModel: LibraryViewModel by activityViewModel()
     private val songs by extraNotNull<List<Song>>(EXTRA_SONGS)
 
@@ -49,7 +46,7 @@ class AddToPlaylistDialog : DialogFragment(), AddToPlaylistAdapter.IAddToPlaylis
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = AddToPlaylistAdapter(Glide.with(this), this)
+        adapter = AddToPlaylistAdapter(this)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

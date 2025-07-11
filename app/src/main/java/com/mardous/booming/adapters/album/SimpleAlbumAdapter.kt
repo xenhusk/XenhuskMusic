@@ -18,7 +18,7 @@
 package com.mardous.booming.adapters.album
 
 import androidx.fragment.app.FragmentActivity
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
 import com.mardous.booming.R
 import com.mardous.booming.extensions.glide.albumOptions
 import com.mardous.booming.extensions.glide.getAlbumGlideModel
@@ -31,15 +31,15 @@ import com.mardous.booming.model.Album
  */
 class SimpleAlbumAdapter(
     activity: FragmentActivity,
-    requestManager: RequestManager,
     dataSet: List<Album>,
     itemLayoutRes: Int,
     callback: IAlbumCallback? = null
-) : AlbumAdapter(activity, requestManager, dataSet, itemLayoutRes, callback = callback) {
+) : AlbumAdapter(activity, dataSet, itemLayoutRes, callback = callback) {
 
     override fun loadAlbumCover(album: Album, holder: ViewHolder) {
         if (holder.image != null) {
-            requestManager.asBitmap()
+            Glide.with(holder.image)
+                .asBitmap()
                 .load(album.getAlbumGlideModel())
                 .transition(getDefaultGlideTransition())
                 .albumOptions(album)

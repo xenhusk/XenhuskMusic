@@ -176,16 +176,6 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
 
     override fun onStopTrackingTouch(seekBar: SeekBar?) {}
 
-    internal fun setLyricsVisible(lyricsVisible: Boolean) {
-        popupMenu?.menu?.findItem(R.id.action_show_lyrics)?.let {
-            if (lyricsVisible) {
-                it.setTitle(R.string.action_hide_lyrics)
-            } else {
-                it.setTitle(R.string.action_show_lyrics)
-            }
-        }
-    }
-
     internal fun setFavorite(isFavorite: Boolean, withAnimation: Boolean) {
         if (this.isFavorite != isFavorite) {
             this.isFavorite = isFavorite

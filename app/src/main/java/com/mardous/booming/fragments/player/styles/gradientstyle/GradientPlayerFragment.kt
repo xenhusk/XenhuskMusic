@@ -29,8 +29,6 @@ import androidx.core.view.WindowInsetsCompat.Type
 import androidx.core.view.updatePadding
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentGradientPlayerBinding
-import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
-import com.mardous.booming.extensions.resources.darkenColor
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
@@ -56,7 +54,7 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentGradientPlayerBinding.bind(view)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.darkColorBackground) { v: View, insets: WindowInsetsCompat ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomActionContainer) { v: View, insets: WindowInsetsCompat ->
             val navigationBar = insets.getInsets(Type.systemBars())
             v.updatePadding(bottom = navigationBar.bottom)
             val displayCutout = insets.getInsets(Type.displayCutout())
@@ -64,30 +62,19 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
             insets
         }
         setupListeners()
-        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.nextSongFlow.collect {
-                updateNextSong(it)
-            }
-        }
     }
 
     private fun setupListeners() {
-        binding.nextSongLabel.setOnClickListener(this)
-        binding.volumeIcon.setOnClickListener(this)
+        binding.openQueueButton.setOnClickListener(this)
+        binding.showLyricsButton.setOnClickListener(this)
+        binding.volumeAction.setOnClickListener(this)
     }
 
     override fun onClick(v: View) {
         when (v) {
-            binding.nextSongLabel -> onQuickActionEvent(NowPlayingAction.OpenPlayQueue)
-            binding.volumeIcon -> onQuickActionEvent(NowPlayingAction.SoundSettings)
-        }
-    }
-
-    private fun updateNextSong(nextSong: Song) {
-        if (nextSong != Song.emptySong) {
-            binding.nextSongLabel.text = nextSong.title
-        } else {
-            binding.nextSongLabel.setText(R.string.now_playing)
+            binding.openQueueButton -> onQuickActionEvent(NowPlayingAction.OpenPlayQueue)
+            binding.showLyricsButton -> onQuickActionEvent(NowPlayingAction.Lyrics)
+            binding.volumeAction -> onQuickActionEvent(NowPlayingAction.SoundSettings)
         }
     }
 
@@ -103,6 +90,7 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
     override fun onMenuInflated(menu: Menu) {
         super.onMenuInflated(menu)
         menu.removeItem(R.id.action_playing_queue)
+        menu.removeItem(R.id.action_show_lyrics)
         menu.removeItem(R.id.action_sound_settings)
         menu.removeItem(R.id.action_favorite)
     }
@@ -120,20 +108,28 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
         val oldMaskColor = binding.mask.backgroundTintList?.defaultColor
             ?: Color.TRANSPARENT
-        val oldPrimaryTextColor = binding.volumeIcon.iconTint.defaultColor
+        val oldPrimaryTextColor = binding.openQueueButton.iconTint.defaultColor
         return mutableListOf(
             binding.colorBackground.surfaceTintTarget(scheme.surfaceColor),
-            binding.darkColorBackground.surfaceTintTarget(scheme.surfaceColor.darkenColor),
             binding.mask.tintTarget(oldMaskColor, scheme.surfaceColor),
-            binding.nextSongLabel.tintTarget(oldPrimaryTextColor, scheme.primaryTextColor),
-            binding.volumeIcon.iconButtonTintTarget(oldPrimaryTextColor, scheme.primaryTextColor)
+            binding.openQueueButton.iconButtonTintTarget(oldPrimaryTextColor, scheme.primaryTextColor),
+            binding.showLyricsButton.iconButtonTintTarget(oldPrimaryTextColor, scheme.primaryTextColor),
+            binding.volumeAction.iconButtonTintTarget(oldPrimaryTextColor, scheme.primaryTextColor)
         ).also {
             it.addAll(playerControlsFragment.getTintTargets(scheme))
         }
     }
 
     override fun onLyricsVisibilityChange(animatorSet: AnimatorSet, lyricsVisible: Boolean) {
-        controlsFragment.setLyricsVisible(lyricsVisible)
+        _binding?.showLyricsButton?.let {
+            if (lyricsVisible) {
+                it.setIconResource(R.drawable.ic_lyrics_24dp)
+                it.contentDescription = getString(R.string.action_hide_lyrics)
+            } else {
+                it.setIconResource(R.drawable.ic_lyrics_outline_24dp)
+                it.contentDescription = getString(R.string.action_show_lyrics)
+            }
+        }
         if (lyricsVisible) {
             animatorSet.play(ObjectAnimator.ofFloat(binding.mask, View.ALPHA, 0f))
         } else {

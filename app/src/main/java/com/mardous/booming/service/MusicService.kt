@@ -62,7 +62,6 @@ import com.mardous.booming.database.toPlayCount
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.glide.getSongGlideModel
 import com.mardous.booming.extensions.glide.songOptions
-import com.mardous.booming.extensions.media.asQueueItems
 import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.extensions.utilities.buildInfoString
@@ -86,7 +85,10 @@ import com.mardous.booming.service.notification.PlayingNotificationImpl24
 import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.service.playback.Playback.PlaybackCallbacks
 import com.mardous.booming.service.playback.PlaybackManager
-import com.mardous.booming.service.queue.*
+import com.mardous.booming.service.queue.QueueManager
+import com.mardous.booming.service.queue.QueuePosition
+import com.mardous.booming.service.queue.QueueState
+import com.mardous.booming.service.queue.StopPosition
 import com.mardous.booming.taglib.ReplayGainTagExtractor
 import com.mardous.booming.util.*
 import kotlinx.coroutines.*
@@ -488,7 +490,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks,
     private fun launchObserver() {
         serviceScope.launch {
             queueManager.positionFlow.filterNot {
-                it == EmptyQueuePosition
+                it === QueuePosition.Unspecified
             }.collect { position ->
                 if (!position.passive) {
                     openCurrentAndPrepareNext { success ->
@@ -507,15 +509,15 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks,
             }
         }
         serviceScope.launch {
-            queueManager.playingQueueFlow.filterNot {
-                it == EmptyPlayQueue
-            }.collect { playingQueue ->
-                updateQueue(playingQueue)
+            queueManager.queueStateFlow.filterNot {
+                it === QueueState.Unspecified
+            }.collect { queueState ->
+                updateQueue(queueState)
             }
         }
         serviceScope.launch {
             queueManager.currentSongFlow.filterNot {
-                it == Song.emptySong
+                it === Song.emptySong
             }.collect { song ->
                 updateMetadata(song)
                 updateWidgets()
@@ -523,7 +525,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks,
         }
         serviceScope.launch {
             queueManager.nextSongFlow.filterNot {
-                it == Song.emptySong
+                it === Song.emptySong
             }.collect { song ->
                 playbackManager.setCrossFadeNextDataSource(song)
             }
@@ -633,7 +635,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks,
     private val repeatMode get() = queueManager.repeatMode
     private val isFirstTrack get() = queueManager.isFirstTrack
     private val isLastTrack get() = queueManager.isLastTrack
-    private val playingQueue get() = queueManager.playingQueue
+    private val playingQueue get() = queueManager.queueSongs
     private val currentPosition get() = queueManager.position
 
     val currentSong get() = queueManager.currentSong
@@ -985,13 +987,12 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks,
         startForegroundOrNotify()
     }
 
-    private fun updateQueue(playingQueue: List<QueueSong>) {
-        queueManager.setStopPosition(StopPosition.INFINITE)
+    private fun updateQueue(queueState: QueueState) {
         mediaSession?.setQueueTitle(getString(R.string.playing_queue_label))
-        mediaSession?.setQueue(playingQueue.asQueueItems())
+        mediaSession?.setQueue(queueState.toMediaSessionQueue())
         updateMediaSessionMetadata(::updateMediaSessionPlaybackState) // because playing queue size might have changed
         saveState()
-        if (playingQueue.isNotEmpty()) {
+        if (queueState.isNotEmpty) {
             prepareNext()
         } else {
             stopForegroundAndNotification()

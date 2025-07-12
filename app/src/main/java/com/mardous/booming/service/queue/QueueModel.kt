@@ -1,10 +1,36 @@
 package com.mardous.booming.service.queue
 
+import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.session.MediaSessionCompat
+import com.mardous.booming.extensions.media.albumCoverUri
+import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.model.Song
 import kotlinx.parcelize.Parcelize
 
+data class QueueState(val songs: List<QueueSong>) {
+    val isEmpty = songs.isEmpty()
+    val isNotEmpty = songs.isNotEmpty()
+
+    fun toMediaSessionQueue() = songs.map { song ->
+        val mediaDescription = MediaDescriptionCompat.Builder()
+            .setMediaId(song.id.toString())
+            .setTitle(song.title)
+            .setSubtitle(song.displayArtistName())
+            .setIconUri(song.albumId.albumCoverUri())
+            .setMediaUri(song.mediaStoreUri)
+            .build()
+        MediaSessionCompat.QueueItem(mediaDescription, song.hashCode().toLong())
+    }
+
+    companion object {
+        val Unspecified = QueueState(emptyList())
+    }
+}
+
 data class QueuePosition(val value: Int, val passive: Boolean, val play: Boolean) {
     companion object {
+        val Unspecified = QueuePosition(-1, passive = true, play = false)
+
         fun initial(position: Int, play: Boolean) = QueuePosition(position, passive = !play, play = play)
 
         fun passive(position: Int) = QueuePosition(position, passive = true, play = false)
@@ -18,6 +44,8 @@ data class QueuePosition(val value: Int, val passive: Boolean, val play: Boolean
 class StopPosition(val value: Int, val fromUser: Boolean) {
     companion object {
         const val INFINITE = -1
+
+        val Unspecified = StopPosition(INFINITE, false)
     }
 }
 

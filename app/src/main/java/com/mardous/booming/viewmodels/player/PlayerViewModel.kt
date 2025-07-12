@@ -86,8 +86,8 @@ class PlayerViewModel(
     val nextSongFlow = queueManager.nextSongFlow
     val nextSong get() = nextSongFlow.value
 
-    val playingQueueFlow = queueManager.playingQueueFlow
-    val playingQueue get() = playingQueueFlow.value
+    val queueStateFlow = queueManager.queueStateFlow
+    val queueSongs get() = queueStateFlow.value.songs
 
     val queueDuration get() = queueManager.getDuration(currentPosition)
     val queueDurationAsString get() = queueDuration.durationStr()
@@ -208,7 +208,7 @@ class PlayerViewModel(
     }
 
     fun queueNext(song: Song) = liveData(IO) {
-        if (playingQueue.isNotEmpty()) {
+        if (queueSongs.isNotEmpty()) {
             queueManager.queueNext(song)
         } else {
             openQueue(listOf(song), startPlaying = false)
@@ -217,7 +217,7 @@ class PlayerViewModel(
     }
 
     fun queueNext(songs: List<Song>) = liveData(IO) {
-        if (playingQueue.isNotEmpty()) {
+        if (queueSongs.isNotEmpty()) {
             queueManager.queueNext(songs)
         } else {
             openQueue(songs, startPlaying = false)
@@ -226,7 +226,7 @@ class PlayerViewModel(
     }
 
     fun enqueue(song: Song, to: Int = -1) = liveData(IO) {
-        if (playingQueue.isNotEmpty()) {
+        if (queueSongs.isNotEmpty()) {
             if (to >= 0) {
                 queueManager.addSong(to, song)
             } else {
@@ -239,7 +239,7 @@ class PlayerViewModel(
     }
 
     fun enqueue(songs: List<Song>) = liveData(IO) {
-        if (playingQueue.isNotEmpty()) {
+        if (queueSongs.isNotEmpty()) {
             queueManager.addSongs(songs)
         } else {
             openQueue(songs, startPlaying = false)
@@ -256,7 +256,7 @@ class PlayerViewModel(
     }
 
     fun stopAt(stopPosition: Int) = liveData(IO) {
-        if ((currentPosition..playingQueue.lastIndex).contains(stopPosition)) {
+        if ((currentPosition..queueSongs.lastIndex).contains(stopPosition)) {
             var canceled = false
             if (queueManager.stopPosition == stopPosition) {
                 queueManager.setStopPosition(StopPosition.INFINITE, fromUser = true)
@@ -269,7 +269,7 @@ class PlayerViewModel(
     }
 
     fun moveSong(from: Int, to: Int) {
-        if (playingQueue.indices.contains(from) && playingQueue.indices.contains(to)) {
+        if (queueSongs.indices.contains(from) && queueSongs.indices.contains(to)) {
             queueManager.moveSong(from, to)
         }
     }

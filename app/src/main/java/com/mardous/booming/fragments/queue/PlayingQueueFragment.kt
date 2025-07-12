@@ -90,7 +90,7 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
         )
 
     private val playingQueue: List<Song>
-        get() = playerViewModel.playingQueue
+        get() = playerViewModel.queueSongs
 
     private val queuePosition: Int
         get() = playerViewModel.currentPosition
@@ -153,8 +153,8 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
         updateQuickAction(null, selectedQuickAction)
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.playingQueueFlow.collect {
-                if (it.isEmpty()) {
+            playerViewModel.queueStateFlow.collect { queueState ->
+                if (queueState.isEmpty) {
                     findNavController().navigateUp()
                 } else {
                     updateQueue()
@@ -290,7 +290,7 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
         linearLayoutManager = null
 
         super.onDestroyView()
-        if (playerViewModel.playingQueue.isNotEmpty())
+        if (playerViewModel.queueSongs.isNotEmpty())
             mainActivity.expandPanel()
     }
 }

@@ -21,8 +21,6 @@ import android.content.Context
 import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.provider.Settings
-import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.session.MediaSessionCompat
 import android.text.SpannableString
 import android.util.Log
 import androidx.core.text.buildSpannedString
@@ -61,12 +59,6 @@ fun List<Song>.getSpannedTitles(context: Context): List<CharSequence> {
             }
         } else it.title
     }
-}
-
-fun List<Song>.asQueueItems(): List<MediaSessionCompat.QueueItem> {
-    return runCatching {
-        mapIndexed { index, song -> song.asQueueItem(index + 1L) }
-    }.getOrDefault(arrayListOf())
 }
 
 fun List<Song>.playlistInfo(context: Context) = buildInfoString(songCountStr(context), songsDurationStr())
@@ -117,17 +109,6 @@ suspend fun Song.extraInfo(requestedInfo: List<NowPlayingInfo>) = withContext(Di
     } else {
         null
     }
-}
-
-fun Song.asQueueItem(itemId: Long): MediaSessionCompat.QueueItem {
-    val mediaDescription = MediaDescriptionCompat.Builder()
-        .setMediaId(id.toString())
-        .setTitle(title)
-        .setSubtitle(displayArtistName())
-        .setIconUri(albumId.albumCoverUri())
-        .setMediaUri(mediaStoreUri)
-        .build()
-    return MediaSessionCompat.QueueItem(mediaDescription, itemId)
 }
 
 fun Song.replayGainStr(context: Context): String? {

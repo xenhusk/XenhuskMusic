@@ -157,6 +157,9 @@ object Preferences : KoinComponent {
     val extraControls: Boolean
         get() = preferences.getBoolean(ADD_EXTRA_CONTROLS, false)
 
+    val adaptiveControls: Boolean
+        get() = preferences.getBoolean(ADAPTIVE_CONTROLS, false)
+
     val swipeDownToDismiss: Boolean
         get() = preferences.getBoolean(SWIPE_TO_DISMISS, false)
 
@@ -616,6 +619,7 @@ const val QUEUE_QUICK_ACTION = "play_queue_action"
 const val NOW_PLAYING_SCREEN = "now_playing_screen"
 const val OPEN_ON_PLAY = "open_on_play"
 const val ADD_EXTRA_CONTROLS = "add_extra_controls"
+const val ADAPTIVE_CONTROLS = "adaptive_controls"
 const val SWIPE_TO_DISMISS = "swipe_to_dismiss"
 const val LYRICS_ON_COVER = "lyrics_on_cover"
 const val LEFT_RIGHT_SWIPING = "left_right_swiping"

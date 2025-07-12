@@ -25,12 +25,13 @@ import com.mardous.booming.fragments.player.PlayerColorSchemeList
 import com.mardous.booming.fragments.player.PlayerColorSchemeMode
 
 enum class NowPlayingScreen(
-    @StringRes
+    @param:StringRes
     val titleRes: Int,
-    @DrawableRes
+    @param:DrawableRes
     val drawableResId: Int,
-    @LayoutRes
+    @param:LayoutRes
     val albumCoverLayoutRes: Int,
+    val buttonStyle: NowPlayingButtonStyle,
     val supportsCoverLyrics: Boolean,
     val supportsCarouselEffect: Boolean,
     val supportsCustomCornerRadius: Boolean
@@ -39,6 +40,7 @@ enum class NowPlayingScreen(
         R.string.normal,
         R.drawable.np_normal,
         R.layout.fragment_album_cover_default,
+        buttonStyle = NowPlayingButtonStyle.Normal,
         supportsCoverLyrics = true,
         supportsCarouselEffect = true,
         supportsCustomCornerRadius = true
@@ -47,6 +49,7 @@ enum class NowPlayingScreen(
         R.string.full_cover,
         R.drawable.np_full,
         R.layout.fragment_album_cover,
+        buttonStyle = NowPlayingButtonStyle.Normal,
         supportsCoverLyrics = false,
         supportsCarouselEffect = false,
         supportsCustomCornerRadius = false
@@ -55,6 +58,7 @@ enum class NowPlayingScreen(
         R.string.gradient,
         R.drawable.np_gradient,
         R.layout.fragment_album_cover,
+        buttonStyle = NowPlayingButtonStyle.Normal,
         supportsCoverLyrics = true,
         supportsCarouselEffect = false,
         supportsCustomCornerRadius = false
@@ -63,6 +67,7 @@ enum class NowPlayingScreen(
         R.string.plain,
         R.drawable.np_plain,
         R.layout.fragment_album_cover_default,
+        buttonStyle = NowPlayingButtonStyle.Normal,
         supportsCoverLyrics = true,
         supportsCarouselEffect = true,
         supportsCustomCornerRadius = true
@@ -71,6 +76,7 @@ enum class NowPlayingScreen(
         R.string.m3_style,
         R.drawable.np_m3,
         R.layout.fragment_album_cover_m3,
+        buttonStyle = NowPlayingButtonStyle.Material3,
         supportsCoverLyrics = true,
         supportsCarouselEffect = true,
         supportsCustomCornerRadius = true
@@ -79,6 +85,7 @@ enum class NowPlayingScreen(
         R.string.peek,
         R.drawable.np_peek,
         R.layout.fragment_album_cover_peek,
+        buttonStyle = NowPlayingButtonStyle.Normal,
         supportsCoverLyrics = false,
         supportsCarouselEffect = false,
         supportsCustomCornerRadius = false

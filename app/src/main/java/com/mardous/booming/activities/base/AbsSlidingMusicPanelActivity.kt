@@ -438,11 +438,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                         ViewGroup.LayoutParams.WRAP_CONTENT
                     }
                 }
+                miniPlayerFragment?.setupButtonStyle()
             }
 
-            ADD_EXTRA_CONTROLS -> {
-                miniPlayerFragment?.setupExtraControls()
-            }
+            ADAPTIVE_CONTROLS -> miniPlayerFragment?.setupButtonStyle()
+            ADD_EXTRA_CONTROLS -> miniPlayerFragment?.setupExtraControls()
 
             CAROUSEL_EFFECT,
             COVER_SWIPING_EFFECT,

@@ -616,6 +616,8 @@
     <string name="open_on_play_summary">Abre el panel del reproductor automáticamente al empezar a reproducir una canción.</string>
     <string name="extra_controls_title">Controles adicionales</string>
     <string name="extra_controls_summary">Habilita controles adicionales para el reproductor minimizado.</string>
+    <string name="adaptive_controls_title">Controles adaptivos</string>
+    <string name="adaptive_controls_summary">Los controles del mini reproductor cambian para adaptarse al estilo general del reproductor.</string>
     <string name="swipe_to_dismiss_title">Deslizar para descartar</string>
     <string name="swipe_to_dismiss_summary">Deslice hacia abajo el mini reproductor para detener la reproducción y limpiar la cola.</string>
     <string name="circle_button_title">Botón \"Reproducir\" circular</string>

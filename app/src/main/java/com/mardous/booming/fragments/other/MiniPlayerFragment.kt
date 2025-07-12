@@ -43,6 +43,7 @@ import com.mardous.booming.extensions.resources.textColorPrimary
 import com.mardous.booming.extensions.resources.textColorSecondary
 import com.mardous.booming.extensions.resources.toForegroundColorSpan
 import com.mardous.booming.extensions.utilities.DEFAULT_INFO_DELIMITER
+import com.mardous.booming.model.theme.NowPlayingButtonStyle
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -58,6 +59,13 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
 
     private lateinit var primaryColorSpan: ForegroundColorSpan
     private lateinit var secondaryColorSpan: ForegroundColorSpan
+
+    private val buttonStyle: NowPlayingButtonStyle
+        get() = if (Preferences.adaptiveControls) {
+            Preferences.nowPlayingScreen.buttonStyle
+        } else {
+            NowPlayingButtonStyle.Normal
+        }
 
     private var target: Target<Bitmap>? = null
 
@@ -78,11 +86,7 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.isPlayingFlow.collect { isPlaying ->
-                if (isPlaying) {
-                    binding.actionPlayPause.setIconResource(R.drawable.ic_pause_24dp)
-                } else {
-                    binding.actionPlayPause.setIconResource(R.drawable.ic_play_24dp)
-                }
+                updatePlayPause(isPlaying, buttonStyle)
             }
         }
         primaryColorSpan = textColorPrimary().toForegroundColorSpan()
@@ -92,10 +96,18 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
     }
 
     private fun setUpButtons() {
+        setupButtonStyle()
         setupExtraControls()
         binding.actionNext.setOnClickListener(this)
         binding.actionPrevious.setOnClickListener(this)
         binding.actionPlayPause.setOnClickListener(this)
+    }
+
+    fun setupButtonStyle() {
+        val buttonStyle = this.buttonStyle
+        binding.actionNext.setIconResource(buttonStyle.skipNext)
+        binding.actionPrevious.setIconResource(buttonStyle.skipPrevious)
+        updatePlayPause(playerViewModel.isPlaying, buttonStyle)
     }
 
     fun setupExtraControls() {
@@ -120,6 +132,14 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
         Glide.with(this).clear(target)
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun updatePlayPause(isPlaying: Boolean, buttonStyle: NowPlayingButtonStyle) {
+        if (isPlaying) {
+            binding.actionPlayPause.setIconResource(buttonStyle.pause)
+        } else {
+            binding.actionPlayPause.setIconResource(buttonStyle.play)
+        }
     }
 
     private fun updateCurrentSong() {

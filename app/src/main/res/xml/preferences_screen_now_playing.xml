@@ -100,6 +100,14 @@
             app:key="add_extra_controls" />
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/adaptive_controls_title"
+            app:summary="@string/adaptive_controls_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view_switch"
+            app:key="adaptive_controls" />
+
+        <SwitchPreferenceCompat
             app:title="@string/circle_button_title"
             app:defaultValue="false"
             app:layout="@layout/list_item_view_switch_no_title"

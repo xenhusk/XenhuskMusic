@@ -136,11 +136,11 @@ class PlayerViewModel(
     }
 
     fun cycleRepeatMode() {
-        transportControls?.sendCustomAction(SessionCommand.TOGGLE_SHUFFLE, null)
+        transportControls?.sendCustomAction(SessionCommand.CYCLE_REPEAT, null)
     }
 
     fun toggleShuffleMode() {
-        transportControls?.sendCustomAction(SessionCommand.CYCLE_REPEAT, null)
+        transportControls?.sendCustomAction(SessionCommand.TOGGLE_SHUFFLE, null)
     }
 
     fun togglePlayPause() {

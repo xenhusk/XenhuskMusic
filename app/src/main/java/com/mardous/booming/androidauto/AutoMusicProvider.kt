@@ -26,6 +26,7 @@ import com.mardous.booming.extensions.media.albumCoverUri
 import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.media.displayName
 import com.mardous.booming.extensions.media.playlistInfo
+import com.mardous.booming.extensions.media.songsStr
 import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.model.Song
 import com.mardous.booming.repository.Repository
@@ -48,13 +49,13 @@ class AutoMusicProvider(
             }
 
             AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_PLAYLIST ->
-                for (playlist in repository.devicePlaylists()) {
+                for (playlist in repository.playlistsWithSongs(sorted = true)) {
                     mediaItems.add(
                         AutoMediaItem.with(mContext)
-                            .path(AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_PLAYLIST, playlist.id)
+                            .path(mediaId, playlist.playlistEntity.playListId)
                             .icon(R.drawable.ic_play_24dp)
-                            .title(playlist.name)
-                            .subTitle(playlist.description(mContext))
+                            .title(playlist.playlistEntity.playlistName)
+                            .subTitle(playlist.songCount.songsStr(mContext))
                             .asPlayable()
                             .build()
                     )

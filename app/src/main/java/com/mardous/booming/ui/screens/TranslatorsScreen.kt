@@ -24,7 +24,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.mardous.booming.R
@@ -59,11 +58,7 @@ fun TranslatorsScreen(
         contentWindowInsets = WindowInsets.safeDrawing
             .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(bottom = dimensionResource(id = R.dimen.mini_player_height)),
-            contentPadding = innerPadding
-        ) {
+        LazyColumn(contentPadding = innerPadding) {
             items(translators) { contribution ->
                 ContributionListItem(
                     contribution,

@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,19 +24,23 @@ import com.mardous.booming.lyrics.Lyrics
 import com.mardous.booming.ui.components.color.primaryTextColor
 import com.mardous.booming.ui.components.decoration.FadingEdges
 import com.mardous.booming.ui.theme.PlayerTheme
+import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
 import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
 import com.mardous.booming.viewmodels.player.PlayerViewModel
 
 @Composable
 fun LyricsScreen(
+    libraryViewModel: LibraryViewModel,
     lyricsViewModel: LyricsViewModel,
     playerViewModel: PlayerViewModel,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val miniPlayerHeight by libraryViewModel.getMiniPlayerMargin().observeAsState(0)
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
     val songProgress by playerViewModel.progressFlow.collectAsState()
+
     val lyricsViewState = remember(lyricsResult.syncedLyrics) {
         LyricsViewState(lyricsResult.syncedLyrics.content)
     }
@@ -50,7 +55,7 @@ fun LyricsScreen(
     }
 
     Scaffold(
-        modifier = modifier.padding(bottom = dimensionResource(R.dimen.mini_player_height)),
+        modifier = modifier.padding(bottom = (miniPlayerHeight / 2).dp),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onEditClick,

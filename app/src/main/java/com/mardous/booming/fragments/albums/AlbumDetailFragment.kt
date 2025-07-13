@@ -24,8 +24,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -79,6 +81,7 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
         parametersOf(arguments.albumId)
     }
 
+    private var insets: WindowInsetsCompat? = null
     private var _binding: AlbumDetailBinding? = null
     private val binding get() = _binding!!
 
@@ -103,7 +106,9 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
         _binding = AlbumDetailBinding(FragmentAlbumDetailBinding.bind(view))
         setSupportActionBar(binding.toolbar, "")
 
-        view.applyScrollableContentInsets(binding.container, addedPadding = 16.dp(resources))
+        view.applyScrollableContentInsets(binding.container) { _, insets ->
+            this.insets = insets
+        }
         materialSharedAxis(view, prepareTransition = false)
 
         binding.appBarLayout.setupStatusBarForeground()
@@ -116,6 +121,10 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
             }
             albumArtistExists = !album.albumArtistName.isNullOrEmpty()
             showAlbum(album)
+        }
+
+        libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
+            binding.container.updatePadding(bottom = it + insets.getBottomInsets() + 16.dp(resources))
         }
 
         setupRecyclerView()

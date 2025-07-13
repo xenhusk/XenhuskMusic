@@ -22,6 +22,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.navigation.fragment.findNavController
@@ -69,6 +70,8 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
     private var _binding: FragmentDetailListBinding? = null
     private val binding get() = _binding!!
 
+    private var insets: WindowInsetsCompat? = null
+
     private lateinit var contentType: ContentType
 
     private var songList: List<Song> = arrayListOf()
@@ -86,8 +89,14 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         binding.toolbar.setTitle(contentType.titleRes)
         binding.title.setText(contentType.titleRes)
 
+        libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
+            binding.recyclerView.updatePadding(bottom = it + insets.getBottomInsets())
+        }
+
         materialSharedAxis(view)
-        view.applyScrollableContentInsets(binding.recyclerView)
+        view.applyScrollableContentInsets(binding.recyclerView) { _, insets ->
+            this.insets = insets
+        }
     }
 
     private fun setupButtons() {
@@ -303,9 +312,10 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
 
             R.id.action_clear_history -> {
                 libraryViewModel.clearHistory()
+                val translationY = -(libraryViewModel.getMiniPlayerMargin().value?.toFloat() ?: 0f)
                 val snackBar = Snackbar.make(binding.root, getString(R.string.history_cleared), Snackbar.LENGTH_LONG)
                 val snackBarView = snackBar.view
-                snackBarView.translationY = -(resources.getDimension(R.dimen.mini_player_height))
+                snackBarView.translationY = translationY
                 snackBar.show()
                 true
             }

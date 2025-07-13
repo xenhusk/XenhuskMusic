@@ -35,8 +35,10 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ShareCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.iterator
+import androidx.core.view.updatePadding
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -71,6 +73,8 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
 
     private var _binding: FragmentEqualizerBinding? = null
     private val binding get() = _binding!!
+
+    private var windowInsets: WindowInsetsCompat? = null
 
     private val viewModel: EqualizerViewModel by viewModel {
         parametersOf(playerViewModel.audioSessionId)
@@ -257,9 +261,15 @@ class EqualizerFragment : AbsMainActivityFragment(R.layout.fragment_equalizer),
             }
         }
 
-        view.applyScrollableContentInsets(binding.mainEqContainer)
         materialSharedAxis(view)
         setSupportActionBar(binding.appBarLayout.toolbar, getString(R.string.equalizer_label))
+        view.applyScrollableContentInsets(binding.mainEqContainer) { _, insets ->
+            this.windowInsets = insets
+        }
+
+        libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
+            binding.mainEqContainer.updatePadding(bottom = it + windowInsets.getBottomInsets())
+        }
 
         setUpPresets()
         setUpEQViews()

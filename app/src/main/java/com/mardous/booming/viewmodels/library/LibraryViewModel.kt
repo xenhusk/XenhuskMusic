@@ -17,6 +17,8 @@
 
 package com.mardous.booming.viewmodels.library
 
+import android.animation.Animator
+import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
@@ -25,8 +27,9 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.core.animation.doOnEnd
 import androidx.lifecycle.*
+import com.mardous.booming.R
 import com.mardous.booming.database.*
-import com.mardous.booming.extensions.dp
+import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.media.indexOfSong
 import com.mardous.booming.helper.UriSongResolver
@@ -66,6 +69,7 @@ class LibraryViewModel(
     private val years = MutableLiveData<List<ReleaseYear>>()
     private val fileSystem = MutableLiveData<FileSystemQuery>()
     private val fabMargin = MutableLiveData(0)
+    private val miniPlayerMargin = MutableLiveData(0)
     private val songHistory = MutableLiveData<List<Song>>()
 
     fun getSuggestions(): LiveData<SuggestedResult> = suggestions
@@ -77,18 +81,27 @@ class LibraryViewModel(
     fun getYears(): LiveData<List<ReleaseYear>> = years
     fun getFileSystem(): LiveData<FileSystemQuery> = fileSystem
     fun getFabMargin(): LiveData<Int> = fabMargin
+    fun getMiniPlayerMargin(): LiveData<Int> = miniPlayerMargin
 
-    fun setFabMargin(context: Context, bottomMargin: Int) {
-        val currentValue = 16.dp(context) + bottomMargin
-        ValueAnimator.ofInt(getFabMargin().value!!, currentValue).apply {
-            addUpdateListener {
-                fabMargin.postValue(it.animatedValue as Int)
-            }
-            doOnEnd {
-                fabMargin.postValue(currentValue)
-            }
+    private fun createValueAnimator(oldValue: Int, newValue: Int, setter: (Int) -> Unit): Animator {
+        return ValueAnimator.ofInt(oldValue, newValue).apply {
+            addUpdateListener { setter(it.animatedValue as Int) }
+            doOnEnd { setter(newValue) }
             start()
         }
+    }
+
+    fun setLibraryMargins(context: Context, fabBottomMargin: Int, miniPlayerHeight: Int) {
+        val fabValue = context.dip(R.dimen.fab_margin_top_left_right) + fabBottomMargin
+        val fabAnimator = createValueAnimator(getFabMargin().value!!, fabValue) {
+            fabMargin.postValue(it)
+        }
+        val miniPlayerAnimator = createValueAnimator(getMiniPlayerMargin().value!!, miniPlayerHeight) {
+            miniPlayerMargin.postValue(it)
+        }
+        val animatorSet = AnimatorSet()
+        animatorSet.playTogether(fabAnimator, miniPlayerAnimator)
+        animatorSet.start()
     }
 
     suspend fun albumById(id: Long) = repository.albumById(id)

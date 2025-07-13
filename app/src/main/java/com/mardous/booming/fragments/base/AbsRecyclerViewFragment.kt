@@ -24,6 +24,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -87,6 +88,9 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
             binding.shuffleButton.isVisible = false
         }
 
+        libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
+            binding.recyclerView.updatePadding(bottom = it)
+        }
         libraryViewModel.getFabMargin().observe(viewLifecycleOwner) {
             binding.shuffleButton.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 bottomMargin = it

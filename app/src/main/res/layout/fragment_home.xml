@@ -19,7 +19,6 @@
         android:focusableInTouchMode="true"
         android:overScrollMode="@integer/overScrollMode"
         android:clipToPadding="false"
-        android:paddingBottom="@dimen/mini_player_height"
         android:transitionGroup="true"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 

@@ -24,7 +24,6 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/mini_player_height"
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true"
         android:overScrollMode="@integer/overScrollMode"

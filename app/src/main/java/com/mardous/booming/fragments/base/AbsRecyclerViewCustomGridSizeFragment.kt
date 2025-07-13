@@ -25,7 +25,6 @@ import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
-import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.model.GridViewType
 
@@ -87,8 +86,9 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
     }
 
     private fun applyRecyclerViewPaddingForLayoutRes(recyclerView: RecyclerView, @LayoutRes itemLayoutRes: Int) {
+        val miniPlayerHeight = libraryViewModel.getMiniPlayerMargin().value ?: 0
         val padding = GridViewType.getMarginForLayout(itemLayoutRes)
-        recyclerView.setPadding(padding, padding, padding, padding + dip(R.dimen.mini_player_height))
+        recyclerView.setPadding(padding, padding, padding, padding + miniPlayerHeight)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

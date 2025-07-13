@@ -76,7 +76,8 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     private lateinit var searchAdapter: SearchAdapter
     private lateinit var voiceSearchLauncher: ActivityResultLauncher<Intent>
-    private var fabWindowInsets: WindowInsetsCompat? = null
+
+    private var windowInsets: WindowInsetsCompat? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -142,16 +143,18 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
             setOnClickListener {
                 binding.searchView.focusAndShowKeyboard()
             }
-            applyWindowInsets(right = true, bottom = true)
+            applyWindowInsets(right = true, bottom = true) { _, insets ->
+                this@SearchFragment.windowInsets = insets
+            }
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.keyboardPopup) { _, windowInsets ->
-            windowInsets.also { fabWindowInsets = it }
+        libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
+            binding.recyclerView.updatePadding(bottom = it + dip(R.dimen.fab_size_padding))
         }
 
         libraryViewModel.getFabMargin().observe(viewLifecycleOwner) {
             binding.keyboardPopup.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = it + fabWindowInsets.getBottomInsets()
+                bottomMargin = it + windowInsets.getBottomInsets()
             }
         }
 
@@ -204,7 +207,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                 .apply { animation.duration = resources.getInteger(R.integer.short_anim_time).toLong() }
             layoutManager = LinearLayoutManager(activity)
             adapter = searchAdapter
-            addPaddingRelative(bottom = dip(R.dimen.fab_custom_size))
             onVerticalScroll(viewLifecycleOwner,
                 onScrollDown = { binding.keyboardPopup.shrink() },
                 onScrollUp = { binding.keyboardPopup.extend() }

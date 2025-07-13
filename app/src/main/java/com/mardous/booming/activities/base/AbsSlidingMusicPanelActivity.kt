@@ -262,12 +262,21 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         animate: Boolean = false,
         isBottomNavVisible: Boolean = navigationView.isVisible && navigationView is BottomNavigationView
     ) {
-        val heightOfBar = windowInsets.getBottomInsets() + dip(R.dimen.mini_player_height)
-        val heightOfBarWithTabs = heightOfBar + dip(R.dimen.bottom_nav_height)
+        val gesturesInsets = windowInsets.getBottomGesturesInsets()
+        val navigationBarInsets = windowInsets.getBottomInsets()
+        val miniPlayerHeight = dip(R.dimen.mini_player_height)
+        val bottomNavHeight = dip(R.dimen.bottom_nav_height)
+
+        val heightOfBar = gesturesInsets + navigationBarInsets + miniPlayerHeight
+        val heightOfBarWithTabs = navigationBarInsets + miniPlayerHeight + bottomNavHeight
         if (hide) {
-            bottomSheetBehavior.peekHeight = (-windowInsets.getBottomInsets()).coerceAtLeast(0)
+            bottomSheetBehavior.peekHeight = (-navigationBarInsets).coerceAtLeast(0)
             panelState = STATE_COLLAPSED
-            libraryViewModel.setFabMargin(this, if (isBottomNavVisible) dip(R.dimen.bottom_nav_height) else 0)
+            libraryViewModel.setLibraryMargins(
+                context = this,
+                fabBottomMargin = if (isBottomNavVisible) bottomNavHeight else 0,
+                miniPlayerHeight = 0
+            )
         } else {
             if (playerViewModel.queueSongs.isNotEmpty()) {
                 slidingPanel.elevation = 0f
@@ -278,7 +287,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                     } else {
                         bottomSheetBehavior.peekHeight = heightOfBarWithTabs
                     }
-                    libraryViewModel.setFabMargin(this, dip(R.dimen.bottom_nav_mini_player_height))
+                    libraryViewModel.setLibraryMargins(
+                        context = this,
+                        fabBottomMargin = miniPlayerHeight + bottomNavHeight,
+                        miniPlayerHeight = miniPlayerHeight
+                    )
                 } else {
                     if (animate) {
                         bottomSheetBehavior.peekHeightAnimate(heightOfBar).doOnEnd {
@@ -288,7 +301,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                         bottomSheetBehavior.peekHeight = heightOfBar
                         slidingPanel.bringToFront()
                     }
-                    libraryViewModel.setFabMargin(this, dip(R.dimen.mini_player_height))
+                    libraryViewModel.setLibraryMargins(
+                        context = this,
+                        fabBottomMargin = miniPlayerHeight + gesturesInsets,
+                        miniPlayerHeight = miniPlayerHeight + gesturesInsets
+                    )
                 }
             }
         }

@@ -23,6 +23,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -89,6 +90,9 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
             adapter = homeAdapter
             addPaddingRelative(bottom = 8.dp(resources))
             destroyOnDetach()
+        }
+        libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
+            binding.recyclerView.updatePadding(bottom = it)
         }
         libraryViewModel.getSuggestions().apply {
             observe(viewLifecycleOwner) { result ->

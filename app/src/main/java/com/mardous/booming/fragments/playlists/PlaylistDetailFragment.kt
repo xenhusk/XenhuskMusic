@@ -23,7 +23,9 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -43,6 +45,7 @@ import com.mardous.booming.database.toSongsEntity
 import com.mardous.booming.databinding.FragmentDetailListBinding
 import com.mardous.booming.dialogs.playlists.RemoveFromPlaylistDialog
 import com.mardous.booming.extensions.applyScrollableContentInsets
+import com.mardous.booming.extensions.getBottomInsets
 import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.extensions.media.isFavorites
 import com.mardous.booming.extensions.media.playlistInfo
@@ -73,6 +76,8 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_
         parametersOf(arguments.playlistId)
     }
 
+    private var windowInsets: WindowInsetsCompat? = null
+
     private var _binding: FragmentDetailListBinding? = null
     private val binding get() = _binding!!
 
@@ -100,9 +105,16 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_
         setupRecyclerView()
 
         materialSharedAxis(view)
-        view.applyScrollableContentInsets(binding.recyclerView)
+        view.applyScrollableContentInsets(binding.recyclerView) { _, insets ->
+            this.windowInsets = insets
+        }
+
         setSupportActionBar(binding.toolbar)
         //binding.collapsingAppBarLayout.setupStatusBarScrim(requireContext())
+
+        libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
+            binding.recyclerView.updatePadding(bottom = it + windowInsets.getBottomInsets())
+        }
 
         detailViewModel.getPlaylist().observe(viewLifecycleOwner) { playlistWithSongs ->
             playlist = playlistWithSongs

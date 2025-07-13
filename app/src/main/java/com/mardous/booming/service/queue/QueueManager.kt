@@ -38,12 +38,6 @@ class QueueManager(private val context: Context) {
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val shuffleManager = ShuffleManager()
-    private val defaultShuffleMode: Playback.ShuffleMode
-        get() = if (Preferences.rememberShuffleMode) {
-            Playback.ShuffleMode.On
-        } else {
-            Playback.ShuffleMode.Off
-        }
 
     private val lastUpcomingPosition: Int
         get() = queueSongs.indexOfLast { it.isUpcoming }
@@ -113,8 +107,13 @@ class QueueManager(private val context: Context) {
         shuffleMode: Playback.ShuffleMode?
     ) {
         var position = startPosition
-        val result = createQueue(queue, startPosition, shuffleMode ?: defaultShuffleMode) {
-            if (shuffleMode == Playback.ShuffleMode.On) {
+        val newShuffleMode = shuffleMode ?: if (Preferences.rememberShuffleMode) {
+            shuffleModeFlow.value
+        } else {
+            Playback.ShuffleMode.Off
+        }
+        val result = createQueue(queue, startPosition, newShuffleMode) {
+            if (newShuffleMode == Playback.ShuffleMode.On) {
                 position = 0
                 makeShuffleList(this, startPosition)
             }

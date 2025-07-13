@@ -32,7 +32,6 @@ import com.mardous.booming.helper.menu.onSongsMenu
 import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.GridViewType
 import com.mardous.booming.model.Song
-import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.prepareSortOrder
 import com.mardous.booming.util.sort.selectedSortOrder
@@ -62,7 +61,7 @@ class SongListFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, Grid
     override fun onShuffleClicked() {
         super.onShuffleClicked()
         adapter?.dataSet?.let { songs ->
-            playerViewModel.openAndShuffleQueue(songs, shuffleMode = Playback.ShuffleMode.On)
+            playerViewModel.openAndShuffleQueue(songs)
         }
     }
 

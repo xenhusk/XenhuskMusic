@@ -184,15 +184,23 @@ class PlayerViewModel(
         startPlaying: Boolean = true,
         shuffleMode: Playback.ShuffleMode? = null
     ) = viewModelScope.launch(IO) {
-        queueManager.open(queue, position, startPlaying, shuffleMode)
+        if (shuffleMode == Playback.ShuffleMode.On) {
+            openAndShuffleQueue(queue, startPlaying = true)
+        } else {
+            queueManager.open(queue, position, startPlaying, shuffleMode)
+        }
     }
 
     fun openAndShuffleQueue(
         queue: List<Song>,
-        startPlaying: Boolean = true,
-        shuffleMode: Playback.ShuffleMode? = null
+        startPlaying: Boolean = true
     ) = viewModelScope.launch(IO) {
-        queueManager.open(queue, Random.Default.nextInt(queue.size), startPlaying, shuffleMode)
+        queueManager.open(
+            queue = queue,
+            startPosition = Random.Default.nextInt(queue.size),
+            startPlaying = startPlaying,
+            shuffleMode = Playback.ShuffleMode.On
+        )
     }
 
     fun openShuffle(

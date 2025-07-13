@@ -158,7 +158,7 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
 
             binding.shuffleButton -> {
                 libraryViewModel.allSongs().observe(viewLifecycleOwner) {
-                    playerViewModel.openQueue(it, shuffleMode = Playback.ShuffleMode.On)
+                    playerViewModel.openAndShuffleQueue(it)
                 }
             }
         }

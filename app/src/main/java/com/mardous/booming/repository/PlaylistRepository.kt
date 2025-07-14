@@ -42,7 +42,8 @@ interface PlaylistRepository {
     suspend fun checkPlaylistExists(playlistName: String): List<PlaylistEntity>
     fun checkPlaylistExists(playListId: Long): LiveData<Boolean>
     suspend fun playlists(): List<PlaylistEntity>
-    suspend fun playlistWithSongs(sorted: Boolean = false): List<PlaylistWithSongs>
+    suspend fun playlistsWithSongs(sorted: Boolean = false): List<PlaylistWithSongs>
+    suspend fun playlistWithSongs(playlistId: Long): PlaylistWithSongs
     fun playlistWithSongsObservable(playlistId: Long): LiveData<PlaylistWithSongs>
     suspend fun searchPlaylists(searchQuery: String): List<PlaylistWithSongs>
     suspend fun searchPlaylistSongs(playlistId: Long, searchQuery: String): List<SongEntity>
@@ -105,13 +106,16 @@ class RealPlaylistRepository(
 
     override suspend fun playlists(): List<PlaylistEntity> = playlistDao.playlists()
 
-    override suspend fun playlistWithSongs(sorted: Boolean): List<PlaylistWithSongs> =
+    override suspend fun playlistsWithSongs(sorted: Boolean): List<PlaylistWithSongs> =
         playlistDao.playlistsWithSongs().let {
             if (sorted) it.sortedPlaylists(SortOrder.playlistSortOrder) else it
         }
 
+    override suspend fun playlistWithSongs(playlistId: Long): PlaylistWithSongs =
+        playlistDao.playlistWithSongs(playlistId) ?: PlaylistWithSongs.Empty
+
     override fun playlistWithSongsObservable(playlistId: Long): LiveData<PlaylistWithSongs> =
-        playlistDao.getPlaylist(playlistId).map { result -> result ?: PlaylistWithSongs.Empty }
+        playlistDao.playlistWithSongsObservable(playlistId).map { result -> result ?: PlaylistWithSongs.Empty }
 
     override suspend fun searchPlaylists(searchQuery: String): List<PlaylistWithSongs> =
         playlistDao.searchPlaylists("%$searchQuery%")

@@ -54,6 +54,7 @@ interface Repository {
     suspend fun devicePlaylistSongs(playlist: Playlist): List<Song>
     suspend fun devicePlaylist(playlistId: Long): Playlist
     suspend fun playlistsWithSongs(sorted: Boolean = false): List<PlaylistWithSongs>
+    suspend fun playlistWithSongs(playlistId: Long): PlaylistWithSongs
     fun playlistWithSongsObservable(playlistId: Long): LiveData<PlaylistWithSongs>
     suspend fun isSongFavorite(songEntity: SongEntity): List<SongEntity>
     suspend fun isSongFavorite(songId: Long): Boolean
@@ -177,7 +178,10 @@ class RealRepository(
         playlistRepository.devicePlaylist(playlistId)
 
     override suspend fun playlistsWithSongs(sorted: Boolean): List<PlaylistWithSongs> =
-        playlistRepository.playlistWithSongs(sorted)
+        playlistRepository.playlistsWithSongs(sorted)
+
+    override suspend fun playlistWithSongs(playlistId: Long): PlaylistWithSongs =
+        playlistRepository.playlistWithSongs(playlistId)
 
     override fun playlistWithSongsObservable(playlistId: Long): LiveData<PlaylistWithSongs> =
         playlistRepository.playlistWithSongsObservable(playlistId)
@@ -255,7 +259,7 @@ class RealRepository(
 
     override suspend fun deleteMissingContent() {
         // Clean up playlists
-        val playlists = playlistRepository.playlistWithSongs()
+        val playlists = playlistRepository.playlistsWithSongs()
         playlists.forEach { playlistWithSongs ->
             val missingSongs = playlistWithSongs.songs.filterNot {
                 File(it.data).exists()

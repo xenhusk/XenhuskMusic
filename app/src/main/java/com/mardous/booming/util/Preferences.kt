@@ -164,7 +164,7 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(SWIPE_TO_DISMISS, false)
 
     var showLyricsOnCover: Boolean
-        get() = preferences.getBoolean(LYRICS_ON_COVER, true)
+        get() = preferences.getBoolean(LYRICS_ON_COVER, false)
         set(value) = preferences.edit { putBoolean(LYRICS_ON_COVER, value) }
 
     val allowCoverSwiping: Boolean

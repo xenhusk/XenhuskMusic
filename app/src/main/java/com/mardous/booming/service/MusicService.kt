@@ -459,7 +459,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
                 SessionCommand.PLAY_SONG_AT -> {
                     val position = extras.getInt(SessionCommand.Extras.POSITION, -1)
                     if (position >= 0) {
-                        playSongAt(position)
+                        playSongAt(position, extras.getBoolean(SessionCommand.Extras.IS_NEW_PLAYBACK))
                     }
                 }
 
@@ -1005,10 +1005,13 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         }
     }
 
-    private fun playSongAt(position: Int) {
+    private fun playSongAt(position: Int, newPlayback: Boolean = false) {
         prepareSongAt(position) { success ->
             if (success) {
                 play()
+                if (newPlayback) {
+                    mediaSession?.sendSessionEvent(SessionEvent.PLAYBACK_STARTED, null)
+                }
             } else {
                 val message = if (queueManager.isEmpty) {
                     getString(R.string.empty_play_queue)

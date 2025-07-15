@@ -14,6 +14,7 @@ interface SessionCommand {
     interface Extras {
         companion object {
             const val POSITION = "$PLAY_SONG_AT.position"
+            const val IS_NEW_PLAYBACK = "$PLAY_SONG_AT.is_new_playback"
         }
     }
 }

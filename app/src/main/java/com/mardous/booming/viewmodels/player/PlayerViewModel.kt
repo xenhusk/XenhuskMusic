@@ -95,11 +95,7 @@ class PlayerViewModel(
     val playingQueueFlow = _playingQueueFlow.asStateFlow()
     val playingQueue get() = playingQueueFlow.value
 
-    private val _mediaEventFlow = MutableSharedFlow<MediaEvent>(
-        replay = 1,
-        extraBufferCapacity = 32,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
+    private val _mediaEventFlow = MutableSharedFlow<MediaEvent>()
     val mediaEvent = _mediaEventFlow.asSharedFlow()
 
     private val _colorScheme = MutableStateFlow(PlayerColorScheme.Unspecified)
@@ -202,9 +198,10 @@ class PlayerViewModel(
 
     fun isPlayingSong(song: Song) = song.id == currentSong.id
 
-    fun playSongAt(position: Int) {
+    fun playSongAt(position: Int, newPlayback: Boolean = false) {
         transportControls?.sendCustomAction(SessionCommand.PLAY_SONG_AT, bundleOf(
-            SessionCommand.Extras.POSITION to position
+            SessionCommand.Extras.POSITION to position,
+            SessionCommand.Extras.IS_NEW_PLAYBACK to newPlayback
         ))
     }
 
@@ -220,10 +217,10 @@ class PlayerViewModel(
             val result = queueManager.open(queue, position, shuffleMode)
             when (result) {
                 QueueManager.SUCCESS -> if (startPlaying) {
-                    playSongAt(queueManager.position)
+                    playSongAt(queueManager.position, newPlayback = true)
                 }
                 QueueManager.HANDLED_SOURCE -> {
-                    playSongAt(position)
+                    playSongAt(position, newPlayback = true)
                 }
             }
         }
@@ -239,7 +236,7 @@ class PlayerViewModel(
             shuffleMode = Playback.ShuffleMode.On
         )
         if (success == QueueManager.SUCCESS && startPlaying) {
-            playSongAt(queueManager.position)
+            playSongAt(queueManager.position, newPlayback = true)
         }
     }
 
@@ -250,7 +247,7 @@ class PlayerViewModel(
     ) = liveData(IO) {
         val success = queueManager.shuffleUsingProviders(providers, mode, sortKey)
         if (success) {
-            playSongAt(queueManager.position)
+            playSongAt(queueManager.position, newPlayback = true)
         }
         emit(success)
     }

@@ -159,7 +159,7 @@
     <string name="toggle_favorite">Lägg till/ta bort från favoriter</string>
     <string name="action_add_to_playlist">Lägg till i spellistan</string>
     <string name="action_remove_from_playlist">Ta bort från spellistan</string>
-    <string name="action_add_to_playing_queue">Lägg till i uppspelningskön</string>
+    <string name="action_add_to_playing_queue">Add to queue</string>
     <string name="action_remove_from_playing_queue">Ta bort från uppspelningskön</string>
     <string name="x_removed_from_playing_queue">%s borttaget</string>
     <string name="put_after_current_track">Sätt efter nuvarande spår</string>
@@ -468,6 +468,7 @@
     <string name="embedded_lyrics">Embedded</string>
     <string name="downloaded_lyrics">Nedladdad</string>
     <string name="lrc_lyrics">LRC-fil</string>
+    <string name="ttml_lyrics">TTML file</string>
     <string name="action_import_synchronized_lyrics">Importera synkroniserade låttexter</string>
     <string name="action_share_synchronized_lyrics">Dela synkroniserade låttexter</string>
     <string name="do_you_want_to_import_lrc_lyrics_for_song_x"><![CDATA[Vill du importera synkroniserade LRC-texter för <b>%s</b>?]]></string>
@@ -484,6 +485,7 @@
     <string name="no_synced_lyrics_found">Inga synkroniserade låttexter hittades</string>
     <string name="lyrics_were_updated_successfully">Låttexter har uppdaterats.</string>
     <string name="failed_to_update_lyrics">Det gick inte att uppdatera låttexter.</string>
+    <string name="lyrics_source_ttml_file">Synced lyrics come from an TTML file. Editing content of TTML files is not supported yet.</string>
     <string name="lyrics_source_lrc_file">Synkroniserade texter kommer från en LRC-fil. Ändringar kommer att sparas direkt till den filen.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Sov timer</string>
@@ -591,6 +593,8 @@
     <string name="open_on_play_summary">Expandera panelen Nu spelas automatiskt efter att ha spelat en låt.</string>
     <string name="extra_controls_title">Extra kontroller</string>
     <string name="extra_controls_summary">Lägg till extra kontroller för minispelare</string>
+    <string name="adaptive_controls_title">Adaptive controls</string>
+    <string name="adaptive_controls_summary">The controls on the mini player change to suit the current player style.</string>
     <string name="swipe_to_dismiss_title">Svep för att avfärda</string>
     <string name="swipe_to_dismiss_summary">Svep nedåt minispelaren för att stoppa uppspelning och rensa spelköerna.</string>
     <string name="circle_button_title">Cirkulär uppspelningsknapp</string>

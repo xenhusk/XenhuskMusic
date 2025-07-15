@@ -94,9 +94,11 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        playerViewModel.colorSchemeObservable.observe(viewLifecycleOwner) { scheme ->
-            lastPlaybackControlsColor = scheme.primaryControlColor
-            lastDisabledPlaybackControlsColor = scheme.secondaryControlColor
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.colorSchemeFlow.collect { scheme ->
+                lastPlaybackControlsColor = scheme.primaryControlColor
+                lastDisabledPlaybackControlsColor = scheme.secondaryControlColor
+            }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.currentSongFlow.collect {

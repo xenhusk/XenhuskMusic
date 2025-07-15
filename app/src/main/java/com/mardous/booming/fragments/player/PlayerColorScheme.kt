@@ -92,6 +92,14 @@ data class PlayerColorScheme(
 
     companion object {
 
+        val Unspecified = PlayerColorScheme(
+            mode = Mode.SimpleColor,
+            surfaceColor = Color.TRANSPARENT,
+            emphasisColor = Color.TRANSPARENT,
+            primaryTextColor = Color.TRANSPARENT,
+            secondaryTextColor = Color.TRANSPARENT
+        )
+
         /**
          * Returns a default color scheme based on the current app theme.
          *

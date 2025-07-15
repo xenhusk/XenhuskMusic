@@ -136,7 +136,13 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         setupNavigationView()
         setupSlidingUpPanel()
         setupBottomSheet()
-        updateColor()
+
+        launchAndRepeatWithViewLifecycle {
+            playerViewModel.colorSchemeFlow.collect { scheme ->
+                paletteColor = scheme.surfaceColor
+                onPaletteColorChanged()
+            }
+        }
 
         launchAndRepeatWithViewLifecycle {
             playerViewModel.playingQueueFlow.collect { playingQueue ->
@@ -394,13 +400,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             binding.navigationView.alpha = alpha
         }
         binding.playerContainer.alpha = (progress - 0.2F) / 0.2F
-    }
-
-    private fun updateColor() {
-        playerViewModel.colorSchemeObservable.observe(this) { scheme ->
-            this.paletteColor = scheme.surfaceColor
-            onPaletteColorChanged()
-        }
     }
 
     private fun onPaletteColorChanged() {

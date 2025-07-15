@@ -117,8 +117,10 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                 playerControlsFragment.onQueueInfoChanged(getNextSongInfo())
             }
         }
-        playerViewModel.colorSchemeObservable.observe(viewLifecycleOwner) { scheme ->
-            applyColorScheme(scheme)?.start()
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.colorSchemeFlow.collect { scheme ->
+                applyColorScheme(scheme)?.start()
+            }
         }
     }
 

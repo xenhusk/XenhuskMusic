@@ -6,7 +6,9 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.core.os.bundleOf
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.mardous.booming.extensions.media.durationStr
 import com.mardous.booming.extensions.media.extraInfo
 import com.mardous.booming.fragments.player.PlayerColorScheme
@@ -100,10 +102,9 @@ class PlayerViewModel(
     )
     val mediaEvent = _mediaEventFlow.asSharedFlow()
 
-    private val _colorScheme = MutableLiveData<PlayerColorScheme>()
-    val colorSchemeObservable: LiveData<PlayerColorScheme> = _colorScheme
-    val colorSchemeFlow = _colorScheme.asFlow()
-    val colorScheme get() = colorSchemeObservable.value
+    private val _colorScheme = MutableStateFlow(PlayerColorScheme.Unspecified)
+    val colorSchemeFlow = _colorScheme.asStateFlow()
+    val colorScheme get() = colorSchemeFlow.value
 
     private val _extraInfoFlow = MutableStateFlow<String?>(null)
     val extraInfoFlow = _extraInfoFlow.asStateFlow()
@@ -358,7 +359,7 @@ class PlayerViewModel(
             PlayerColorScheme.autoColorScheme(context, mediaColor, mode)
         }
         if (result.isSuccess) {
-            _colorScheme.postValue(result.getOrThrow())
+            _colorScheme.value = result.getOrThrow()
         } else if (result.isFailure) {
             Log.e(TAG, "Failed to load color scheme", result.exceptionOrNull())
         }

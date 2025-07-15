@@ -32,6 +32,14 @@
         app:layout="@layout/list_item_view_seekbar"
         app:key="crossfade_duration"/>
 
+    <SwitchPreferenceCompat
+        app:iconSpaceReserved="true"
+        app:title="@string/no_crossfade_on_albums_title"
+        app:summary="@string/no_crossfade_on_albums_summary"
+        app:defaultValue="true"
+        app:layout="@layout/list_item_view_switch"
+        app:key="no_crossfade_on_albums"/>
+
     <SeekBarPreference
         app:iconSpaceReserved="true"
         app:title="@string/audio_fade_duration_title"

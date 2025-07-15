@@ -39,6 +39,8 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
     private var hasDataSource: Boolean = false /* Whether first player has DataSource */
     private var nextDataSource: String? = null
 
+    private var albumDataSource: AlbumDataSource? = null
+
     private var crossFadeDuration = 0
     private var observeProgress = true
     var isCrossFading = false
@@ -121,6 +123,9 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
             getCurrentPlayer()?.let {
                 setDataSourceImpl(it, song.mediaStoreUri.toString()) { success ->
                     mIsInitialized = success
+                    if (mIsInitialized) {
+                        albumDataSource = AlbumDataSource(song.albumId, song.trackNumber)
+                    }
                     completion(success)
                 }
             }
@@ -132,7 +137,11 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
     }
 
     override fun setNextDataSource(song: Song?) {
-        nextDataSource = song?.mediaStoreUri?.toString()
+        nextDataSource = if (song != null && albumDataSource?.avoidCrossfade(song) == true) {
+            null
+        } else {
+            song?.mediaStoreUri?.toString()
+        }
     }
 
     override fun getAudioSessionId(): Int {
@@ -337,6 +346,15 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
                 CurrentPlayer.PLAYER_ONE
             }
         mCallbacks?.onTrackEndedWithCrossFade()
+    }
+
+    private class AlbumDataSource(private val id: Long, private val trackNumber: Int) {
+        fun avoidCrossfade(song: Song): Boolean {
+            if (Preferences.noCrossFadeOnAlbums) {
+                return song.albumId == id && song.trackNumber > trackNumber
+            }
+            return false
+        }
     }
 
     companion object {

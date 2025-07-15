@@ -67,7 +67,7 @@ object Preferences : KoinComponent {
     }
 
     var generalTheme: String
-        get() = getGeneralTheme(preferences.getBoolean(BLACK_THEME, false))
+        get() = getGeneralTheme(blackTheme)
         set(value) = preferences.edit { putString(GENERAL_THEME, value) }
 
     fun getThemeMode(themeName: String) = when (themeName) {
@@ -87,6 +87,9 @@ object Preferences : KoinComponent {
             AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
         }
     }
+
+    val blackTheme: Boolean
+        get() = preferences.getBoolean(BLACK_THEME, false)
 
     val materialYou: Boolean
         get() = preferences.getBoolean(MATERIAL_YOU, hasS())
@@ -250,6 +253,9 @@ object Preferences : KoinComponent {
 
     val crossFadeDuration: Int
         get() = preferences.getInt(CROSSFADE_DURATION, 0)
+
+    val noCrossFadeOnAlbums: Boolean
+        get() = preferences.getBoolean(NO_CROSSFADE_ON_ALBUMS, true)
 
     val audioFadeDuration: Int
         get() = preferences.getInt(AUDIO_FADE_DURATION, 0)
@@ -639,6 +645,7 @@ const val PLAYBACK_SPEED = "playback_speed"
 const val PLAYBACK_PITCH = "playback_pitch"
 const val GAPLESS_PLAYBACK = "gapless_playback"
 const val CROSSFADE_DURATION = "crossfade_duration"
+const val NO_CROSSFADE_ON_ALBUMS = "no_crossfade_on_albums"
 const val AUDIO_FADE_DURATION = "audio_fade_duration"
 const val AUTO_PLAY_ON_SKIP = "auto_play_on_skip"
 const val REWIND_WITH_BACK = "rewind_with_back"

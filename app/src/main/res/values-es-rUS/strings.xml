@@ -483,6 +483,7 @@
     <string name="embedded_lyrics">Incrustada</string>
     <string name="downloaded_lyrics">Descargada</string>
     <string name="lrc_lyrics">Archivo LRC</string>
+    <string name="ttml_lyrics">Archivo TTML</string>
     <string name="action_import_synchronized_lyrics">Importar letra sincronizada</string>
     <string name="action_share_synchronized_lyrics">Compartir letra sincronizada</string>
     <string name="do_you_want_to_import_lrc_lyrics_for_song_x"><![CDATA[¿Quieres importar una letra sincronizada en LRC para la canción <b>%s</b>?]]></string>
@@ -649,6 +650,8 @@
     <string name="gapless_playback_summary">Transición rápida entre canciones. Puede causar problemas en algunos dispositivos.</string>
     <string name="crossfade_title">Transición (experimental)</string>
     <string name="crossfade_summary">Cuantos segundos tarda en realizarse el fundido entre canciones (establece 0 para desactivar).</string>
+    <string name="no_crossfade_on_albums_title">Sin fundido en álbumes</string>
+    <string name="no_crossfade_on_albums_summary">No transicionar al reproducir álbumes en su orden original.</string>
     <string name="audio_fade_duration_title">Duración del fundido de audio (experimental)</string>
     <string name="audio_fade_duration_summary">Cuantos segundos tarda en subir o bajar el volumen al reproducir o pausar la música (establece 0 para desactivar).</string>
     <string name="replaygain_source_mode_title">Modo de origen</string>

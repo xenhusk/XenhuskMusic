@@ -45,6 +45,7 @@ import com.mardous.booming.extensions.media.songCountStr
 import com.mardous.booming.extensions.resources.createFastScroller
 import com.mardous.booming.extensions.resources.inflateMenu
 import com.mardous.booming.extensions.resources.onVerticalScroll
+import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.helper.menu.onSongMenu
 import com.mardous.booming.model.QueueQuickAction
@@ -223,7 +224,9 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
             Snackbar.LENGTH_LONG
         )
             .setAction(R.string.undo_action) {
-                playerViewModel.enqueue(song, fromPosition)
+                playerViewModel.enqueue(song, fromPosition).observe(viewLifecycleOwner) {
+                    showToast(R.string.added_title_to_playing_queue)
+                }
             }
             .addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
                 override fun onDismissed(snackbar: Snackbar, event: Int) {

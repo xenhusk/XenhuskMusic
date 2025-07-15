@@ -10,7 +10,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -23,6 +25,7 @@ import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.lyrics.Lyrics
 import com.mardous.booming.ui.components.color.primaryTextColor
 import com.mardous.booming.ui.components.decoration.FadingEdges
+import com.mardous.booming.ui.components.decoration.fadingEdges
 import com.mardous.booming.ui.theme.PlayerTheme
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.lyrics.LyricsViewModel
@@ -186,6 +189,8 @@ private fun LyricsSurface(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
+                            .nestedScroll(rememberNestedScrollInteropConnection())
+                            .fadingEdges(syncedFadingEdges)
                             .verticalScroll(plainScrollState)
                             .padding(contentPadding)
                     ) {

@@ -7,15 +7,21 @@
 
 ### Kotlin
 
-- Author: JetBrains
+- Author: JetBrains, Inc.
 - License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - URL: [Homepage](https://kotlinlang.org/) - [Sources](https://github.com/JetBrains/kotlin)
 
 ### Kotlin Coroutines Android
 
-- Author: JetBrains
+- Author: JetBrains, Inc.
 - License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - URL: [Homepage](https://kotlinlang.org/docs/coroutines-overview.html) - [Sources](https://github.com/Kotlin/kotlinx.coroutines)
+
+### KotlinX multiplatform date/time library
+
+- Author: JetBrains, Inc.
+- License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- URL: [Sources](https://github.com/Kotlin/kotlinx-datetime)
 
 ### AndroidX libraries
 
@@ -83,17 +89,53 @@
 - License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - URL: [Sources](https://github.com/bosphere/Android-FadingEdgeLayout)
 
+### KeyboardVisibilityEvent
+
+- Author: Shimizu Yasuhiro
+- License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- URL: [Sources](https://github.com/yshrsmz/KeyboardVisibilityEvent)
+
+### Balloon
+
+- Author: Jaewoong Eum
+- License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- URL: [Sources](https://github.com/skydoves/Balloon)
+
+### m3color
+
+- Author: Kyant
+- License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- URL: [Sources](https://github.com/Kyant0/m3color)
+-
+### taglib
+
+- Author: Kyant
+- License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- URL: [Sources](https://github.com/Kyant0/taglib)
+
+### Version Compare
+
+- Author: Thomas Wirth
+- License: [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+- URL: [Sources](https://github.com/G00fY2/version-compare)
+
 ### Custom Activity on Crash
 
 - Author: Eduard Ereza Martínez
 - License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - URL: [Sources](https://github.com/Ereza/CustomActivityOnCrash)
 
-### Markdown parsing
+### Markwon
 
 - Author: Dimitry Ivanov
 - License: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - URL: [Homepage](https://noties.io/Markwon/) - [Sources](https://github.com/noties/Markwon)
+
+### MarkdownText - Jetpack Compose
+
+- Author: Jeziel Lago
+- License: [MIT License](https://opensource.org/license/mit)
+- URL: [Sources](https://github.com/jeziellago/compose-markdown)
 
 ### StackBlur
 

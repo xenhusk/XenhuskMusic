@@ -210,8 +210,8 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
             progressSlider?.valueTo = total.toFloat().coerceAtLeast(1f)
             progressSlider?.value = progress.toFloat().coerceIn(progressSlider?.valueFrom, progressSlider?.valueTo)
         } else {
+            seekBar?.max = total.toInt()
             if (isSeeking) {
-                seekBar?.max = total.toInt()
                 seekBar?.progress = progress.toInt()
             } else {
                 progressAnimator = ObjectAnimator.ofInt(seekBar, "progress", progress.toInt()).apply {

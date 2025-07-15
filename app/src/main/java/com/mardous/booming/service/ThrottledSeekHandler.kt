@@ -20,10 +20,14 @@ package com.mardous.booming.service
 import android.os.Handler
 import kotlinx.coroutines.Runnable
 
-class ThrottledSeekHandler(private val musicService: MusicService, private val mHandler: Handler) :
-    Runnable {
+class ThrottledSeekHandler(
+    private val musicService: MusicService,
+    private val persistentStorage: PersistentStorage,
+    private val mHandler: Handler
+) : Runnable {
+
     override fun run() {
-        musicService.savePositionInTrack()
+        persistentStorage.savePositionInTrack()
     }
 
     fun notifySeek() {

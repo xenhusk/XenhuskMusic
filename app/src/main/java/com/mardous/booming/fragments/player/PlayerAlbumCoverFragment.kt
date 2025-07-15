@@ -132,16 +132,14 @@ class PlayerAlbumCoverFragment : Fragment(), ViewPager.OnPageChangeListener,
 
     private fun setupEventObserver() {
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.queueStateFlow.collect { queueState ->
-                updatePlayingQueue(queueState.songs)
+            playerViewModel.playingQueueFlow.collect { playingQueue ->
+                updatePlayingQueue(playingQueue)
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.currentPositionFlow.collect { position ->
-                if (!position.passive) {
-                    if (viewPager.currentItem != position.value) {
-                        viewPager.setCurrentItem(position.value, true)
-                    }
+                if (viewPager.currentItem != position) {
+                    viewPager.setCurrentItem(position, true)
                 }
             }
         }
@@ -284,7 +282,7 @@ class PlayerAlbumCoverFragment : Fragment(), ViewPager.OnPageChangeListener,
     }
 
     private fun requestColor(position: Int) {
-        if (playerViewModel.queueSongs.isNotEmpty()) {
+        if (playerViewModel.playingQueue.isNotEmpty()) {
             (viewPager.adapter as? AlbumCoverPagerAdapter)
                 ?.receiveColor(colorReceiver, position)
         }

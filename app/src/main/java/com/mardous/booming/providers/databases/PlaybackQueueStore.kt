@@ -20,13 +20,14 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.MediaStore.Audio.AudioColumns
+import androidx.core.database.sqlite.transaction
 import com.mardous.booming.model.Song
 import com.mardous.booming.repository.SongRepository
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 
-class PlaybackQueueStore private constructor(context: Context) :
-    SQLiteOpenHelper(context, DATABASE_NAME, null, VERSION), KoinComponent {
+class PlaybackQueueStore(context: Context) :
+    SQLiteOpenHelper(context, DATABASE_NAME, null, VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {
         createTable(db, PLAYING_QUEUE_TABLE_NAME)
@@ -34,132 +35,98 @@ class PlaybackQueueStore private constructor(context: Context) :
     }
 
     private fun createTable(db: SQLiteDatabase, tableName: String) {
-        val builder = StringBuilder()
-        builder.append("CREATE TABLE IF NOT EXISTS ")
-        builder.append(tableName)
-        builder.append("(")
-        builder.append(AudioColumns._ID)
-        builder.append(" LONG NOT NULL,")
-        builder.append(AudioColumns.DATA)
-        builder.append(" STRING NOT NULL,")
-        builder.append(AudioColumns.TITLE)
-        builder.append(" STRING NOT NULL,")
-        builder.append(AudioColumns.TRACK)
-        builder.append(" INT NOT NULL,")
-        builder.append(AudioColumns.YEAR)
-        builder.append(" INT NOT NULL,")
-        builder.append(AudioColumns.SIZE)
-        builder.append(" LONG NOT NULL,")
-        builder.append(AudioColumns.DURATION)
-        builder.append(" LONG NOT NULL,")
-        builder.append(AudioColumns.DATE_ADDED)
-        builder.append(" LONG NOT NULL,")
-        builder.append(AudioColumns.DATE_MODIFIED)
-        builder.append(" LONG NOT NULL,")
-        builder.append(AudioColumns.ALBUM_ID)
-        builder.append(" LONG NOT NULL,")
-        builder.append(AudioColumns.ALBUM)
-        builder.append(" STRING NOT NULL,")
-        builder.append(AudioColumns.ARTIST_ID)
-        builder.append(" LONG NOT NULL,")
-        builder.append(AudioColumns.ARTIST)
-        builder.append(" STRING NOT NULL,")
-        builder.append(AudioColumns.ALBUM_ARTIST)
-        builder.append(" STRING);")
-        db.execSQL(builder.toString())
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS $tableName (
+                ${AudioColumns._ID} LONG NOT NULL,
+                ${AudioColumns.DATA} TEXT NOT NULL,
+                ${AudioColumns.TITLE} TEXT NOT NULL,
+                ${AudioColumns.TRACK} INTEGER NOT NULL,
+                ${AudioColumns.YEAR} INTEGER NOT NULL,
+                ${AudioColumns.SIZE} LONG NOT NULL,
+                ${AudioColumns.DURATION} LONG NOT NULL,
+                ${AudioColumns.DATE_ADDED} LONG NOT NULL,
+                ${AudioColumns.DATE_MODIFIED} LONG NOT NULL,
+                ${AudioColumns.ALBUM_ID} LONG NOT NULL,
+                ${AudioColumns.ALBUM} TEXT NOT NULL,
+                ${AudioColumns.ARTIST_ID} LONG NOT NULL,
+                ${AudioColumns.ARTIST} TEXT NOT NULL,
+                ${AudioColumns.ALBUM_ARTIST} TEXT
+            );
+        """.trimIndent())
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // not necessary yet
         db.execSQL("DROP TABLE IF EXISTS $PLAYING_QUEUE_TABLE_NAME")
         db.execSQL("DROP TABLE IF EXISTS $ORIGINAL_PLAYING_QUEUE_TABLE_NAME")
         onCreate(db)
     }
 
     override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // If we ever have downgrade, drop the table to be safe
         db.execSQL("DROP TABLE IF EXISTS $PLAYING_QUEUE_TABLE_NAME")
         db.execSQL("DROP TABLE IF EXISTS $ORIGINAL_PLAYING_QUEUE_TABLE_NAME")
         onCreate(db)
     }
 
-    @Synchronized
-    fun saveQueues(playingQueue: List<Song>, originalPlayingQueue: List<Song>) {
+    suspend fun saveQueues(
+        playingQueue: List<Song>,
+        originalPlayingQueue: List<Song>
+    ) = withContext(IO) {
         saveQueue(PLAYING_QUEUE_TABLE_NAME, playingQueue)
         saveQueue(ORIGINAL_PLAYING_QUEUE_TABLE_NAME, originalPlayingQueue)
     }
 
-    @Synchronized
     private fun saveQueue(tableName: String, queue: List<Song>) {
         val database = writableDatabase
-        database.beginTransaction()
-        try {
-            database.delete(tableName, null, null)
-            database.setTransactionSuccessful()
-        } finally {
-            database.endTransaction()
+        database.transaction {
+            delete(tableName, null, null)
         }
 
-        val numProcess = 20
         var position = 0
+        val chunkSize = 250
         while (position < queue.size) {
-            database.beginTransaction()
-            try {
-                var i = position
-                while (i < queue.size && i < position + numProcess) {
+            val end = minOf(position + chunkSize, queue.size)
+            database.transaction {
+                for (i in position until end) {
                     val song = queue[i]
-                    val values = ContentValues(12)
-                    values.put(AudioColumns._ID, song.id)
-                    values.put(AudioColumns.DATA, song.data)
-                    values.put(AudioColumns.TITLE, song.title)
-                    values.put(AudioColumns.TRACK, song.trackNumber)
-                    values.put(AudioColumns.YEAR, song.year)
-                    values.put(AudioColumns.SIZE, song.size)
-                    values.put(AudioColumns.DURATION, song.duration)
-                    values.put(AudioColumns.DATE_ADDED, song.dateAdded)
-                    values.put(AudioColumns.DATE_MODIFIED, song.dateModified)
-                    values.put(AudioColumns.ALBUM_ID, song.albumId)
-                    values.put(AudioColumns.ALBUM, song.albumName)
-                    values.put(AudioColumns.ARTIST_ID, song.artistId)
-                    values.put(AudioColumns.ARTIST, song.artistName)
-                    values.put(AudioColumns.ALBUM_ARTIST, song.albumArtistName)
-                    database.insert(tableName, null, values)
-                    i++
+                    val values = ContentValues(14).apply {
+                        put(AudioColumns._ID, song.id)
+                        put(AudioColumns.DATA, song.data)
+                        put(AudioColumns.TITLE, song.title)
+                        put(AudioColumns.TRACK, song.trackNumber)
+                        put(AudioColumns.YEAR, song.year)
+                        put(AudioColumns.SIZE, song.size)
+                        put(AudioColumns.DURATION, song.duration)
+                        put(AudioColumns.DATE_ADDED, song.dateAdded)
+                        put(AudioColumns.DATE_MODIFIED, song.dateModified)
+                        put(AudioColumns.ALBUM_ID, song.albumId)
+                        put(AudioColumns.ALBUM, song.albumName)
+                        put(AudioColumns.ARTIST_ID, song.artistId)
+                        put(AudioColumns.ARTIST, song.artistName)
+                        put(AudioColumns.ALBUM_ARTIST, song.albumArtistName)
+                    }
+                    insert(tableName, null, values)
                 }
-                database.setTransactionSuccessful()
-            } finally {
-                database.endTransaction()
-                position += numProcess
             }
+            position += chunkSize
         }
     }
 
-    val savedPlayingQueue: List<Song>
-        get() = getQueue(PLAYING_QUEUE_TABLE_NAME)
-
-    val savedOriginalPlayingQueue: List<Song>
-        get() = getQueue(ORIGINAL_PLAYING_QUEUE_TABLE_NAME)
-
-    private fun getQueue(tableName: String): List<Song> {
-        val songRepository = get<SongRepository>()
+    private fun getSavedQueue(tableName: String, songRepository: SongRepository): List<Song> {
         val cursor = readableDatabase.query(tableName, null, null, null, null, null, null)
-        return songRepository.songs(cursor)
+        return cursor.use { songRepository.songs(it) }
     }
+
+    fun getSavedPlayingQueue(songRepository: SongRepository): List<Song> =
+        getSavedQueue(PLAYING_QUEUE_TABLE_NAME, songRepository)
+
+    fun getSavedOriginalPlayingQueue(songRepository: SongRepository): List<Song> =
+        getSavedQueue(ORIGINAL_PLAYING_QUEUE_TABLE_NAME, songRepository)
 
     companion object {
         private const val DATABASE_NAME = "music_playback_state.db"
-        private const val PLAYING_QUEUE_TABLE_NAME = "playing_queue"
-        private const val ORIGINAL_PLAYING_QUEUE_TABLE_NAME = "original_playing_queue"
         private const val VERSION = 2
 
-        private var sInstance: PlaybackQueueStore? = null
-
-        @Synchronized
-        fun getInstance(context: Context): PlaybackQueueStore {
-            if (sInstance == null) {
-                sInstance = PlaybackQueueStore(context.applicationContext)
-            }
-            return sInstance!!
-        }
+        const val PLAYING_QUEUE_TABLE_NAME = "playing_queue"
+        const val ORIGINAL_PLAYING_QUEUE_TABLE_NAME = "original_playing_queue"
     }
 }

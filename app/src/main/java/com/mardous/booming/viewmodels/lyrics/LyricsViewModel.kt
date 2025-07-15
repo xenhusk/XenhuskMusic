@@ -8,6 +8,7 @@ import com.mardous.booming.http.Result
 import com.mardous.booming.model.Song
 import com.mardous.booming.repository.LyricsRepository
 import com.mardous.booming.service.queue.QueueManager
+import com.mardous.booming.service.queue.QueueObserver
 import com.mardous.booming.viewmodels.lyrics.model.EditableLyrics
 import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -20,9 +21,9 @@ import kotlinx.coroutines.withContext
  * @author Christians M. A. (mardous)
  */
 class LyricsViewModel(
-    queueManager: QueueManager,
+    private val queueManager: QueueManager,
     private val lyricsRepository: LyricsRepository
-) : ViewModel() {
+) : ViewModel(), QueueObserver {
 
     private val _lyricsResult = MutableStateFlow(LyricsResult.Companion.Empty)
     val lyricsResult = _lyricsResult.asStateFlow()
@@ -30,18 +31,22 @@ class LyricsViewModel(
     private val silentHandler = CoroutineExceptionHandler { _, _ -> }
 
     init {
-        queueManager.currentSongFlow
-            .onEach { updateSong(it) }
-            .flowOn(Dispatchers.IO)
-            .launchIn(viewModelScope)
+        queueManager.addObserver(this)
     }
 
-    private fun updateSong(song: Song) = viewModelScope.launch {
-        _lyricsResult.value = LyricsResult(id = song.id, loading = true)
-        val result = withContext(Dispatchers.IO) {
-            lyricsRepository.allLyrics(song, allowDownload = true, fromEditor = false)
+    override fun onCleared() {
+        queueManager.removeObserver(this)
+        super.onCleared()
+    }
+
+    override fun songChanged(currentSong: Song, nextSong: Song) {
+        viewModelScope.launch {
+            _lyricsResult.value = LyricsResult(id = currentSong.id, loading = true)
+            val result = withContext(Dispatchers.IO) {
+                lyricsRepository.allLyrics(currentSong, allowDownload = true, fromEditor = false)
+            }
+            _lyricsResult.value = result
         }
-        _lyricsResult.value = result
     }
 
     fun getOnlineLyrics(song: Song, title: String, artist: String) = liveData(Dispatchers.IO) {

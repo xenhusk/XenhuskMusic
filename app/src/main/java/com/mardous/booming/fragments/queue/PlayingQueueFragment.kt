@@ -90,7 +90,7 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
         )
 
     private val playingQueue: List<Song>
-        get() = playerViewModel.queueSongs
+        get() = playerViewModel.playingQueue
 
     private val queuePosition: Int
         get() = playerViewModel.currentPosition
@@ -153,17 +153,19 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
         updateQuickAction(null, selectedQuickAction)
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.queueStateFlow.collect { queueState ->
-                if (queueState.isEmpty) {
-                    findNavController().navigateUp()
-                } else {
-                    updateQueue()
-                }
+            playerViewModel.currentPositionFlow.collect { position ->
+                playingQueueAdapter?.setPosition(position)
+                toolbar.subtitle = queueInfo
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.currentSongFlow.collect {
-                updateQueuePosition()
+            playerViewModel.playingQueueFlow.collect { playingQueue ->
+                if (playingQueue.isEmpty()) {
+                    findNavController().navigateUp()
+                } else {
+                    playingQueueAdapter?.swapDataSet(playingQueue)
+                    toolbar.subtitle = queueInfo
+                }
             }
         }
     }
@@ -248,7 +250,7 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
 
     private fun resetToCurrentPosition() {
         binding.recyclerView.stopScroll()
-        linearLayoutManager!!.scrollToPositionWithOffset(queuePosition, 0)
+        linearLayoutManager?.scrollToPositionWithOffset(queuePosition, 0)
     }
 
     private fun updateQuickAction(oldAction: QueueQuickAction?, newAction: QueueQuickAction) {
@@ -258,16 +260,6 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
         toolbar.menu.findItem(newAction.menuItemId).isVisible = false
         binding.quickActionButton.setText(newAction.titleRes)
         binding.quickActionButton.setIconResource(newAction.iconRes)
-    }
-
-    private fun updateQueue() {
-        playingQueueAdapter?.swapDataSet(playingQueue, queuePosition)
-        toolbar.subtitle = queueInfo
-    }
-
-    private fun updateQueuePosition() {
-        playingQueueAdapter?.current = queuePosition
-        toolbar.subtitle = queueInfo
     }
 
     override fun onPause() {
@@ -290,7 +282,7 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
         linearLayoutManager = null
 
         super.onDestroyView()
-        if (playerViewModel.queueSongs.isNotEmpty())
+        if (playerViewModel.playingQueue.isNotEmpty())
             mainActivity.expandPanel()
     }
 }

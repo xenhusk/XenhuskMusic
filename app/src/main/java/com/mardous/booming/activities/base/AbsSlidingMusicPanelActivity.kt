@@ -139,9 +139,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         updateColor()
 
         launchAndRepeatWithViewLifecycle {
-            playerViewModel.queueStateFlow.collect { queueState ->
+            playerViewModel.playingQueueFlow.collect { playingQueue ->
                 if (currentFragment(R.id.fragment_container) !is PlayingQueueFragment) {
-                    hideBottomSheet(queueState.isEmpty)
+                    hideBottomSheet(playingQueue.isEmpty())
                 }
             }
         }
@@ -227,7 +227,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
     fun setBottomNavVisibility(
         visible: Boolean,
         animate: Boolean = false,
-        hideBottomSheet: Boolean = playerViewModel.queueSongs.isEmpty(),
+        hideBottomSheet: Boolean = playerViewModel.playingQueue.isEmpty(),
     ) {
         if (isInOneTabMode) {
             hideBottomSheet(hide = hideBottomSheet, animate = animate, isBottomNavVisible = false)
@@ -278,7 +278,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                 miniPlayerHeight = 0
             )
         } else {
-            if (playerViewModel.queueSongs.isNotEmpty()) {
+            if (playerViewModel.playingQueue.isNotEmpty()) {
                 slidingPanel.elevation = 0f
                 navigationView.elevation = 5f
                 if (isBottomNavVisible) {

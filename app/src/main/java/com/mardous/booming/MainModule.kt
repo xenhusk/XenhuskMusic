@@ -102,7 +102,7 @@ private val mainModule = module {
         EqualizerManager(context = androidContext())
     }
     single {
-        QueueManager(context = androidContext())
+        QueueManager()
     }
     single {
         PlaybackManager(context = androidContext(), equalizerManager = get(), soundSettings = get())

@@ -109,7 +109,7 @@ class AutoMusicProvider(
                 }
 
             AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_QUEUE ->
-                for (song in queueManager.queueSongs) {
+                for (song in queueManager.playingQueue) {
                     mediaItems.add(
                         AutoMediaItem.with(mContext)
                             .asPlayable()
@@ -221,7 +221,7 @@ class AutoMusicProvider(
                 .path(AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_QUEUE)
                 .icon(R.drawable.ic_queue_music_24dp)
                 .title(resources.getString(R.string.playing_queue_label))
-                .subTitle(queueManager.queueSongs.playlistInfo(mContext))
+                .subTitle(queueManager.playingQueue.playlistInfo(mContext))
                 .asBrowsable().build()
         )
         mediaItems.add(

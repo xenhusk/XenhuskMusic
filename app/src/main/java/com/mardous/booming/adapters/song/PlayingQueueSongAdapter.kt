@@ -27,12 +27,11 @@ import com.h6ah4i.android.widget.advrecyclerview.draggable.DraggableItemViewHold
 import com.h6ah4i.android.widget.advrecyclerview.draggable.ItemDraggableRange
 import com.mardous.booming.R
 import com.mardous.booming.extensions.resources.hitTest
+import com.mardous.booming.extensions.showToast
 import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.Song
 import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.getViewModel
-import kotlin.properties.Delegates
-import kotlin.reflect.KProperty
 
 class PlayingQueueSongAdapter(
     activity: FragmentActivity,
@@ -46,9 +45,7 @@ class PlayingQueueSongAdapter(
         fun onRemoveSong(song: Song, fromPosition: Int)
     }
 
-    var current: Int by Delegates.observable(current) { _: KProperty<*>, _: Int, _: Int ->
-        notifyDataSetChanged()
-    }
+    var currentPosition: Int = current
 
     override fun createViewHolder(view: View, viewType: Int): SongAdapter.ViewHolder {
         return ViewHolder(view)
@@ -61,8 +58,21 @@ class PlayingQueueSongAdapter(
         }
     }
 
-    fun swapDataSet(dataSet: List<Song>, position: Int) {
-        this.current = position
+    fun setPosition(newPosition: Int) {
+        if (newPosition > dataSet.lastIndex || newPosition < 0)
+            return
+
+        if (newPosition > this.currentPosition) {
+            notifyItemRangeChanged(currentPosition, (newPosition - currentPosition) + 1)
+        } else if (newPosition < this.currentPosition) {
+            notifyItemRangeChanged(newPosition, (currentPosition - newPosition) + 1)
+        } else {
+            notifyItemRangeChanged(0, newPosition)
+        }
+        this.currentPosition = newPosition
+    }
+
+    fun swapDataSet(dataSet: List<Song>) {
         this.dataSet = dataSet
     }
 
@@ -85,8 +95,8 @@ class PlayingQueueSongAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return when {
-            position < current -> HISTORY
-            position > current -> UP_NEXT
+            position < currentPosition -> HISTORY
+            position > currentPosition -> UP_NEXT
             else -> CURRENT
         }
     }
@@ -140,10 +150,10 @@ class PlayingQueueSongAdapter(
         override fun onPrepareSongMenu(menu: Menu) {
             super.onPrepareSongMenu(menu)
             menu.findItem(R.id.action_put_after_current_track)?.let { menuItem ->
-                menuItem.isEnabled = layoutPosition > current + 1
+                menuItem.isEnabled = layoutPosition > currentPosition + 1
             }
             menu.findItem(R.id.action_stop_after_track)?.let { menuItem ->
-                menuItem.isEnabled = layoutPosition >= current
+                menuItem.isEnabled = layoutPosition >= currentPosition
             }
         }
 
@@ -161,7 +171,24 @@ class PlayingQueueSongAdapter(
 
                 R.id.action_stop_after_track -> {
                     val playerViewModel = activity.getViewModel<PlayerViewModel>()
-                    playerViewModel.stopAt(layoutPosition)
+                    val stopAtResult = playerViewModel.stopAt(layoutPosition)
+                    if (stopAtResult.first != Song.emptySong) {
+                        if (stopAtResult.second) {
+                            activity.showToast(
+                                activity.getString(
+                                    R.string.sleep_timer_stop_after_x,
+                                    stopAtResult.first.title
+                                )
+                            )
+                        } else {
+                            activity.showToast(
+                                activity.getString(
+                                    R.string.sleep_timer_stop_after_x_canceled,
+                                    stopAtResult.first.title
+                                )
+                            )
+                        }
+                    }
                     true
                 }
 

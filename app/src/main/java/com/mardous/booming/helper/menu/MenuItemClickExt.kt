@@ -164,7 +164,7 @@ fun List<Song>.onSongsMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
                 if (added == 1) {
                     fragment.showToast(R.string.added_title_to_playing_queue)
                 } else {
-                    fragment.showToast(R.string.added_x_titles_to_playing_queue, added)
+                    fragment.showToast(fragment.getString(R.string.added_x_titles_to_playing_queue, added))
                 }
             }
             true
@@ -176,7 +176,7 @@ fun List<Song>.onSongsMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
                 if (added == 1) {
                     fragment.showToast(R.string.added_title_to_playing_queue)
                 } else {
-                    fragment.showToast(R.string.added_x_titles_to_playing_queue, added)
+                    fragment.showToast(fragment.getString(R.string.added_x_titles_to_playing_queue, added))
                 }
             }
             true

@@ -474,6 +474,10 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(SLEEP_TIMER_FINISH_SONG, false)
         set(value) = preferences.edit { putBoolean(SLEEP_TIMER_FINISH_SONG, value) }
 
+    var isSwipeControls: Boolean
+        get() = preferences.getBoolean(SWIPE_CONTROLS, false)
+        set(value) = preferences.edit { putBoolean(SWIPE_CONTROLS, value) }
+
     fun SharedPreferences.nullString(key: String): String? = getString(key, null)
 
     fun SharedPreferences.requireString(key: String, defaultValue: String): String =
@@ -705,3 +709,4 @@ const val LAST_SLEEP_TIMER_VALUE = "last_sleep_timer_value"
 const val NEXT_SLEEP_TIMER_ELAPSED_REALTIME = "next_sleep_timer_elapsed_real_time"
 const val SLEEP_TIMER_FINISH_SONG = "sleep_timer_finish_music"
 const val HIERARCHY_FOLDER_VIEW = "hierarchy_folder_view"
+const val SWIPE_CONTROLS = "swipe_controls"

@@ -28,7 +28,6 @@ import com.mardous.booming.viewmodels.player.model.SaveCoverResult
 import com.mardous.booming.worker.SaveCoverWorker
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -369,7 +368,7 @@ class PlayerViewModel(
     }
 
     override fun onCleared() {
-        mediaController?.unregisterCallback(controllerCallback)
+        setMediaController(null)
         queueManager.removeObserver(this)
         super.onCleared()
     }

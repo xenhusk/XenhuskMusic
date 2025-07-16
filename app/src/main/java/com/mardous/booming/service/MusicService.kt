@@ -106,8 +106,6 @@ import kotlin.random.Random
 class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserver,
     OnSharedPreferenceChangeListener, AudioManager.OnAudioFocusChangeListener {
 
-    private val mBinder: IBinder = MusicBinder()
-
     private val serviceScope = CoroutineScope(Job() + Main)
 
     private val repository by inject<Repository>()
@@ -261,18 +259,11 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         return START_NOT_STICKY
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        // For Android auto, need to call super, or onGetRoot won't be called.
-        return if (intent != null && "android.media.browse.MediaBrowserService" == intent.action) {
-            super.onBind(intent)
-        } else mBinder
-    }
-
     override fun onUnbind(intent: Intent?): Boolean {
         if (!isPlaying && !isPausedByTransientLossOfFocus) {
             stopSelf()
         }
-        return true
+        return super.onUnbind(intent)
     }
 
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
@@ -689,7 +680,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         pause()
         stopForegroundAndNotification()
 
-        //force to updateMetadata play count if necessary
+        //force to update play count if necessary
         bumpPlayCount()
 
         stopSelf()
@@ -748,7 +739,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
 
                 isForeground = true
             } else {
-                // If we are already in foreground just updateMetadata the notification
+                // If we are already in foreground just update the notification
                 notificationManager?.notify(PlayingNotification.NOTIFICATION_ID, playingNotification!!.build())
             }
         } else {
@@ -1431,11 +1422,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
                 }
             }
         }
-    }
-
-    inner class MusicBinder : Binder() {
-        val service: MusicService
-            get() = this@MusicService
     }
 
     companion object {

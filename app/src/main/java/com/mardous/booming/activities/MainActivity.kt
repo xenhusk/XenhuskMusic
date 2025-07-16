@@ -158,9 +158,11 @@ class MainActivity : AbsSlidingMusicPanelActivity() {
         handlePlaybackIntent(intent, false)
     }
 
-    override fun onMediaBrowserConnected() {
-        super.onMediaBrowserConnected()
-        intent?.let { handlePlaybackIntent(it, true) }
+    override fun onMediaBrowserConnectionStateChanged(isConnected: Boolean) {
+        super.onMediaBrowserConnectionStateChanged(isConnected)
+        if (isConnected) {
+            intent?.let { handlePlaybackIntent(it, true) }
+        }
     }
 
     private fun handlePlaybackIntent(intent: Intent, canRestorePlayback: Boolean) {

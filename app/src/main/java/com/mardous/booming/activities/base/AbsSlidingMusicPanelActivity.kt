@@ -22,8 +22,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.session.MediaControllerCompat
 import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.widget.FrameLayout
@@ -59,6 +57,7 @@ import com.mardous.booming.model.CategoryInfo
 import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.search.SearchQuery
 import com.mardous.booming.service.MusicService
+import com.mardous.booming.service.MusicServiceConnection
 import com.mardous.booming.util.*
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.player.PlayerViewModel
@@ -75,7 +74,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
     protected val libraryViewModel: LibraryViewModel by viewModel()
     protected val playerViewModel: PlayerViewModel by viewModel()
 
-    private lateinit var mediaBrowser: MediaBrowserCompat
+    private val musicServiceConnection: MusicServiceConnection by lazy {
+        MusicServiceConnection(this, ComponentName(this, MusicService::class.java))
+    }
 
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
     private lateinit var nowPlayingScreen: NowPlayingScreen
@@ -131,7 +132,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             insets.also { windowInsets = it }
         }
 
-        createMediaBrowser()
         chooseFragmentForTheme()
         setupNavigationView()
         setupSlidingUpPanel()
@@ -152,13 +152,43 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             }
         }
 
+        musicServiceConnection.isConnected.observe(this) { isConnected ->
+            onMediaBrowserConnectionStateChanged(isConnected)
+        }
+
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
-    private fun createMediaBrowser() {
-        val component = ComponentName(this, MusicService::class.java)
-        mediaBrowser = MediaBrowserCompat(this, component, mediaBrowserConnectionCallback, null)
-        mediaBrowser.connect()
+    override fun onStart() {
+        super.onStart()
+        musicServiceConnection.connect()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        musicServiceConnection.disconnect()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Preferences.registerOnSharedPreferenceChangeListener(this)
+        if (nowPlayingScreen != Preferences.nowPlayingScreen) {
+            postRecreate()
+        }
+        if (bottomSheetBehavior.state == STATE_EXPANDED) {
+            setMiniPlayerAlphaProgress(1f)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        clearNavigationViewGestures()
+        bottomSheetBehavior.removeBottomSheetCallback(bottomSheetCallback)
+        Preferences.unregisterOnSharedPreferenceChangeListener(this)
+    }
+
+    protected open fun onMediaBrowserConnectionStateChanged(isConnected: Boolean) {
+        playerViewModel.setMediaController(musicServiceConnection.mediaController)
     }
 
     private fun setupNavigationView() {
@@ -195,39 +225,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                 }
             }
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Preferences.registerOnSharedPreferenceChangeListener(this)
-        if (nowPlayingScreen != Preferences.nowPlayingScreen) {
-            postRecreate()
-        }
-        if (bottomSheetBehavior.state == STATE_EXPANDED) {
-            setMiniPlayerAlphaProgress(1f)
-        }
-    }
-
-    override fun onDestroy() {
-        mediaBrowser.disconnect()
-        super.onDestroy()
-        clearNavigationViewGestures()
-        bottomSheetBehavior.removeBottomSheetCallback(bottomSheetCallback)
-        Preferences.unregisterOnSharedPreferenceChangeListener(this)
-    }
-
-    protected open fun onMediaBrowserConnected() {
-        val token = mediaBrowser.sessionToken
-        var mediaController = MediaControllerCompat.getMediaController(this)
-        if (mediaController == null) {
-            mediaController = MediaControllerCompat(this, token)
-            MediaControllerCompat.setMediaController(this, mediaController)
-        }
-        playerViewModel.setMediaController(mediaController)
-    }
-
-    protected open fun onMediaBrowserDisconnected() {
-        playerViewModel.setMediaController(null)
     }
 
     fun setBottomNavVisibility(
@@ -509,20 +506,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
 
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
             setMiniPlayerAlphaProgress(slideOffset)
-        }
-    }
-
-    private val mediaBrowserConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
-        override fun onConnected() {
-            onMediaBrowserConnected()
-        }
-
-        override fun onConnectionSuspended() {
-            onMediaBrowserDisconnected()
-        }
-
-        override fun onConnectionFailed() {
-            onMediaBrowserDisconnected()
         }
     }
 }

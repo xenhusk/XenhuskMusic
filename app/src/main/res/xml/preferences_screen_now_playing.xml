@@ -121,6 +121,14 @@
             app:layout="@layout/list_item_view_switch"
             app:key="animate_player_control" />
 
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="@string/swipe_controls_title"
+            app:summary="@string/swipe_controls_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view_switch"
+            app:key="swipe_controls" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

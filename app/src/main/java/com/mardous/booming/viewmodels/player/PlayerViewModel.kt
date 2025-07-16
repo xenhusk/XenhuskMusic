@@ -66,7 +66,7 @@ class PlayerViewModel(
     val songProgress get() = progressFlow.value.progress
     val songDuration get() = progressFlow.value.total
 
-    private val _isPlayingFlow = MutableStateFlow(false)
+    private val _isPlayingFlow = MutableStateFlow(playbackManager.isPlaying())
     val isPlayingFlow = _isPlayingFlow.asStateFlow()
     val isPlaying get() = isPlayingFlow.value
 

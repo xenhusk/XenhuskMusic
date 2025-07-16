@@ -106,6 +106,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         onCreateChildFragments()
+        onPrepareViewGestures(view)
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.mediaEvent.filter { it == MediaEvent.FavoriteContentChanged }
                 .collect {
@@ -127,19 +128,21 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                 applyColorScheme(scheme)?.start()
             }
         }
-
-        view.setOnTouchListener(
-            FlingPlayBackController(
-                requireContext(),
-                playerViewModel
-            )
-        )
     }
 
     @CallSuper
     protected open fun onCreateChildFragments() {
         coverFragment = whichFragment(R.id.playerAlbumCoverFragment)
         coverFragment?.setCallbacks(this)
+    }
+
+    protected open fun onPrepareViewGestures(view: View) {
+        view.setOnTouchListener(
+            FlingPlayBackController(
+                requireContext(),
+                playerViewModel
+            )
+        )
     }
 
     internal fun inflateMenuInView(view: View?): PopupMenu? {

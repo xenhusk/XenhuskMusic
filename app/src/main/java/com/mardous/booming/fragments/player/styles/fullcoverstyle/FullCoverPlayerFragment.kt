@@ -97,6 +97,8 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
         }
     }
 
+    override fun onPrepareViewGestures(view: View) {}
+
     private fun setupColors() {
         binding.nextSongLabel.setTextColor(disabledPlaybackControlsColor)
         binding.nextSongText.setTextColor(playbackControlsColor)

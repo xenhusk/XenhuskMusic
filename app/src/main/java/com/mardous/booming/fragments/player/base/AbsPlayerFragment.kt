@@ -18,14 +18,18 @@
 package com.mardous.booming.fragments.player.base
 
 import android.animation.AnimatorSet
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
+import android.view.GestureDetector
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
@@ -77,6 +81,7 @@ import com.mardous.booming.viewmodels.player.PlayerViewModel
 import com.mardous.booming.viewmodels.player.model.MediaEvent
 import kotlinx.coroutines.flow.filter
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import kotlin.math.abs
 
 /**
  * @author Christians M. A. (mardous)
@@ -122,6 +127,13 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                 applyColorScheme(scheme)?.start()
             }
         }
+
+        view.setOnTouchListener(
+            FlingPlayBackController(
+                requireContext(),
+                playerViewModel
+            )
+        )
     }
 
     @CallSuper
@@ -487,6 +499,38 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
                 }
             }
         }
+    }
+}
+
+class FlingPlayBackController(context: Context, playerViewModel: PlayerViewModel) :
+    View.OnTouchListener {
+    private var flingPlayBackController = GestureDetector(
+        context,
+        object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (Preferences.isSwipeControls) {
+                    if (abs(velocityX) > abs(velocityY)) {
+                        if (velocityX < 0) {
+                            playerViewModel.playPrevious()
+                            return true
+                        } else if (velocityX > 0) {
+                            playerViewModel.playNext()
+                            return true
+                        }
+                    }
+                }
+                return false
+            }
+        })
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        return flingPlayBackController.onTouchEvent(event)
     }
 }
 

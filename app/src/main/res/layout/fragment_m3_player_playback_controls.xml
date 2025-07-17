@@ -70,18 +70,17 @@
         app:layout_constraintTop_toTopOf="@id/progressSlider"
         tools:text="@tools:sample/date/hhmmss" />
 
-    <com.google.android.material.slider.Slider
+    <SeekBar
         android:id="@+id/progressSlider"
-        style="@style/Widget.Material3.Slider.Legacy"
+        style="@style/SquigglySlider"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        app:labelBehavior="gone"
         app:layout_constraintEnd_toStartOf="@id/songTotalTime"
         app:layout_constraintStart_toEndOf="@id/songCurrentProgress"
         app:layout_constraintTop_toBottomOf="@+id/text_container"
         app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
-        tools:progress="20" />
+        tools:progress="50" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/songTotalTime"

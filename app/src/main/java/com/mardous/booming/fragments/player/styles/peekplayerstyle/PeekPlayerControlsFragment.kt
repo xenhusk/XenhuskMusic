@@ -20,17 +20,21 @@ package com.mardous.booming.fragments.player.styles.peekplayerstyle
 import android.animation.Animator
 import android.animation.TimeInterpolator
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.SeekBar
 import android.widget.TextView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentPeekPlayerPlaybackControlsBinding
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.model.Song
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.views.SquigglyProgress
 import java.util.LinkedList
 
 /**
@@ -47,7 +51,7 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
     override val shuffleButton: MaterialButton?
         get() = _binding?.shuffleButton
 
-    override val progressSlider: Slider
+    override val seekBar: SeekBar
         get() = binding.progressSlider
 
     override val songCurrentProgress: TextView
@@ -65,11 +69,18 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
         binding.previousButton.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)
         binding.repeatButton.setOnClickListener(this)
+
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.isPlayingFlow.collect { isPlaying ->
+                (seekBar.progressDrawable as? SquigglyProgress)?.animate = isPlaying
+            }
+        }
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
+        val desiredState = intArrayOf(android.R.attr.state_pressed)
         val oldControlColor = binding.nextButton.iconTint.defaultColor
-        val oldSliderColor = binding.progressSlider.trackActiveTintList.defaultColor
+        val oldSliderColor = binding.progressSlider.progressTintList!!.getColorForState(desiredState, Color.BLACK)
         val oldSecondaryTextColor = binding.songCurrentProgress.currentTextColor
         val oldShuffleColor = getPlaybackControlsColor(isShuffleModeOn)
         val newShuffleColor = getPlaybackControlsColor(

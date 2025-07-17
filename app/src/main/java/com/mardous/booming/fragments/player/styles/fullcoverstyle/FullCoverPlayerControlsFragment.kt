@@ -36,12 +36,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentFullCoverPlayerPlaybackControlsBinding
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.resources.showBounceAnimation
 import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.views.SquigglyProgress
 import java.util.LinkedList
 
 /**
@@ -62,7 +64,7 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
     override val shuffleButton: MaterialButton?
         get() = binding.shuffleButton
 
-    override val progressSlider: Slider
+    override val seekBar: SeekBar
         get() = binding.progressSlider
 
     override val songCurrentProgress: TextView
@@ -97,6 +99,11 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
             v.updatePadding(left = displayCutout.left, right = displayCutout.right)
             insets
         }
+        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
+            playerViewModel.isPlayingFlow.collect { isPlaying ->
+                (seekBar.progressDrawable as? SquigglyProgress)?.animate = isPlaying
+            }
+        }
     }
 
     override fun onClick(view: View) {
@@ -118,11 +125,12 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
+        val desiredState = intArrayOf(android.R.attr.state_pressed)
         val oldPlayPauseColor = binding.playPauseButton.backgroundTintList?.defaultColor
             ?: Color.TRANSPARENT
 
         val oldControlColor = binding.nextButton.iconTint.defaultColor
-        val oldSliderColor = binding.progressSlider.trackActiveTintList.defaultColor
+        val oldSliderColor = binding.progressSlider.progressTintList!!.getColorForState(desiredState, Color.BLACK)
         val oldPrimaryTextColor = binding.title.currentTextColor
         val oldSecondaryTextColor = binding.text.currentTextColor
 

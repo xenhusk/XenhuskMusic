@@ -215,7 +215,7 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
                 seekBar?.progress = progress.toInt()
             } else {
                 progressAnimator = ObjectAnimator.ofInt(seekBar, "progress", progress.toInt()).apply {
-                    duration = SLIDER_ANIMATION_TIME
+                    duration = 0
                     interpolator = LinearInterpolator()
                     start()
                 }
@@ -330,9 +330,5 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
     override fun onDestroyView() {
         super.onDestroyView()
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
-    }
-
-    companion object {
-        const val SLIDER_ANIMATION_TIME: Long = 400
     }
 }

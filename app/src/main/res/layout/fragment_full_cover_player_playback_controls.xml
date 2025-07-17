@@ -79,18 +79,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="@dimen/list_pref_guideline_begin"/>
+        app:layout_constraintGuide_end="@dimen/list_pref_guideline_begin"/>>
 
-    <com.google.android.material.slider.Slider
+    <SeekBar
         android:id="@+id/progressSlider"
+        style="@style/SquigglySlider"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:maxHeight="2dp"
-        app:labelBehavior="gone"
         app:layout_constraintTop_toBottomOf="@+id/titleContainer"
         app:layout_constraintBottom_toTopOf="@+id/playPauseButton"
         app:layout_constraintStart_toEndOf="@+id/progressGuideline"
-        app:layout_constraintEnd_toStartOf="@+id/durationGuideline"/>
+        app:layout_constraintEnd_toStartOf="@+id/durationGuideline"
+        tools:progress="50" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/songCurrentProgress"

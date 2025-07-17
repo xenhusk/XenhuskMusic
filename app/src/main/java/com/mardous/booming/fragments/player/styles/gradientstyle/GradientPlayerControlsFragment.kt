@@ -82,11 +82,6 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
             v.updatePadding(left = displayCutout.left, right = displayCutout.right)
             insets
         }
-        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.isPlayingFlow.collect { isPlaying ->
-                (seekBar.progressDrawable as? SquigglyProgress)?.animate = isPlaying
-            }
-        }
     }
 
     @SuppressLint("ClickableViewAccessibility")

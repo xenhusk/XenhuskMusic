@@ -99,11 +99,6 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
             v.updatePadding(left = displayCutout.left, right = displayCutout.right)
             insets
         }
-        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.isPlayingFlow.collect { isPlaying ->
-                (seekBar.progressDrawable as? SquigglyProgress)?.animate = isPlaying
-            }
-        }
     }
 
     override fun onClick(view: View) {

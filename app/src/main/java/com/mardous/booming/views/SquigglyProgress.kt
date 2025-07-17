@@ -177,7 +177,7 @@ class SquigglyProgress : Drawable() {
 
         // Build the wave, incrementing by half the wavelength each time
         var currentX = waveStart
-        var waveSign = 1f
+        var waveSign = 2f
         var currentAmp = computeAmplitude(currentX, waveSign)
         val dist = waveLength / 2f
         while (currentX < waveEnd) {
@@ -213,10 +213,6 @@ class SquigglyProgress : Drawable() {
             // The discontinuity is hidden by the progress bar thumb shape.
             canvas.drawLine(totalProgressPx, 0f, totalWidth, 0f, linePaint)
         }
-
-        // Draw round line cap at the beginning of the wave
-        val startAmp = cos(abs(waveStart) / waveLength * TWO_PI)
-        canvas.drawPoint(0f, startAmp * lineAmplitude * heightFraction, wavePaint)
 
         canvas.restore()
     }

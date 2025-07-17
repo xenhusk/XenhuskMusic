@@ -69,12 +69,6 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
         binding.previousButton.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)
         binding.repeatButton.setOnClickListener(this)
-
-        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.isPlayingFlow.collect { isPlaying ->
-                (seekBar.progressDrawable as? SquigglyProgress)?.animate = isPlaying
-            }
-        }
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {

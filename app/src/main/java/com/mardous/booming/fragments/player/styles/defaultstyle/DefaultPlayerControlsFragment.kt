@@ -83,12 +83,6 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
         binding.repeatButton.setOnClickListener(this)
 
         setViewAction(binding.queueInfo, NowPlayingAction.OpenPlayQueue)
-
-        viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.isPlayingFlow.collect { isPlaying ->
-                (seekBar.progressDrawable as? SquigglyProgress)?.animate = isPlaying
-            }
-        }
     }
 
     override fun onCreatePlayerAnimator(): PlayerAnimator {

@@ -600,6 +600,7 @@
     <string name="circle_button_title">Circulaire afspeelknop</string>
     <string name="swipe_album_cover_title">Swipe albumhoes</string>
     <string name="swipe_album_cover_summary">Veeg naar links en rechts op de albumhoes om tussen nummers over te slaan.</string>
+    <string name="single_tap_on_album_cover_title">Single tap on cover</string>
     <string name="double_tap_on_album_cover_title">Dubbele tik op de afdekking</string>
     <string name="long_press_on_album_cover_title">Lang drukken op omslag</string>
     <string name="now_playing_corner_radius_title">Hoekradius van afbeelding</string>
@@ -610,6 +611,8 @@
     <string name="lyrics_on_album_cover_summary">Toon songteksten in plaats van cover wanneer ze beschikbaar zijn.</string>
     <string name="animate_controls_title">Animeer bediening</string>
     <string name="animate_controls_summary">Wordt gespeeld bij het openen van het spelerspaneel.</string>
+    <string name="swipe_controls_title">Swipe controls</string>
+    <string name="swipe_controls_summary">Swipe left on any blank space in the now playing screen to go to the previous song and swipe right to go to the next song.</string>
     <string name="display_album_name_title">Toon albumnaam</string>
     <string name="display_extra_info_title">Extra info weergeven</string>
     <string name="display_extra_info_summary">Extra info over het nummer weergeven, zoals bitrate, formaat, sampling rate, enz.</string>
@@ -625,6 +628,8 @@
     <string name="gapless_playback_summary">Vloeiende overgang tussen liedjes. Kan afspeelproblemen veroorzaken op sommige apparaten.</string>
     <string name="crossfade_title">Crossfade (experimental)</string>
     <string name="crossfade_summary">Seconds it takes to crossfade between songs (set to 0 to disable).</string>
+    <string name="no_crossfade_on_albums_title">No crossfade on albums</string>
+    <string name="no_crossfade_on_albums_summary">Do not crossfade when playing albums in their original order.</string>
     <string name="audio_fade_duration_title">Audio fade duration (experimental)</string>
     <string name="audio_fade_duration_summary">Seconds it takes to fade the volume in or out when playback starts or pauses (set to 0 to disable).</string>
     <string name="replaygain_source_mode_title">Bron modus</string>

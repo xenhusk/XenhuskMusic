@@ -600,6 +600,7 @@
     <string name="circle_button_title">Runde Wiedergabetaste</string>
     <string name="swipe_album_cover_title">Über Albumcover wischen</string>
     <string name="swipe_album_cover_summary">Wische über das Albumcover nach links und rechts, um zwischen den Titeln zu springen.</string>
+    <string name="single_tap_on_album_cover_title">Single tap on cover</string>
     <string name="double_tap_on_album_cover_title">Auf Albumcover doppeltippen</string>
     <string name="long_press_on_album_cover_title">Albumcover gedrückt halten</string>
     <string name="now_playing_corner_radius_title">Bild-Eckradius</string>
@@ -610,6 +611,8 @@
     <string name="lyrics_on_album_cover_summary">Liedtexte statt Albumcover anzeigen, wenn verfügbar.</string>
     <string name="animate_controls_title">Steuerelemente animieren</string>
     <string name="animate_controls_summary">Startet beim Öffnen der Wiedergabe-Ansicht.</string>
+    <string name="swipe_controls_title">Swipe controls</string>
+    <string name="swipe_controls_summary">Swipe left on any blank space in the now playing screen to go to the previous song and swipe right to go to the next song.</string>
     <string name="display_album_name_title">Album-Titel anzeigen</string>
     <string name="display_extra_info_title">Zusätzliche Informationen anzeigen</string>
     <string name="display_extra_info_summary">Zeigt zusätzliche Titel-Informationen an, wie Bitrate, Format, Abtastrate usw.</string>
@@ -625,6 +628,8 @@
     <string name="gapless_playback_summary">Nahtloser Übergang zwischen den Titeln. Kann auf manchen Geräten zu Wiedergabeproblemen führen.</string>
     <string name="crossfade_title">Überblenden (experimentell)</string>
     <string name="crossfade_summary">Dauer in Sekunden, um zwischen Titeln überzublenden (wähle 0 zum Deaktivieren).</string>
+    <string name="no_crossfade_on_albums_title">No crossfade on albums</string>
+    <string name="no_crossfade_on_albums_summary">Do not crossfade when playing albums in their original order.</string>
     <string name="audio_fade_duration_title">Audio-Blendendauer (experimentell)</string>
     <string name="audio_fade_duration_summary">Dauer in Sekunden, um bei Wiedergabestart oder -pause ein- oder auszublenden (wähle 0 zum Deaktivieren).</string>
     <string name="replaygain_source_mode_title">Quellmodus</string>

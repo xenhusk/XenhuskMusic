@@ -600,6 +600,7 @@
     <string name="circle_button_title">Κυκλικό κουμπί αναπαραγωγής</string>
     <string name="swipe_album_cover_title">Σύρετε το εξώφυλλο άλμπουμ</string>
     <string name="swipe_album_cover_summary">Σύρετε αριστερά και δεξιά στο εξώφυλλο του άλμπουμ για να παραλείψετε μεταξύ τραγουδιών.</string>
+    <string name="single_tap_on_album_cover_title">Single tap on cover</string>
     <string name="double_tap_on_album_cover_title">Διπλό χτύπημα στο εξώφυλλο</string>
     <string name="long_press_on_album_cover_title">Παρατεταμένο πάτημα στο εξώφυλλο</string>
     <string name="now_playing_corner_radius_title">Image corner radius</string>
@@ -610,6 +611,8 @@
     <string name="lyrics_on_album_cover_summary">Εμφάνιση στίχων τραγουδιών αντί για εξώφυλλο όταν είναι διαθέσιμοι.</string>
     <string name="animate_controls_title">Εφέ κίνησης ελέγχων</string>
     <string name="animate_controls_summary">Παίζεται όταν ανοίγετε τον πίνακα του παίκτη.</string>
+    <string name="swipe_controls_title">Swipe controls</string>
+    <string name="swipe_controls_summary">Swipe left on any blank space in the now playing screen to go to the previous song and swipe right to go to the next song.</string>
     <string name="display_album_name_title">Εμφάνιση ονόματος άλμπουμ</string>
     <string name="display_extra_info_title">Εμφάνιση επιπλέον πληροφοριών</string>
     <string name="display_extra_info_summary">Εμφάνιση επιπλέον πληροφοριών σχετικά με το τραγούδι, όπως bitate, μορφή, ποσοστό δειγματοληψίας, κλπ.</string>
@@ -625,6 +628,8 @@
     <string name="gapless_playback_summary">Ομαλή μετάβαση μεταξύ τραγουδιών. Μπορεί να προκαλέσει προβλήματα αναπαραγωγής σε ορισμένες συσκευές.</string>
     <string name="crossfade_title">Crossfade (experimental)</string>
     <string name="crossfade_summary">Seconds it takes to crossfade between songs (set to 0 to disable).</string>
+    <string name="no_crossfade_on_albums_title">No crossfade on albums</string>
+    <string name="no_crossfade_on_albums_summary">Do not crossfade when playing albums in their original order.</string>
     <string name="audio_fade_duration_title">Audio fade duration (experimental)</string>
     <string name="audio_fade_duration_summary">Seconds it takes to fade the volume in or out when playback starts or pauses (set to 0 to disable).</string>
     <string name="replaygain_source_mode_title">Λειτουργία πηγής</string>

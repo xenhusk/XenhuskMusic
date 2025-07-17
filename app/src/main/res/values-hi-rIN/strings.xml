@@ -598,6 +598,7 @@
     <string name="circle_button_title">गोल प्ले बटन</string>
     <string name="swipe_album_cover_title">एल्बम का कवर स्वाइप करें</string>
     <string name="swipe_album_cover_summary">गाने के बीच में स्किप करने के लिए एल्बम कवर पर बाईं और दाईं ओर स्वाइप करें।</string>
+    <string name="single_tap_on_album_cover_title">Single tap on cover</string>
     <string name="double_tap_on_album_cover_title">कवर पर डबल टैप करें</string>
     <string name="long_press_on_album_cover_title">कवर पर लंबे समय तक दबाएँ</string>
     <string name="now_playing_corner_radius_title">इमेज का कोना रेडियस</string>
@@ -608,6 +609,8 @@
     <string name="lyrics_on_album_cover_summary">जब गाने के बोल उपलब्ध हों, तो कवर के बजाय गाने के बोल दिखाएँ।</string>
     <string name="animate_controls_title">एनिमेट कंट्रोल्स</string>
     <string name="animate_controls_summary">यह प्लेयर पैनल खोलना पर बजाय जाता है।</string>
+    <string name="swipe_controls_title">Swipe controls</string>
+    <string name="swipe_controls_summary">Swipe left on any blank space in the now playing screen to go to the previous song and swipe right to go to the next song.</string>
     <string name="display_album_name_title">एल्बम का नाम दिखाएँ</string>
     <string name="display_extra_info_title">अतिरिक्त जानकारी प्रदर्शित करें</string>
     <string name="display_extra_info_summary">गाने के बारे में अतिरिक्त जानकारी दिखाएँ, जैसे बिटरेट, फ़ॉर्मेट, सैंपलिंग दर, आदि।</string>
@@ -623,6 +626,8 @@
     <string name="gapless_playback_summary">गानों के बीच सुचारू रूपांतरण। कुछ उपकरणों पर प्लेबैक समस्याएँ उत्पन्न कर सकता है।</string>
     <string name="crossfade_title">Crossfade (experimental)</string>
     <string name="crossfade_summary">Seconds it takes to crossfade between songs (set to 0 to disable).</string>
+    <string name="no_crossfade_on_albums_title">No crossfade on albums</string>
+    <string name="no_crossfade_on_albums_summary">Do not crossfade when playing albums in their original order.</string>
     <string name="audio_fade_duration_title">Audio fade duration (experimental)</string>
     <string name="audio_fade_duration_summary">Seconds it takes to fade the volume in or out when playback starts or pauses (set to 0 to disable).</string>
     <string name="replaygain_source_mode_title">स्रोत मोड</string>

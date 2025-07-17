@@ -608,6 +608,7 @@
     <string name="circle_button_title">Butonul de redare circulară</string>
     <string name="swipe_album_cover_title">Copertă album</string>
     <string name="swipe_album_cover_summary">Glisați la stânga și la dreapta pe coperta de album pentru a sări între melodii.</string>
+    <string name="single_tap_on_album_cover_title">Single tap on cover</string>
     <string name="double_tap_on_album_cover_title">Dublă atingere pe copertă</string>
     <string name="long_press_on_album_cover_title">Apăsare lungă pe copertă</string>
     <string name="now_playing_corner_radius_title">Image corner radius</string>
@@ -618,6 +619,8 @@
     <string name="lyrics_on_album_cover_summary">Arată versurile cântecului în loc de copertă atunci când sunt disponibile.</string>
     <string name="animate_controls_title">Controale animate</string>
     <string name="animate_controls_summary">Se joacă când se deschide panoul jucătorului.</string>
+    <string name="swipe_controls_title">Swipe controls</string>
+    <string name="swipe_controls_summary">Swipe left on any blank space in the now playing screen to go to the previous song and swipe right to go to the next song.</string>
     <string name="display_album_name_title">Afişare nume album</string>
     <string name="display_extra_info_title">Afişare informaţii suplimentare</string>
     <string name="display_extra_info_summary">Afișează informații suplimentare despre melodie, cum ar fi bitrat, format, rată de eșantionare, etc.</string>
@@ -633,6 +636,8 @@
     <string name="gapless_playback_summary">Tranziție lentă între melodii. Poate cauza probleme de redare pe unele dispozitive.</string>
     <string name="crossfade_title">Crossfade (experimental)</string>
     <string name="crossfade_summary">Seconds it takes to crossfade between songs (set to 0 to disable).</string>
+    <string name="no_crossfade_on_albums_title">No crossfade on albums</string>
+    <string name="no_crossfade_on_albums_summary">Do not crossfade when playing albums in their original order.</string>
     <string name="audio_fade_duration_title">Audio fade duration (experimental)</string>
     <string name="audio_fade_duration_summary">Seconds it takes to fade the volume in or out when playback starts or pauses (set to 0 to disable).</string>
     <string name="replaygain_source_mode_title">Mod sursă</string>

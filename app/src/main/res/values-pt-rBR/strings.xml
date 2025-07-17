@@ -599,6 +599,7 @@
     <string name="circle_button_title">Botão de reprodução redondo</string>
     <string name="swipe_album_cover_title">Deslizar capa do álbum</string>
     <string name="swipe_album_cover_summary">Deslize a capa do álbum para a esquerda ou direita para pular entre as músicas.</string>
+    <string name="single_tap_on_album_cover_title">Toque único na capa</string>
     <string name="double_tap_on_album_cover_title">Toque duplo na capa</string>
     <string name="long_press_on_album_cover_title">Toque longo na capa</string>
     <string name="now_playing_corner_radius_title">Cantos arredondados da imagem</string>
@@ -609,6 +610,8 @@
     <string name="lyrics_on_album_cover_summary">Mostrar letra da música em vez da capa quando disponível.</string>
     <string name="animate_controls_title">Animar controles</string>
     <string name="animate_controls_summary">É executado quando o painel do reprodutor é aberto.</string>
+    <string name="swipe_controls_title">Controles por gesto</string>
+    <string name="swipe_controls_summary">Deslize para a esquerda em qualquer espaço vazio na tela de reprodução para voltar à música anterior e deslize para a direita para ir para a próxima.</string>
     <string name="display_album_name_title">Mostrar nome do álbum</string>
     <string name="display_extra_info_title">Exibir informações extras</string>
     <string name="display_extra_info_summary">Exibir informações extras sobre a música, como taxa de bits, formato, taxa de amostragem, etc.</string>
@@ -624,6 +627,8 @@
     <string name="gapless_playback_summary">Transição suave entre músicas. Pode causar problemas de reprodução em alguns dispositivos.</string>
     <string name="crossfade_title">Crossfade (experimental)</string>
     <string name="crossfade_summary">Duração em segundos do crossfade entre músicas (0 para desativar).</string>
+    <string name="no_crossfade_on_albums_title">Sem crossfade em álbuns</string>
+    <string name="no_crossfade_on_albums_summary">Não aplicar crossfade ao reproduzir álbuns na ordem original.</string>
     <string name="audio_fade_duration_title">Duração do fade de áudio (experimental)</string>
     <string name="audio_fade_duration_summary">Duração em segundos do fade do volume ao iniciar ou pausar a música (0 para desativar).</string>
     <string name="replaygain_source_mode_title">Modo de origem</string>

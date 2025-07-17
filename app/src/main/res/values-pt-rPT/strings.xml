@@ -600,6 +600,7 @@
     <string name="circle_button_title">Botão circular play</string>
     <string name="swipe_album_cover_title">Deslize capa do álbum</string>
     <string name="swipe_album_cover_summary">Deslize para a esquerda e direita na capa do álbum para pular entre as músicas.</string>
+    <string name="single_tap_on_album_cover_title">Single tap on cover</string>
     <string name="double_tap_on_album_cover_title">Toque duplo na capa</string>
     <string name="long_press_on_album_cover_title">Toque longo na capa</string>
     <string name="now_playing_corner_radius_title">Image corner radius</string>
@@ -610,6 +611,8 @@
     <string name="lyrics_on_album_cover_summary">Mostrar letra da música ao invés da capa quando ela estiver disponível.</string>
     <string name="animate_controls_title">Animar controles</string>
     <string name="animate_controls_summary">Jogado quando se abre o painel do jogador.</string>
+    <string name="swipe_controls_title">Swipe controls</string>
+    <string name="swipe_controls_summary">Swipe left on any blank space in the now playing screen to go to the previous song and swipe right to go to the next song.</string>
     <string name="display_album_name_title">Mostrar nome do álbum</string>
     <string name="display_extra_info_title">Exibir informações extras</string>
     <string name="display_extra_info_summary">Exibir informações extras sobre a música, como taxa de bits, formato, taxa de amostragem, etc.</string>
@@ -625,6 +628,8 @@
     <string name="gapless_playback_summary">Transição suave entre músicas. Pode causar problemas de reprodução em alguns dispositivos.</string>
     <string name="crossfade_title">Crossfade (experimental)</string>
     <string name="crossfade_summary">Seconds it takes to crossfade between songs (set to 0 to disable).</string>
+    <string name="no_crossfade_on_albums_title">No crossfade on albums</string>
+    <string name="no_crossfade_on_albums_summary">Do not crossfade when playing albums in their original order.</string>
     <string name="audio_fade_duration_title">Audio fade duration (experimental)</string>
     <string name="audio_fade_duration_summary">Seconds it takes to fade the volume in or out when playback starts or pauses (set to 0 to disable).</string>
     <string name="replaygain_source_mode_title">Modo de origem</string>

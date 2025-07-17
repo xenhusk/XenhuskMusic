@@ -527,6 +527,7 @@
     <string name="fork_on_github">Fork en GitHub</string>
     <string name="licenses">Licencias</string>
     <string name="author">Autor</string>
+    <string name="mardous_summary">Desarrollador principal</string>
     <string name="telegram_chat">Chat en Telegram</string>
     <string name="acknowledgments_title">Agradecimientos</string>
     <string name="translators_title">Traductores</string>

@@ -213,6 +213,9 @@ object Preferences : KoinComponent {
             else -> null
         }
 
+    val coverSingleTapAction: NowPlayingAction
+        get() = preferences.enumValue(COVER_SINGLE_TAP_ACTION, NowPlayingAction.TogglePlayState)
+
     val coverDoubleTapAction: NowPlayingAction
         get() = preferences.enumValue(COVER_DOUBLE_TAP_ACTION, NowPlayingAction.WebSearch)
 
@@ -636,6 +639,7 @@ const val LEFT_RIGHT_SWIPING = "left_right_swiping"
 const val NOW_PLAYING_IMAGE_CORNER_RADIUS = "now_playing_corner_radius"
 const val CAROUSEL_EFFECT = "carousel_effect"
 const val COVER_SWIPING_EFFECT = "cover_swiping_effect"
+const val COVER_SINGLE_TAP_ACTION = "cover_single_tap_action"
 const val COVER_DOUBLE_TAP_ACTION = "cover_double_tap_action"
 const val COVER_LONG_PRESS_ACTION = "cover_long_press_action"
 const val ANIMATE_PLAYER_CONTROL = "animate_player_control"

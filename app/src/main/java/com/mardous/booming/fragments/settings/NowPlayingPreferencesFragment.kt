@@ -48,6 +48,9 @@ class NowPlayingPreferencesFragment : PreferencesScreenFragment(), SharedPrefere
     }
 
     private fun updateCoverActions() {
+        findPreference<Preference>(COVER_SINGLE_TAP_ACTION)?.summary =
+            getString(Preferences.coverSingleTapAction.titleRes)
+
         findPreference<Preference>(COVER_DOUBLE_TAP_ACTION)?.summary =
             getString(Preferences.coverDoubleTapAction.titleRes)
 

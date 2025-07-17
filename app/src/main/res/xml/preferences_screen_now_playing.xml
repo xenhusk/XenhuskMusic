@@ -75,6 +75,12 @@
 
         <com.mardous.booming.preferences.dialog.ActionOnCoverPreference
             app:iconSpaceReserved="true"
+            app:title="@string/single_tap_on_album_cover_title"
+            app:layout="@layout/list_item_view"
+            app:key="cover_single_tap_action" />
+
+        <com.mardous.booming.preferences.dialog.ActionOnCoverPreference
+            app:iconSpaceReserved="true"
             app:title="@string/double_tap_on_album_cover_title"
             app:layout="@layout/list_item_view"
             app:key="cover_double_tap_action" />

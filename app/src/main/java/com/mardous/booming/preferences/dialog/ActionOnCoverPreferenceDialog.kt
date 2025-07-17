@@ -27,6 +27,8 @@ import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.util.COVER_DOUBLE_TAP_ACTION
+import com.mardous.booming.util.COVER_LONG_PRESS_ACTION
+import com.mardous.booming.util.COVER_SINGLE_TAP_ACTION
 import com.mardous.booming.util.Preferences
 import org.koin.android.ext.android.get
 
@@ -63,9 +65,19 @@ class ActionOnCoverPreferenceDialog : DialogFragment() {
     private fun makeCleanActions(prefKey: String?, actions: MutableList<NowPlayingAction>) {
         if (COVER_DOUBLE_TAP_ACTION == prefKey) {
             actions.remove(Preferences.coverLongPressAction)
-        } else {
-            actions.remove(Preferences.coverDoubleTapAction)
+            actions.remove(Preferences.coverSingleTapAction)
         }
+
+        if (COVER_LONG_PRESS_ACTION == prefKey) {
+            actions.remove(Preferences.coverDoubleTapAction)
+            actions.remove(Preferences.coverSingleTapAction)
+        }
+
+        if (COVER_SINGLE_TAP_ACTION == prefKey) {
+            actions.remove(Preferences.coverDoubleTapAction)
+            actions.remove(Preferences.coverLongPressAction)
+        }
+
         if (!actions.contains(NowPlayingAction.Nothing)) {
             // "Nothing" must be always available, so if we
             // removed it previously, add it again.
@@ -76,7 +88,11 @@ class ActionOnCoverPreferenceDialog : DialogFragment() {
     private fun getCurrentAction(prefKey: String?): NowPlayingAction {
         return if (COVER_DOUBLE_TAP_ACTION == prefKey) {
             Preferences.coverDoubleTapAction
-        } else Preferences.coverLongPressAction
+        }else if (COVER_LONG_PRESS_ACTION == prefKey) {
+            Preferences.coverLongPressAction
+        }else {
+            Preferences.coverSingleTapAction
+        }
     }
 
     companion object {

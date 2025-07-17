@@ -271,9 +271,9 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
     override fun onGestureDetected(gestureOnCover: GestureOnCover): Boolean {
         return when (gestureOnCover) {
+            GestureOnCover.Tap -> onQuickActionEvent(Preferences.coverSingleTapAction)
             GestureOnCover.DoubleTap -> onQuickActionEvent(Preferences.coverDoubleTapAction)
             GestureOnCover.LongPress -> onQuickActionEvent(Preferences.coverLongPressAction)
-            else -> false
         }
     }
 

@@ -100,6 +100,7 @@ which served as a starting point for many features and functionality in this app
 
 It is also important to mention:
 
+- [AMLV](https://github.com/dokar3/amlv)
 - [LRCLib](https://lrclib.net/)
 - [spotify-lyrics-api](https://github.com/akashrchandran/spotify-lyrics-api) by [Akash R Chandran](https://github.com/akashrchandran)
 - [Alex](https://github.com/Paxsenix0)

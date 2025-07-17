@@ -45,6 +45,7 @@ import com.mardous.booming.preferences.dialog.NowPlayingExtraInfoPreferenceDialo
 import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.util.*
 import com.mardous.booming.viewmodels.player.PlayerViewModel
+import com.mardous.booming.views.SquigglyProgress
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
@@ -113,6 +114,7 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.isPlayingFlow.collect { isPlaying ->
                 onUpdatePlayPause(isPlaying)
+                (seekBar?.progressDrawable as? SquigglyProgress)?.animate = isPlaying
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
@@ -215,7 +217,7 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
                 seekBar?.progress = progress.toInt()
             } else {
                 progressAnimator = ObjectAnimator.ofInt(seekBar, "progress", progress.toInt()).apply {
-                    duration = SLIDER_ANIMATION_TIME
+                    duration = 0
                     interpolator = LinearInterpolator()
                     start()
                 }
@@ -330,9 +332,5 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
     override fun onDestroyView() {
         super.onDestroyView()
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
-    }
-
-    companion object {
-        const val SLIDER_ANIMATION_TIME: Long = 400
     }
 }

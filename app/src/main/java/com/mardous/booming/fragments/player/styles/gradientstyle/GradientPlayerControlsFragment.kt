@@ -18,6 +18,7 @@
 package com.mardous.booming.fragments.player.styles.gradientstyle
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.view.View
@@ -33,6 +34,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentGradientPlayerPlaybackControlsBinding
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.PlayerTintTarget
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
@@ -40,6 +42,7 @@ import com.mardous.booming.fragments.player.iconButtonTintTarget
 import com.mardous.booming.fragments.player.tintTarget
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
+import com.mardous.booming.views.SquigglyProgress
 
 class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_gradient_player_playback_controls),
     SeekBar.OnSeekBarChangeListener {
@@ -47,7 +50,7 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
     private var _binding: FragmentGradientPlayerPlaybackControlsBinding? = null
     private val binding get() = _binding!!
 
-    override val progressSlider: Slider
+    override val seekBar: SeekBar
         get() = binding.progressSlider
 
     override val repeatButton: MaterialButton
@@ -103,8 +106,9 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
+        val desiredState = intArrayOf(android.R.attr.state_pressed)
         val oldControlColor = binding.nextButton.iconTint.defaultColor
-        val oldSliderColor = binding.progressSlider.trackActiveTintList.defaultColor
+        val oldSliderColor = binding.progressSlider.progressTintList!!.getColorForState(desiredState, Color.BLACK)
         val oldPrimaryTextColor = binding.title.currentTextColor
         val oldSecondaryTextColor = binding.text.currentTextColor
 

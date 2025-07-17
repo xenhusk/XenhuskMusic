@@ -22,6 +22,7 @@ import android.animation.TimeInterpolator
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.core.view.isVisible
 import com.google.android.material.button.MaterialButton
@@ -29,10 +30,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentM3PlayerPlaybackControlsBinding
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.model.Song
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.views.SquigglyProgress
 import java.util.LinkedList
 
 /**
@@ -46,7 +49,7 @@ class M3PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_m3_
     override val playPauseFab: FloatingActionButton
         get() = binding.playPauseButton
 
-    override val progressSlider: Slider
+    override val seekBar: SeekBar
         get() = binding.progressSlider
 
     override val repeatButton: MaterialButton
@@ -107,11 +110,12 @@ class M3PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_m3_
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
+        val desiredState = intArrayOf(android.R.attr.state_pressed)
         val oldPlayPauseColor = binding.playPauseButton.backgroundTintList?.defaultColor
             ?: Color.TRANSPARENT
 
         val oldControlColor = binding.nextButton.iconTint.defaultColor
-        val oldSliderColor = binding.progressSlider.trackActiveTintList.defaultColor
+        val oldSliderColor = binding.progressSlider.progressTintList!!.getColorForState(desiredState, Color.BLACK)
         val oldPrimaryTextColor = binding.title.currentTextColor
         val oldSecondaryTextColor = binding.text.currentTextColor
 

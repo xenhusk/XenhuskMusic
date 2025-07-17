@@ -30,10 +30,12 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentPlainPlayerPlaybackControlsBinding
+import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.model.Song
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.views.SquigglyProgress
 import java.util.LinkedList
 
 /**
@@ -76,8 +78,9 @@ class PlainPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
+        val desiredState = intArrayOf(android.R.attr.state_pressed)
         val oldControlColor = binding.nextButton.iconTint.defaultColor
-        val oldSliderColor = binding.progressSlider.thumbTintList?.defaultColor ?: Color.TRANSPARENT
+        val oldSliderColor = binding.progressSlider.progressTintList!!.getColorForState(desiredState, Color.BLACK)
         val oldSecondaryTextColor = binding.songCurrentProgress.currentTextColor
         val oldShuffleColor = getPlaybackControlsColor(isShuffleModeOn)
         val newShuffleColor = getPlaybackControlsColor(

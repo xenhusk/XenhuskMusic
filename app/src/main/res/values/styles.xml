@@ -129,4 +129,17 @@
         <item name="cornerFamily">rounded</item>
     </style>
 
+    <style name="Base.SquigglySlider" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:progressTint">?colorPrimary</item>
+        <item name="android:thumbTint">?colorPrimary</item>
+        <item name="android:progressBackgroundTint">?android:attr/textColorTertiary</item>
+        <item name="android:clickable">true</item>
+        <item name="android:splitTrack">false</item>
+        <item name="android:thumb">@drawable/squiggly_thumb</item>
+    </style>
+
+    <style name="SquigglySlider" parent="Base.SquigglySlider">
+        <item name="android:progressDrawable">@drawable/media_squiggly_progress</item>
+    </style>
+
 </resources>

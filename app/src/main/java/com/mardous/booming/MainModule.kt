@@ -40,6 +40,7 @@ import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.service.playback.PlaybackManager
 import com.mardous.booming.service.queue.QueueManager
 import com.mardous.booming.taglib.EditTarget
+import com.mardous.booming.viewmodels.about.AboutViewModel
 import com.mardous.booming.viewmodels.albumdetail.AlbumDetailViewModel
 import com.mardous.booming.viewmodels.artistdetail.ArtistDetailViewModel
 import com.mardous.booming.viewmodels.equalizer.EqualizerViewModel
@@ -301,6 +302,10 @@ private val viewModule = module {
 
     viewModel {
         UpdateViewModel(updateService = get())
+    }
+
+    viewModel {
+        AboutViewModel(repository = get())
     }
 }
 

@@ -37,6 +37,7 @@
     <string name="currently_listening_to_x_by_x">Estoy escuchando %1$s de %2$s</string>
     <string name="share_to_stories">Compartir a historia</string>
     <string name="could_not_create_the_story">No se pudo crear la historia.</string>
+    <string name="back_action">Atrás</string>
     <string name="rename_action">Renombrar</string>
     <string name="add_action">Agregar</string>
     <string name="delete_action">Eliminar</string>

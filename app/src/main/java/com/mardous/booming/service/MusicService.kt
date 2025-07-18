@@ -21,7 +21,9 @@ import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
+import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothProfile
 import android.content.*
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.ServiceInfo
@@ -1357,12 +1359,19 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
 
     private var bluetoothConnectedRegistered = false
     private val bluetoothConnectedIntentFilter = IntentFilter().apply {
+        addAction(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED)
         addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
         addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
     }
     private val bluetoothReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
             when (intent?.action) {
+                BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED -> {
+                    when (intent.getIntExtra(BluetoothProfile.EXTRA_STATE, -1)) {
+                        BluetoothA2dp.STATE_CONNECTED -> play()
+                        BluetoothA2dp.STATE_DISCONNECTED -> pause()
+                    }
+                }
                 BluetoothDevice.ACTION_ACL_CONNECTED ->
                     if (context.isBluetoothA2dpConnected() && Preferences.isResumeOnConnect(true)) { play() }
                 BluetoothDevice.ACTION_ACL_DISCONNECTED ->

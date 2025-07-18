@@ -1368,8 +1368,12 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
             when (intent?.action) {
                 BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED -> {
                     when (intent.getIntExtra(BluetoothProfile.EXTRA_STATE, -1)) {
-                        BluetoothA2dp.STATE_CONNECTED -> play()
-                        BluetoothA2dp.STATE_DISCONNECTED -> pause()
+                        BluetoothA2dp.STATE_CONNECTED -> if (Preferences.isResumeOnConnect(true)) {
+                            play()
+                        }
+                        BluetoothA2dp.STATE_DISCONNECTED -> if (Preferences.isPauseOnDisconnect(true)) {
+                            pause()
+                        }
                     }
                 }
                 BluetoothDevice.ACTION_ACL_CONNECTED ->

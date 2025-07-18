@@ -519,10 +519,10 @@ class FlingPlayBackController(context: Context, playerViewModel: PlayerViewModel
                 if (Preferences.isSwipeControls) {
                     if (abs(velocityX) > abs(velocityY)) {
                         if (velocityX < 0) {
-                            playerViewModel.playPrevious()
+                            playerViewModel.playNext()
                             return true
                         } else if (velocityX > 0) {
-                            playerViewModel.playNext()
+                            playerViewModel.playPrevious()
                             return true
                         }
                     }

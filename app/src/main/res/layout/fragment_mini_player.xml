@@ -61,7 +61,7 @@
         android:scrollHorizontally="true"
         android:singleLine="true"
         android:textAppearance="?textAppearanceBody2"
-        android:textColor="?android:textColorPrimary"
+        android:textColor="?android:textColorSecondary"
         app:layout_constraintStart_toEndOf="@id/image"
         app:layout_constraintEnd_toStartOf="@id/actionPrevious"
         app:layout_constraintBottom_toBottomOf="@id/playPause"

@@ -269,11 +269,8 @@ object Preferences : KoinComponent {
     val rewindWithBack: Boolean
         get() = preferences.getBoolean(REWIND_WITH_BACK, true)
 
-    val fastForward: Boolean
-        get() = preferences.getBoolean(FAST_FORWARD, true)
-
-    val fastBackward: Boolean
-        get() = preferences.getBoolean(FAST_BACKWARD, true)
+    val seekInterval: Int
+        get() = preferences.getInt(SEEK_INTERVAL, 10)
 
     val replayGainSourceMode: Byte
         get() = when (preferences.getString(REPLAYGAIN_SOURCE_MODE, "")) {
@@ -657,8 +654,7 @@ const val NO_CROSSFADE_ON_ALBUMS = "no_crossfade_on_albums"
 const val AUDIO_FADE_DURATION = "audio_fade_duration"
 const val AUTO_PLAY_ON_SKIP = "auto_play_on_skip"
 const val REWIND_WITH_BACK = "rewind_with_back"
-const val FAST_FORWARD = "fast_forward"
-const val FAST_BACKWARD = "fast_backward"
+const val SEEK_INTERVAL = "seek_interval"
 const val REPLAYGAIN_SOURCE_MODE = "replaygain_source_mode"
 const val REPLAYGAIN_PREAMP = "replaygain_preamp"
 const val REPLAYGAIN_PREAMP_WITH_TAG = "replaygain_preamp_with_tag"

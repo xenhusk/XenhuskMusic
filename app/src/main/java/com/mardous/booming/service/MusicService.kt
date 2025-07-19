@@ -399,13 +399,15 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
             super.onFastForward()
             val currentPosition = currentSongProgress
             val songDuration = currentSongDuration
-            seek((currentPosition + FAST_FORWARD_THRESHOLD).coerceAtMost(songDuration))
+            seek((currentPosition + (Preferences.seekInterval * 1000))
+                .coerceAtMost(songDuration))
         }
 
         override fun onRewind() {
             super.onRewind()
             val currentPosition = currentSongProgress
-            seek((currentPosition - REWIND_THRESHOLD).coerceAtLeast(0))
+            seek((currentPosition - (Preferences.seekInterval * 1000))
+                .coerceAtLeast(0))
         }
 
         override fun onSkipToPrevious() {
@@ -1438,10 +1440,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     }
 
     companion object {
-        private const val FAST_FORWARD_THRESHOLD = 5000
-        private const val REWIND_THRESHOLD = 5000
-        private const val REWIND_INSTEAD_PREVIOUS_MILLIS = REWIND_THRESHOLD
-
+        private const val REWIND_INSTEAD_PREVIOUS_MILLIS = 5000
         private const val MEDIA_SESSION_ACTIONS = (PlaybackStateCompat.ACTION_PLAY
                 or PlaybackStateCompat.ACTION_PAUSE
                 or PlaybackStateCompat.ACTION_PLAY_PAUSE

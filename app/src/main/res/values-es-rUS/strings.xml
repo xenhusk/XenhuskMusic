@@ -675,10 +675,8 @@
     <string name="auto_play_on_skip_summary">Si la reproducción está pausada, al presionar \"Anterior\" o \"Siguiente\" se iniciará la música.</string>
     <string name="rewind_with_back_title">Rebobinar con \"Anterior\"</string>
     <string name="rewind_with_back_summary">Rebobina la canción al presionar \"Anterior\", o salta a la pista anterior si la actual está iniciando.</string>
-    <string name="fast_forward_title">Avance rápido</string>
-    <string name="fast_forward_summary">Avanzar rápido al mantener el botón \"Saltar\" presionado.</string>
-    <string name="fast_backward_title">Retroceso rápido</string>
-    <string name="fast_backward_summary">Retroceder rápido al mantener el botón \"Anterior\" presionado.</string>
+    <string name="rewind_fast_forward_amount_title">Cantidad de retroceso/avance rápido</string>
+    <string name="rewind_fast_forward_amount_summary">Tiempo (en segundos) para retroceder o avanzar rápidamente usando los botones de la IU o controles externos.</string>
     <string name="resume_on_connect_title">Resumir al conectar</string>
     <string name="resume_on_connect_summary">Resume la reproducción al conectar los auriculares con cable.</string>
     <string name="pause_on_disconnect_title">Pausar al desconectar</string>

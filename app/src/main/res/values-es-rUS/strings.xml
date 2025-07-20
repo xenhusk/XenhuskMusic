@@ -619,6 +619,8 @@
     <string name="now_playing_screen_title">Estilo</string>
     <string name="open_on_play_title">Abrir al reproducir</string>
     <string name="open_on_play_summary">Abre el panel del reproductor automáticamente al empezar a reproducir una canción.</string>
+    <string name="squiggly_seek_bar_title">Barra de progreso ondulada</string>
+    <string name="squiggly_seek_bar_summary">Activa una barra de progreso ondulada en lugar del deslizador clásico.</string>
     <string name="extra_controls_title">Controles adicionales</string>
     <string name="extra_controls_summary">Habilita controles adicionales para el reproductor minimizado.</string>
     <string name="adaptive_controls_title">Controles adaptivos</string>

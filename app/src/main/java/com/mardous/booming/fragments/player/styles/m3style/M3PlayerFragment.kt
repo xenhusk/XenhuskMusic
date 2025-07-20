@@ -30,7 +30,6 @@ import androidx.core.view.updatePadding
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentM3PlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
-import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
@@ -129,11 +128,6 @@ class M3PlayerFragment : AbsPlayerFragment(R.layout.fragment_m3_player) {
 
     override fun onIsFavoriteChanged(isFavorite: Boolean, withAnimation: Boolean) {
         popupMenu?.menu?.onIsFavoriteChanged(isFavorite, false)
-        showToast(if (isFavorite) {
-            R.string.added_to_favorites_label
-        } else {
-            R.string.removed_from_favorites_label
-        })
     }
 
     override fun onDestroyView() {

@@ -107,12 +107,11 @@ class M3PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_m3_
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
-        val desiredState = intArrayOf(android.R.attr.state_pressed)
         val oldPlayPauseColor = binding.playPauseButton.backgroundTintList?.defaultColor
             ?: Color.TRANSPARENT
 
         val oldControlColor = binding.nextButton.iconTint.defaultColor
-        val oldSliderColor = binding.progressSlider.trackActiveTintList.getColorForState(desiredState, Color.BLACK)
+        val oldSliderColor = binding.progressSlider.currentColor
         val oldPrimaryTextColor = binding.title.currentTextColor
         val oldSecondaryTextColor = binding.text.currentTextColor
 

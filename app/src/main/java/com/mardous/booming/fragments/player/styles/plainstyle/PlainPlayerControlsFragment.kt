@@ -19,7 +19,6 @@ package com.mardous.booming.fragments.player.styles.plainstyle
 
 import android.animation.Animator
 import android.animation.TimeInterpolator
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.animation.BounceInterpolator
@@ -76,9 +75,8 @@ class PlainPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
-        val desiredState = intArrayOf(android.R.attr.state_pressed)
         val oldControlColor = binding.nextButton.iconTint.defaultColor
-        val oldSliderColor = binding.progressSlider.trackActiveTintList.getColorForState(desiredState, Color.BLACK)
+        val oldSliderColor = binding.progressSlider.currentColor
         val oldSecondaryTextColor = binding.songCurrentProgress.currentTextColor
         val oldShuffleColor = getPlaybackControlsColor(isShuffleModeOn)
         val newShuffleColor = getPlaybackControlsColor(

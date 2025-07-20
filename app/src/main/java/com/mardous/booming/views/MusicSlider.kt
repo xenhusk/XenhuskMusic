@@ -1,7 +1,7 @@
 package com.mardous.booming.views
 
 import android.content.Context
-import android.content.res.ColorStateList
+import android.content.res.TypedArray
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -11,6 +11,8 @@ import android.widget.SeekBar
 import androidx.core.content.withStyledAttributes
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
+import com.mardous.booming.extensions.resources.applyColor
+import com.mardous.booming.util.Preferences
 
 /**
  * @author Christians M.A. (mardous)
@@ -32,6 +34,15 @@ class MusicSlider @JvmOverloads constructor(
 
     var isTrackingTouch: Boolean = false
         private set
+
+    var currentColor: Int
+        set(value) {
+            seekBar?.applyColor(value)
+            slider?.applyColor(value)
+        }
+        get() = seekBar?.progressTintList?.defaultColor
+            ?: slider?.trackActiveTintList?.defaultColor
+            ?: Color.TRANSPARENT
 
     var animateSquigglyProgress: Boolean
         get() = (seekBar?.progressDrawable as? SquigglyProgress)?.animate == true
@@ -64,22 +75,13 @@ class MusicSlider @JvmOverloads constructor(
 
     init {
         context.withStyledAttributes(attrs, R.styleable.MusicSlider) {
-            useSquiggly = getBoolean(R.styleable.MusicSlider_squigglyStyle, false)
+            useSquiggly = getBoolean(R.styleable.MusicSlider_squigglyStyle, Preferences.squigglySeekBar)
             inflateSliderView(
                 useSquiggly = useSquiggly,
-                progress = getInt(R.styleable.MusicSlider_android_progress, 0),
-                max = getInt(R.styleable.MusicSlider_android_max, 100),
-                min = getInt(R.styleable.MusicSlider_android_min, 0)
+                previousState = ProgressViewState.from(this)
             )
         }
     }
-
-    var trackActiveTintList: ColorStateList
-        set(value) {
-            seekBar?.progressTintList = value
-            slider?.trackActiveTintList = value
-        }
-        get() = seekBar?.progressTintList ?: slider?.trackActiveTintList ?: ColorStateList.valueOf(Color.TRANSPARENT)
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
@@ -92,39 +94,34 @@ class MusicSlider @JvmOverloads constructor(
 
     fun setUseSquiggly(useSquiggly: Boolean) {
         if (useSquiggly != this.useSquiggly) {
-            val progress = this.value
-            val max = this.valueTo
-            val min = this.valueFrom
-            detachInternalView()
-            inflateSliderView(useSquiggly, progress, max, min)
+            val previousState = detachInternalView()
+            inflateSliderView(useSquiggly, previousState)
         }
         this.useSquiggly = useSquiggly
     }
 
-    private fun detachInternalView() {
+    private fun detachInternalView(): ProgressViewState {
+        val state = ProgressViewState.from(this)
         removeAllViews()
         slider?.clearOnChangeListeners()
         slider?.clearOnSliderTouchListeners()
         seekBar?.setOnSeekBarChangeListener(null)
         internalView = null
+        return state
     }
 
-    private fun inflateSliderView(useSquiggly: Boolean, progress: Int, max: Int, min: Int) {
+    private fun inflateSliderView(useSquiggly: Boolean, previousState: ProgressViewState?) {
         internalView = if (useSquiggly) {
             LayoutInflater.from(context).inflate(R.layout.music_squiggly_slider, this, false)
         } else {
             LayoutInflater.from(context).inflate(R.layout.music_progress_slider, this, false)
         }
-        when (val view = internalView) {
-            is SeekBar -> {
-                view.max = max
-                view.min = min
-                view.progress = progress
-            }
-            is Slider -> {
-                view.valueTo = max.toFloat()
-                view.valueFrom = min.toFloat()
-                view.value = progress.toFloat()
+        if (previousState != null) {
+            this.valueFrom = previousState.min
+            this.valueTo = previousState.max
+            this.value = previousState.progress
+            if (previousState.currentColor != Color.TRANSPARENT) {
+                this.currentColor = previousState.currentColor
             }
         }
         addView(internalView)
@@ -171,5 +168,27 @@ class MusicSlider @JvmOverloads constructor(
         fun onProgressChanged(slider: MusicSlider, progress: Int, fromUser: Boolean)
         fun onStartTrackingTouch(slider: MusicSlider)
         fun onStopTrackingTouch(slider: MusicSlider)
+    }
+
+    private class ProgressViewState(
+        val max: Int,
+        val min: Int,
+        val progress: Int,
+        val currentColor: Int = Color.TRANSPARENT
+    ) {
+        companion object {
+            fun from(slider: MusicSlider) = ProgressViewState(
+                max = slider.valueTo,
+                min = slider.valueFrom,
+                progress = slider.value,
+                currentColor = slider.currentColor
+            )
+
+            fun from(a: TypedArray) = ProgressViewState(
+                max = a.getInt(R.styleable.MusicSlider_android_max, 100),
+                min = a.getInt(R.styleable.MusicSlider_android_min, 0),
+                progress = a.getInt(R.styleable.MusicSlider_android_progress, 0)
+            )
+        }
     }
 }

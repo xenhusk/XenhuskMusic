@@ -274,6 +274,10 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
         when (key) {
+            SQUIGGLY_SEEK_BAR -> {
+                musicSlider?.setUseSquiggly(sharedPreferences.getBoolean(key, false))
+                musicSlider?.animateSquigglyProgress = playerViewModel.isPlaying
+            }
             DISPLAY_EXTRA_INFO,
             EXTRA_INFO,
             DISPLAY_ALBUM_TITLE,

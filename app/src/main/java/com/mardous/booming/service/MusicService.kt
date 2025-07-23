@@ -291,13 +291,10 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     }
 
     override fun onLoadChildren(parentId: String, result: Result<List<MediaBrowserCompat.MediaItem>>) {
-        var resultSent = false
+        result.detach()
         serviceScope.launch(IO) {
-            result.sendResult(musicProvider.getChildren(parentId, resources))
-            resultSent = true
-        }
-        if (!resultSent) {
-            result.detach()
+            val children = runCatching { musicProvider.getChildren(parentId, resources) }
+            result.sendResult(children.getOrElse { emptyList() })
         }
     }
 

@@ -486,6 +486,7 @@
     <string name="downloaded_lyrics">Descargada</string>
     <string name="lrc_lyrics">Archivo LRC</string>
     <string name="ttml_lyrics">Archivo TTML</string>
+    <string name="external_file_lyrics">Archivo externo</string>
     <string name="action_import_synchronized_lyrics">Importar letra sincronizada</string>
     <string name="action_share_synchronized_lyrics">Compartir letra sincronizada</string>
     <string name="do_you_want_to_import_lrc_lyrics_for_song_x"><![CDATA[¿Quieres importar una letra sincronizada en LRC para la canción <b>%s</b>?]]></string>
@@ -503,6 +504,7 @@
     <string name="lyrics_were_updated_successfully">La letra se actualizó correctamente.</string>
     <string name="failed_to_update_lyrics">La letra no se pudo actualizar.</string>
     <string name="lyrics_source_lrc_file">La letra sincronizada proviene de un archivo LRC. Los cambios se guardarán en ese archivo.</string>
+    <string name="lyrics_source_external_file">La letra proviene de un archivo externo. No puedes editar esta letra directamente desde Booming Music.</string>
 
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Programador de apagado</string>

@@ -31,8 +31,6 @@ import com.mardous.booming.http.lastfm.LastFmService
 import com.mardous.booming.http.lyrics.LyricsDownloadService
 import com.mardous.booming.http.provideDefaultCache
 import com.mardous.booming.http.provideOkHttp
-import com.mardous.booming.lyrics.parser.LrcLyricsParser
-import com.mardous.booming.lyrics.parser.LyricsParser
 import com.mardous.booming.model.Genre
 import com.mardous.booming.providers.MediaStoreWriter
 import com.mardous.booming.repository.*
@@ -123,9 +121,6 @@ private val mainModule = module {
     single {
         AudioOutputObserver(context = androidContext(), playbackManager = get())
     }
-    single {
-        LrcLyricsParser()
-    } bind LyricsParser::class
 }
 
 private val roomModule = module {
@@ -228,7 +223,6 @@ private val dataModule = module {
             context = androidContext(),
             contentResolver = get(),
             lyricsDownloadService = get(),
-            lyricsParser = get(),
             lyricsDao = get()
         )
     } bind LyricsRepository::class

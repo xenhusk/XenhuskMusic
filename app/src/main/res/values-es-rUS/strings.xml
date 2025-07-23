@@ -218,6 +218,7 @@
     <string name="horizontal_albums">Álbumes horizontales</string>
     <string name="ignore_singles">Ignorar sencillos</string>
     <string name="compact_song_view">Canciones compactas</string>
+    <string name="show_total_duration">Mostrar duración total</string>
     <string name="action_view_type">Tipo de vista</string>
     <string name="view_type_normal">Normal</string>
     <string name="view_type_card">Tarjeta</string>

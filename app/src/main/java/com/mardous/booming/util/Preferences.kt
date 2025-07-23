@@ -395,6 +395,10 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(IGNORE_SINGLES, false)
         set(value) = preferences.edit { putBoolean(IGNORE_SINGLES, value) }
 
+    var showAlbumDuration: Boolean
+        get() = preferences.getBoolean(SHOW_TOTAL_DURATION, false)
+        set(value) = preferences.edit { putBoolean(SHOW_TOTAL_DURATION, value) }
+
     val whitelistEnabled: Boolean
         get() = preferences.getBoolean(WHITELIST_ENABLED, true)
 
@@ -687,6 +691,7 @@ const val ENABLE_HISTORY = "enable_history_playlist"
 const val HISTORY_CUTOFF = "history_interval"
 const val LAST_ADDED_CUTOFF = "last_added_interval"
 const val IGNORE_SINGLES = "ignore_singles"
+const val SHOW_TOTAL_DURATION = "show_total_duration"
 const val WHITELIST_ENABLED = "whitelist_enabled"
 const val BLACKLIST_ENABLED = "blacklist_enabled"
 const val ARTIST_MINIMUM_SONGS = "artist_minimum_songs"

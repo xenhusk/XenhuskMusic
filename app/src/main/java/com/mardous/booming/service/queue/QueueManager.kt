@@ -67,6 +67,9 @@ class QueueManager {
     val isLastTrack get() = position == playingQueue.lastIndex
     val isStopPosition get() = stopPosition == position
 
+    val hasQueues: Boolean
+        get() = playingQueue.isNotEmpty() && _originalPlayingQueue.isNotEmpty()
+
     private val lastUpcomingPosition: Int
         get() = synchronized(lock) {
             _playingQueue.indexOfLast { it.isUpcoming }

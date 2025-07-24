@@ -123,18 +123,23 @@ class LyricsEditorFragment : AbsMainActivityFragment(R.layout.fragment_lyrics_ed
         lyricsViewModel.getAllLyrics(song, fromEditor = true).observe(viewLifecycleOwner) {
             setupButtonBehavior(it)
             binding.progressIndicator.hide()
+
             binding.embeddedButton.isEnabled = true
-            binding.externalButton.isEnabled = true
-            binding.plainInput.setText(it.plainLyrics.content)
-            binding.plainInput.doOnTextChanged { text, _, _, _ ->
-                plainLyrics = it.plainLyrics.edit(text?.toString())
-            }
             binding.plainInput.isEnabled = it.plainLyrics.isEditable
-            binding.syncedInput.setText(it.syncedLyrics.content?.rawText)
-            binding.syncedInput.doOnTextChanged { text, _, _, _ ->
-                syncedLyrics = it.syncedLyrics.edit(text?.toString())
-            }
+            binding.plainInput.setText(it.plainLyrics.content)
+
+            binding.externalButton.isEnabled = true
             binding.syncedInput.isEnabled = it.syncedLyrics.isEditable
+            binding.syncedInput.setText(it.syncedLyrics.content?.rawText)
+
+            if (!it.loading) {
+                binding.plainInput.doOnTextChanged { text, _, _, _ ->
+                    plainLyrics = it.plainLyrics.edit(text?.toString())
+                }
+                binding.syncedInput.doOnTextChanged { text, _, _, _ ->
+                    syncedLyrics = it.syncedLyrics.edit(text?.toString())
+                }
+            }
         }
     }
 

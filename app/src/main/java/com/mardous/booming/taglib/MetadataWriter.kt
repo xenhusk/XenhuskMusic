@@ -28,22 +28,23 @@ import java.io.File
 class MetadataWriter : KoinComponent {
 
     private val contentResolver: ContentResolver by inject()
+    private val lock = Any()
 
     private var properties = mapOf<String, String?>()
     private var pictureBitmap: Bitmap? = null
     private var pictureDeleted = false
 
-    fun picture(pictureBitmap: Bitmap?) {
+    fun picture(pictureBitmap: Bitmap?) = synchronized(lock) {
         this.pictureBitmap = pictureBitmap
         this.pictureDeleted = false
     }
 
-    fun pictureDeleted(pictureDeleted: Boolean) {
+    fun pictureDeleted(pictureDeleted: Boolean) = synchronized(lock) {
         this.pictureDeleted = pictureDeleted
         this.pictureBitmap = if (pictureDeleted) null else pictureBitmap
     }
 
-    fun propertyMap(propertyMap: Map<String, String?>) {
+    fun propertyMap(propertyMap: Map<String, String?>) = synchronized(lock) {
         this.properties = propertyMap
     }
 
@@ -143,13 +144,27 @@ class MetadataWriter : KoinComponent {
     }
 
     private fun writePropertyMap(fd: ParcelFileDescriptor): Result {
-        val propertyMap = properties
-            .filterValues { !it.isNullOrBlank() }
-            .mapValuesTo(hashMapOf()) { arrayOf(it.value!!) }
-        if (TagLib.savePropertyMap(fd.dup().detachFd(), propertyMap)) {
-            return Result.Wrote
+        val currentProperties = TagLib.getMetadata(fd.dup().detachFd(), false)
+                ?.propertyMap ?: hashMapOf()
+
+        for ((key, newValueRaw) in properties) {
+            val newValue = if (newValueRaw.isNullOrBlank()) {
+                emptyArray()
+            } else {
+                arrayOf(newValueRaw)
+            }
+            currentProperties[key] = newValue
         }
-        return Result.Failed
+
+        val newProperties = currentProperties
+            .filterValues { it.isNotEmpty() }
+            .mapValuesTo(hashMapOf()) { it.value }
+
+        return if (TagLib.savePropertyMap(fd.dup().detachFd(), newProperties)) {
+            Result.Wrote
+        } else {
+            Result.Failed
+        }
     }
 
     private class WriteResult(

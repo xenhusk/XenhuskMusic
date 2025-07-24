@@ -44,7 +44,6 @@ import com.mardous.booming.recordException
 import com.mardous.booming.util.MusicUtil
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.library.LibraryViewModel
-import com.mardous.booming.viewmodels.player.PlayerViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
@@ -57,7 +56,6 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
 
     private val libraryViewModel: LibraryViewModel by activityViewModel()
-    private val playerViewModel: PlayerViewModel by activityViewModel()
 
     private lateinit var songs: MutableList<Song>
 
@@ -93,9 +91,6 @@ class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
             val deleteResultLauncher =
                 registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
                     if (result.resultCode == Activity.RESULT_OK) {
-                        if ((songs.size == 1) && playerViewModel.isPlayingSong(songs.single())) {
-                            playerViewModel.playNext()
-                        }
                         libraryViewModel.deleteSongs(songs)
                         dismiss()
                     } else {
@@ -129,10 +124,6 @@ class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
                 .setCancelable(false)
                 .create { dialog ->
                     dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener {
-                        val song = songs.singleOrNull()
-                        if (song != null && playerViewModel.isPlayingSong(song)) {
-                            playerViewModel.playNext()
-                        }
                         onStartDeletion(songs)
                     }
                 }

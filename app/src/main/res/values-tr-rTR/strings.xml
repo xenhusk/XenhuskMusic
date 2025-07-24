@@ -462,7 +462,7 @@
     <string name="synced_lyrics">Senkronize</string>
     <string name="embedded_lyrics">Gömülü</string>
     <string name="downloaded_lyrics">İndirilmiş</string>
-    <string name="external_file_lyrics">External file</string>
+    <string name="external_file_lyrics">Harici dosya</string>
     <string name="action_import_synchronized_lyrics">Senkronize şarkı sözlerini içe aktar</string>
     <string name="action_share_synchronized_lyrics">Senkronize şarkı sözlerini paylaş</string>
     <string name="do_you_want_to_import_lrc_lyrics_for_song_x"><![CDATA[<b>%s</b> için senkronize LRC şarkı sözlerini içe aktarmak istiyor musunuz?]]></string>
@@ -479,7 +479,7 @@
     <string name="no_synced_lyrics_found">Senkronize şarkı sözü bulunamadı</string>
     <string name="lyrics_were_updated_successfully">Şarkı sözleri başarıyla güncellendi.</string>
     <string name="failed_to_update_lyrics">Şarkı sözleri güncellenemedi.</string>
-    <string name="lyrics_source_external_file">Lyrics come from an external file. You can\'t edit this file directly from Booming Music.</string>
+    <string name="lyrics_source_external_file">Şarkı sözleri harici bir dosyadan alınmaktadır. Bu dosyayı Booming Music üzerinden doğrudan düzenleyemezsiniz.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Uyku zamanlayıcısı</string>
     <string name="sleep_timer_cancel_current_timer">Mevcut zamanlayıcıyı iptal et</string>

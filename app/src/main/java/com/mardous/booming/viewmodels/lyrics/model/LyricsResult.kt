@@ -26,7 +26,7 @@ class DisplayableLyrics<T>(val content: T?, val source: LyricsSource) {
 
     fun edit(newContent: String?): EditableLyrics? {
         if (isEditable) {
-            EditableLyrics(newContent, source)
+            return EditableLyrics(newContent, source)
         }
         return null
     }

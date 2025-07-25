@@ -33,8 +33,8 @@ class MetadataReader(uri: Uri, readPictures: Boolean = false) : KoinComponent {
                 metadata = TagLib.getMetadata(it.dup().detachFd(), readPictures = readPictures)
                 audioProperties = TagLib.getAudioProperties(it.dup().detachFd())
             }
-        } catch (e: IOException) {
-            Log.e("MetadataWorker", "Error reading file $uri", e)
+        } catch (t: Throwable) {
+            Log.e("MetadataWorker", "Error reading file $uri", t)
         }
     }
 

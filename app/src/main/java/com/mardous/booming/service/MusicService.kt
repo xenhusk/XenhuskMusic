@@ -1174,7 +1174,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
 
     private fun applyReplayGain(song: Song) {
         val mode = Preferences.replayGainSourceMode
-        if (mode != ReplayGainSourceMode.MODE_NONE) {
+        if (song != Song.emptySong && mode != ReplayGainSourceMode.MODE_NONE) {
             val rg = ReplayGainTagExtractor.getReplayGain(song.mediaStoreUri)
             var adjustDB = 0.0f
             var peak = 1.0f

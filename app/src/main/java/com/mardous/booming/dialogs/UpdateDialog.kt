@@ -43,14 +43,14 @@ class UpdateDialog : BottomSheetDialogFragment(), View.OnClickListener {
     private var release: GitHubRelease? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val release = viewModel.latestRelease
-        if (release != null && release.isNewer(requireContext())) {
+        release = viewModel.latestRelease
+        if (release != null && release!!.isNewer(requireContext())) {
             _binding = DialogUpdateInfoBinding.inflate(layoutInflater)
             binding.infoAction.setOnClickListener(this)
             binding.downloadAction.setOnClickListener(this)
-            binding.versionName.text = release.name
-            if (release.body.isNotEmpty()) {
-                binding.versionInfo.setMarkdownText(release.body)
+            binding.versionName.text = release!!.name
+            if (release!!.body.isNotEmpty()) {
+                binding.versionInfo.setMarkdownText(release!!.body)
             } else {
                 binding.versionInfo.isVisible = false
             }

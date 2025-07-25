@@ -18,6 +18,7 @@ import com.mardous.booming.lyrics.parser.LrcLyricsParser
 import com.mardous.booming.lyrics.parser.TtmlLyricsParser
 import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
+import com.mardous.booming.recordException
 import com.mardous.booming.taglib.EditTarget
 import com.mardous.booming.taglib.MetadataReader
 import com.mardous.booming.taglib.MetadataWriter
@@ -177,24 +178,29 @@ class RealLyricsRepository(
         plainLyrics: EditableLyrics?,
         syncedLyrics: EditableLyrics?
     ): Boolean {
-        val savedPlain = if (plainLyrics != null) {
-            val target = EditTarget.song(song)
-            val metadataWriter = MetadataWriter()
-            metadataWriter.propertyMap(
-                propertyMap = hashMapOf(MetadataReader.LYRICS to plainLyrics.content)
-            )
-            metadataWriter.write(this.context, target).isNotEmpty()
-        } else {
-            true
+        try {
+            val savedPlain = if (plainLyrics != null) {
+                val target = EditTarget.song(song)
+                val metadataWriter = MetadataWriter()
+                metadataWriter.propertyMap(
+                    propertyMap = hashMapOf(MetadataReader.LYRICS to plainLyrics.content)
+                )
+                metadataWriter.write(this.context, target).isNotEmpty()
+            } else {
+                true
+            }
+            val savedSynced = if (syncedLyrics != null) {
+                if (syncedLyrics.source == LyricsSource.Downloaded) {
+                    saveSyncedLyrics(song, syncedLyrics.content)
+                } else false
+            } else {
+                true
+            }
+            return savedPlain && savedSynced
+        } catch (e: Exception) {
+            recordException(e)
         }
-        val savedSynced = if (syncedLyrics != null) {
-            if (syncedLyrics.source == LyricsSource.Downloaded) {
-                saveSyncedLyrics(song, syncedLyrics.content)
-            } else false
-        } else {
-            true
-        }
-        return savedPlain && savedSynced
+        return false
     }
 
     override suspend fun saveSyncedLyrics(song: Song, lyrics: String?): Boolean {

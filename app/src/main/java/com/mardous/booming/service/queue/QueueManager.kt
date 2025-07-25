@@ -161,7 +161,7 @@ class QueueManager {
     }
 
     fun getDuration(position: Int) = synchronized(lock) {
-        playingQueue.drop(position).sumOf { it.duration }
+        if (position >= 0) playingQueue.drop(position).sumOf { it.duration } else 0
     }
 
     fun getNextPosition(force: Boolean): Int {

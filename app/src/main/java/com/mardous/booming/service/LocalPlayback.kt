@@ -72,7 +72,7 @@ abstract class LocalPlayback(val context: Context) : Playback, MediaPlayer.OnErr
             }
         }
 
-        if (hasPie()) {
+        /*if (hasPie()) {
             try {
                 applyReplayGainOnDynamicsProcessing(player)
                 // DynamicsProcessing is in charge of replay gain, revert volume to default values
@@ -85,7 +85,7 @@ abstract class LocalPlayback(val context: Context) : Playback, MediaPlayer.OnErr
                 // Fallback to volume modification in this case
                 recordException(error)
             }
-        }
+        }*/
 
         setVolume(leftVol, rightVol)
     }

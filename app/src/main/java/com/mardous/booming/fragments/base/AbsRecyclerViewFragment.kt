@@ -89,11 +89,11 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
         }
 
         libraryViewModel.getMiniPlayerMargin().observe(viewLifecycleOwner) {
-            binding.recyclerView.updatePadding(bottom = it)
+            binding.recyclerView.updatePadding(bottom = it.totalMargin)
         }
         libraryViewModel.getFabMargin().observe(viewLifecycleOwner) {
             binding.shuffleButton.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = it
+                bottomMargin = it.totalMargin
             }
         }
     }
@@ -134,10 +134,6 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
 
     protected open val emptyMessageRes: Int
         @StringRes get() = R.string.empty_label
-
-    private fun getEmojiByUnicode(unicode: Int): String {
-        return String(Character.toChars(unicode))
-    }
 
     private fun checkIsEmpty() {
         binding.emptyText.setText(emptyMessageRes)

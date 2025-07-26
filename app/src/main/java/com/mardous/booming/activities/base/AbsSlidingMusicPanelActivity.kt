@@ -41,6 +41,7 @@ import com.mardous.booming.activities.PermissionsActivity
 import com.mardous.booming.databinding.SlidingMusicPanelLayoutBinding
 import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.resources.*
+import com.mardous.booming.fragments.LibraryMargin
 import com.mardous.booming.fragments.other.MiniPlayerFragment
 import com.mardous.booming.fragments.player.base.AbsPlayerFragment
 import com.mardous.booming.fragments.player.styles.defaultstyle.DefaultPlayerFragment
@@ -245,15 +246,19 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         val miniPlayerHeight = dip(R.dimen.mini_player_height)
         val bottomNavHeight = dip(R.dimen.bottom_nav_height)
 
-        val heightOfBar =  windowInsets.getBottomInsets() + miniPlayerHeight
+        val bottomInsets = windowInsets.getBottomInsets()
+        val heightOfBar =  bottomInsets + miniPlayerHeight
         val heightOfBarWithTabs = heightOfBar + bottomNavHeight
         if (hide) {
-            bottomSheetBehavior.peekHeight = (-windowInsets.getBottomInsets()).coerceAtLeast(0)
+            bottomSheetBehavior.peekHeight = (-bottomInsets).coerceAtLeast(0)
             panelState = STATE_COLLAPSED
             libraryViewModel.setLibraryMargins(
-                context = this,
-                fabBottomMargin = if (isBottomNavVisible) bottomNavHeight else 0,
-                miniPlayerHeight = 0
+                fabBottomMargin = LibraryMargin(
+                    margin = if (isBottomNavVisible) bottomNavHeight else 0,
+                    additionalSpace = dip(R.dimen.fab_margin_top_left_right),
+                    insets = windowInsets
+                ),
+                bottomSheetMargin = LibraryMargin(0, insets = windowInsets)
             )
         } else {
             if (playerViewModel.playingQueue.isNotEmpty()) {
@@ -266,9 +271,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                         bottomSheetBehavior.peekHeight = heightOfBarWithTabs
                     }
                     libraryViewModel.setLibraryMargins(
-                        context = this,
-                        fabBottomMargin = miniPlayerHeight + bottomNavHeight,
-                        miniPlayerHeight = miniPlayerHeight
+                        fabBottomMargin = LibraryMargin(
+                            margin = miniPlayerHeight + bottomNavHeight,
+                            additionalSpace = dip(R.dimen.fab_margin_top_left_right),
+                            insets = windowInsets
+                        ),
+                        bottomSheetMargin = LibraryMargin(miniPlayerHeight, insets = windowInsets)
                     )
                 } else {
                     if (animate) {
@@ -280,9 +288,12 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                         slidingPanel.bringToFront()
                     }
                     libraryViewModel.setLibraryMargins(
-                        context = this,
-                        fabBottomMargin = miniPlayerHeight,
-                        miniPlayerHeight = miniPlayerHeight
+                        fabBottomMargin = LibraryMargin(
+                            margin = miniPlayerHeight,
+                            additionalSpace = dip(R.dimen.fab_margin_top_left_right),
+                            insets = windowInsets
+                        ),
+                        bottomSheetMargin = LibraryMargin(miniPlayerHeight, insets = windowInsets)
                     )
                 }
             }

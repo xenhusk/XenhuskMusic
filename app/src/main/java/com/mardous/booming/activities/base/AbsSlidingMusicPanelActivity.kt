@@ -96,6 +96,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
     val isBottomNavVisible: Boolean
         get() = navigationView.isVisible && navigationView is BottomNavigationView
 
+    val isBottomSheetHidden: Boolean
+        get() = panelState == STATE_COLLAPSED && bottomSheetBehavior.peekHeight == 0
+
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             if (handleBackPress()) {
@@ -149,6 +152,18 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        if (playerViewModel.playingQueue.isEmpty() || savedInstanceState.getBoolean(BOTTOM_SHEET_HIDDEN)) {
+            hideBottomSheet(true)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(BOTTOM_SHEET_HIDDEN, isBottomSheetHidden)
+    }
+
     override fun onResume() {
         super.onResume()
         Preferences.registerOnSharedPreferenceChangeListener(this)
@@ -166,8 +181,6 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         bottomSheetBehavior.removeBottomSheetCallback(bottomSheetCallback)
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
     }
-
-    protected open fun onMediaBrowserConnectionStateChanged(isConnected: Boolean) {}
 
     private fun setupNavigationView() {
         navigationView.labelVisibilityMode = Preferences.bottomTitlesMode
@@ -493,5 +506,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         override fun onSlide(bottomSheet: View, slideOffset: Float) {
             setMiniPlayerAlphaProgress(slideOffset)
         }
+    }
+
+    companion object {
+        private const val BOTTOM_SHEET_HIDDEN = "is_bottom_sheet_hidden"
     }
 }

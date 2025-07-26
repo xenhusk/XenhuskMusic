@@ -18,13 +18,13 @@ import com.mardous.booming.lyrics.parser.LrcLyricsParser
 import com.mardous.booming.lyrics.parser.TtmlLyricsParser
 import com.mardous.booming.model.DownloadedLyrics
 import com.mardous.booming.model.Song
-import com.mardous.booming.recordException
 import com.mardous.booming.taglib.EditTarget
 import com.mardous.booming.taglib.MetadataReader
 import com.mardous.booming.taglib.MetadataWriter
 import com.mardous.booming.viewmodels.lyrics.model.DisplayableLyrics
 import com.mardous.booming.viewmodels.lyrics.model.EditableLyrics
 import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
+import com.mardous.booming.viewmodels.lyrics.model.SaveLyricsResult
 import java.io.File
 import java.util.regex.Pattern
 
@@ -37,7 +37,7 @@ interface LyricsRepository {
 
     suspend fun allLyrics(song: Song, allowDownload: Boolean, fromEditor: Boolean): LyricsResult
     suspend fun embeddedLyrics(song: Song, requirePlainText: Boolean): String?
-    suspend fun saveLyrics(song: Song, plainLyrics: EditableLyrics?, syncedLyrics: EditableLyrics?): Boolean
+    suspend fun saveLyrics(song: Song, plainLyrics: EditableLyrics?, syncedLyrics: EditableLyrics?): SaveLyricsResult
     suspend fun saveSyncedLyrics(song: Song, lyrics: String?): Boolean
     suspend fun importLyrics(song: Song, uri: Uri): Boolean
     suspend fun findLyricsFiles(song: Song): List<LyricsFile>
@@ -177,30 +177,38 @@ class RealLyricsRepository(
         song: Song,
         plainLyrics: EditableLyrics?,
         syncedLyrics: EditableLyrics?
-    ): Boolean {
-        try {
-            val savedPlain = if (plainLyrics != null) {
+    ): SaveLyricsResult {
+        var saveResult = SaveLyricsResult()
+        if (plainLyrics?.hasChanged == true) {
+            val result = runCatching {
                 val target = EditTarget.song(song)
                 val metadataWriter = MetadataWriter()
                 metadataWriter.propertyMap(
                     propertyMap = hashMapOf(MetadataReader.LYRICS to plainLyrics.content)
                 )
                 metadataWriter.write(this.context, target).isNotEmpty()
-            } else {
-                true
             }
-            val savedSynced = if (syncedLyrics != null) {
-                if (syncedLyrics.source == LyricsSource.Downloaded) {
-                    saveSyncedLyrics(song, syncedLyrics.content)
-                } else false
-            } else {
-                true
-            }
-            return savedPlain && savedSynced
-        } catch (e: Exception) {
-            recordException(e)
+            saveResult = saveResult.copy(
+                plainLyricsState = if (result.getOrDefault(false)) {
+                    SaveLyricsResult.State.Wrote
+                } else {
+                    SaveLyricsResult.State.Failed
+                }
+            )
         }
-        return false
+        if (syncedLyrics?.hasChanged == true && syncedLyrics.source == LyricsSource.Downloaded) {
+            val result = runCatching {
+                saveSyncedLyrics(song, syncedLyrics.content)
+            }
+            saveResult = saveResult.copy(
+                syncedLyricsState = if (result.getOrDefault(false)) {
+                    SaveLyricsResult.State.Wrote
+                } else {
+                    SaveLyricsResult.State.Failed
+                }
+            )
+        }
+        return saveResult
     }
 
     override suspend fun saveSyncedLyrics(song: Song, lyrics: String?): Boolean {

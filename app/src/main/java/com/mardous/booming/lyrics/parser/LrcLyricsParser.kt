@@ -103,13 +103,12 @@ class LrcLyricsParser : LyricsParser {
                     }
                 }
                 val length = attributes["length"]?.let { parseTime(it) } ?: -1
-                lines.adjustLines(length)
                 return Lyrics(
                     title = attributes["ti"],
                     artist = attributes["ar"],
                     album = attributes["al"],
                     durationMillis = length,
-                    lines = lines
+                    lines = lines.adjustLines(length)
                 )
             }
         } catch (e: IOException) {

@@ -485,12 +485,10 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
             if (needsToRestorePlayback || receivedHeadsetConnected) {
                 play()
                 if (success && needsToRestorePlayback) {
-                    needsToRestorePlayback = false
                     mediaSession.sendSessionEvent(SessionEvent.PLAYBACK_RESTORED, null)
                 }
-                if (receivedHeadsetConnected) {
-                    receivedHeadsetConnected = false
-                }
+                receivedHeadsetConnected = false
+                needsToRestorePlayback = false
             }
         }
     }
@@ -533,7 +531,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
                 playingNotificationManager.displayEmptyQueueNotification()
                 postDelayedShutdown()
             }
-            needsToRestorePlayback = false
         }
     }
 

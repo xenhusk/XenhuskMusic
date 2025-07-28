@@ -55,7 +55,7 @@ class PlayerViewModel(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = false
+        initialValue = playbackManager.isPlaying()
     )
     val isPlaying get() = isPlayingFlow.value
 
@@ -315,11 +315,7 @@ class PlayerViewModel(
 
     fun restorePlayback() = viewModelScope.launch(IO) {
         if (!isPlaying && Preferences.playOnStartupMode != PlayOnStartupMode.NEVER) {
-            if (queueManager.isEmpty) {
-                transportControls?.sendCustomAction(SessionCommand.RESTORE_PLAYBACK, null)
-            } else {
-                transportControls?.play()
-            }
+            transportControls?.sendCustomAction(SessionCommand.RESTORE_PLAYBACK, null)
         }
     }
 

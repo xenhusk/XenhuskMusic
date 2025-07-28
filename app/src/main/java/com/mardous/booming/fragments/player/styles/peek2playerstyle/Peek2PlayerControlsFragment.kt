@@ -27,7 +27,6 @@ import androidx.core.view.isVisible
 import com.google.android.material.button.MaterialButton
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentPeek2PlayerPlaybackControlsBinding
-import com.mardous.booming.databinding.FragmentPeekPlayerPlaybackControlsBinding
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
@@ -109,7 +108,7 @@ class Peek2PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_
             scheme.secondaryControlColor
         )
         return listOfNotNull(
-            binding.progressSlider.progressView?.tintTarget(oldSliderColor, scheme.emphasisColor),
+            binding.progressSlider.progressView?.tintTarget(oldSliderColor, scheme.primaryControlColor),
             binding.songCurrentProgress.tintTarget(oldSecondaryTextColor, scheme.secondaryTextColor),
             binding.songTotalTime.tintTarget(oldSecondaryTextColor, scheme.secondaryTextColor),
             binding.playPauseButton.iconButtonTintTarget(oldControlColor, scheme.primaryControlColor),

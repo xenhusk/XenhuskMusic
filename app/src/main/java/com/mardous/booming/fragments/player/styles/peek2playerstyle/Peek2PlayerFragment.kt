@@ -24,13 +24,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsCompat.Type
-import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentPeek2PlayerBinding
-import com.mardous.booming.databinding.FragmentPeekPlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
-import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.player.*
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
@@ -56,8 +53,6 @@ class Peek2PlayerFragment : AbsPlayerFragment(R.layout.fragment_peek2_player) {
 
     override val playerToolbar: Toolbar
         get() = binding.playerToolbar
-
-    private var primaryControlColor: Int = 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

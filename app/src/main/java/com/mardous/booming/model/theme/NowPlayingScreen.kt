@@ -91,13 +91,13 @@ enum class NowPlayingScreen(
         supportsCustomCornerRadius = false
     ),
     Peek2(
-    R.string.peek2,
-    R.drawable.np_peek,
+        R.string.peek2,
+        R.drawable.np_peek,
         R.layout.fragment_album_cover_default,
-    buttonStyle = NowPlayingButtonStyle.Normal,
-    supportsCoverLyrics = true,
-    supportsCarouselEffect = true,
-    supportsCustomCornerRadius = true
+        buttonStyle = NowPlayingButtonStyle.Normal,
+        supportsCoverLyrics = true,
+        supportsCarouselEffect = true,
+        supportsCustomCornerRadius = true
     );
 
     val defaultColorScheme: PlayerColorSchemeMode

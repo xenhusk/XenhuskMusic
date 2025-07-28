@@ -446,7 +446,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             NOW_PLAYING_SCREEN -> {
                 chooseFragmentForTheme()
                 slidingPanel.updateLayoutParams<ViewGroup.LayoutParams> {
-                    height = if (nowPlayingScreen != NowPlayingScreen.Peek || nowPlayingScreen != NowPlayingScreen.Peek2) {
+                    height = if (nowPlayingScreen != NowPlayingScreen.Peek && nowPlayingScreen != NowPlayingScreen.Peek2) {
                         ViewGroup.LayoutParams.MATCH_PARENT
                     } else {
                         ViewGroup.LayoutParams.WRAP_CONTENT

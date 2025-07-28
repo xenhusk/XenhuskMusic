@@ -9,7 +9,11 @@ import androidx.media.AudioFocusRequestCompat
 import androidx.media.AudioManagerCompat
 import com.mardous.booming.service.playback.PlaybackManager
 
-class AudioFocusMediator(context: Context, private val playbackManager: PlaybackManager) : AudioManager.OnAudioFocusChangeListener {
+class AudioFocusMediator(
+    context: Context,
+    private val playbackManager: PlaybackManager,
+    private val listener: AudioFocusListener? = (context as? AudioFocusListener)
+) : AudioManager.OnAudioFocusChangeListener {
 
     private val focusLock = Any()
 
@@ -23,8 +27,6 @@ class AudioFocusMediator(context: Context, private val playbackManager: Playback
                     .setContentType(AudioAttributesCompat.CONTENT_TYPE_MUSIC)
                     .build()
             ).build()
-
-    private var listener: AudioFocusListener? = null
 
     var mayResumeOnFocusGain = false
         private set

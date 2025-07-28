@@ -7,6 +7,7 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.media.durationStr
 import com.mardous.booming.extensions.media.extraInfo
 import com.mardous.booming.fragments.player.PlayerColorScheme
@@ -324,8 +325,8 @@ class PlayerViewModel(
         mode: PlayerColorScheme.Mode,
         mediaColor: MediaNotificationProcessor
     ) = viewModelScope.launch(IO) {
-        val currentScheme = colorScheme?.mode?.takeIf { it == PlayerColorSchemeMode.AppTheme }
-        if (currentScheme == mode)
+        val currentScheme = colorScheme.mode.takeIf { it == PlayerColorSchemeMode.AppTheme }
+        if (currentScheme == mode && colorScheme.isDark == context.isNightMode)
             return@launch
 
         val result = runCatching {

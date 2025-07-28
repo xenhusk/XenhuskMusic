@@ -1,5 +1,6 @@
 package com.mardous.booming.lyrics.parser
 
+import android.util.Log
 import com.mardous.booming.lyrics.Lyrics
 import com.mardous.booming.lyrics.LyricsFile
 import java.io.IOException
@@ -126,11 +127,16 @@ class LrcLyricsParser : LyricsParser {
     }
 
     private fun parseTime(result: MatchResult): Long? {
-        val m = result.groupValues.getOrNull(1)?.toInt()
-        val s = result.groupValues.getOrNull(2)?.toFloat()
-        return if (m != null && s != null) {
-            (s * LRC_SECONDS_TO_MS_MULTIPLIER).toLong() + m * LRC_MINUTES_TO_MS_MULTIPLIER
-        } else null
+        try {
+            val m = result.groupValues.getOrNull(1)?.toInt()
+            val s = result.groupValues.getOrNull(2)?.toFloat()
+            return if (m != null && s != null) {
+                (s * LRC_SECONDS_TO_MS_MULTIPLIER).toLong() + m * LRC_MINUTES_TO_MS_MULTIPLIER
+            } else null
+        } catch (e: Exception) {
+            Log.d("LrcLyricsParser", "LRC timestamp format is incorrect: ${result.value}", e)
+        }
+        return null
     }
 
     companion object {

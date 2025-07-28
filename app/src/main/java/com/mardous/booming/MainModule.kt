@@ -288,7 +288,7 @@ private val viewModule = module {
     }
 
     viewModel { (target: EditTarget) ->
-        TagEditorViewModel(repository = get(), target = target)
+        TagEditorViewModel(repository = get(), queueManager = get(), target = target)
     }
 
     viewModel {

@@ -520,6 +520,30 @@ class QueueManager {
         setPlayingQueue(_playingQueue)
     }
 
+    fun updateSong(id: Long, song: Song) {
+        modifyQueue { playingQueue, originalPlayingQueue ->
+            if (playingQueue.isNotEmpty() && originalPlayingQueue.isNotEmpty()) {
+                for (i in playingQueue.indices) {
+                    val songAt = playingQueue[i]
+                    if (songAt.id == id) {
+                        playingQueue[i] = song.toQueueSong(songAt.isUpcoming)
+                    }
+                }
+                for (i in originalPlayingQueue.indices) {
+                    val songAt = playingQueue[i]
+                    if (songAt.id == id) {
+                        playingQueue[i] = song.toQueueSong(songAt.isUpcoming)
+                    }
+                }
+            }
+        }
+        if (id == currentSong.id) {
+            doDispatchChange {
+                it.songChanged(currentSong, nextSong)
+            }
+        }
+    }
+
     private fun modifyQueue(
         modifier: (playingQueue: MutablePlayQueue, originalPlayingQueue: MutablePlayQueue) -> Unit
     ) = synchronized(lock) {

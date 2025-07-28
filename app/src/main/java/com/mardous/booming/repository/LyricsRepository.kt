@@ -186,7 +186,7 @@ class RealLyricsRepository(
                 metadataWriter.propertyMap(
                     propertyMap = hashMapOf(MetadataReader.LYRICS to plainLyrics.content)
                 )
-                metadataWriter.write(this.context, target).isNotEmpty()
+                metadataWriter.write(this.context, target).isSuccess
             }
             saveResult = saveResult.copy(
                 plainLyricsState = if (result.getOrDefault(false)) {

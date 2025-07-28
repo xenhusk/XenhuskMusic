@@ -520,11 +520,6 @@ class QueueManager {
         setPlayingQueue(_playingQueue)
     }
 
-    fun disconnect() {
-        //stopPosition = NO_POSITION
-        //setPositionTo(NO_POSITION)
-    }
-
     private fun modifyQueue(
         modifier: (playingQueue: MutablePlayQueue, originalPlayingQueue: MutablePlayQueue) -> Unit
     ) = synchronized(lock) {

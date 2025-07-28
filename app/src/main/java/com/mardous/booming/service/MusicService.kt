@@ -330,7 +330,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         mediaSession?.release()
         wakeLock?.release()
         queueManager.removeObserver(this)
-        queueManager.disconnect()
         contentResolver.unregisterContentObserver(mediaStoreObserver)
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
         LocalBroadcastManager.getInstance(this)

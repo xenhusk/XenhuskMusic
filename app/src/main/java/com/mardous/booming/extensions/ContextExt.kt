@@ -20,7 +20,9 @@
 package com.mardous.booming.extensions
 
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.Activity
+import android.app.SearchManager
+import android.app.UiModeManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -157,25 +159,6 @@ fun Context.showToast(text: String?, duration: Int = Toast.LENGTH_SHORT) {
     } else {
         Toast.makeText(applicationContext, text, duration).show()
     }
-}
-
-fun Context.createNotificationChannel(
-    channelId: String,
-    channelName: String,
-    channelDescription: String?,
-    notificationManager: NotificationManager = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-): NotificationChannel {
-    var notificationChannel = notificationManager.getNotificationChannel(channelId)
-    if (notificationChannel == null) {
-        notificationChannel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW).apply {
-            description = channelDescription
-            enableLights(false)
-            enableVibration(false)
-        }.also {
-            notificationManager.createNotificationChannel(it)
-        }
-    }
-    return notificationChannel
 }
 
 fun Context.readStringFromAsset(assetName: String): String? =

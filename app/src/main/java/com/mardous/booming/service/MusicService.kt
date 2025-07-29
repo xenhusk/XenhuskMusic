@@ -45,6 +45,9 @@ import androidx.core.content.getSystemService
 import androidx.core.os.postDelayed
 import androidx.core.util.Predicate
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.media.AudioAttributesCompat
+import androidx.media.AudioFocusRequestCompat
+import androidx.media.AudioManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -74,7 +77,6 @@ import com.mardous.booming.model.Song
 import com.mardous.booming.providers.databases.HistoryStore
 import com.mardous.booming.providers.databases.SongPlayCountStore
 import com.mardous.booming.repository.Repository
-import com.mardous.booming.service.audiofocus.AudioFocusMediator
 import com.mardous.booming.service.constants.ServiceAction
 import com.mardous.booming.service.constants.ServiceAction.Extras.Companion.EXTRA_PLAYLIST
 import com.mardous.booming.service.constants.ServiceAction.Extras.Companion.EXTRA_SHUFFLE_MODE
@@ -100,7 +102,7 @@ import kotlin.math.min
 import kotlin.random.Random
 
 class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserver,
-    AudioFocusMediator.AudioFocusListener, OnSharedPreferenceChangeListener {
+    AudioManager.OnAudioFocusChangeListener, OnSharedPreferenceChangeListener {
 
     private val serviceScope = CoroutineScope(Job() + Main)
 
@@ -116,6 +118,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     private var playbackRestored = false
     private var needsToRestorePlayback = false
     private var trackEndedByCrossfade = false
+    private var mayResumeOnFocusGain = false
 
     private val sharedPreferences: SharedPreferences by inject()
     private val equalizerManager: EqualizerManager by inject()
@@ -128,7 +131,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     private var throttledSeekHandler: ThrottledSeekHandler? = null
     private var wakeLock: WakeLock? = null
 
-    private lateinit var audioFocusMediator: AudioFocusMediator
     private lateinit var playingNotificationManager: PlayingNotificationManager
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var persistentStorage: PersistentStorage
@@ -140,6 +142,17 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
 
     private val pendingStartCommands = mutableListOf<Intent>()
     private val songPlayCountHelper = SongPlayCountHelper()
+
+    private val audioManager by lazy { getSystemService<AudioManager>() }
+    private val audioFocusRequest: AudioFocusRequestCompat =
+        AudioFocusRequestCompat.Builder(AudioManagerCompat.AUDIOFOCUS_GAIN)
+            .setOnAudioFocusChangeListener(this)
+            .setAudioAttributes(
+                AudioAttributesCompat.Builder()
+                    .setUsage(AudioAttributesCompat.USAGE_MEDIA)
+                    .setContentType(AudioAttributesCompat.CONTENT_TYPE_MUSIC)
+                    .build()
+            ).build()
 
     val isPlaying get() = playbackManager.isPlaying()
     val currentSongProgress get() = playbackManager.position()
@@ -183,7 +196,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
             .registerReceiver(widgetIntentReceiver, IntentFilter(ServiceAction.ACTION_APP_WIDGET_UPDATE))
 
         sessionToken = mediaSession.sessionToken
-        audioFocusMediator = AudioFocusMediator(this, playbackManager)
         playingNotificationManager = PlayingNotificationManager(this, mediaSession, playbackManager, queueManager)
 
         mediaStoreObserver = MediaStoreObserver(this, playerHandler!!)
@@ -207,7 +219,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent == null && !playbackManager.isPlaying() && !audioFocusMediator.mayResumeOnFocusGain) {
+        if (intent == null && !playbackManager.isPlaying() && !mayResumeOnFocusGain) {
             stopForeground(STOP_FOREGROUND_REMOVE)
         } else if (intent != null) {
             // Cancel any pending shutdown
@@ -235,7 +247,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        if (!isPlaying && !audioFocusMediator.mayResumeOnFocusGain) {
+        if (!isPlaying && !mayResumeOnFocusGain) {
             stopSelf()
         }
         return super.onUnbind(intent)
@@ -272,7 +284,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     }
 
     override fun onTaskRemoved(rootIntent: Intent) {
-        if (!isPlaying && !audioFocusMediator.mayResumeOnFocusGain) {
+        if (!isPlaying && !mayResumeOnFocusGain) {
             quit()
         }
         super.onTaskRemoved(rootIntent)
@@ -295,7 +307,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         }
         quit()
         serviceScope.cancel()
-        audioFocusMediator.abandonFocus()
+        abandonFocus()
         playerHandler?.removeCallbacksAndMessages(null)
         foregroundNotificationHandler?.removeCallbacksAndMessages(null)
         delayedShutdownHandler?.removeCallbacksAndMessages(null)
@@ -335,31 +347,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     override fun songChanged(currentSong: Song, nextSong: Song) {
         updateMetadata(currentSong)
         playbackManager.setCrossFadeNextDataSource(nextSong)
-    }
-
-    override fun audioFocusGain(isPausedByTransientLossOfFocus: Boolean) {
-        if (!isPlaying && isPausedByTransientLossOfFocus) {
-            play()
-        }
-    }
-
-    override fun audioFocusLoss(isTransient: Boolean): Boolean {
-        // Starting with Android 12, the system automatically fades out
-        // the output when focus is lost; we simply pause without fading
-        // out on our own.
-        val forced = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-        if (isTransient) {
-            if (Preferences.pauseOnTransientFocusLoss) {
-                pause(forced)
-                return true
-            }
-        } else {
-            if (!Preferences.ignoreAudioFocus) {
-                pause(forced)
-                return true
-            }
-        }
-        return false
     }
 
     override fun onTrackWentToNext() {
@@ -412,7 +399,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
 
         foregroundNotificationHandler?.removeCallbacksAndMessages(null)
         delayedShutdownHandler?.removeCallbacksAndMessages(null)
-        if (!playbackManager.isPlaying() && !audioFocusMediator.mayResumeOnFocusGain) {
+        if (!playbackManager.isPlaying() && !mayResumeOnFocusGain) {
             foregroundNotificationHandler?.postDelayed(150) {
                 stopForeground(STOP_FOREGROUND_DETACH)
             }
@@ -507,7 +494,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     private fun postDelayedShutdown(delayInSeconds: Long = 15) {
         delayedShutdownHandler?.removeCallbacksAndMessages(null)
         delayedShutdownHandler?.postDelayed(delayInSeconds * 1000) {
-            if (!isPlaying && !audioFocusMediator.mayResumeOnFocusGain) {
+            if (!isPlaying && !mayResumeOnFocusGain) {
                 if (queueManager.isEmpty) {
                     playingNotificationManager.cancelNotification()
                 }
@@ -766,12 +753,24 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         }
     }
 
+    private fun requestFocus(): Boolean {
+        return audioManager?.let {
+            AudioManagerCompat.requestAudioFocus(it, audioFocusRequest) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        } ?: false
+    }
+
+    private fun abandonFocus() {
+        audioManager?.let {
+            AudioManagerCompat.abandonAudioFocusRequest(it, audioFocusRequest)
+        }
+    }
+
     private fun pause(force: Boolean = false) {
         playbackManager.pause(force)
     }
 
     private fun play(force: Boolean = false) {
-        if (!audioFocusMediator.requestFocus()) {
+        if (!requestFocus()) {
             showToast(R.string.audio_focus_denied)
             return
         }
@@ -1295,6 +1294,39 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
                 val songs = uriSongResolver.resolve(uri)
                 if (songs.isNotEmpty()) {
                     openQueue(songs, 0, true)
+                }
+            }
+        }
+    }
+
+    override fun onAudioFocusChange(focusChange: Int) {
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                if (!isPlaying && mayResumeOnFocusGain) {
+                    play()
+                    mayResumeOnFocusGain = false
+                }
+            }
+
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                // Lost focus for an unbounded amount of time: stop playback and release media playback
+                if (!Preferences.ignoreAudioFocus) {
+                    val force = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                    // Starting with Android 12, the system automatically fades out
+                    // the output when focus is lost; we simply pause without fading
+                    // out on our own.
+                    pause(force)
+                }
+            }
+
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                // Lost focus for a short time, but we have to stop
+                // playback. We don't release the media playback because playback
+                // is likely to resume
+                if (Preferences.pauseOnTransientFocusLoss) {
+                    val wasPlaying = isPlaying
+                    pause(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    mayResumeOnFocusGain = wasPlaying
                 }
             }
         }

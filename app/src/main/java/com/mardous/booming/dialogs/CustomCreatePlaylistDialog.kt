@@ -29,14 +29,10 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
-import com.google.android.material.dialog.MaterialAlertDialogsBuilder
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.databinding.DialogCreatePlaylistCustomBinding
-import com.mardous.booming.extensions.colorAccent
-import com.mardous.booming.extensions.colorOnSurface
-import com.mardous.booming.extensions.materialDialog
 import com.mardous.booming.viewmodels.library.LibraryViewModel
 import com.mardous.booming.viewmodels.library.model.AddToPlaylistResult
 
@@ -63,11 +59,12 @@ class CustomCreatePlaylistDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogCreatePlaylistCustomBinding.inflate(LayoutInflater.from(requireContext()))
         
-        binding.selectImageFab.setOnClickListener {
+        binding.selectCoverFab.setOnClickListener {
             selectImage()
         }
         
-        return materialDialog(R.string.new_playlist)
+        return MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.new_playlist_title)
             .setView(binding.root)
             .setPositiveButton(R.string.create_action) { _, _ ->
                 val playlistName = binding.playlistNameEditText.text?.toString()?.trim()
@@ -95,7 +92,7 @@ class CustomCreatePlaylistDialog : DialogFragment() {
             Glide.with(this)
                 .load(uri)
                 .centerCrop()
-                .into(binding.playlistCoverImageView)
+                .into(binding.playlistCoverImage)
         }
     }
 
@@ -107,9 +104,9 @@ class CustomCreatePlaylistDialog : DialogFragment() {
             playlistName = playlistName,
             customCoverUri = customCoverUri,
             description = finalDescription
-        ).observe(this, Observer { result ->
+        ).observe(this) { result ->
             handlePlaylistCreationResult(result)
-        })
+        }
     }
 
     private fun handlePlaylistCreationResult(result: AddToPlaylistResult) {

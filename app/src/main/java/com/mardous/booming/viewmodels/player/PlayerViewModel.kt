@@ -56,7 +56,7 @@ class PlayerViewModel(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = playbackManager.isPlaying()
+        initialValue = serviceConnection.currentPlaybackState == PlaybackStateCompat.STATE_PLAYING
     )
     val isPlaying get() = isPlayingFlow.value
 

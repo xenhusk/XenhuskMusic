@@ -53,6 +53,7 @@ import com.mardous.booming.helper.menu.onAlbumMenu
 import com.mardous.booming.helper.menu.onArtistMenu
 import com.mardous.booming.helper.menu.onPlaylistMenu
 import com.mardous.booming.helper.menu.onSongMenu
+import com.mardous.booming.helper.menu.onSongsMenu
 import com.mardous.booming.interfaces.ISearchCallback
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
@@ -202,7 +203,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupRecyclerView() {
-        searchAdapter = SearchAdapter(emptyList(), this).apply {
+        searchAdapter = SearchAdapter(requireActivity(), emptyList(), this).apply {
             registerAdapterDataObserver(adapterDataObserver)
         }
         binding.recyclerView.apply {
@@ -295,6 +296,10 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         return playlist.onPlaylistMenu(this, menuItem)
     }
 
+    override fun onMultipleItemAction(menuItem: MenuItem, selection: List<Song>) {
+        selection.onSongsMenu(this, menuItem)
+    }
+
     override fun genreClick(genre: Genre) {
         findNavController().navigate(R.id.nav_genre_detail, genreDetailArgs(genre))
     }
@@ -339,6 +344,11 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         searchAdapter.unregisterAdapterDataObserver(adapterDataObserver)
         binding.searchView.setOnKeyListener(null)
         _binding = null
+    }
+
+    override fun onPause() {
+        super.onPause()
+        searchAdapter.actionMode?.finish()
     }
 
     companion object {

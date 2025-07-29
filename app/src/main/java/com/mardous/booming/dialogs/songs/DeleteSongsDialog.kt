@@ -25,6 +25,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -40,11 +41,9 @@ import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.files.isSAFAccessGranted
 import com.mardous.booming.extensions.files.isSAFRequiredForSongs
 import com.mardous.booming.model.Song
-import com.mardous.booming.recordException
 import com.mardous.booming.util.MusicUtil
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.library.LibraryViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -60,11 +59,6 @@ class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
     private lateinit var songs: MutableList<Song>
 
     private var binding: DialogDeleteSongsBinding? = null
-
-    private val ioExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        recordException(throwable)
-    }
-
     private var songsToDelete: List<Song>? = null
 
     override fun onSAFResult(treeUri: Uri?) {
@@ -157,28 +151,38 @@ class DeleteSongsDialog : DialogFragment(), SAFDialog.SAFResultListener {
                 it.progressText.isVisible = true
             }
 
-            withContext(IO + ioExceptionHandler) {
-                MusicUtil.deleteTracks(requireContext(), songs,
-                    onProgress = { song: Song, progress: Int, max: Int ->
-                        requestContext { context ->
-                            binding?.let { nonNullBinding ->
-                                nonNullBinding.progressText.text =
-                                    context.getString(R.string.song_x_of_x, progress, max, song.title)
-                                nonNullBinding.progress.isIndeterminate = false
-                                nonNullBinding.progress.progress = progress
-                                nonNullBinding.progress.max = max
+            withContext(IO) {
+                try {
+                    MusicUtil.deleteTracks(
+                        requireContext(), songs,
+                        onProgress = { song: Song, progress: Int, max: Int ->
+                            requestContext { context ->
+                                binding?.let { nonNullBinding ->
+                                    nonNullBinding.progressText.text =
+                                        context.getString(
+                                            R.string.song_x_of_x,
+                                            progress,
+                                            max,
+                                            song.title
+                                        )
+                                    nonNullBinding.progress.isIndeterminate = false
+                                    nonNullBinding.progress.progress = progress
+                                    nonNullBinding.progress.max = max
+                                }
                             }
-                        }
-                    },
-                    onCompleted = { deleted ->
-                        requestContext {
-                            it.showToast(
-                                if (deleted == 1) it.getString(R.string.deleted_one_song)
-                                else it.getString(R.string.deleted_x_songs, deleted)
-                            )
-                            dismissAllowingStateLoss()
-                        }
-                    })
+                        },
+                        onCompleted = { deleted ->
+                            requestContext {
+                                it.showToast(
+                                    if (deleted == 1) it.getString(R.string.deleted_one_song)
+                                    else it.getString(R.string.deleted_x_songs, deleted)
+                                )
+                                dismissAllowingStateLoss()
+                            }
+                        })
+                } catch (t: Throwable) {
+                    Log.e("DeleteSongsDialog", "${songs.size} song deletion failed", t)
+                }
             }
         }
     }

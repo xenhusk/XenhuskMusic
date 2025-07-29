@@ -1,7 +1,5 @@
 import java.util.Properties
 
-val isNormalBuild: Boolean by rootProject.extra
-
 plugins {
     alias(libs.plugins.agp)
     alias(libs.plugins.kotlin.android)
@@ -11,11 +9,6 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.androidx.safeargs)
     alias(libs.plugins.aboutlibraries)
-}
-
-if (isNormalBuild) {
-    apply(plugin = "com.google.gms.google-services")
-    apply(plugin = "com.google.firebase.crashlytics")
 }
 
 sealed class Version(
@@ -185,10 +178,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.datetime)
-
-    // Firebase BoM
-    "normalImplementation"(platform(libs.firebase.bom))
-    "normalImplementation"(libs.firebase.crashlytics)
 
     // Google/JetPack
     //https://developer.android.com/jetpack/androidx/versions

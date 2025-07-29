@@ -343,6 +343,15 @@ class LibraryViewModel(
         repository.renamePlaylist(playListId, name)
     }
 
+    fun updatePlaylist(
+        playlistId: Long,
+        newName: String,
+        customCoverUri: String? = null,
+        description: String? = null
+    ) = viewModelScope.launch(IO) {
+        repository.updatePlaylist(playlistId, newName, customCoverUri, description)
+    }
+
     fun deleteSongsInPlaylist(songs: List<SongEntity>) {
         viewModelScope.launch(IO) {
             repository.deleteSongsInPlaylist(songs)
@@ -398,6 +407,42 @@ class LibraryViewModel(
             }
             forceReload(ReloadType.Playlists)
         }
+
+    fun createCustomPlaylist(
+        playlistName: String,
+        customCoverUri: String? = null,
+        description: String? = null,
+        songs: List<Song> = emptyList()
+    ): LiveData<AddToPlaylistResult> = liveData(IO) {
+        emit(AddToPlaylistResult(playlistName, isWorking = true))
+
+        val playlists = checkPlaylistExists(playlistName)
+        if (playlists.isEmpty()) {
+            val playlistEntity = PlaylistEntity(
+                playlistName = playlistName,
+                customCoverUri = customCoverUri,
+                description = description
+            )
+            val playlistId: Long = createPlaylist(playlistEntity)
+            if (songs.isNotEmpty()) {
+                insertSongs(songs.map { it.toSongEntity(playlistId) })
+            }
+            val playlistCreated = (playlistId != -1L)
+            val isFavoritePlaylist = repository.checkFavoritePlaylist()?.playListId == playlistId
+            emit(
+                AddToPlaylistResult(
+                    playlistName,
+                    playlistCreated = playlistCreated,
+                    isFavoritePlaylist = isFavoritePlaylist,
+                    insertedSongs = songs.size
+                )
+            )
+        } else {
+            // Playlist already exists
+            emit(AddToPlaylistResult(playlistName, playlistCreated = false))
+        }
+        forceReload(ReloadType.Playlists)
+    }
 
     fun playlistsAsync(): LiveData<List<PlaylistWithSongs>> = liveData(IO) {
         emit(repository.playlistsWithSongs())

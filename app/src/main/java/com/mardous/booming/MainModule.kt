@@ -134,6 +134,7 @@ private val mainModule = module {
 private val roomModule = module {
     single {
         Room.databaseBuilder(androidContext(), BoomingDatabase::class.java, "music_database.db")
+            .addMigrations(BoomingDatabase.MIGRATION_1_2)
             .build()
     }
 

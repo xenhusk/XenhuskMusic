@@ -32,7 +32,7 @@ import com.mardous.booming.database.toSongs
 import com.mardous.booming.dialogs.playlists.AddToPlaylistDialog
 import com.mardous.booming.dialogs.playlists.DeletePlaylistDialog
 import com.mardous.booming.dialogs.playlists.EditPlaylistDialog
-import com.mardous.booming.dialogs.playlists.RenamePlaylistDialog
+// import com.mardous.booming.dialogs.playlists.RenamePlaylistDialog (removed, obsolete)
 import com.mardous.booming.dialogs.songs.DeleteSongsDialog
 import com.mardous.booming.dialogs.songs.SetRingtoneDialog
 import com.mardous.booming.extensions.getShareSongIntent
@@ -265,11 +265,7 @@ fun PlaylistWithSongs.onPlaylistMenu(fragment: Fragment, menuItem: MenuItem): Bo
         return false
 
     when (menuItem.itemId) {
-        R.id.action_rename_playlist -> {
-            RenamePlaylistDialog.create(playlistEntity)
-                .show(fragment.childFragmentManager, "RENAME_PLAYLIST")
-            return true
-        }
+        // R.id.action_rename_playlist removed as obsolete
 
         R.id.action_edit_playlist -> {
             EditPlaylistDialog.create(playlistEntity)

@@ -424,24 +424,29 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
 
         foregroundNotificationHandler?.removeCallbacksAndMessages(null)
         delayedShutdownHandler?.removeCallbacksAndMessages(null)
-        if (!playbackManager.isPlaying() && !mayResumeOnFocusGain) {
-            foregroundNotificationHandler?.postDelayed(150) {
-                stopForeground(STOP_FOREGROUND_DETACH)
-            }
-            postDelayedShutdown()
-        }
 
         updateMediaSessionPlaybackState()
         updateWidgets()
 
-        val isPlaying = isPlaying
-        if (!isPlaying) {
+        val isPlaying = playbackManager.isPlaying()
+        if (isPlaying) {
+            playingNotificationManager.startForeground(this) {
+                displayPlayingNotification(true)
+            }
+        } else {
+            playingNotificationManager.displayPlayingNotification(false)
+            if (!mayResumeOnFocusGain) {
+                foregroundNotificationHandler?.postDelayed(150) {
+                    stopForeground(STOP_FOREGROUND_DETACH)
+                }
+                postDelayedShutdown()
+            }
             if (currentSongDuration > 0) {
                 persistentStorage.savePositionInTrack()
             }
         }
+
         songPlayCountHelper.notifyPlayStateChanged(isPlaying)
-        playingNotificationManager.displayPlayingNotification(isPlaying)
     }
 
     private fun processCommand(command: Intent) {

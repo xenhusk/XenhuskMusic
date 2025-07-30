@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:paddingTop="?dialogPreferredPadding"
+    android:paddingStart="?dialogPreferredPadding"
+    android:paddingEnd="?dialogPreferredPadding">
 
     <!-- Playlist Cover Image -->
     <FrameLayout
@@ -14,30 +16,32 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp">
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/playlist_cover_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="?attr/colorSurfaceVariant"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_queue_music_24dp"
+            android:src="@drawable/default_audio_art"
+            app:shapeAppearanceOverlay="?shapeAppearanceCornerSmall"
             tools:ignore="ContentDescription" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/select_cover_fab"
+            style="?materialIconButtonFilledStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
             android:layout_margin="8dp"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_image_24dp" />
+            android:importantForAccessibility="no"
+            app:icon="@drawable/ic_image_24dp" />
 
     </FrameLayout>
 
     <!-- Playlist Name Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/playlist_name_layout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="?textInputOutlinedStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -55,7 +59,7 @@
     <!-- Playlist Description Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/playlist_description_layout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="?textInputOutlinedStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/playlist_description_hint">

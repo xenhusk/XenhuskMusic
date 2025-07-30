@@ -19,7 +19,11 @@ package com.mardous.booming.fragments.base
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
@@ -31,7 +35,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mardous.booming.R
 import com.mardous.booming.adapters.base.AbsMultiSelectAdapter
 import com.mardous.booming.databinding.FragmentMainRecyclerBinding
-import com.mardous.booming.dialogs.playlists.CreatePlaylistDialog
 import com.mardous.booming.dialogs.playlists.ImportPlaylistDialog
 import com.mardous.booming.extensions.resources.createFastScroller
 import com.mardous.booming.extensions.resources.onVerticalScroll
@@ -184,7 +187,6 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
             R.id.action_settings -> findNavController().navigate(R.id.nav_settings)
             R.id.action_scan -> mainActivity.scanAllPaths()
             R.id.action_import_playlist -> ImportPlaylistDialog().show(childFragmentManager, "IMPORT_PLAYLIST")
-            R.id.action_add_to_playlist -> CreatePlaylistDialog.create().show(childFragmentManager, "CREATE_PLAYLIST")
         }
         return false
     }

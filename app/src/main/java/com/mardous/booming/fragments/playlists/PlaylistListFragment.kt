@@ -30,7 +30,6 @@ import com.mardous.booming.R
 import com.mardous.booming.adapters.PlaylistAdapter
 import com.mardous.booming.database.PlaylistWithSongs
 import com.mardous.booming.dialogs.playlists.CreatePlaylistDialog
-import com.mardous.booming.dialogs.playlists.CustomCreatePlaylistDialog
 import com.mardous.booming.dialogs.playlists.ImportPlaylistDialog
 import com.mardous.booming.extensions.navigation.playlistDetailArgs
 import com.mardous.booming.fragments.base.AbsRecyclerViewCustomGridSizeFragment
@@ -133,7 +132,7 @@ class PlaylistListFragment : AbsRecyclerViewCustomGridSizeFragment<PlaylistAdapt
         }
         return when (item.itemId) {
             R.id.action_new_playlist -> {
-                CustomCreatePlaylistDialog()
+                CreatePlaylistDialog()
                     .show(childFragmentManager, "NEW_PLAYLIST")
                 true
             }

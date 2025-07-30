@@ -20,15 +20,15 @@ package com.mardous.booming.dialogs.playlists
 import android.app.Dialog
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toUri
 import androidx.fragment.app.DialogFragment
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.database.PlaylistEntity
-import com.mardous.booming.databinding.DialogCreatePlaylistCustomBinding
+import com.mardous.booming.databinding.DialogCreatePlaylistBinding
 import com.mardous.booming.extensions.extraNotNull
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.withArgs
@@ -37,14 +37,14 @@ import com.mardous.booming.viewmodels.library.ReloadType
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 /**
- * @author Christians M. A. (mardous)
+ * @author SifouByte
  */
 class EditPlaylistDialog : DialogFragment() {
 
     private val libraryViewModel: LibraryViewModel by activityViewModel()
     private val playlistEntity: PlaylistEntity by extraNotNull(EXTRA_PLAYLIST)
 
-    private var _binding: DialogCreatePlaylistCustomBinding? = null
+    private var _binding: DialogCreatePlaylistBinding? = null
     private val binding get() = _binding!!
 
     private var selectedImageUri: String? = null
@@ -56,30 +56,28 @@ class EditPlaylistDialog : DialogFragment() {
         }
     }
 
-    private fun loadImage(uri: Uri) {
+    private fun loadImage(uri: Uri?) {
         Glide.with(this)
             .load(uri)
-            .placeholder(R.drawable.ic_queue_music_24dp)
-            .error(R.drawable.ic_queue_music_24dp)
+            .placeholder(R.drawable.default_audio_art)
+            .error(R.drawable.default_audio_art)
             .into(binding.playlistCoverImage)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        _binding = DialogCreatePlaylistCustomBinding.inflate(LayoutInflater.from(requireContext()))
+        _binding = DialogCreatePlaylistBinding.inflate(layoutInflater)
 
         // Pre-fill existing data
         binding.playlistNameEditText.setText(playlistEntity.playlistName)
         binding.playlistDescriptionEditText.setText(playlistEntity.description ?: "")
-        
+
         // Set initial image
         selectedImageUri = playlistEntity.customCoverUri
         if (!playlistEntity.customCoverUri.isNullOrEmpty()) {
-            loadImage(Uri.parse(playlistEntity.customCoverUri))
+            loadImage(playlistEntity.customCoverUri?.toUri())
         } else {
             // Load default icon for playlists without custom covers
-            Glide.with(this)
-                .load(R.drawable.ic_queue_music_24dp)
-                .into(binding.playlistCoverImage)
+            loadImage(null)
         }
 
         binding.selectCoverFab.setOnClickListener {

@@ -436,10 +436,12 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         } else {
             playingNotificationManager.displayPlayingNotification(false)
             if (!mayResumeOnFocusGain) {
-                foregroundNotificationHandler?.postDelayed(150) {
-                    stopForeground(STOP_FOREGROUND_DETACH)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                    foregroundNotificationHandler?.postDelayed(150) {
+                        stopForeground(STOP_FOREGROUND_DETACH)
+                    }
+                    postDelayedShutdown()
                 }
-                postDelayedShutdown()
             }
             if (currentSongDuration > 0) {
                 persistentStorage.savePositionInTrack()

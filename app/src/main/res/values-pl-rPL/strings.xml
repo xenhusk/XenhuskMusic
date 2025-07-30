@@ -47,6 +47,9 @@
     <string name="continue_action">Kontynuuj</string>
     <string name="select_all_title">Zaznacz wszystkie</string>
     <string name="x_selected">%d Zaznaczonych</string>
+    <string name="preparing_playback_title">Preparing</string>
+    <string name="restoring_playback_state">Restoring playback state and queue…</string>
+    <string name="playback_stopped_title">Playback stopped</string>
     <string name="playing_notification_description">Powiadomienie o odtwarzaniu zapewnia akcje dla odtwarzania/pauzy itp.</string>
     <string name="playing_notification_name">Powiadomienie o odtwarzaniu</string>
     <string name="action_scan_directory">Skanuj katalog</string>
@@ -495,6 +498,7 @@
     <string name="no_synced_lyrics_found">Nie znaleziono zsynchronizowanych tekstów</string>
     <string name="lyrics_were_updated_successfully">Tekst został pomyślnie zaktualizowany.</string>
     <string name="failed_to_update_lyrics">Nie udało się zaktualizować tekstu.</string>
+    <string name="there_are_no_changes_to_save">There are no changes to save.</string>
     <string name="lyrics_source_external_file">Lyrics come from an external file. You can\'t edit this file directly from Booming Music.</string>
     <!-- Sleep timer -->
     <string name="action_sleep_timer">Czas uśpienia</string>
@@ -735,6 +739,7 @@
     <string name="full_cover">Pełna okładka</string>
     <string name="gradient">Gradient</string>
     <string name="peek">Podgląd</string>
+    <string name="peek2">Peek2</string>
     <string name="plain">Czysty</string>
     <string name="m3_style">M3</string>
     <string name="normal">Normalny</string>

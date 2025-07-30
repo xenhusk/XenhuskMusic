@@ -175,7 +175,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_
     override fun onPrepareMenu(menu: Menu) {
         playlist.let {
             if (it.playlistEntity.isFavorites(requireContext())) {
-                // menu.removeItem(R.id.action_rename_playlist) // removed, obsolete
+                menu.removeItem(R.id.action_edit_playlist)
                 menu.removeItem(R.id.action_delete_playlist)
             }
         }

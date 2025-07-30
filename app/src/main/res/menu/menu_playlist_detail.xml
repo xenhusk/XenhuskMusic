@@ -26,6 +26,8 @@
 		android:title="@string/action_export_playlist"
 		app:showAsAction="never"/>
 	<item
+		android:id="@+id/action_edit_playlist"
+		android:title="@string/action_edit_playlist"
 		app:showAsAction="never"/>
 	<item
 		android:id="@+id/action_delete_playlist"

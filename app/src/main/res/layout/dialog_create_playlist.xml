@@ -70,7 +70,7 @@
             android:layout_height="wrap_content"
             android:gravity="top"
             android:inputType="textCapSentences|textMultiLine"
-            android:maxLines="3"
+            android:maxLines="4"
             android:minLines="2" />
 
     </com.google.android.material.textfield.TextInputLayout>

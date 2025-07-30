@@ -113,6 +113,14 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_
         detailViewModel.getPlaylist().observe(viewLifecycleOwner) { playlistWithSongs ->
             playlist = playlistWithSongs
             binding.title.text = playlist.playlistEntity.playlistName
+            val description = playlist.playlistEntity.description
+            if (!description.isNullOrEmpty()) {
+                binding.description.text = description
+                binding.description.isVisible = true
+            } else {
+                binding.description.text = null
+                binding.description.isVisible = false
+            }
             binding.subtitle.text = playlist.songs.toSongs().playlistInfo(requireContext())
             binding.collapsingAppBarLayout.title = playlist.playlistEntity.playlistName
         }

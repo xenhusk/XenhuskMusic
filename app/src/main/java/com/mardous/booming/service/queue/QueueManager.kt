@@ -33,6 +33,10 @@ const val NO_POSITION = -1
 
 private typealias MutablePlayQueue = MutableList<QueueSong>
 
+enum class QueueChangeReason {
+    Created, Modified, Cleared
+}
+
 class QueueManager {
 
     private val shuffleManager = ShuffleManager()
@@ -495,18 +499,21 @@ class QueueManager {
             }
         }
         this._shuffleMode = mode
-        setPlayingQueue(_playingQueue)
+        setPlayingQueue(_playingQueue, QueueChangeReason.Modified)
         doDispatchChange {
             it.shuffleModeChanged(mode)
         }
     }
 
-    private fun setPlayingQueue(playingQueue: MutableList<QueueSong>, updateSong: Boolean = true) {
+    private fun setPlayingQueue(
+        playingQueue: MutableList<QueueSong>,
+        changeReason: QueueChangeReason
+    ) {
         this.stopPosition = NO_POSITION
         this._playingQueue = playingQueue
         doDispatchChange { 
-            it.queueChanged(playingQueue.toList())
-            if (updateSong) {
+            it.queueChanged(playingQueue.toList(), changeReason)
+            if (changeReason != QueueChangeReason.Created) {
                 it.songChanged(currentSong, nextSong)
             }
         }
@@ -517,7 +524,7 @@ class QueueManager {
         _playingQueue.clear()
         setPositionTo(NO_POSITION)
         this.stopPosition = NO_POSITION
-        setPlayingQueue(_playingQueue)
+        setPlayingQueue(_playingQueue, QueueChangeReason.Cleared)
     }
 
     fun updateSong(id: Long, song: Song) {
@@ -548,7 +555,7 @@ class QueueManager {
         modifier: (playingQueue: MutablePlayQueue, originalPlayingQueue: MutablePlayQueue) -> Unit
     ) = synchronized(lock) {
         modifier(_playingQueue, _originalPlayingQueue)
-        setPlayingQueue(_playingQueue)
+        setPlayingQueue(_playingQueue, QueueChangeReason.Modified)
     }
 
     private suspend fun createQueue(
@@ -566,7 +573,7 @@ class QueueManager {
             _originalPlayingQueue = queueSongs
             setPlayingQueue(
                 playingQueue = onCreated(_originalPlayingQueue.toMutableList()).toMutableList(),
-                updateSong = false
+                changeReason = QueueChangeReason.Created
             )
             this._shuffleMode = shuffleMode
             doDispatchChange {

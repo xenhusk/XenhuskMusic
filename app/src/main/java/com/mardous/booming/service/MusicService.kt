@@ -88,6 +88,7 @@ import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.service.playback.Playback.PlaybackCallbacks
 import com.mardous.booming.service.playback.PlaybackManager
 import com.mardous.booming.service.queue.NO_POSITION
+import com.mardous.booming.service.queue.QueueChangeReason
 import com.mardous.booming.service.queue.QueueManager
 import com.mardous.booming.service.queue.QueueObserver
 import com.mardous.booming.taglib.ReplayGainTagExtractor
@@ -321,8 +322,16 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
-    override fun queueChanged(queue: List<Song>) {
-        updateQueue(queue)
+    override fun queueChanged(queue: List<Song>, reason: QueueChangeReason) {
+        mediaSession.setQueueTitle(getString(R.string.playing_queue_label))
+        mediaSession.setQueue(queueManager.getMediaSessionQueue())
+        updateMediaSessionMetadata(::updateMediaSessionPlaybackState) // because playing queue size might have changed
+        persistentStorage.saveState()
+        if (queue.isNotEmpty()) {
+            prepareNext()
+        } else {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        }
     }
 
     override fun queuePositionChanged(position: Int, rePosition: Boolean) {
@@ -345,7 +354,23 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     }
 
     override fun songChanged(currentSong: Song, nextSong: Song) {
-        updateMetadata(currentSong)
+        // We must call updateMediaSessionPlaybackState after the load of album art is completed
+        // if we are loading it, or it won't be updated in the notification
+        updateMediaSessionMetadata {
+            updateMediaSessionPlaybackState()
+            isCurrentFavorite { isFavorite ->
+                playingNotificationManager.displayPlayingNotification(song = currentSong, isFavorite = isFavorite)
+            }
+        }
+        updateWidgets()
+        persistentStorage.savePosition()
+        persistentStorage.savePositionInTrack()
+        serviceScope.launch(IO) {
+            HistoryStore.getInstance(this@MusicService).addSongId(currentSong.id)
+            repository.upsertSongInHistory(currentSong)
+            songPlayCountHelper.notifySongChanged(currentSong, isPlaying)
+            applyReplayGain(currentSong)
+        }
         playbackManager.setCrossFadeNextDataSource(nextSong)
     }
 
@@ -405,7 +430,18 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
             }
             postDelayedShutdown()
         }
-        updatePlayState()
+
+        updateMediaSessionPlaybackState()
+        updateWidgets()
+
+        val isPlaying = isPlaying
+        if (!isPlaying) {
+            if (currentSongDuration > 0) {
+                persistentStorage.savePositionInTrack()
+            }
+        }
+        songPlayCountHelper.notifyPlayStateChanged(isPlaying)
+        playingNotificationManager.displayPlayingNotification(isPlaying)
     }
 
     private fun processCommand(command: Intent) {
@@ -835,52 +871,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     private fun prepareSongAt(position: Int, completion: (Boolean) -> Unit = {}) {
         queueManager.setPosition(position)
         openCurrentAndPrepareNext(completion)
-    }
-
-    private fun updateMetadata(song: Song) {
-        // We must call updateMediaSessionPlaybackState after the load of album art is completed
-        // if we are loading it, or it won't be updated in the notification
-        updateMediaSessionMetadata {
-            updateMediaSessionPlaybackState()
-            isCurrentFavorite { isFavorite ->
-                playingNotificationManager.displayPlayingNotification(song = song, isFavorite = isFavorite)
-            }
-        }
-        persistentStorage.savePosition()
-        persistentStorage.savePositionInTrack()
-        serviceScope.launch(IO) {
-            val currentSong = song
-            HistoryStore.getInstance(this@MusicService).addSongId(currentSong.id)
-            repository.upsertSongInHistory(currentSong)
-            songPlayCountHelper.notifySongChanged(currentSong, isPlaying)
-            applyReplayGain(currentSong)
-        }
-        updateWidgets()
-    }
-
-    private fun updatePlayState() {
-        updateMediaSessionPlaybackState()
-        val isPlaying = isPlaying
-        if (!isPlaying) {
-            if (currentSongDuration > 0) {
-                persistentStorage.savePositionInTrack()
-            }
-        }
-        songPlayCountHelper.notifyPlayStateChanged(isPlaying)
-        playingNotificationManager.displayPlayingNotification(isPlaying)
-        updateWidgets()
-    }
-
-    private fun updateQueue(queue: List<Song>) {
-        mediaSession.setQueueTitle(getString(R.string.playing_queue_label))
-        mediaSession.setQueue(queueManager.getMediaSessionQueue())
-        updateMediaSessionMetadata(::updateMediaSessionPlaybackState) // because playing queue size might have changed
-        persistentStorage.saveState()
-        if (queue.isNotEmpty()) {
-            prepareNext()
-        } else {
-            stopForeground(STOP_FOREGROUND_REMOVE)
-        }
     }
 
     private fun updateWidgets() {

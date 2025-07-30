@@ -115,7 +115,7 @@ class PlayerViewModel(
         queueManager.addObserver(this)
     }
 
-    override fun queueChanged(queue: List<Song>) {
+    override fun queueChanged(queue: List<Song>, reason: QueueChangeReason) {
         _playingQueueFlow.value = queue
     }
 

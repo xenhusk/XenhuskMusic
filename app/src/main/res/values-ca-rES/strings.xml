@@ -66,7 +66,6 @@
     <string name="new_playlist_title">Nova llista</string>
     <string name="add_playlist_title">Afegeix a la llista</string>
     <string name="rename_playlist_title">Canvia el nom a la llista de reproducció</string>
-    <string name="action_rename">Canvia el nom a la llista</string>
     <string name="action_delete">Esborra la llista</string>
     <string name="action_export_playlist">Exporta la llista</string>
     <string name="action_clear_history">Esborra l\'historial</string>

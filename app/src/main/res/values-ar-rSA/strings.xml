@@ -66,6 +66,7 @@
     <string name="new_playlist_title">قائمة تشغيل جديدة</string>
     <string name="add_playlist_title">إضافة إلى قائمة التشغيل</string>
     <string name="rename_playlist_title">إعادة تسمية قائمة التشغيل</string>
+    <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete">حذف قائمة التشغيل</string>
     <string name="action_export_playlist">تصدير إلى ملف</string>
     <string name="action_clear_history">مسح المحفوظات</string>
@@ -74,7 +75,9 @@
     <string name="create_a_playlist_with_one_song">سيتم إنشاء قائمة تشغيل وسيتم إضافة أغنية واحدة إليها.</string>
     <string name="create_a_playlist_with_x_songs">سيتم إنشاء قائمة تشغيل وسيتم إضافة أغاني %d تلقائياً.</string>
     <string name="playlist_name_empty">اسم قائمة التشغيل</string>
+    <string name="playlist_description_hint">Playlist description (optional)</string>
     <string name="saved_playlist_x">تم حفظ قائمة التشغيل %s.</string>
+    <string name="playlist_updated">Playlist updated.</string>
     <string name="failed_to_save_playlist">فشل في حفظ قائمة التشغيل.</string>
     <string name="saved_x_playlists">تم حفظ قائمة تشغيل %1$d.</string>
     <string name="saved_x_playlists_failed_to_save_x">تم حفظ قائمة التشغيل %1$d ، فشل في حفظ %2$d.</string>
@@ -87,6 +90,7 @@
     <string name="inserted_one_song_into_playlist_x">تم إدخال أغنية واحدة في قائمة التشغيل %s.</string>
     <string name="inserted_x_songs_into_playlist_x">أدمج %1$d أغنية في قائمة التشغيل %2$s.</string>
     <string name="playlist_exists">قائمة التشغيل %s موجودة بالفعل.</string>
+    <string name="playlist_created">Playlist %s created successfully.</string>
     <string name="remove_song_from_playlist_title">إزالة الأغنية من قائمة التشغيل</string>
     <string name="remove_songs_from_playlist_title">إزالة الأغاني من قائمة التشغيل</string>
     <string name="remove_song_x_from_playlist"><![CDATA[إزالة الأغنية <b>%1$s</b> من قائمة التشغيل؟]]></string>

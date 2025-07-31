@@ -66,6 +66,7 @@
     <string name="new_playlist_title">Nueva playlist</string>
     <string name="add_playlist_title">Agregar a playlist</string>
     <string name="rename_playlist_title">Renombrar playlist</string>
+    <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete">Eliminar</string>
     <string name="action_export_playlist">Exportar a archivo</string>
     <string name="action_clear_history">Limpiar el historial</string>
@@ -74,7 +75,9 @@
     <string name="create_a_playlist_with_one_song">Se creará una playlist y se añadirá una canción.</string>
     <string name="create_a_playlist_with_x_songs">Se creará una playlist y se añadirán %d canciones.</string>
     <string name="playlist_name_empty">Nombre de la playlist</string>
+    <string name="playlist_description_hint">Playlist description (optional)</string>
     <string name="saved_playlist_x">Playlist %s exportada.</string>
+    <string name="playlist_updated">Playlist updated.</string>
     <string name="failed_to_save_playlist">No se pudo exportar la lista.</string>
     <string name="saved_x_playlists">Guardadas %1$d playlists.</string>
     <string name="saved_x_playlists_failed_to_save_x">Guardadas %1$d playlists, error al guardar %2$d.</string>
@@ -87,6 +90,7 @@
     <string name="inserted_one_song_into_playlist_x">Se agregó una canción a la playlist \"%s\"</string>
     <string name="inserted_x_songs_into_playlist_x">Se agregaron %1$d canciones a la playlist \"%2$s\"</string>
     <string name="playlist_exists">La playlist \"%s\" ya existe</string>
+    <string name="playlist_created">Playlist %s created successfully.</string>
     <string name="remove_song_from_playlist_title">Remover canción de la playlist</string>
     <string name="remove_songs_from_playlist_title">Remover canciones de la playlist</string>
     <string name="remove_song_x_from_playlist"><![CDATA[¿Remover <b>%1$s</b> de la lista?]]></string>

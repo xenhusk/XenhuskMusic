@@ -66,6 +66,7 @@
     <string name="new_playlist_title">New playlist</string>
     <string name="add_playlist_title">Add to playlist</string>
     <string name="rename_playlist_title">Rename playlist</string>
+    <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete">Delete playlist</string>
     <string name="action_export_playlist">Export to file</string>
     <string name="action_clear_history">Clear history</string>
@@ -74,7 +75,9 @@
     <string name="create_a_playlist_with_one_song">A playlist will be created and one song will be added to it.</string>
     <string name="create_a_playlist_with_x_songs">A playlist will be created and %d songs will be added automatically.</string>
     <string name="playlist_name_empty">Playlist name</string>
+    <string name="playlist_description_hint">Playlist description (optional)</string>
     <string name="saved_playlist_x">Saved playlist %s.</string>
+    <string name="playlist_updated">Playlist updated.</string>
     <string name="failed_to_save_playlist">Failed to save playlist.</string>
     <string name="saved_x_playlists">Saved %1$d playlists.</string>
     <string name="saved_x_playlists_failed_to_save_x">Saved %1$d playlists, failed to save %2$d.</string>
@@ -87,6 +90,7 @@
     <string name="inserted_one_song_into_playlist_x">Inserted one song into playlist %s.</string>
     <string name="inserted_x_songs_into_playlist_x">Inserted %1$d songs into playlist %2$s.</string>
     <string name="playlist_exists">Playlist %s already exists.</string>
+    <string name="playlist_created">Playlist %s created successfully.</string>
     <string name="remove_song_from_playlist_title">Remove song from playlist</string>
     <string name="remove_songs_from_playlist_title">Remove songs from playlist</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Remove the song <b>%1$s</b> from the playlist?]]></string>

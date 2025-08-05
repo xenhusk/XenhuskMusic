@@ -718,6 +718,10 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
                 .songOptions(song)
                 .load(song.getSongGlideModel())
 
+            if (hasR()) {
+                request.centerCrop()
+            }
+
             if (Preferences.blurredAlbumArtAllowed) {
                 request.transform(BlurTransformation.Builder(this).build())
             }

@@ -15,14 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.mardous.booming.fragments.player
+package com.mardous.booming.fragments.player.cover
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.*
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.View
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.core.view.doOnPreDraw
@@ -37,6 +39,7 @@ import com.mardous.booming.databinding.FragmentPlayerAlbumCoverBinding
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.resources.BOOMING_ANIM_TIME
+import com.mardous.booming.fragments.player.cover.page.ImageFragment
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.model.GestureOnCover
 import com.mardous.booming.model.theme.NowPlayingScreen
@@ -49,7 +52,7 @@ import com.mardous.booming.viewmodels.player.PlayerViewModel
 import kotlinx.coroutines.flow.filter
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
-class PlayerAlbumCoverFragment : Fragment(R.layout.fragment_player_album_cover), ViewPager.OnPageChangeListener,
+class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover), ViewPager.OnPageChangeListener,
     SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val playerViewModel: PlayerViewModel by activityViewModel()
@@ -285,7 +288,7 @@ class PlayerAlbumCoverFragment : Fragment(R.layout.fragment_player_album_cover),
         }
     }
 
-    private val colorReceiver = object : AlbumCoverPagerAdapter.AlbumCoverFragment.ColorReceiver {
+    private val colorReceiver = object : ImageFragment.ColorReceiver {
         override fun onColorReady(color: MediaNotificationProcessor, request: Int) {
             if (currentPosition == request) {
                 notifyColorChange(color)

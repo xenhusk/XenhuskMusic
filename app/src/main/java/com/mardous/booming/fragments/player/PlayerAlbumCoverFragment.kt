@@ -107,7 +107,6 @@ class PlayerAlbumCoverFragment : Fragment(R.layout.fragment_player_album_cover),
     @SuppressLint("ClickableViewAccessibility")
     override fun onStart() {
         super.onStart()
-        viewPager.addOnPageChangeListener(this)
         viewPager.setOnTouchListener { _, event ->
             val adapter = viewPager.adapter ?: return@setOnTouchListener false
             if (!isAdded || adapter.count == 0) {
@@ -141,6 +140,7 @@ class PlayerAlbumCoverFragment : Fragment(R.layout.fragment_player_album_cover),
     }
 
     private fun setupEventObserver() {
+        viewPager.addOnPageChangeListener(this)
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.playingQueueFlow.collect { playingQueue ->
                 _binding?.viewPager?.let { pager ->

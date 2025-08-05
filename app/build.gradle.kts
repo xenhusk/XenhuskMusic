@@ -216,6 +216,8 @@ dependencies {
     ksp(libs.room.compiler)
 
     implementation(libs.androidx.media)
+    implementation(libs.bundles.media3)
+
     implementation(libs.androidx.cardview)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.swiperefreshlayout)

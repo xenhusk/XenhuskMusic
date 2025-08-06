@@ -47,8 +47,7 @@ import java.util.LinkedList
 /**
  * @author Christians M. A. (mardous)
  */
-class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_default_player_playback_controls),
-    SharedPreferences.OnSharedPreferenceChangeListener{
+class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_default_player_playback_controls) {
 
     private var _binding: FragmentDefaultPlayerPlaybackControlsBinding? = null
     private val binding get() = _binding!!
@@ -92,8 +91,6 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
         } else {
             binding.queueInfo.visibility = View.GONE
         }
-
-        Preferences.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onCreatePlayerAnimator(): PlayerAnimator {
@@ -178,7 +175,6 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        Preferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {

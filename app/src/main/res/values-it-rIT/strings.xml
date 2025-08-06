@@ -5,6 +5,8 @@
     <string name="action_shuffle_play">Riproduzione casuale</string>
     <string name="action_queue_next">Coda successiva</string>
     <string name="shuffle_all_label">Mischia tutti</string>
+    <string name="advanced_shuffle_label">Advanced shuffle</string>
+    <string name="shuffle_button_tip">Tap for normal shuffle. Long press for advanced options.</string>
     <string name="action_play_pause">Riproduci/Pausa</string>
     <string name="action_pause">Pausa</string>
     <string name="action_next">Successivo</string>
@@ -620,6 +622,8 @@
     <string name="display_album_name_title">Mostra nome album</string>
     <string name="display_extra_info_title">Mostra informazioni extra</string>
     <string name="display_extra_info_summary">Visualizza informazioni extra sulla canzone, come bitrate, formato, frequenza di campionamento, ecc.</string>
+    <string name="display_next_song_title">Display next song</string>
+    <string name="display_next_song_summary">Display the next song in the queue at the bottom of the player.</string>
     <string name="select_extra_info_title">Extra info</string>
     <string name="select_extra_info_summary">Selezionare le informazioni aggiuntive da visualizzare nel pannello del lettore.</string>
     <string name="prefer_remaining_time_title">Preferisci tempo rimanente</string>
@@ -802,8 +806,12 @@
     <string name="more_info_action">Maggiori informazioni.</string>
     <string name="download_action">Scarica</string>
     <string name="downloading_update">Scaricamento aggiornamento musica booming.</string>
-    <string name="uncaught_error_title">Si è verificato un errore imprevisto</string>
-    <string name="uncaught_error_message">Siamo spiacenti per l\'inconveniente. Puoi rivedere il rapporto di errore e riavviare l\'app.</string>
+    <string name="uncaught_error_title">Oops! That wasn\'t supposed to happen!</string>
+    <string name="uncaught_error_message">It seems something went wrong and caused the app to crash.
+        It would be helpful if you could send us the error report to our Telegram group or via email.</string>
+    <string name="uncaught_error_report">Error report</string>
+    <string name="uncaught_error_report_copied">Copied error report to clipboard.</string>
     <string name="uncaught_error_restart_app">Riavvia app</string>
-    <string name="uncaught_error_send">Invia</string>
+    <string name="uncaught_error_github">Open issue on GitHub</string>
+    <string name="uncaught_error_send">Send report</string>
 </resources>

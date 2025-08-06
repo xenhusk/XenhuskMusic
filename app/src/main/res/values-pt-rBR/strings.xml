@@ -5,6 +5,8 @@
     <string name="action_shuffle_play">Reprodução aleatória</string>
     <string name="action_queue_next">Fila seguinte</string>
     <string name="shuffle_all_label">Misturar tudo</string>
+    <string name="advanced_shuffle_label">Mistura avançada</string>
+    <string name="shuffle_button_tip">Toque para modo aleatório normal. Mantenha pressionado para opções avançadas.</string>
     <string name="action_play_pause">Reproduzir/Pausar</string>
     <string name="action_pause">Pausar</string>
     <string name="action_next">Próximo</string>
@@ -619,6 +621,8 @@
     <string name="display_album_name_title">Mostrar nome do álbum</string>
     <string name="display_extra_info_title">Exibir informações extras</string>
     <string name="display_extra_info_summary">Exibir informações extras sobre a música, como taxa de bits, formato, taxa de amostragem, etc.</string>
+    <string name="display_next_song_title">Mostrar próxima música</string>
+    <string name="display_next_song_summary">Mostra a próxima música da fila na parte inferior do player.</string>
     <string name="select_extra_info_title">Informação extra</string>
     <string name="select_extra_info_summary">Selecione as informações extras a serem exibidas no painel do reprodutor.</string>
     <string name="prefer_remaining_time_title">Exibir tempo restante</string>
@@ -801,8 +805,12 @@
     <string name="more_info_action">Mais informações.</string>
     <string name="download_action">Baixar</string>
     <string name="downloading_update">Baixando atualização do Booming Music.</string>
-    <string name="uncaught_error_title">Ocorreu um erro inesperado</string>
-    <string name="uncaught_error_message">Pedimos desculpas pelo inconveniente. Você pode revisar o relatório de erro e reiniciar o aplicativo.</string>
+    <string name="uncaught_error_title">Ops! Algo inesperado aconteceu!</string>
+    <string name="uncaught_error_message">Algo deu errado e o aplicativo foi encerrado inesperadamente. 
+Enviar o relatório de erro por Telegram ou e-mail nos ajudaria a resolver o problema.</string>
+    <string name="uncaught_error_report">Relatório de erro</string>
+    <string name="uncaught_error_report_copied">Relatório de erro copiado para a área de transferência.</string>
     <string name="uncaught_error_restart_app">Reiniciar aplicativo</string>
-    <string name="uncaught_error_send">Enviar</string>
+    <string name="uncaught_error_github">Reportar problema no GitHub</string>
+    <string name="uncaught_error_send">Enviar relatório</string>
 </resources>

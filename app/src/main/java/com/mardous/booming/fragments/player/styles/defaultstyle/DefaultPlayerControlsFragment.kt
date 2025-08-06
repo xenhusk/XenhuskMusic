@@ -33,10 +33,14 @@ import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentDefaultPlayerPlaybackControlsBinding
 import com.mardous.booming.extensions.resources.centerPivot
 import com.mardous.booming.extensions.resources.showBounceAnimation
-import com.mardous.booming.fragments.player.*
+import com.mardous.booming.fragments.player.PlayerAnimator
+import com.mardous.booming.fragments.player.PlayerColorScheme
+import com.mardous.booming.fragments.player.PlayerTintTarget
 import com.mardous.booming.fragments.player.base.AbsPlayerControlsFragment
 import com.mardous.booming.fragments.player.base.SkipButtonTouchHandler.Companion.DIRECTION_NEXT
 import com.mardous.booming.fragments.player.base.SkipButtonTouchHandler.Companion.DIRECTION_PREVIOUS
+import com.mardous.booming.fragments.player.iconButtonTintTarget
+import com.mardous.booming.fragments.player.tintTarget
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
 import com.mardous.booming.util.DISPLAY_NEXT_SONG
@@ -85,12 +89,7 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
         binding.nextButton.setOnTouchListener(getSkipButtonTouchHandler(DIRECTION_NEXT))
         binding.previousButton.setOnTouchListener(getSkipButtonTouchHandler(DIRECTION_PREVIOUS))
 
-        if (Preferences.isShowNextSong) {
-            binding.queueInfo.visibility = View.VISIBLE
-            setViewAction(binding.queueInfo, NowPlayingAction.OpenPlayQueue)
-        } else {
-            binding.queueInfo.visibility = View.GONE
-        }
+        setupQueueInfoView()
     }
 
     override fun onCreatePlayerAnimator(): PlayerAnimator {
@@ -158,16 +157,22 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
         }
     }
 
+    private fun setupQueueInfoView() {
+        _binding?.let { binding ->
+            if (Preferences.isShowNextSong) {
+                binding.queueInfo.visibility = View.VISIBLE
+                setViewAction(binding.queueInfo, NowPlayingAction.OpenPlayQueue)
+            } else {
+                binding.queueInfo.visibility = View.GONE
+            }
+        }
+    }
+
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
         super.onSharedPreferenceChanged(sharedPreferences, key)
         when(key) {
             DISPLAY_NEXT_SONG -> {
-                if (Preferences.isShowNextSong) {
-                    binding.queueInfo.visibility = View.VISIBLE
-                    setViewAction(binding.queueInfo, NowPlayingAction.OpenPlayQueue)
-                } else {
-                    binding.queueInfo.visibility = View.GONE
-                }
+                setupQueueInfoView()
             }
         }
     }

@@ -19,6 +19,7 @@ package com.mardous.booming.fragments.player.styles.defaultstyle
 
 import android.animation.Animator
 import android.animation.TimeInterpolator
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -38,6 +39,7 @@ import com.mardous.booming.fragments.player.base.SkipButtonTouchHandler.Companio
 import com.mardous.booming.fragments.player.base.SkipButtonTouchHandler.Companion.DIRECTION_PREVIOUS
 import com.mardous.booming.model.NowPlayingAction
 import com.mardous.booming.model.Song
+import com.mardous.booming.util.DISPLAY_NEXT_SONG
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.views.MusicSlider
 import java.util.LinkedList
@@ -45,7 +47,8 @@ import java.util.LinkedList
 /**
  * @author Christians M. A. (mardous)
  */
-class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_default_player_playback_controls) {
+class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_default_player_playback_controls),
+    SharedPreferences.OnSharedPreferenceChangeListener{
 
     private var _binding: FragmentDefaultPlayerPlaybackControlsBinding? = null
     private val binding get() = _binding!!
@@ -83,7 +86,14 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
         binding.nextButton.setOnTouchListener(getSkipButtonTouchHandler(DIRECTION_NEXT))
         binding.previousButton.setOnTouchListener(getSkipButtonTouchHandler(DIRECTION_PREVIOUS))
 
-        setViewAction(binding.queueInfo, NowPlayingAction.OpenPlayQueue)
+        if (Preferences.isShowNextSong) {
+            binding.queueInfo.visibility = View.VISIBLE
+            setViewAction(binding.queueInfo, NowPlayingAction.OpenPlayQueue)
+        } else {
+            binding.queueInfo.visibility = View.GONE
+        }
+
+        Preferences.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onCreatePlayerAnimator(): PlayerAnimator {
@@ -151,9 +161,24 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
         }
     }
 
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
+        super.onSharedPreferenceChanged(sharedPreferences, key)
+        when(key) {
+            DISPLAY_NEXT_SONG -> {
+                if (Preferences.isShowNextSong) {
+                    binding.queueInfo.visibility = View.VISIBLE
+                    setViewAction(binding.queueInfo, NowPlayingAction.OpenPlayQueue)
+                } else {
+                    binding.queueInfo.visibility = View.GONE
+                }
+            }
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        Preferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {

@@ -18,6 +18,7 @@ import com.mardous.booming.model.Song
 import com.mardous.booming.service.AudioFader.Companion.createFadeAnimator
 import com.mardous.booming.util.Preferences
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Main
 
 /** @author Prathamesh M */
 
@@ -117,7 +118,7 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
         }
     }
 
-    override fun setDataSource(song: Song, force: Boolean, completion: (Boolean) -> Unit) {
+    override suspend fun setDataSource(song: Song, force: Boolean, completion: (Boolean) -> Unit) {
         if (force) hasDataSource = false
         mIsInitialized = false
         /* We've already set DataSource if initialized is true in setNextDataSource */
@@ -128,17 +129,21 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
                     if (mIsInitialized) {
                         albumDataSource = AlbumDataSource(song.albumId, song.trackNumber)
                     }
-                    completion(success)
+                    withContext(Main) {
+                        completion(success)
+                    }
                 }
             }
             hasDataSource = true
         } else {
-            completion(true)
+            withContext(Main) {
+                completion(true)
+            }
             mIsInitialized = true
         }
     }
 
-    override fun setNextDataSource(song: Song?) {
+    override suspend fun setNextDataSource(song: Song?) {
         nextDataSource = if (song != null && albumDataSource?.avoidCrossfade(song) == true) {
             null
         } else {
@@ -258,12 +263,14 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
         return false
     }
 
-    private fun onDurationUpdated(progress: Int, duration: Int) {
+    private suspend fun onDurationUpdated(progress: Int, duration: Int) {
         if (progress > 0 && (duration - progress).div(1000) == crossFadeDuration) {
             getNextPlayer()?.let { player ->
                 nextDataSource?.let { dataSource ->
                     setDataSourceImpl(player, dataSource.toUri().toString()) { success ->
-                        if (success) switchPlayer()
+                        if (success) withContext(Main) {
+                            switchPlayer()
+                        }
                         nextDataSource = null
                     }
                 }

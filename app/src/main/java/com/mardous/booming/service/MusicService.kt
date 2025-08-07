@@ -369,15 +369,19 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
             HistoryStore.getInstance(this@MusicService).addSongId(currentSong.id)
             repository.upsertSongInHistory(currentSong)
             songPlayCountHelper.notifySongChanged(currentSong, isPlaying)
+
             applyReplayGain(currentSong)
+
+            playbackManager.setCrossFadeNextDataSource(nextSong)
         }
-        playbackManager.setCrossFadeNextDataSource(nextSong)
     }
 
     override fun onTrackWentToNext() {
         bumpPlayCount()
         if (checkShouldStop(false) || (queueManager.repeatMode == Playback.RepeatMode.Off && isLastTrack)) {
-            playbackManager.setNextDataSource(null)
+            serviceScope.launch {
+                playbackManager.setNextDataSource(null)
+            }
             pause(true)
             seek(0, false)
             if (checkShouldStop(true)) {
@@ -632,6 +636,9 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         }
     }
 
+    private var openCurrentJob: Job? = null
+    private var prepareNextJob: Job? = null
+
     private fun openCurrent(completion: (success: Boolean) -> Unit) {
         val force = if (!trackEndedByCrossfade) {
             true
@@ -639,21 +646,29 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
             trackEndedByCrossfade = false
             false
         }
-        playbackManager.setDataSource(currentSong, force) { success ->
-            completion(success)
+        openCurrentJob?.cancel()
+        openCurrentJob = serviceScope.launch {
+            playbackManager.setDataSource(currentSong, force) { success ->
+                if (isActive) {
+                    completion(success)
+                }
+            }
         }
     }
 
     private fun prepareNext() {
-        try {
-            val nextPosition = getNextPosition(false)
-            if (nextPosition == queueManager.stopPosition) {
-                playbackManager.setNextDataSource(null)
-            } else {
-                playbackManager.setNextDataSource(getSongAt(nextPosition))
+        prepareNextJob?.cancel()
+        prepareNextJob = serviceScope.launch {
+            try {
+                val nextPosition = getNextPosition(false)
+                if (nextPosition == queueManager.stopPosition) {
+                    playbackManager.setNextDataSource(null)
+                } else {
+                    playbackManager.setNextDataSource(getSongAt(nextPosition))
+                }
+                queueManager.nextPosition = nextPosition
+            } catch (_: Exception) {
             }
-            queueManager.nextPosition = nextPosition
-        } catch (_: Exception) {
         }
     }
 
@@ -883,7 +898,9 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     private fun prepareSongAt(position: Int, completion: (Boolean) -> Unit = {}) {
         queueManager.setPosition(position)
         openCurrentAndPrepareNext { success ->
-            seek(0, false)
+            if (!playbackManager.isCrossfading) {
+                seek(0, false)
+            }
             completion(success)
         }
     }
@@ -1044,7 +1061,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
                 if (playbackManager.gaplessPlayback) {
                     prepareNext()
                 } else {
-                    playbackManager.setNextDataSource(null)
+                    serviceScope.launch { playbackManager.setNextDataSource(null) }
                 }
                 playbackManager.updateBalance()
             }

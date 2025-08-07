@@ -58,8 +58,8 @@ interface Playback {
         fun onPlayStateChanged()
     }
 
-    fun setDataSource(song: Song, force: Boolean, completion: (success: Boolean) -> Unit)
-    fun setNextDataSource(song: Song?)
+    suspend fun setDataSource(song: Song, force: Boolean, completion: (success: Boolean) -> Unit)
+    suspend fun setNextDataSource(song: Song?)
     fun getCallbacks(): PlaybackCallbacks?
     fun setCallbacks(callbacks: PlaybackCallbacks)
     fun isInitialized(): Boolean

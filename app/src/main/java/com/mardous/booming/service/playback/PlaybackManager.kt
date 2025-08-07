@@ -80,6 +80,9 @@ class PlaybackManager(
     var pendingQuit = false
     var gaplessPlayback = Preferences.gaplessPlayback
 
+    val isCrossfading: Boolean
+        get() = (playback as? CrossFadePlayer)?.isCrossFading == true
+
     private val progressObserver = ProgressObserver(intervalMs = 100)
     private var playback: Playback? = null
 
@@ -153,7 +156,7 @@ class PlaybackManager(
         }
     }
 
-    fun setCrossFadeNextDataSource(song: Song) {
+    suspend fun setCrossFadeNextDataSource(song: Song) {
         if (playback is CrossFadePlayer) {
             playback?.setNextDataSource(song)
         }
@@ -220,11 +223,11 @@ class PlaybackManager(
         updateProgress(progress = whereto)
     }
 
-    override fun setDataSource(song: Song, force: Boolean, completion: (success: Boolean) -> Unit) {
+    override suspend fun setDataSource(song: Song, force: Boolean, completion: (success: Boolean) -> Unit) {
         playback?.setDataSource(song, force, completion)
     }
 
-    override fun setNextDataSource(song: Song?) {
+    override suspend fun setNextDataSource(song: Song?) {
         playback?.setNextDataSource(song)
     }
 

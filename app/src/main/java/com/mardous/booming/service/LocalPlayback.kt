@@ -87,7 +87,6 @@ abstract class LocalPlayback(val context: Context) : Playback, MediaPlayer.OnErr
                     .build()
             )
             player.setOnPreparedListener {
-                player.setAuxEffectSendLevel(1.0f)
                 player.setOnPreparedListener(null)
                 completion(true)
             }

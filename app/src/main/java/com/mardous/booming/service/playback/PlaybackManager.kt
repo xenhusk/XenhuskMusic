@@ -173,7 +173,7 @@ class PlaybackManager(
 
         val started = playback!!.start()
         if (started) {
-            playback?.getCallbacks()?.onPlayStateChanged()
+            getCallbacks()?.onPlayStateChanged()
         }
         progressObserver.start { updateProgress() }
         updateBalance()
@@ -217,7 +217,7 @@ class PlaybackManager(
 
     override fun seek(whereto: Int, force: Boolean) {
         playback?.seek(whereto, force)
-        updateProgress(progress = whereto, fromUser = true)
+        updateProgress(progress = whereto)
     }
 
     override fun setDataSource(song: Song, force: Boolean, completion: (success: Boolean) -> Unit) {
@@ -230,10 +230,6 @@ class PlaybackManager(
 
     override fun setCrossFadeDuration(duration: Int) {
         playback?.setCrossFadeDuration(duration)
-    }
-
-    override fun setProgressState(progress: Int, duration: Int) {
-        playback?.setProgressState(progress, duration)
     }
 
     override fun setReplayGain(replayGain: Float) {
@@ -324,16 +320,9 @@ class PlaybackManager(
         playback?.setTempo(speed, pitch)
     }
 
-    private fun updateProgress(
-        progress: Int = position(),
-        duration: Int = duration(),
-        fromUser: Boolean = false
-    ) {
-        _progressFlow.value = position()
-        _durationFlow.value = duration()
-        if (!fromUser) {
-            setProgressState(progress, duration)
-        }
+    private fun updateProgress(progress: Int = position(), duration: Int = duration()) {
+        _progressFlow.value = progress
+        _durationFlow.value = duration
     }
 
     private fun createLocalPlayback(): Playback {

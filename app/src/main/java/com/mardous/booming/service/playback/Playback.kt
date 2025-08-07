@@ -76,7 +76,6 @@ interface Playback {
     fun setReplayGain(replayGain: Float)
     fun setVolume(leftVol: Float, rightVol: Float)
     fun setCrossFadeDuration(duration: Int)
-    fun setProgressState(progress: Int, duration: Int)
     fun setAudioSessionId(sessionId: Int): Boolean
     fun getAudioSessionId(): Int
     fun getSpeed(): Float

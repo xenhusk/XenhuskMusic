@@ -246,8 +246,6 @@ open class MultiPlayer(context: Context) : LocalPlayback(context) {
 
     override fun setCrossFadeDuration(duration: Int) {}
 
-    override fun setProgressState(progress: Int, duration: Int) {}
-
     /**
      * {@inheritDoc}
      */

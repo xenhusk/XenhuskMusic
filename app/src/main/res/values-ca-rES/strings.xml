@@ -245,7 +245,7 @@
     <string name="sort_order_descending">Descendent</string>
     <string name="sort_order_ignore_articles">Ignora els articles</string>
     <string name="action_set_as_ringtone">Estableix com a to de trucada</string>
-    <string name="x_will_be_set_as_ringtone"><![CDATA[<b>%s</b> s\'establirà com a to de trucada]]></string>
+    <string name="x_will_be_set_as_ringtone"><![CDATA[<b>%s</b> es fixarà com a to de trucada]]></string>
     <string name="x_has_been_set_as_ringtone">Estableix %s com a to de trucada</string>
     <string name="x_has_been_set_as_ringtone_and_as_alarm">Estableix %s com a to de trucada i alarma</string>
     <string name="use_also_as_alarm_alert">Fes servir també d\'alarma</string>
@@ -622,8 +622,8 @@
     <string name="display_album_name_title">Mostra el nom de l\'àlbum</string>
     <string name="display_extra_info_title">Mostra informació addicional</string>
     <string name="display_extra_info_summary">Mostra informació addicional de la cançó, com ara la taxa de bits, el format, el mostratge, etc.</string>
-    <string name="display_next_song_title">Display next song</string>
-    <string name="display_next_song_summary">Display the next song in the queue at the bottom of the player.</string>
+    <string name="display_next_song_title">Mostra la següent cançó</string>
+    <string name="display_next_song_summary">Mostra la següent cançó de la cua a sota del reproductor.</string>
     <string name="select_extra_info_title">Informació addicional</string>
     <string name="select_extra_info_summary">Trieu la informació addicional a mostrar al panell de reproducció.</string>
     <string name="prefer_remaining_time_title">Mostra el temps restant</string>

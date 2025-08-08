@@ -40,6 +40,9 @@ import com.mardous.booming.extensions.resources.show
 import com.mardous.booming.extensions.resources.textColorPrimary
 import com.mardous.booming.extensions.resources.textColorSecondary
 import com.mardous.booming.extensions.resources.toForegroundColorSpan
+import com.mardous.booming.fragments.player.base.SkipButtonTouchHandler
+import com.mardous.booming.fragments.player.base.SkipButtonTouchHandler.Companion.DIRECTION_NEXT
+import com.mardous.booming.fragments.player.base.SkipButtonTouchHandler.Companion.DIRECTION_PREVIOUS
 import com.mardous.booming.model.theme.NowPlayingButtonStyle
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.player.PlayerViewModel
@@ -51,7 +54,7 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.math.abs
 
 class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
-    View.OnClickListener {
+    View.OnClickListener, SkipButtonTouchHandler.Callback {
 
     private val playerViewModel: PlayerViewModel by activityViewModel()
 
@@ -104,8 +107,8 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
     private fun setUpButtons() {
         setupButtonStyle()
         setupExtraControls()
-        binding.actionNext.setOnClickListener(this)
-        binding.actionPrevious.setOnClickListener(this)
+        binding.actionNext.setOnTouchListener(SkipButtonTouchHandler(DIRECTION_NEXT, this))
+        binding.actionNext.setOnTouchListener(SkipButtonTouchHandler(DIRECTION_PREVIOUS, this))
         binding.actionPlayPause.setOnClickListener(this)
     }
 
@@ -126,11 +129,23 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
         }
     }
 
+    override fun onSkipButtonHold(direction: Int) {
+        when (direction) {
+            DIRECTION_NEXT -> playerViewModel.fastForward()
+            DIRECTION_PREVIOUS -> playerViewModel.rewind()
+        }
+    }
+
+    override fun onSkipButtonTap(direction: Int) {
+        when (direction) {
+            DIRECTION_NEXT -> playerViewModel.playNext()
+            DIRECTION_PREVIOUS -> playerViewModel.playPrevious()
+        }
+    }
+
     override fun onClick(view: View) {
         when (view) {
             binding.actionPlayPause -> playerViewModel.togglePlayPause()
-            binding.actionNext -> playerViewModel.playNext()
-            binding.actionPrevious -> playerViewModel.playPrevious()
         }
     }
 

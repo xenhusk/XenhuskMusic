@@ -126,7 +126,7 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         binding = SlidingMusicPanelLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.sheetView) { _, insets ->
             insets.also { windowInsets = it }
         }
 

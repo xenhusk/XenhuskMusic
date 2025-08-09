@@ -21,6 +21,7 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.mardous.booming.extensions.media.albumCoverUri
 import com.mardous.booming.extensions.media.displayArtistName
+import com.mardous.booming.extensions.media.indexOfSong
 import com.mardous.booming.model.Song
 import com.mardous.booming.model.SongProvider
 import com.mardous.booming.providers.databases.PlaybackQueueStore
@@ -590,13 +591,13 @@ class QueueManager {
         }
     }
 
-    private fun MutableList<QueueSong>.removeSong(song: Song): Int {
-        val deletePosition = indexOf(song)
-        if (deletePosition != -1) {
+    private fun MutableList<QueueSong>.removeSong(song: Song) {
+        var deletePosition = indexOfSong(song.id)
+        while (deletePosition != -1) {
             removeAt(deletePosition)
             rePosition(deletePosition, this)
+            deletePosition = indexOfSong(song.id)
         }
-        return deletePosition
     }
 
     private fun <T : Song> makeShuffleList(listToShuffle: MutableList<T>, current: Int) {

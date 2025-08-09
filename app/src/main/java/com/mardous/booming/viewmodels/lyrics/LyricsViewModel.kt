@@ -45,16 +45,7 @@ class LyricsViewModel(
     }
 
     override fun songChanged(currentSong: Song, nextSong: Song) {
-        lyricsJob?.cancel()
-        lyricsJob = viewModelScope.launch {
-            _lyricsResult.value = LyricsResult(id = currentSong.id, loading = true)
-            val result = withContext(Dispatchers.IO) {
-                lyricsRepository.allLyrics(currentSong, allowDownload = true, fromEditor = false)
-            }
-            if (isActive) {
-                _lyricsResult.value = result
-            }
-        }
+        updateSong(currentSong)
     }
 
     fun getOnlineLyrics(song: Song, title: String, artist: String) = liveData(Dispatchers.IO) {
@@ -87,7 +78,11 @@ class LyricsViewModel(
 
     fun saveLyrics(song: Song, plainLyrics: EditableLyrics?, syncedLyrics: EditableLyrics?) =
         liveData(Dispatchers.IO) {
-            emit(lyricsRepository.saveLyrics(song, plainLyrics, syncedLyrics))
+            val saveResult = lyricsRepository.saveLyrics(song, plainLyrics, syncedLyrics)
+            if (saveResult.hasChanged && song.id == lyricsResult.value.id) {
+                updateSong(song)
+            }
+            emit(saveResult)
         }
 
     fun importLyrics(song: Song, uri: Uri) = liveData(Dispatchers.IO) {
@@ -96,5 +91,18 @@ class LyricsViewModel(
 
     fun deleteLyrics() = viewModelScope.launch(Dispatchers.IO) {
         lyricsRepository.deleteAllLyrics()
+    }
+
+    private fun updateSong(song: Song) {
+        lyricsJob?.cancel()
+        lyricsJob = viewModelScope.launch {
+            _lyricsResult.value = LyricsResult(id = song.id, loading = true)
+            val result = withContext(Dispatchers.IO) {
+                lyricsRepository.allLyrics(song, allowDownload = true, fromEditor = false)
+            }
+            if (isActive) {
+                _lyricsResult.value = result
+            }
+        }
     }
 }

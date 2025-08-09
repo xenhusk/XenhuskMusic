@@ -31,7 +31,6 @@ import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentSoundSettingsBinding
 import com.mardous.booming.extensions.create
-import com.mardous.booming.extensions.hasPie
 import com.mardous.booming.extensions.requireAlertDialog
 import com.mardous.booming.extensions.resources.controlColorNormal
 import com.mardous.booming.viewmodels.equalizer.SoundSettingsViewModel
@@ -94,11 +93,7 @@ class SoundSettingsFragment : DialogFragment(), View.OnClickListener,
         launchAndRepeatWithViewLifecycle {
             viewModel.audioDeviceFlow.collect { currentDevice ->
                 requireAlertDialog().setIcon(currentDevice.type.iconRes)
-                if (hasPie()) {
-                    requireAlertDialog().setTitle(currentDevice.getDeviceName(requireContext()))
-                } else {
-                    requireAlertDialog().setTitle(getString(R.string.sound_settings))
-                }
+                requireAlertDialog().setTitle(currentDevice.getDeviceName(requireContext()))
             }
         }
         launchAndRepeatWithViewLifecycle {

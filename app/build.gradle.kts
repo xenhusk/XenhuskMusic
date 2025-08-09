@@ -224,6 +224,7 @@ dependencies {
     implementation(libs.androidx.palette.ktx)
     implementation(libs.androidx.viewpager)
     implementation(libs.material.components)
+    implementation(libs.mediarouter)
 
     implementation(libs.aboutlibraries)
 

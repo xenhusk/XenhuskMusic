@@ -18,13 +18,11 @@
 package com.mardous.booming.audio
 
 import android.content.Context
-import android.media.AudioDeviceInfo
 
 /**
  * @author Christians M. A. (mardous)
  */
 class AudioDevice(
-    val code: Int,
     val type: AudioDeviceType,
     private val productName: CharSequence?,
     private val isProduct: Boolean = type.isProduct
@@ -38,6 +36,6 @@ class AudioDevice(
         /**
          * Constant describing an unknown audio device.
          */
-        val UnknownDevice = AudioDevice(AudioDeviceInfo.TYPE_UNKNOWN, AudioDeviceType.Unknown, null)
+        val UnknownDevice = AudioDevice(AudioDeviceType.Unknown, null)
     }
 }

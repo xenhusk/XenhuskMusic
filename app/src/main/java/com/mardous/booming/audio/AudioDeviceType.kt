@@ -17,71 +17,112 @@
 
 package com.mardous.booming.audio
 
-import android.annotation.SuppressLint
 import android.media.AudioDeviceInfo
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.mediarouter.media.MediaRouter
 import com.mardous.booming.R
 
 /**
  * @author Christians M. A. (mardous)
  */
-@SuppressLint("InlinedApi")
 enum class AudioDeviceType(
     @param:DrawableRes val iconRes: Int,
     @param:StringRes internal val nameRes: Int,
     internal val isProduct: Boolean,
-    internal val types: Array<Int>
+    internal val audioDeviceTypes: Array<Int>,
+    internal val mediaRouteTypes: Array<Int>
 ) {
-    Aux(
-        R.drawable.ic_speaker_24dp, R.string.audio_device_aux_line, false,
-        arrayOf(AudioDeviceInfo.TYPE_AUX_LINE)
-    ),
-    Bluetooth(
-        R.drawable.ic_media_bluetooth_on_24dp, R.string.audio_device_bluetooth, true,
-        emptyArray()
-    ),
     BluetoothA2dp(
-        R.drawable.ic_media_bluetooth_on_24dp, R.string.audio_device_bluetooth_a2dp, true,
-        arrayOf(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP)
+        iconRes = R.drawable.ic_media_bluetooth_on_24dp,
+        nameRes = R.string.audio_device_bluetooth_a2dp,
+        isProduct = true,
+        audioDeviceTypes = arrayOf(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP),
+        mediaRouteTypes = arrayOf(MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH_A2DP)
     ),
-    BluetoothSco(
-        R.drawable.ic_media_bluetooth_on_24dp, R.string.audio_device_bluetooth_sco, true,
-        arrayOf(AudioDeviceInfo.TYPE_BLUETOOTH_SCO)
+    UsbHeadset(
+        iconRes = R.drawable.ic_usb_24dp,
+        nameRes = R.string.audio_device_usb_headset,
+        isProduct = true,
+        audioDeviceTypes = arrayOf(AudioDeviceInfo.TYPE_USB_HEADSET),
+        mediaRouteTypes = arrayOf(MediaRouter.RouteInfo.DEVICE_TYPE_USB_HEADSET)
     ),
-    Speaker(
-        R.drawable.ic_speaker_24dp, R.string.audio_device_speaker, false,
-        emptyArray()
+    UsbDevice(
+        iconRes = R.drawable.ic_usb_24dp,
+        nameRes = R.string.audio_device_usb_device,
+        isProduct = true,
+        audioDeviceTypes = arrayOf(
+            AudioDeviceInfo.TYPE_USB_ACCESSORY,
+            AudioDeviceInfo.TYPE_USB_DEVICE
+        ),
+        mediaRouteTypes = arrayOf(
+            MediaRouter.RouteInfo.DEVICE_TYPE_USB_ACCESSORY,
+            MediaRouter.RouteInfo.DEVICE_TYPE_USB_DEVICE
+        )
     ),
-    BuiltinSpeaker(
-        R.drawable.ic_speaker_phone_24dp, R.string.audio_device_builtin_speaker, false,
-        arrayOf(
-            AudioDeviceInfo.TYPE_BUILTIN_SPEAKER,
-            AudioDeviceInfo.TYPE_BUILTIN_SPEAKER_SAFE,
-            AudioDeviceInfo.TYPE_BUILTIN_EARPIECE
+    Headset(
+        iconRes = R.drawable.ic_headphones_24dp,
+        nameRes = R.string.audio_device_headset,
+        isProduct = false,
+        audioDeviceTypes = arrayOf(
+            AudioDeviceInfo.TYPE_WIRED_HEADSET,
+            AudioDeviceInfo.TYPE_WIRED_HEADPHONES
+        ),
+        mediaRouteTypes = arrayOf(
+            MediaRouter.RouteInfo.DEVICE_TYPE_WIRED_HEADSET,
+            MediaRouter.RouteInfo.DEVICE_TYPE_WIRED_HEADPHONES
         )
     ),
     Hdmi(
-        R.drawable.ic_hdmi_24dp, R.string.audio_device_hdmi, false,
-        arrayOf(AudioDeviceInfo.TYPE_HDMI, AudioDeviceInfo.TYPE_HDMI_ARC)
+        iconRes = R.drawable.ic_hdmi_24dp,
+        nameRes = R.string.audio_device_hdmi,
+        isProduct = false,
+        audioDeviceTypes = arrayOf(
+            AudioDeviceInfo.TYPE_HDMI,
+            AudioDeviceInfo.TYPE_HDMI_ARC,
+            AudioDeviceInfo.TYPE_HDMI_EARC
+        ),
+        mediaRouteTypes = arrayOf(
+            MediaRouter.RouteInfo.DEVICE_TYPE_HDMI,
+            MediaRouter.RouteInfo.DEVICE_TYPE_HDMI_ARC,
+            MediaRouter.RouteInfo.DEVICE_TYPE_HDMI_EARC
+        )
     ),
-    Headset(
-        R.drawable.ic_headphones_24dp, R.string.audio_device_headset, false,
-        arrayOf(AudioDeviceInfo.TYPE_WIRED_HEADSET, AudioDeviceInfo.TYPE_WIRED_HEADPHONES)
+    Aux(
+        iconRes = R.drawable.ic_speaker_24dp,
+        nameRes = R.string.audio_device_aux_line,
+        isProduct = false,
+        audioDeviceTypes = arrayOf(AudioDeviceInfo.TYPE_AUX_LINE),
+        mediaRouteTypes = emptyArray()
     ),
-    UsbDevice(
-        R.drawable.ic_usb_24dp, R.string.audio_device_usb_device, true,
-        arrayOf(AudioDeviceInfo.TYPE_USB_ACCESSORY, AudioDeviceInfo.TYPE_USB_DEVICE)
-    ),
-    UsbHeadset(
-        R.drawable.ic_usb_24dp, R.string.audio_device_usb_headset, true,
-        arrayOf(AudioDeviceInfo.TYPE_USB_HEADSET)
+    BuiltinSpeaker(
+        iconRes = R.drawable.ic_speaker_phone_24dp,
+        nameRes = R.string.audio_device_builtin_speaker,
+        isProduct = false,
+        audioDeviceTypes = arrayOf(
+            AudioDeviceInfo.TYPE_BUILTIN_SPEAKER,
+            AudioDeviceInfo.TYPE_BUILTIN_SPEAKER_SAFE,
+            AudioDeviceInfo.TYPE_BUILTIN_EARPIECE
+        ),
+        mediaRouteTypes = arrayOf(
+            MediaRouter.RouteInfo.DEVICE_TYPE_BUILTIN_SPEAKER
+        )
     ),
     Unknown(
-        R.drawable.ic_volume_up_24dp, R.string.audio_device_default, false,
-        arrayOf(AudioDeviceInfo.TYPE_UNKNOWN)
+        iconRes = R.drawable.ic_volume_up_24dp,
+        nameRes = R.string.audio_device_builtin_speaker,
+        isProduct = false,
+        audioDeviceTypes = arrayOf(AudioDeviceInfo.TYPE_UNKNOWN),
+        mediaRouteTypes = emptyArray()
     );
 }
 
 fun AudioDeviceInfo?.getDeviceType() =
-    AudioDeviceType.entries.firstOrNull { it.types.contains(this?.type ?: 0) } ?: AudioDeviceType.Unknown
+    AudioDeviceType.entries.firstOrNull {
+        it.audioDeviceTypes.contains(this?.type ?: 0)
+    } ?: AudioDeviceType.Unknown
+
+fun MediaRouter.RouteInfo?.getMediaRouteType() =
+    AudioDeviceType.entries.firstOrNull {
+        it.mediaRouteTypes.contains(this?.deviceType ?: 0)
+    } ?: AudioDeviceType.Unknown

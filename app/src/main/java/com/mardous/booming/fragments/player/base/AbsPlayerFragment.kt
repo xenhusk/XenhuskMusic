@@ -36,7 +36,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
-import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -64,10 +63,10 @@ import com.mardous.booming.extensions.resources.inflateMenu
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.fragments.lyrics.LyricsEditorFragmentArgs
+import com.mardous.booming.fragments.player.cover.CoverPagerFragment
 import com.mardous.booming.fragments.player.PlayerColorScheme
 import com.mardous.booming.fragments.player.PlayerColorSchemeMode
 import com.mardous.booming.fragments.player.PlayerTintTarget
-import com.mardous.booming.fragments.player.cover.CoverPagerFragment
 import com.mardous.booming.helper.color.MediaNotificationProcessor
 import com.mardous.booming.helper.menu.newPopupMenu
 import com.mardous.booming.helper.menu.onSongMenu
@@ -107,6 +106,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         onCreateChildFragments()
+        onPrepareViewGestures(view)
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.mediaEvent.filter { it == MediaEvent.FavoriteContentChanged }
                 .collect {
@@ -130,11 +130,6 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        requestView { onPrepareViewGestures(it) }
-    }
-
     @CallSuper
     protected open fun onCreateChildFragments() {
         coverFragment = whichFragment(R.id.playerAlbumCoverFragment)
@@ -143,7 +138,10 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
 
     protected open fun onPrepareViewGestures(view: View) {
         view.setOnTouchListener(
-            FlingPlayBackController(view.context, coverFragment?.nullableViewPager, view)
+            FlingPlayBackController(
+                requireContext(),
+                playerViewModel
+            )
         )
     }
 
@@ -505,7 +503,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) :
     }
 }
 
-class FlingPlayBackController(context: Context, val viewPager: ViewPager?, val view: View) :
+class FlingPlayBackController(context: Context, playerViewModel: PlayerViewModel) :
     View.OnTouchListener {
     private var flingPlayBackController = GestureDetector(
         context,
@@ -516,22 +514,23 @@ class FlingPlayBackController(context: Context, val viewPager: ViewPager?, val v
                 velocityX: Float,
                 velocityY: Float
             ): Boolean {
-                return if (Preferences.isSwipeControls) {
-                    when {
-                        abs(velocityX) > abs(velocityY) -> {
-                            // Disallow Intercept Touch Event so that parent(BottomSheet) doesn't consume the events
-                            view.parent.requestDisallowInterceptTouchEvent(true)
-                            true
+                if (Preferences.isSwipeControls) {
+                    if (abs(velocityX) > abs(velocityY)) {
+                        if (velocityX < 0) {
+                            playerViewModel.playNext()
+                            return true
+                        } else if (velocityX > 0) {
+                            playerViewModel.playPrevious()
+                            return true
                         }
-                        else -> false
                     }
-                } else false
+                }
+                return false
             }
         })
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(v: View, event: MotionEvent): Boolean {
-        viewPager?.dispatchTouchEvent(event)
         return flingPlayBackController.onTouchEvent(event)
     }
 }

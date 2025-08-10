@@ -60,7 +60,6 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover), ViewP
     private var _binding: FragmentPlayerAlbumCoverBinding? = null
     private val binding get() = _binding!!
     private val viewPager get() = binding.viewPager
-    val nullableViewPager get() = _binding?.viewPager
 
     private var coverLyricsFragment: CoverLyricsFragment? = null
     private val nps: NowPlayingScreen by lazy {

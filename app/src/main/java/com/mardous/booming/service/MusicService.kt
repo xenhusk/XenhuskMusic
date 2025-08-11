@@ -71,7 +71,6 @@ import com.mardous.booming.extensions.media.indexOfSong
 import com.mardous.booming.extensions.media.isArtistNameUnknown
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.glide.transformation.BlurTransformation
-import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.model.ContentType
 import com.mardous.booming.model.Song
 import com.mardous.booming.providers.databases.HistoryStore
@@ -108,7 +107,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     private val serviceScope = CoroutineScope(Job() + Main)
 
     private val repository by inject<Repository>()
-    private val uriSongResolver by inject<UriSongResolver>()
     private val queueManager by inject<QueueManager>()
     private val playbackManager by inject<PlaybackManager>()
 
@@ -1313,7 +1311,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
 
         override fun onPlayFromUri(uri: Uri, extras: Bundle) {
             serviceScope.launch(IO) {
-                val songs = uriSongResolver.resolve(uri)
+                val songs = repository.songsByUri(uri)
                 if (songs.isNotEmpty()) {
                     openQueue(songs, 0, true)
                 }

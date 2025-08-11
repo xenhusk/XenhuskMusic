@@ -31,7 +31,6 @@ import com.mardous.booming.database.*
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.media.indexOfSong
 import com.mardous.booming.fragments.LibraryMargin
-import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.model.*
 import com.mardous.booming.model.filesystem.FileSystemItem
 import com.mardous.booming.model.filesystem.FileSystemQuery
@@ -48,8 +47,7 @@ import kotlin.coroutines.resume
 
 class LibraryViewModel(
     private val repository: Repository,
-    private val inclExclDao: InclExclDao,
-    private val uriSongResolver: UriSongResolver
+    private val inclExclDao: InclExclDao
 ) : ViewModel() {
 
     init {
@@ -523,7 +521,7 @@ class LibraryViewModel(
             emit(result.copy(handled = false))
         } else {
             if (uri.toString().isNotEmpty()) {
-                val songs = uriSongResolver.resolve(uri)
+                val songs = repository.songsByUri(uri)
                 emit(result.copy(songs = songs, failed = songs.isEmpty()))
             } else {
                 when (intent.type) {

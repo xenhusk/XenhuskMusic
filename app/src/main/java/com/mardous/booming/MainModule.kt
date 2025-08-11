@@ -24,7 +24,6 @@ import com.mardous.booming.androidauto.AutoMusicProvider
 import com.mardous.booming.audio.AudioOutputObserver
 import com.mardous.booming.audio.SoundSettings
 import com.mardous.booming.database.BoomingDatabase
-import com.mardous.booming.helper.UriSongResolver
 import com.mardous.booming.http.deezer.DeezerService
 import com.mardous.booming.http.github.GitHubService
 import com.mardous.booming.http.jsonHttpClient
@@ -122,9 +121,6 @@ private val mainModule = module {
     }
     single {
         SaveCoverWorker(context = androidContext(), mediaStoreWriter = get())
-    }
-    single {
-        UriSongResolver(context = androidContext(), contentResolver = get(), songRepository = get())
     }
     single {
         AudioOutputObserver(context = androidContext(), playbackManager = get())
@@ -239,7 +235,7 @@ private val dataModule = module {
 
 private val viewModule = module {
     viewModel {
-        LibraryViewModel(repository = get(), inclExclDao = get(), uriSongResolver = get())
+        LibraryViewModel(repository = get(), inclExclDao = get())
     }
 
     viewModel {

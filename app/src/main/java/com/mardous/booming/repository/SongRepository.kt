@@ -18,12 +18,16 @@
 package com.mardous.booming.repository
 
 import android.annotation.SuppressLint
+import android.content.ContentResolver
 import android.database.Cursor
 import android.net.Uri
 import android.os.Environment
+import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.AudioColumns
+import android.provider.OpenableColumns
 import android.util.Log
+import com.mardous.booming.appInstance
 import com.mardous.booming.database.InclExclDao
 import com.mardous.booming.database.InclExclEntity
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
@@ -38,13 +42,15 @@ import com.mardous.booming.providers.MediaQueryDispatcher
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.sortedSongs
+import okhttp3.internal.toLongOrDefault
 
 interface SongRepository {
     fun songs(): List<Song>
     fun songs(query: String): List<Song>
     fun songs(cursor: Cursor?): List<Song>
     fun sortedSongs(cursor: Cursor?): List<Song>
-    fun songsByFilePath(filePath: String, ignoreBlacklist: Boolean = false): List<Song>
+    suspend fun songsByUri(uri: Uri): List<Song>
+    fun songByFilePath(filePath: String, ignoreBlacklist: Boolean = false): Song
     fun song(cursor: Cursor?): Song
     fun song(songId: Long): Song
     suspend fun initializeBlacklist()
@@ -63,8 +69,8 @@ class RealSongRepository(private val inclExclDao: InclExclDao) : SongRepository 
     override fun songs(query: String): List<Song> {
         return songs(
             makeSongCursor(
-                "${AudioColumns.TITLE} LIKE ? OR ${AudioColumns.ARTIST} LIKE ? OR ${AudioColumns.ALBUM} LIKE ?",
-                arrayOf("%$query%", "%$query%", "%$query%")
+                selection = "${AudioColumns.TITLE} LIKE ? OR ${AudioColumns.ARTIST} LIKE ? OR ${AudioColumns.ALBUM} LIKE ?",
+                selectionValues = arrayOf("%$query%", "%$query%", "%$query%")
             )
         )
     }
@@ -86,47 +92,70 @@ class RealSongRepository(private val inclExclDao: InclExclDao) : SongRepository 
         }
     }
 
-    private fun getSongFromCursorImpl(cursor: Cursor): Song {
-        val id = cursor.getLong(0)
-        val data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
-        val title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))
-        val trackNumber = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK))
-        val year = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR))
-        val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE))
-        val duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
-        val dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED))
-        val dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED))
-        val albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID))
-        val albumName = cursor.getStringSafe(MediaStore.Audio.Media.ALBUM) ?: Album.UNKNOWN_ALBUM_DISPLAY_NAME
-        val artistId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID))
-        val artistName = cursor.getStringSafe(MediaStore.Audio.Media.ARTIST) ?: ""
-        val albumArtistName = cursor.getStringSafe(MediaStore.Audio.Media.ALBUM_ARTIST)
-        val genreName = cursor.getStringSafe(MediaStore.Audio.Media.GENRE)
-        return Song(
-            id,
-            data,
-            title,
-            trackNumber,
-            year,
-            size,
-            duration,
-            dateAdded,
-            dateModified,
-            albumId,
-            albumName,
-            artistId,
-            artistName,
-            albumArtistName,
-            genreName
-        )
-    }
-
     override fun song(songId: Long): Song {
         return song(makeSongCursor("${AudioColumns._ID}=?", arrayOf(songId.toString())))
     }
 
-    override fun songsByFilePath(filePath: String, ignoreBlacklist: Boolean): List<Song> {
-        return songs(makeSongCursor("${AudioColumns.DATA}=?", arrayOf(filePath), ignoreBlacklist = ignoreBlacklist))
+    override suspend fun songsByUri(uri: Uri): List<Song> {
+        var songs: List<Song> = emptyList()
+        if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
+            val authority = uri.authority ?: ""
+            when (authority) {
+                MediaStore.AUTHORITY -> {
+                    val songId = uri.lastPathSegment?.toLongOrNull()
+                    if (songId != null) {
+                        songs = listOf(song(songId))
+                    }
+                }
+
+                else -> {
+                    try {
+                        if (hasQ()) {
+                            val context = appInstance().applicationContext
+                            val id = MediaStore.getMediaUri(context, uri)
+                                ?.lastPathSegment?.toLongOrNull()
+                            if (id != null) {
+                                songs = listOf(song(id))
+                            }
+                        } else {
+                            if (authority == "com.android.providers.media.documents") {
+                                val id = getSongIdFromMediaProvider(uri)
+                                if (id > -1) {
+                                    songs = listOf(song(id))
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to retrieve song info from Uri: $uri", e)
+                    }
+                }
+            }
+        } else if (uri.scheme == ContentResolver.SCHEME_FILE) {
+            val path = uri.path
+            if (path != null) {
+                songs = listOf(songByFilePath(path, true))
+            }
+        }
+
+        if (songs.isEmpty() && uri.scheme == ContentResolver.SCHEME_CONTENT) {
+            songs = listOf(findSongFromFileProviderUri(uri))
+        }
+
+        if (songs.isEmpty()) {
+            Log.e(TAG, "Couldn't resolve songs from Uri: $uri")
+        }
+
+        return songs
+    }
+
+    override fun songByFilePath(filePath: String, ignoreBlacklist: Boolean): Song {
+        return song(
+            makeSongCursor(
+                selection = "${AudioColumns.DATA}=?",
+                selectionValues = arrayOf(filePath),
+                ignoreBlacklist = ignoreBlacklist
+            )
+        )
     }
 
     override suspend fun initializeBlacklist() {
@@ -207,6 +236,71 @@ class RealSongRepository(private val inclExclDao: InclExclDao) : SongRepository 
 
     private fun addLibrarySelectionValues(paths: List<String>): Array<String> {
         return Array(paths.size) { index -> "${paths[index]}%" }
+    }
+
+    private fun getSongIdFromMediaProvider(uri: Uri): Long {
+        val docId = DocumentsContract.getDocumentId(uri)
+        val parts = docId.split(":")
+        return if (parts.size == 2) parts[1].toLongOrDefault(-1) else -1
+    }
+
+    private fun getDisplayNameAndSize(uri: Uri): Pair<String, Long>? {
+        return MediaQueryDispatcher(uri)
+            .withColumns(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
+            .dispatch()?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val name =
+                        cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
+                    val size = cursor.getLong(cursor.getColumnIndexOrThrow(OpenableColumns.SIZE))
+                    return name to size
+                } else null
+            }
+    }
+
+    private fun findSongFromFileProviderUri(uri: Uri): Song {
+        val (name, size) = getDisplayNameAndSize(uri)
+            ?: return Song.emptySong
+
+        val selection = "${MediaStore.Audio.Media.DISPLAY_NAME} = ? AND ${MediaStore.Audio.Media.SIZE} = ?"
+        val selectionArgs = arrayOf(name, size.toString())
+
+        val cursor = makeSongCursor(selection, selectionArgs, ignoreBlacklist = true)
+        return song(cursor)
+    }
+
+    private fun getSongFromCursorImpl(cursor: Cursor): Song {
+        val id = cursor.getLong(0)
+        val data = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
+        val title = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE))
+        val trackNumber = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK))
+        val year = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR))
+        val size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE))
+        val duration = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
+        val dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED))
+        val dateModified = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED))
+        val albumId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID))
+        val albumName = cursor.getStringSafe(MediaStore.Audio.Media.ALBUM) ?: Album.UNKNOWN_ALBUM_DISPLAY_NAME
+        val artistId = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST_ID))
+        val artistName = cursor.getStringSafe(MediaStore.Audio.Media.ARTIST) ?: ""
+        val albumArtistName = cursor.getStringSafe(MediaStore.Audio.Media.ALBUM_ARTIST)
+        val genreName = cursor.getStringSafe(MediaStore.Audio.Media.GENRE)
+        return Song(
+            id,
+            data,
+            title,
+            trackNumber,
+            year,
+            size,
+            duration,
+            dateAdded,
+            dateModified,
+            albumId,
+            albumName,
+            artistId,
+            artistName,
+            albumArtistName,
+            genreName
+        )
     }
 
     companion object {

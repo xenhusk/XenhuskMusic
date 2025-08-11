@@ -30,7 +30,6 @@ import com.mardous.booming.extensions.showToast
 import com.mardous.booming.helper.m3u.M3UWriter
 import com.mardous.booming.model.Song
 import com.mardous.booming.repository.Repository
-import com.mardous.booming.repository.SongRepository
 import com.mardous.booming.service.equalizer.EqualizerManager
 import com.mardous.booming.util.FileUtil
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +46,6 @@ import java.util.zip.ZipInputStream
 object BackupHelper : KoinComponent {
 
     private val repository by inject<Repository>()
-    private val songRepository by inject<SongRepository>()
     private val lyricsDao by inject<LyricsDao>()
 
     suspend fun createBackup(context: Context, uri: Uri?) {
@@ -228,7 +226,7 @@ object BackupHelper : KoinComponent {
         zipIn.bufferedReader().lineSequence().forEach { line ->
             if (line.startsWith(File.separator)) {
                 if (File(line).exists()) {
-                    songs.addAll(songRepository.songsByFilePath(line))
+                    songs.add(repository.songByFilePath(line, true))
                 }
             }
         }

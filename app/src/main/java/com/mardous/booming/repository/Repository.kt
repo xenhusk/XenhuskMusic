@@ -18,6 +18,7 @@
 package com.mardous.booming.repository
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.mardous.booming.database.*
@@ -90,7 +91,9 @@ interface Repository {
     suspend fun genreBySong(song: Song): Genre
     suspend fun yearById(year: Int): ReleaseYear
     suspend fun folderByPath(path: String): Folder
+    suspend fun songsByUri(uri: Uri): List<Song>
     suspend fun songsByFolder(folderPath: String, includeSubfolders: Boolean): List<Song>
+    suspend fun songByFilePath(path: String, ignoreBlacklist: Boolean): Song
     suspend fun homeSuggestions(): List<Suggestion>
     suspend fun topArtistsSuggestion(): Suggestion
     suspend fun topAlbumsSuggestion(): Suggestion
@@ -301,8 +304,13 @@ class RealRepository(
 
     override suspend fun folderByPath(path: String): Folder = specialRepository.folderByPath(path)
 
+    override suspend fun songsByUri(uri: Uri): List<Song> = songRepository.songsByUri(uri)
+
     override suspend fun songsByFolder(folderPath: String, includeSubfolders: Boolean) =
         specialRepository.songsByFolder(folderPath, includeSubfolders)
+
+    override suspend fun songByFilePath(path: String, ignoreBlacklist: Boolean) =
+        songRepository.songByFilePath(path, ignoreBlacklist)
 
     override suspend fun homeSuggestions(): List<Suggestion> {
         return listOf(

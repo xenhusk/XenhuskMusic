@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -169,6 +170,12 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
                 }
             }
         }
+
+        if (Preferences.isQueueLocked) {
+            toolbar.menu.findItem(R.id.action_lock).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_24dp)
+        }else {
+            toolbar.menu.findItem(R.id.action_lock).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_open_24dp)
+        }
     }
 
     private fun applyWindowInsets(view: View) {
@@ -205,6 +212,18 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
 
             R.id.action_move_to_current_track -> {
                 resetToCurrentPosition()
+                true
+            }
+            R.id.action_lock -> {
+                Preferences.isQueueLocked = !Preferences.isQueueLocked
+                if (Preferences.isQueueLocked) {
+                    item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_24dp)
+                    showToast(ContextCompat.getString(requireContext(), R.string.queue_unlocked))
+                }else {
+                    item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_open_24dp)
+                    showToast(ContextCompat.getString(requireContext(), R.string.queue_locked))
+                }
+                playingQueueAdapter?.notifyDataSetChanged()
                 true
             }
 

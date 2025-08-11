@@ -176,6 +176,10 @@ object Preferences : KoinComponent {
     val allowCoverSwiping: Boolean
         get() = preferences.getBoolean(LEFT_RIGHT_SWIPING, true)
 
+    var isQueueLocked: Boolean
+        get() = preferences.getBoolean("locked_queue", false)
+        set(value) = preferences.edit { putBoolean("locked_queue", value) }
+
     fun getNowPlayingColorSchemeKey(nps: NowPlayingScreen) =
         "player_${nps.name.lowercase()}_color_scheme"
 

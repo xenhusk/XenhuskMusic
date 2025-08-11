@@ -30,6 +30,7 @@ import com.mardous.booming.extensions.resources.hitTest
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.Song
+import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.player.PlayerViewModel
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 
@@ -55,6 +56,12 @@ class PlayingQueueSongAdapter(
         super.onBindViewHolder(holder, position)
         if (holder.itemViewType == HISTORY || holder.itemViewType == CURRENT) {
             setAlpha(holder, 0.5f)
+        }
+
+        if (Preferences.isQueueLocked) {
+            holder.dragView?.visibility = View.VISIBLE
+        }else {
+            holder.dragView?.visibility = View.GONE
         }
     }
 

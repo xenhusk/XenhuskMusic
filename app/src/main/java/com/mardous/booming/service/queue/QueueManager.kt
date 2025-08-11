@@ -565,8 +565,9 @@ class QueueManager {
         shuffleMode: Playback.ShuffleMode,
         onCreated: suspend MutableList<QueueSong>.() -> List<QueueSong>
     ): Int {
-        if (source.isNotEmpty() && startPosition >= 0 && startPosition < source.size) {
-            val queueSongs = source.toQueueSongs().toMutableList()
+        val filteredSource = source.filterNot { it == Song.emptySong }
+        if (filteredSource.isNotEmpty() && startPosition >= 0 && startPosition < filteredSource.size) {
+            val queueSongs = filteredSource.toQueueSongs().toMutableList()
             if (queueSongs == _originalPlayingQueue && shuffleMode == this.shuffleMode && !shuffleMode.isOn) {
                 return HANDLED_SOURCE
             }

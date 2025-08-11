@@ -11,14 +11,9 @@ import com.mardous.booming.service.queue.QueueManager
 import com.mardous.booming.service.queue.QueueObserver
 import com.mardous.booming.viewmodels.lyrics.model.EditableLyrics
 import com.mardous.booming.viewmodels.lyrics.model.LyricsResult
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * @author Christians M. A. (mardous)
@@ -29,13 +24,16 @@ class LyricsViewModel(
 ) : ViewModel(), QueueObserver {
 
     private var lyricsJob: Job? = null
-    private val _lyricsResult = MutableStateFlow(LyricsResult.Companion.Empty)
+    private val _lyricsResult = MutableStateFlow(LyricsResult.Empty)
     val lyricsResult = _lyricsResult.asStateFlow()
 
     private val silentHandler = CoroutineExceptionHandler { _, _ -> }
 
     init {
         queueManager.addObserver(this)
+        if (lyricsResult.value == LyricsResult.Empty) {
+            updateSong(queueManager.currentSong)
+        }
     }
 
     override fun onCleared() {
@@ -96,12 +94,16 @@ class LyricsViewModel(
     private fun updateSong(song: Song) {
         lyricsJob?.cancel()
         lyricsJob = viewModelScope.launch {
-            _lyricsResult.value = LyricsResult(id = song.id, loading = true)
-            val result = withContext(Dispatchers.IO) {
-                lyricsRepository.allLyrics(song, allowDownload = true, fromEditor = false)
-            }
-            if (isActive) {
-                _lyricsResult.value = result
+            if (song == Song.emptySong) {
+                _lyricsResult.value = LyricsResult.Empty
+            } else {
+                _lyricsResult.value = LyricsResult(id = song.id, loading = true)
+                val result = withContext(Dispatchers.IO) {
+                    lyricsRepository.allLyrics(song, allowDownload = true, fromEditor = false)
+                }
+                if (isActive) {
+                    _lyricsResult.value = result
+                }
             }
         }
     }

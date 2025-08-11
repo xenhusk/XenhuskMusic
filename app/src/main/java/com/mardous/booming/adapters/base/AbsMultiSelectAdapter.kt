@@ -31,6 +31,9 @@ abstract class AbsMultiSelectAdapter<VH : RecyclerView.ViewHolder, I>(
 ) : RecyclerView.Adapter<VH>(), ActionMode.Callback {
 
     var actionMode: ActionMode? = null
+        private set
+    val isInQuickSelectMode: Boolean
+        get() = actionMode != null
     private val checked: MutableList<I> = ArrayList()
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -83,9 +86,6 @@ abstract class AbsMultiSelectAdapter<VH : RecyclerView.ViewHolder, I>(
     protected fun isChecked(identifier: I): Boolean {
         return checked.contains(identifier)
     }
-
-    protected val isInQuickSelectMode: Boolean
-        get() = actionMode != null
 
     protected abstract fun onMultipleItemAction(menuItem: MenuItem, selection: List<I>)
 

@@ -49,11 +49,7 @@ import com.mardous.booming.extensions.resources.onVerticalScroll
 import com.mardous.booming.extensions.resources.reactionToKey
 import com.mardous.booming.extensions.resources.setupStatusBarForeground
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
-import com.mardous.booming.helper.menu.onAlbumMenu
-import com.mardous.booming.helper.menu.onArtistMenu
-import com.mardous.booming.helper.menu.onPlaylistMenu
-import com.mardous.booming.helper.menu.onSongMenu
-import com.mardous.booming.helper.menu.onSongsMenu
+import com.mardous.booming.helper.menu.*
 import com.mardous.booming.interfaces.ISearchCallback
 import com.mardous.booming.model.Album
 import com.mardous.booming.model.Artist
@@ -80,8 +76,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     private lateinit var searchAdapter: SearchAdapter
     private lateinit var voiceSearchLauncher: ActivityResultLauncher<Intent>
-
-    private var windowInsets: WindowInsetsCompat? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -133,7 +127,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
         }
         binding.voiceSearch.setOnClickListener(this)
         binding.clearText.setOnClickListener(this)
-        binding.chipGroup.setOnCheckedStateChangeListener(this@SearchFragment)
+        binding.chipGroup.setOnCheckedStateChangeListener(this)
         binding.searchView.apply {
             reactionToKey(KeyEvent.KEYCODE_ENTER) {
                 hideSoftKeyboard()
@@ -143,12 +137,9 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
             }
             focusAndShowKeyboard()
         }
-        binding.keyboardPopup.apply {
-            setOnClickListener {
+        binding.keyboardPopup.setOnClickListener {
+            if (!searchAdapter.isInQuickSelectMode) {
                 binding.searchView.focusAndShowKeyboard()
-            }
-            applyWindowInsets(right = true, bottom = true) { _, insets ->
-                this@SearchFragment.windowInsets = insets
             }
         }
 
@@ -340,6 +331,7 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     }
 
     override fun onDestroyView() {
+        hideSoftKeyboard()
         super.onDestroyView()
         searchAdapter.unregisterAdapterDataObserver(adapterDataObserver)
         binding.searchView.setOnKeyListener(null)

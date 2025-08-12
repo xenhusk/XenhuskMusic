@@ -223,10 +223,10 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
                 Preferences.isQueueLocked = !Preferences.isQueueLocked
                 if (Preferences.isQueueLocked) {
                     item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_24dp)
-                    showToast(ContextCompat.getString(requireContext(), R.string.queue_unlocked))
+                    showToast(ContextCompat.getString(requireContext(), R.string.queue_locked))
                 }else {
                     item.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_open_24dp)
-                    showToast(ContextCompat.getString(requireContext(), R.string.queue_locked))
+                    showToast(ContextCompat.getString(requireContext(), R.string.queue_unlocked))
                 }
                 playingQueueAdapter?.notifyDataSetChanged()
                 true

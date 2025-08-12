@@ -59,9 +59,9 @@ class PlayingQueueSongAdapter(
         }
 
         if (Preferences.isQueueLocked) {
-            holder.dragView?.visibility = View.VISIBLE
-        }else {
             holder.dragView?.visibility = View.GONE
+        }else {
+            holder.dragView?.visibility = View.VISIBLE
         }
     }
 

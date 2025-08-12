@@ -17,6 +17,7 @@
 
 package com.mardous.booming.fragments.queue
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -151,7 +152,15 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
         toolbar.setNavigationIcon(R.drawable.ic_back_24dp)
         toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
         toolbar.setTitle(R.string.playing_queue_label)
-        toolbar.inflateMenu(R.menu.menu_playing_queue, this@PlayingQueueFragment)
+        toolbar.inflateMenu(R.menu.menu_playing_queue, this) { menu ->
+            if (Preferences.isQueueLocked) {
+                menu.findItem(R.id.action_lock)
+                    .icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_24dp)
+            }else {
+                menu.findItem(R.id.action_lock)
+                    .icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_open_24dp)
+            }
+        }
         updateQuickAction(null, selectedQuickAction)
 
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
@@ -170,12 +179,6 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
                 }
             }
         }
-
-        if (Preferences.isQueueLocked) {
-            toolbar.menu.findItem(R.id.action_lock).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_24dp)
-        }else {
-            toolbar.menu.findItem(R.id.action_lock).icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_lock_open_24dp)
-        }
     }
 
     private fun applyWindowInsets(view: View) {
@@ -192,6 +195,7 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onMenuItemClick(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_save_playing_queue -> {
@@ -214,6 +218,7 @@ class PlayingQueueFragment : Fragment(R.layout.fragment_queue),
                 resetToCurrentPosition()
                 true
             }
+
             R.id.action_lock -> {
                 Preferences.isQueueLocked = !Preferences.isQueueLocked
                 if (Preferences.isQueueLocked) {

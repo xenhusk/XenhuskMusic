@@ -31,13 +31,28 @@ import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.extensions.hasS
 import com.mardous.booming.extensions.intRes
-import com.mardous.booming.extensions.utilities.*
+import com.mardous.booming.extensions.utilities.calendarSingleton
+import com.mardous.booming.extensions.utilities.deserialize
+import com.mardous.booming.extensions.utilities.getCutoffTimeMillis
+import com.mardous.booming.extensions.utilities.serialize
+import com.mardous.booming.extensions.utilities.toEnum
 import com.mardous.booming.fragments.player.PlayerColorSchemeMode
-import com.mardous.booming.model.*
+import com.mardous.booming.model.CategoryInfo
+import com.mardous.booming.model.Cutoff
+import com.mardous.booming.model.FolderAction
+import com.mardous.booming.model.NowPlayingAction
+import com.mardous.booming.model.NowPlayingInfo
+import com.mardous.booming.model.QueueQuickAction
 import com.mardous.booming.model.theme.AppTheme
 import com.mardous.booming.model.theme.NowPlayingScreen
 import com.mardous.booming.service.queue.GroupShuffleMode
-import com.mardous.booming.transform.*
+import com.mardous.booming.transform.CascadingPageTransformer
+import com.mardous.booming.transform.DepthTransformation
+import com.mardous.booming.transform.HingeTransformation
+import com.mardous.booming.transform.HorizontalFlipTransformation
+import com.mardous.booming.transform.VerticalFlipTransformation
+import com.mardous.booming.transform.VerticalStackTransformer
+import com.mardous.booming.transform.ZoomOutPageTransformer
 import com.mardous.booming.views.TopAppBarLayout
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -177,8 +192,8 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(LEFT_RIGHT_SWIPING, true)
 
     var isQueueLocked: Boolean
-        get() = preferences.getBoolean("locked_queue", false)
-        set(value) = preferences.edit { putBoolean("locked_queue", value) }
+        get() = preferences.getBoolean(LOCKED_QUEUE, false)
+        set(value) = preferences.edit { putBoolean(LOCKED_QUEUE, value) }
 
     fun getNowPlayingColorSchemeKey(nps: NowPlayingScreen) =
         "player_${nps.name.lowercase()}_color_scheme"
@@ -728,3 +743,4 @@ const val SLEEP_TIMER_FINISH_SONG = "sleep_timer_finish_music"
 const val HIERARCHY_FOLDER_VIEW = "hierarchy_folder_view"
 const val SWIPE_CONTROLS = "swipe_controls"
 const val DISPLAY_NEXT_SONG = "display_next_song"
+const val LOCKED_QUEUE = "locked_queue"

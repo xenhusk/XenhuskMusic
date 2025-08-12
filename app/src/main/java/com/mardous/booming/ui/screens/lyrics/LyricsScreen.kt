@@ -83,7 +83,7 @@ fun LyricsScreen(
             lyricsResult = lyricsResult,
             lyricsViewState = lyricsViewState,
             contentPadding = PaddingValues(
-                top = 72.dp,
+                top = 96.dp,
                 bottom = dimensionResource(R.dimen.fab_size_padding),
                 start = 16.dp,
                 end = 16.dp

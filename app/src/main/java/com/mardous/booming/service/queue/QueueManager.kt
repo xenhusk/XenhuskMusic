@@ -454,6 +454,10 @@ class QueueManager {
     fun restoreState(shuffleMode: Playback.ShuffleMode, repeatMode: Playback.RepeatMode) {
         this._shuffleMode = shuffleMode
         this._repeatMode = repeatMode
+        doDispatchChange {
+            it.shuffleModeChanged(shuffleMode)
+            it.repeatModeChanged(repeatMode)
+        }
     }
 
     suspend fun restoreQueues(

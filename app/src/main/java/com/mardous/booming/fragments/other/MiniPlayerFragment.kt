@@ -108,7 +108,7 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
         setupButtonStyle()
         setupExtraControls()
         binding.actionNext.setOnTouchListener(SkipButtonTouchHandler(DIRECTION_NEXT, this))
-        binding.actionNext.setOnTouchListener(SkipButtonTouchHandler(DIRECTION_PREVIOUS, this))
+        binding.actionPrevious.setOnTouchListener(SkipButtonTouchHandler(DIRECTION_PREVIOUS, this))
         binding.actionPlayPause.setOnClickListener(this)
     }
 

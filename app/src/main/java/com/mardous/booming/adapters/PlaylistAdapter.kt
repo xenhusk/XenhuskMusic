@@ -17,12 +17,7 @@
 
 package com.mardous.booming.adapters
 
-import android.graphics.drawable.Drawable
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
@@ -31,13 +26,10 @@ import com.mardous.booming.R
 import com.mardous.booming.adapters.base.AbsMultiSelectAdapter
 import com.mardous.booming.adapters.extension.isValidPosition
 import com.mardous.booming.database.PlaylistWithSongs
-import com.mardous.booming.extensions.getTintedDrawable
 import com.mardous.booming.extensions.glide.getDefaultGlideTransition
 import com.mardous.booming.extensions.glide.playlistOptions
 import com.mardous.booming.extensions.media.isFavorites
 import com.mardous.booming.extensions.media.songsStr
-import com.mardous.booming.extensions.resources.controlColorNormal
-import com.mardous.booming.extensions.resources.useAsIcon
 import com.mardous.booming.glide.playlistPreview.PlaylistPreview
 import com.mardous.booming.helper.menu.OnClickMenu
 import com.mardous.booming.interfaces.IPlaylistCallback
@@ -89,24 +81,13 @@ class PlaylistAdapter(
             holder.image?.transitionName = playlist.playlistEntity.playlistName
         }
         if (holder.image != null) {
-            if (itemLayoutRes == R.layout.item_playlist) {
-                Glide.with(holder.image)
-                    .asBitmap()
-                    .load(PlaylistPreview(playlist))
-                    .playlistOptions()
-                    .transition(getDefaultGlideTransition())
-                    .into(holder.image)
-            } else {
-                holder.image.setImageDrawable(getIconRes(holder))
-            }
+            Glide.with(holder.image)
+                .asBitmap()
+                .load(PlaylistPreview(playlist))
+                .playlistOptions()
+                .transition(getDefaultGlideTransition())
+                .into(holder.image)
         }
-    }
-
-    private fun getIconRes(holder: ViewHolder): Drawable {
-        return holder.itemView.context.getTintedDrawable(
-            R.drawable.ic_playlist_play_24dp,
-            holder.itemView.context.controlColorNormal()
-        )!!
     }
 
     override fun getItemId(position: Int): Long {
@@ -132,9 +113,6 @@ class PlaylistAdapter(
     inner class ViewHolder(itemView: View) : com.mardous.booming.adapters.base.MediaEntryViewHolder(itemView) {
 
         init {
-            if (itemLayoutRes == R.layout.item_list)
-                image?.useAsIcon()
-
             menu?.setOnClickListener(object : OnClickMenu() {
                 override val popupMenuRes: Int
                     get() = R.menu.menu_item_playlist

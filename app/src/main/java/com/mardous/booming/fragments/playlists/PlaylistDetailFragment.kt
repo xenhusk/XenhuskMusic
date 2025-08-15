@@ -44,16 +44,13 @@ import com.mardous.booming.database.toSongs
 import com.mardous.booming.database.toSongsEntity
 import com.mardous.booming.databinding.FragmentPlaylistDetailBinding
 import com.mardous.booming.dialogs.playlists.RemoveFromPlaylistDialog
-import com.mardous.booming.extensions.applyHorizontalWindowInsets
+import com.mardous.booming.extensions.*
 import com.mardous.booming.extensions.glide.playlistOptions
-import com.mardous.booming.extensions.isLandscape
-import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.extensions.media.isFavorites
 import com.mardous.booming.extensions.media.playlistInfo
 import com.mardous.booming.extensions.navigation.searchArgs
 import com.mardous.booming.extensions.resources.createFastScroller
 import com.mardous.booming.extensions.resources.surfaceColor
-import com.mardous.booming.extensions.setSupportActionBar
 import com.mardous.booming.fragments.base.AbsMainActivityFragment
 import com.mardous.booming.glide.playlistPreview.PlaylistPreview
 import com.mardous.booming.helper.menu.onPlaylistMenu
@@ -63,6 +60,7 @@ import com.mardous.booming.interfaces.ISongCallback
 import com.mardous.booming.model.Song
 import com.mardous.booming.search.searchFilter
 import com.mardous.booming.service.playback.Playback
+import com.mardous.booming.util.Preferences
 import com.mardous.booming.viewmodels.playlistdetail.PlaylistDetailViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -171,10 +169,11 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
     private fun setupRecyclerView() {
         playlistSongAdapter = PlaylistSongAdapter(
-            mainActivity,
-            emptyList(),
-            R.layout.item_list_draggable,
-            this
+            activity = mainActivity,
+            dataSet = emptyList(),
+            itemLayoutRes = R.layout.item_list_draggable,
+            isLockDrag = Preferences.lockedPlaylists,
+            callback = this
         )
         recyclerViewDragDropManager = RecyclerViewDragDropManager().also { dragDropManager ->
             wrappedAdapter = dragDropManager.createWrappedAdapter(playlistSongAdapter!!)
@@ -204,6 +203,13 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                 menu.removeItem(R.id.action_delete_playlist)
             }
         }
+        if (playlistSongAdapter?.isLockDrag == true) {
+            menu.findItem(R.id.action_lock)
+                ?.setIcon(R.drawable.ic_lock_24dp)
+        } else {
+            menu.findItem(R.id.action_lock)
+                ?.setIcon(R.drawable.ic_lock_open_24dp)
+        }
         if (!isLandscape()) {
             menu.removeItem(R.id.action_search)
         }
@@ -221,6 +227,20 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                     R.id.nav_search,
                     searchArgs(playlist.playlistEntity.searchFilter(requireContext()))
                 )
+                true
+            }
+
+            R.id.action_lock -> {
+                val lockedPlaylists = !Preferences.lockedPlaylists
+                Preferences.lockedPlaylists = lockedPlaylists
+                if (lockedPlaylists) {
+                    menuItem.setIcon(R.drawable.ic_lock_24dp)
+                    showToast(R.string.playlist_locked)
+                } else {
+                    menuItem.setIcon(R.drawable.ic_lock_open_24dp)
+                    showToast(R.string.playlist_unlocked)
+                }
+                playlistSongAdapter?.setLockDrag(lockedPlaylists)
                 true
             }
 

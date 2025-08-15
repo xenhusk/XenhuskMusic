@@ -17,8 +17,10 @@
 
 package com.mardous.booming.adapters.song
 
+import android.annotation.SuppressLint
 import android.view.View
 import androidx.annotation.LayoutRes
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -43,9 +45,13 @@ class PlaylistSongAdapter(
     dataSet: List<Song>,
     @LayoutRes
     itemLayoutRes: Int,
+    isLockDrag: Boolean,
     callback: ISongCallback? = null
 ) : SongAdapter(activity, dataSet, itemLayoutRes, null, callback),
     DraggableItemAdapter<PlaylistSongAdapter.ViewHolder> {
+
+    var isLockDrag = isLockDrag
+        private set
 
     private val libraryViewModel: LibraryViewModel by activity.viewModel()
     private val mutableDataSet: MutableList<Song>
@@ -55,12 +61,17 @@ class PlaylistSongAdapter(
         return ViewHolder(view)
     }
 
+    override fun onBindViewHolder(holder: SongAdapter.ViewHolder, position: Int) {
+        super.onBindViewHolder(holder, position)
+        holder.dragView?.isGone = isLockDrag
+    }
+
     override fun getItemId(position: Int): Long {
         return dataSet[position].id
     }
 
     override fun onCheckCanStartDrag(holder: ViewHolder, position: Int, x: Int, y: Int): Boolean {
-        if (isInQuickSelectMode) {
+        if (isLockDrag || isInQuickSelectMode) {
             return false
         }
         return (holder.dragView?.hitTest(x, y) ?: false)
@@ -78,10 +89,12 @@ class PlaylistSongAdapter(
         return true
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onItemDragStarted(position: Int) {
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onItemDragFinished(fromPosition: Int, toPosition: Int, result: Boolean) {
         notifyDataSetChanged()
     }
@@ -95,10 +108,10 @@ class PlaylistSongAdapter(
         }
     }
 
-    interface OnMoveItemListener {
-        fun onMoveItem(fromPosition: Int, toPosition: Int)
-
-        fun onMoveItemFinished()
+    @SuppressLint("NotifyDataSetChanged")
+    fun setLockDrag(lockDrag: Boolean) {
+        this.isLockDrag = lockDrag
+        notifyDataSetChanged()
     }
 
     inner class ViewHolder internal constructor(itemView: View) : SongAdapter.ViewHolder(itemView),

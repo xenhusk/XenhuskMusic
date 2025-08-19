@@ -4,8 +4,10 @@ import android.util.Log
 import com.mardous.booming.lyrics.Lyrics
 import com.mardous.booming.lyrics.LyricsFile
 import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.Reader
+import java.util.regex.Pattern
 
 class TtmlLyricsParser : LyricsParser {
 
@@ -27,16 +29,16 @@ class TtmlLyricsParser : LyricsParser {
                 when (event) {
                     XmlPullParser.START_TAG -> {
                         when (parser.name) {
-                            TAG_TT -> foundTt = true
-                            TAG_BODY -> insideBody = true
-                            TAG_DIV -> if (insideBody) {
+                            "tt" -> foundTt = true
+                            "body" -> insideBody = true
+                            "div" -> if (insideBody) {
                                 foundDivInBody = true
                                 break
                             }
                         }
                     }
                     XmlPullParser.END_TAG -> {
-                        if (parser.name == TAG_BODY) {
+                        if (parser.name == "body") {
                             insideBody = false
                         }
                     }
@@ -49,160 +51,170 @@ class TtmlLyricsParser : LyricsParser {
         }
     }
 
-    override fun parse(reader: Reader): Lyrics? {
+    override fun parse(reader: Reader, trackLength: Long): Lyrics? {
         try {
-            val parser = XmlPullParserFactory.newInstance().newPullParser().apply {
-                setInput(reader)
-            }
+            val parser = XmlPullParserFactory.newInstance().newPullParser()
+            parser.setInput(reader)
+
+            val nodeTree = TtmlNodeTree()
             var eventType = parser.eventType
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG && parser.name == TAG_BODY) {
-                    return parseBody(parser)
+                when (eventType) {
+                    XmlPullParser.START_TAG -> {
+                        val name = parser.name
+                        if (!isSupportedTag(name)) {
+                            eventType = parser.next()
+                            continue
+                        }
+                        when (name) {
+                            TtmlNode.TAG_BODY -> {
+                                val hasRoot = nodeTree.addRoot(
+                                    TtmlNode.buildBody(
+                                        dur = parser.getTimeAttribute("dur")
+                                    )
+                                )
+                                if (!hasRoot) break
+                            }
+
+                            TtmlNode.TAG_DIV -> {
+                                val openSection = nodeTree.openSection(
+                                    TtmlNode.buildSection(
+                                        begin = parser.getTimeAttribute("begin"),
+                                        end = parser.getTimeAttribute("end"),
+                                        dur = parser.getTimeAttribute("dur")
+                                    )
+                                )
+                                if (!openSection && nodeTree.hasRoot) break
+                            }
+
+                            TtmlNode.TAG_PARAGRAPH -> {
+                                val openLine = nodeTree.openLine(
+                                    TtmlNode.buildLine(
+                                        begin = parser.getTimeAttribute("begin"),
+                                        end = parser.getTimeAttribute("end"),
+                                        dur = parser.getTimeAttribute("dur"),
+                                        agent = parser.getAgentAttribute("ttm:agent")
+                                    )
+                                )
+                                if (!openLine && nodeTree.hasRoot) break
+                            }
+
+                            TtmlNode.TAG_SPAN -> {
+                                val role = parser.getAttributeValue(null, "ttm:role")
+                                if (role == null) {
+                                    val openWord = nodeTree.openWord(
+                                        TtmlNode.buildWord(
+                                            begin = parser.getTimeAttribute("begin"),
+                                            end = parser.getTimeAttribute("end"),
+                                            dur = parser.getTimeAttribute("dur")
+                                        )
+                                    )
+                                    if (!openWord && nodeTree.hasRoot) break
+                                } else {
+                                    if (role == "x-bg") {
+                                        nodeTree.enterBackground()
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    XmlPullParser.END_TAG -> {
+                        val name = parser.name
+                        if (!isSupportedTag(name)) {
+                            eventType = parser.next()
+                            continue
+                        }
+                        when (name) {
+                            TtmlNode.TAG_BODY -> if (!nodeTree.closeNode(TtmlNode.NODE_BODY)) break
+                            TtmlNode.TAG_DIV -> if (!nodeTree.closeNode(TtmlNode.NODE_SECTION)) break
+                            TtmlNode.TAG_PARAGRAPH -> if (!nodeTree.closeNode(TtmlNode.NODE_LINE)) break
+                            TtmlNode.TAG_SPAN -> {
+                                val closeWord = nodeTree.closeNode(TtmlNode.NODE_WORD)
+                                if (!closeWord) {
+                                    if (!nodeTree.closeBackground()) break
+                                }
+                            }
+                        }
+                    }
+
+                    XmlPullParser.TEXT -> {
+                        nodeTree.setText(parser.text)
+                    }
                 }
                 eventType = parser.next()
             }
+            nodeTree.close()
+            return nodeTree.toLyrics(trackLength)
         } catch (e: Exception) {
             Log.e("TtmlLyricsParser", "Couldn't parse TTML lyrics", e)
         }
         return null
     }
 
-    private fun parseBody(parser: XmlPullParser): Lyrics {
-        val lines = mutableListOf<Lyrics.Line>()
-        val duration = parser.getAttributeValue(null, ATTR_DUR).parseTime()
-        var event = parser.next()
-        while (!(event == XmlPullParser.END_TAG && parser.name == TAG_BODY)) {
-            if (event == XmlPullParser.START_TAG && parser.name == TAG_DIV) {
-                lines += parseDiv(parser)
-            }
-            event = parser.next()
+    private fun isSupportedTag(name: String?) = TtmlNode.isSupportedTag(name)
+
+    private fun XmlPullParser.getAgentAttribute(name: String): TtmlAgent? {
+        val attribute = getAttributeValue(null, name)
+        if (attribute != null) {
+            return TtmlAgent.entries.firstOrNull { it.agent == attribute }
         }
-        return Lyrics(null, null, null, duration, lines.adjustLines(duration))
+        return null
     }
 
-    private fun parseDiv(parser: XmlPullParser): List<Lyrics.Line> {
-        val lines = mutableListOf<Lyrics.Line>()
-        var event = parser.next()
-        while (!(event == XmlPullParser.END_TAG && parser.name == TAG_DIV)) {
-            if (event == XmlPullParser.START_TAG && parser.name == TAG_PARAGRAPH) {
-                parseParagraph(parser)?.let { lines.add(it) }
+    private fun XmlPullParser.getTimeAttribute(name: String): Long {
+        try {
+            val attribute = getAttributeValue(null, name)
+            if (attribute != null) {
+                return parseTimeExpression(attribute)
             }
-            event = parser.next()
+        } catch (e: XmlPullParserException) {
+            Log.e("TtmlLyricsParser", "Failed to parse time attribute: $name", e)
         }
-        return lines
+        return -1
     }
 
-    private fun parseParagraph(parser: XmlPullParser): Lyrics.Line? {
-        val lineBegin = parser.getAttributeValue(null, ATTR_BEGIN).parseTime()
-        if (lineBegin == -1L) return null
+    @Throws(XmlPullParserException::class)
+    private fun parseTimeExpression(time: String?): Long {
+        if (time == null) return -1
 
-        val lineEnd = parser.getAttributeValue(null, ATTR_END).parseTime()
-        var lineDuration = parser.getAttributeValue(null, ATTR_DUR).parseTime()
-        if (lineDuration == -1L && lineEnd != -1L) {
-            lineDuration = lineEnd - lineBegin
+        var matcher = CLOCK_TIME_COMPLEX.matcher(time)
+        if (matcher.matches()) {
+            val hours = matcher.group(1)?.toLong() ?: 0
+            val minutes = matcher.group(2)?.toLong() ?: 0
+            val seconds = matcher.group(3)?.toLong() ?: 0
+            val fraction = matcher.group(4)
+            var durationSeconds = (hours * 3600).toDouble()
+            durationSeconds += (minutes * 60).toDouble()
+            durationSeconds += seconds.toDouble()
+            durationSeconds += (fraction?.toDouble() ?: 0.0) / 1000
+            return (durationSeconds * 1000).toLong()
         }
-
-        val lineAgent = parser.getAttributeValue(null, ATTR_AGENT)
-        val words = mutableListOf<Lyrics.Word>()
-
-        var event = parser.next()
-        while (!(event == XmlPullParser.END_TAG && parser.name == TAG_PARAGRAPH)) {
-            when (event) {
-                XmlPullParser.START_TAG -> {
-                    if (parser.name == TAG_SPAN) {
-                        parseSpan(words, parser, null)
-                    }
-                }
-                XmlPullParser.TEXT -> {
-                    val isWhitespace = parser.isWhitespace
-                    if (isWhitespace && words.isNotEmpty()) {
-                        words[words.lastIndex] = words.last().let {
-                            it.copy(content = "${it.content} ")
-                        }
-                    }
-                }
+        matcher = CLOCK_TIME_SIMPLE.matcher(time)
+        if (matcher.matches()) {
+            val seconds = matcher.group(1)?.toLongOrNull() ?: 0L
+            val millis = matcher.group(2)?.padEnd(3, '0')?.take(3)?.toLongOrNull() ?: 0L
+            return (seconds * 1000) + millis
+        }
+        matcher = OFFSET_TIME.matcher(time)
+        if (matcher.matches()) {
+            val timeValue = matcher.group(1)?.toDouble() ?: 0.0
+            val unit = matcher.group(2)
+            val offsetMillis = when(unit) {
+                "h" -> (timeValue * 3600_000).toLong()
+                "m" -> (timeValue * 60_000).toLong()
+                "s" -> (timeValue * 1_000).toLong()
+                "ms" -> timeValue.toLong()
+                else -> 0L
             }
-            event = parser.next()
+            return offsetMillis
         }
-
-        val content = words.joinToString("") { it.content }
-        return Lyrics.Line(
-            startAt = lineBegin,
-            durationMillis = lineDuration,
-            content = content,
-            rawContent = content,
-            words = words,
-            actor = lineAgent
-        )
-    }
-
-    private fun parseSpan(
-        words: MutableList<Lyrics.Word>,
-        parser: XmlPullParser,
-        role: String?,
-        inheritedBegin: Long? = null
-    ) {
-        val localBegin = parser.getAttributeValue(null, ATTR_BEGIN)?.parseTime()
-        val wordBegin = localBegin?.takeIf { it != -1L } ?: inheritedBegin
-        val wordRole = parser.getAttributeValue(null, ATTR_ROLE)
-        var event = parser.next()
-
-        while (!(event == XmlPullParser.END_TAG && parser.name == TAG_SPAN)) {
-            when (event) {
-                XmlPullParser.START_TAG -> {
-                    if (parser.name == TAG_SPAN) {
-                        parseSpan(words, parser, wordRole ?: role, wordBegin)
-                    }
-                }
-                XmlPullParser.TEXT -> {
-                    val text = parser.text
-                    val isBackground = (role ?: wordRole)?.contains("bg") == true
-                    if (parser.isWhitespace && words.isNotEmpty()) {
-                        words[words.lastIndex] = words.last().let {
-                            it.copy(content = "${it.content} ")
-                        }
-                    } else if (!text.isNullOrBlank() && wordBegin != null && wordBegin != -1L) {
-                        words.add(Lyrics.Word(text, wordBegin, isBackground))
-                    }
-                }
-            }
-            event = parser.next()
-        }
-    }
-
-    private fun String?.parseTime(): Long {
-        if (this == null) return -1
-
-        val normalized = this.trim()
-        val (timePart, millisPart) = if ('.' in normalized) {
-            val parts = normalized.split('.')
-            parts[0] to parts.getOrElse(1) { "000" }.padEnd(3, '0').take(3)
-        } else {
-            normalized to "000"
-        }
-
-        val timeUnits = timePart.split(":").mapNotNull { it.toLongOrNull() }
-        val millis = millisPart.toLongOrNull() ?: 0
-
-        return when (timeUnits.size) {
-            3 -> (timeUnits[0] * 3600 + timeUnits[1] * 60 + timeUnits[2]) * 1000 + millis
-            2 -> (timeUnits[0] * 60 + timeUnits[1]) * 1000 + millis
-            1 -> timeUnits[0] * 1000 + millis
-            else -> -1
-        }
+        throw XmlPullParserException("Malformed time expression: $time")
     }
 
     companion object {
-        private const val TAG_TT = "tt"
-        private const val TAG_BODY = "body"
-        private const val TAG_DIV = "div"
-        private const val TAG_PARAGRAPH = "p"
-        private const val TAG_SPAN = "span"
-
-        private const val ATTR_DUR = "dur"
-        private const val ATTR_BEGIN = "begin"
-        private const val ATTR_END = "end"
-        private const val ATTR_ROLE = "ttm:role"
-        private const val ATTR_AGENT = "ttm:agent"
+        private val CLOCK_TIME_SIMPLE = Pattern.compile("^(\\d+)(?:\\.(\\d{1,3}))?$")
+        private val CLOCK_TIME_COMPLEX = Pattern.compile("^(?:(\\d+):)?([0-5]?\\d):([0-5]?\\d)(?:\\.(\\d{1,3}))?$")
+        private val OFFSET_TIME = Pattern.compile("^([0-9]+(?:\\.[0-9]+)?)(h|m|s|ms)$")
     }
 }

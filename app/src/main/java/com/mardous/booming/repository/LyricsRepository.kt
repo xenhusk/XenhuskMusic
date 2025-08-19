@@ -84,16 +84,16 @@ class RealLyricsRepository(
         fromEditor: Boolean
     ): LyricsResult {
         if (song.id == Song.emptySong.id) {
-            return LyricsResult(song.id)
+            return LyricsResult.Empty
         }
 
         val embeddedLyrics = embeddedLyrics(song, requirePlainText = false).orEmpty()
         val embeddedLyricsParser = lyricsParsers.firstOrNull { it.handles(embeddedLyrics) }
-        val embeddedSynced = embeddedLyricsParser?.parse(embeddedLyrics)
+        val embeddedSynced = embeddedLyricsParser?.parse(embeddedLyrics, song.duration)
 
         val fileLyrics = findLyricsFiles(song).firstNotNullOfOrNull { file ->
             lyricsParsers.firstOrNull { it.handles(file) }
-                ?.parse(file)
+                ?.parse(file, song.duration)
         }
         if (fileLyrics?.hasContent == true) {
             return LyricsResult(
@@ -105,7 +105,7 @@ class RealLyricsRepository(
 
         val storedSynced = lyricsDao.getLyrics(song.id)?.let { stored ->
             lyricsParsers.firstOrNull { it.handles(stored.syncedLyrics) }
-                ?.parse(stored.syncedLyrics)
+                ?.parse(stored.syncedLyrics, song.duration)
         }
         if (embeddedSynced?.hasContent == true) {
             return if (fromEditor) {
@@ -134,7 +134,7 @@ class RealLyricsRepository(
         if (allowDownload && appContext().isAllowedToDownloadMetadata()) {
             val downloaded = runCatching { lyricsDownloadService.getLyrics(song) }.getOrNull()
             if (downloaded?.isSynced == true) {
-                val syncedData = lrcLyricsParser.parse(downloaded.syncedLyrics!!)
+                val syncedData = lrcLyricsParser.parse(downloaded.syncedLyrics!!, song.duration)
                 if (syncedData?.hasContent == true) {
                     lyricsDao.insertLyrics(
                         song.toLyricsEntity(
@@ -163,7 +163,7 @@ class RealLyricsRepository(
             val lyrics = metadataReader.value(MetadataReader.LYRICS)
             if (requirePlainText && !lyrics.isNullOrBlank()) {
                 val parser = lyricsParsers.firstOrNull { it.handles(lyrics) }
-                val syncedData = parser?.parse(lyrics)
+                val syncedData = parser?.parse(lyrics, song.duration)
                 if (syncedData?.hasContent == true) {
                     return syncedData.plainText
                 }
@@ -228,7 +228,7 @@ class RealLyricsRepository(
             return true
         } else {
             val parser = lyricsParsers.firstOrNull { it.handles(lyrics) }
-            val parsedLyrics = parser?.parse(lyrics)
+            val parsedLyrics = parser?.parse(lyrics, song.duration)
             if (parsedLyrics?.hasContent == true) {
                 lyricsDao.insertLyrics(song.toLyricsEntity(parsedLyrics.rawText))
                 return true

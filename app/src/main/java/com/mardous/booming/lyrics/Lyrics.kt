@@ -33,7 +33,8 @@ data class Lyrics(
     @Immutable
     data class Line(
         val startAt: Long,
-        val durationMillis: Long,
+        val end: Long,
+        val durationMillis: Long = (end - startAt),
         val content: String,
         val rawContent: String,
         val words: List<Word>,
@@ -55,5 +56,11 @@ data class Lyrics(
     }
 
     @Immutable
-    data class Word(val content: String, val startAt: Long, val isBackground: Boolean = false)
+    data class Word(
+        val content: String,
+        val startAt: Long,
+        val end: Long,
+        val durationMillis: Long,
+        val isBackground: Boolean = false
+    )
 }

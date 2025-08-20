@@ -26,8 +26,15 @@ internal class LrcNode(val start: Long, val text: String) {
         return false
     }
 
-    fun toWord(): Lyrics.Word {
-        return Lyrics.Word(text, start, end, (end - start))
+    fun toWord(startIndex: Int): Lyrics.Word {
+        return Lyrics.Word(
+            content = text,
+            startMillis = start,
+            startIndex = startIndex,
+            endMillis = end,
+            endIndex = startIndex + (text.length - 1),
+            durationMillis = (end - start)
+        )
     }
 
     fun toLine(): Lyrics.Line? {
@@ -41,7 +48,11 @@ internal class LrcNode(val start: Long, val text: String) {
             }
             children[children.lastIndex].end = end
 
-            val words = children.map { it.toWord() }
+            val words = mutableListOf<Lyrics.Word>()
+            for (child in children) {
+                val startIndex = words.sumOf { it.content.length }
+                words.add(child.toWord(startIndex))
+            }
 
             Lyrics.Line(
                 startAt = start,

@@ -58,8 +58,10 @@ data class Lyrics(
     @Immutable
     data class Word(
         val content: String,
-        val startAt: Long,
-        val end: Long,
+        val startMillis: Long,
+        val startIndex: Int,
+        val endMillis: Long,
+        val endIndex: Int,
         val durationMillis: Long,
         val isBackground: Boolean = false
     )

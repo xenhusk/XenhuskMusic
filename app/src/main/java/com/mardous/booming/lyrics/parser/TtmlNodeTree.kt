@@ -72,7 +72,7 @@ internal class TtmlNodeTree {
             if (background) {
                 node.setBackground(true)
             }
-            return lineNode?.addChildNode(node) == true
+            return lineNode.addChildNode(node)
         }
         return false
     }
@@ -85,7 +85,7 @@ internal class TtmlNodeTree {
             textNode = getOpenNode(TtmlNode.NODE_LINE)
         }
         if (textNode != null) {
-            return textNode?.setText(text) == true
+            return textNode.setText(text)
         }
         return false
     }
@@ -115,7 +115,7 @@ internal class TtmlNodeTree {
 
         val openNode = getOpenNode(type)
         if (openNode != null) {
-            val closed = openNode?.close() == true
+            val closed = openNode.close()
             openNodes.remove(type)
             return closed
         }
@@ -162,11 +162,17 @@ internal class TtmlNodeTree {
                             if (word.dur == -1L) {
                                 word.dur = (word.end - word.begin)
                             }
+                            val text = word.text.orEmpty()
+                            val startIndex = words.filter { it.isBackground == word.background }
+                                .sumOf { it.content.length }
+                            val endIndex = startIndex + (text.length - 1)
                             words.add(
                                 Lyrics.Word(
-                                    content = word.text.orEmpty(),
-                                    startAt = word.begin,
-                                    end = word.end,
+                                    content = text,
+                                    startMillis = word.begin,
+                                    startIndex = startIndex,
+                                    endMillis = word.end,
+                                    endIndex = endIndex,
                                     durationMillis = word.dur,
                                     isBackground = word.background
                                 )

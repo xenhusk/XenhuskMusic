@@ -56,14 +56,14 @@ class LrcLyricsParser : LyricsParser {
                         if (lineResult != null) {
                             val time = lineResult.groupValues[1].trim()
                                 .takeUnless { it.isEmpty() } ?: continue
-                            val rawText = lineResult.groupValues[2].trim()
+                            val text = lineResult.groupValues[2].trim()
                                 .takeUnless { it.isEmpty() } ?: continue
 
                             val timeResult = LINE_TIME_PATTERN.find(time)
                             if (timeResult != null) {
                                 val timeMs = parseTime(timeResult)
                                 if (timeMs > LrcNode.INVALID_DURATION) {
-                                    rawLines.add(LrcNode(timeMs, rawText))
+                                    rawLines.add(LrcNode(timeMs, text, line))
                                 }
                             }
                         }

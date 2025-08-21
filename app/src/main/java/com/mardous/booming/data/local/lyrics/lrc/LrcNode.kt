@@ -2,7 +2,7 @@ package com.mardous.booming.data.local.lyrics.lrc
 
 import com.mardous.booming.data.model.lyrics.Lyrics
 
-internal class LrcNode(val start: Long, val text: String) {
+internal class LrcNode(val start: Long, val text: String, val rawLine: String?) {
     private val children = mutableListOf<LrcNode>()
 
     var end: Long = INVALID_DURATION
@@ -21,7 +21,7 @@ internal class LrcNode(val start: Long, val text: String) {
 
     fun addChildren(start: Long, text: String?): Boolean {
         if (start > INVALID_DURATION && !text.isNullOrBlank()) {
-            return children.add(LrcNode(start, text))
+            return children.add(LrcNode(start, text, null))
         }
         return false
     }
@@ -60,7 +60,7 @@ internal class LrcNode(val start: Long, val text: String) {
                 durationMillis = (end - start),
                 content = words.joinToString(separator = "") { it.content }.trim(),
                 backgroundContent = null,
-                rawContent = text,
+                rawContent = rawLine.orEmpty(),
                 words = words,
                 actor = actor
             )
@@ -71,7 +71,7 @@ internal class LrcNode(val start: Long, val text: String) {
                 durationMillis = (end - start),
                 content = text,
                 backgroundContent = null,
-                rawContent = text,
+                rawContent = rawLine.orEmpty(),
                 words = emptyList(),
                 actor = actor
             )

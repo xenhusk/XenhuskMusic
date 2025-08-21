@@ -17,6 +17,7 @@
 
 package com.mardous.booming.data.remote.lyrics
 
+import android.util.Log
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.remote.lyrics.api.applemusic.AppleMusicLyricsApi
 import com.mardous.booming.data.remote.lyrics.api.lrclib.LrcLibApi
@@ -46,11 +47,14 @@ class LyricsDownloadService(client: HttpClient) {
             return downloadedLyrics
         }
         for (api in lyricsApi) {
-            val apiResult = runCatching { api.songLyrics(song, title, artist) }.getOrNull()
-                ?: continue
+            val apiResult = runCatching { api.songLyrics(song, title, artist) }
+            if (apiResult.isFailure) {
+                Log.e("LyricsService", "Error during lyrics request", apiResult.exceptionOrNull())
+            }
 
-            val plainLyrics = downloadedLyrics.plainLyrics ?: apiResult.plainLyrics
-            val syncedLyrics = downloadedLyrics.syncedLyrics ?: apiResult.syncedLyrics
+            val response = apiResult.getOrNull() ?: continue
+            val plainLyrics = downloadedLyrics.plainLyrics ?: response.plainLyrics
+            val syncedLyrics = downloadedLyrics.syncedLyrics ?: response.syncedLyrics
 
             downloadedLyrics = downloadedLyrics.copy(
                 plainLyrics = plainLyrics,

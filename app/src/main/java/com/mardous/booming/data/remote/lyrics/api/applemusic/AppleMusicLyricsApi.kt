@@ -18,80 +18,68 @@
 package com.mardous.booming.data.remote.lyrics.api.applemusic
 
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.data.remote.lyrics.api.AppleMusicSource
 import com.mardous.booming.data.remote.lyrics.api.LyricsApi
-import com.mardous.booming.data.remote.lyrics.model.AppleLyricsResponse
-import com.mardous.booming.data.remote.lyrics.model.AppleSearchResponse
-import com.mardous.booming.data.remote.lyrics.model.DownloadedLyrics
-import com.mardous.booming.data.remote.lyrics.model.toDownloadedLyrics
+import com.mardous.booming.data.remote.lyrics.model.*
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.http.encodeURLParameter
 
 class AppleMusicLyricsApi(private val client: HttpClient) : LyricsApi {
+
+    private val searchResults = hashMapOf<Long, LyricsSearchResponse>()
 
     override suspend fun songLyrics(
         song: Song,
         title: String,
         artist: String
     ): DownloadedLyrics? {
-        return client.get("https://paxsenix.alwaysdata.net/searchAppleMusic.php") {
-            url.encodedParameters.append("q", "$title $artist".encodeURLParameter())
-        }.body<List<AppleSearchResponse>>().first().let {
-            client.get("https://paxsenix.alwaysdata.net/getAppleMusicLyrics.php") {
-                parameter("id", it.id)
-            }.body<AppleLyricsResponse>().let { parseLyrics(song, it) }
+        return searchTrack(song, title, artist).let {
+            client.get("https://booming-music-api.vercel.app/api/lyrics?source=$AppleMusicSource&id=${it.id}")
+                .body<AppleLyricsResponse>()
+                .let { response -> parseLyrics(song, response) }
+        }
+    }
+
+    private suspend fun searchTrack(song: Song, title: String, artist: String): LyricsSearchResponse {
+        return searchResults.getOrPut(song.id) {
+            val response = client.get("https://booming-music-api.vercel.app/api/search?source=$AppleMusicSource") {
+                url.encodedParameters.append("q", "$title $artist".encodeURLParameter())
+            }
+            response.body<List<LyricsSearchResponse>>().first {
+                it.name == song.title && (it.artist == song.artistName || it.artist == song.albumArtistName)
+            }
         }
     }
 
     private fun parseLyrics(song: Song, response: AppleLyricsResponse): DownloadedLyrics? {
-        if (response.content.isNullOrEmpty()) {
+        if (response.lines.isNullOrEmpty()) {
             return null
         }
         val syncedLyrics = StringBuilder()
-        val lines = response.content
-        when (response.type) {
-            "Syllable" -> {
-                val isMultiPerson = lines.any { it.oppositeTurn }
-                for (line in lines) {
-                    syncedLyrics.append("[${line.timestamp.toLrcTimestamp()}]")
-                    if (isMultiPerson) {
-                        syncedLyrics.append(if (line.oppositeTurn) "v2:" else "v1:")
-                    }
-                    for (syllable in line.text) {
-                        syncedLyrics.append("<${syllable.timestamp!!.toLrcTimestamp()}>${syllable.text}")
-                        if (!syllable.part) {
-                            syncedLyrics.append(" ")
-                        }
-                        syncedLyrics.append("<${syllable.endtime?.toLrcTimestamp()}>")
-                    }
-                    syncedLyrics.append("<${line.endtime.toLrcTimestamp()}>\n")
+        val lines = response.lines
+        if (response.syllable) {
+            val isMultiPerson = lines.any { it.oppositeTurn }
+            for (line in lines) {
+                syncedLyrics.append("[${line.startTime.toLrcTimestamp()}]")
+                if (isMultiPerson) {
+                    syncedLyrics.append(if (line.oppositeTurn) "v2:" else "v1:")
                 }
-            }
-
-            "Line" -> {
-                for (line in lines) {
-                    syncedLyrics.append("[${line.timestamp.toLrcTimestamp()}] ${line.text[0].text}\n")
+                for (syllable in line.words) {
+                    syncedLyrics.append("<${syllable.startTime!!.toLrcTimestamp()}>${syllable.text}")
+                    if (!syllable.breaks) {
+                        syncedLyrics.append(" ")
+                    }
+                    syncedLyrics.append("<${syllable.endTime?.toLrcTimestamp()}>")
                 }
+                syncedLyrics.append("<${line.endTime.toLrcTimestamp()}>\n")
             }
-
-            else -> return null
+        } else {
+            for (line in lines) {
+                syncedLyrics.append("[${line.startTime.toLrcTimestamp()}] ${line.words[0].text}\n")
+            }
         }
         return song.toDownloadedLyrics(syncedLyrics = syncedLyrics.toString().dropLast(1))
-    }
-
-    private fun Int.toLrcTimestamp(): String {
-        val minutes = this / 60000
-        val seconds = (this % 60000) / 1000
-        val milliseconds = this % 1000
-
-        val leadingZeros: Array<String> = arrayOf(
-            if (minutes < 10) "0" else "",
-            if (seconds < 10) "0" else "",
-            if (milliseconds < 10) "00" else if (milliseconds < 100) "0" else ""
-        )
-
-        return "${leadingZeros[0]}$minutes:${leadingZeros[1]}$seconds.${leadingZeros[2]}$milliseconds"
     }
 }

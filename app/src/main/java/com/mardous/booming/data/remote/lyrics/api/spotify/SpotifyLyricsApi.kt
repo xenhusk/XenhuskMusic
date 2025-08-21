@@ -19,19 +19,16 @@ package com.mardous.booming.data.remote.lyrics.api.spotify
 
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.remote.lyrics.api.LyricsApi
-import com.mardous.booming.data.remote.lyrics.model.DownloadedLyrics
-import com.mardous.booming.data.remote.lyrics.model.SpotifySearchResult
-import com.mardous.booming.data.remote.lyrics.model.SyncedLinesResponse
-import com.mardous.booming.data.remote.lyrics.model.toDownloadedLyrics
+import com.mardous.booming.data.remote.lyrics.api.SpotifySource
+import com.mardous.booming.data.remote.lyrics.model.*
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.http.encodeURLParameter
 
 class SpotifyLyricsApi(private val client: HttpClient) : LyricsApi {
 
-    private val searchResults = hashMapOf<Long, SpotifySearchResult>()
+    private val searchResults = hashMapOf<Long, LyricsSearchResponse>()
 
     override suspend fun songLyrics(
         song: Song,
@@ -39,27 +36,29 @@ class SpotifyLyricsApi(private val client: HttpClient) : LyricsApi {
         artist: String
     ): DownloadedLyrics? {
         return searchTrack(song, title, artist).let {
-            val response = client.get("https://spotify-lyrics-api-one.vercel.app/get_lyrics") {
-                parameter("format", "lrc")
-                parameter("trackid", it.tracks.items.first().id)
-            }.body<SyncedLinesResponse>()
-            parseLyrics(song, response)
+            client.get("https://booming-music-api.vercel.app/api/lyrics?source=$SpotifySource&id=${it.id}")
+                .body<SpotifyLyricsResponse>()
+                .let { response -> parseLyrics(song, response) }
         }
     }
 
-    private suspend fun searchTrack(song: Song, title: String, artist: String): SpotifySearchResult {
+    private suspend fun searchTrack(song: Song, title: String, artist: String): LyricsSearchResponse {
         return searchResults.getOrPut(song.id) {
-            client.get("https://spotify-lyrics-api-one.vercel.app/search") {
+            client.get("https://booming-music-api.vercel.app/api/search?source=$SpotifySource") {
                 url.encodedParameters.append("q", "$artist $title".encodeURLParameter())
-            }.body<SpotifySearchResult>()
+            }.body<List<LyricsSearchResponse>>().first {
+                it.name == song.title && (it.artist == song.artistName || it.artist == song.albumArtistName)
+            }
         }
     }
 
-    private fun parseLyrics(song: Song, result: SyncedLinesResponse): DownloadedLyrics? {
-        val lines = result.lines.filter { it.words.isNotBlank() }
+    private fun parseLyrics(song: Song, response: SpotifyLyricsResponse): DownloadedLyrics? {
+        if (response.lines.isNullOrEmpty()) return null
+
+        val lines = response.lines.filter { it.words.isNotBlank() }
         return song.toDownloadedLyrics(
             plainLyrics = lines.joinToString("\n") { it.words },
-            syncedLyrics = lines.joinToString("\n") { "[${it.timeTag}] ${it.words}" }
+            syncedLyrics = lines.joinToString("\n") { "[${it.startTime.toLrcTimestamp()}] ${it.words}" }
         )
     }
 }

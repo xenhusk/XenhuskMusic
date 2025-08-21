@@ -36,6 +36,7 @@ data class Lyrics(
         val end: Long,
         val durationMillis: Long = (end - startAt),
         val content: String,
+        val backgroundContent: String?,
         val rawContent: String,
         val words: List<Word>,
         val actor: String?
@@ -46,7 +47,7 @@ data class Lyrics(
         val isOppositeTurn: Boolean = actor != null && actor != "v1"
 
         val hasBackground: Boolean
-            get() = words.any { it.isBackground }
+            get() = words.any { it.isBackground } && !backgroundContent.isNullOrBlank()
 
         val main: List<Word>
             get() = words.filterNot { it.isBackground }

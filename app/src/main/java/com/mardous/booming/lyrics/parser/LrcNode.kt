@@ -59,6 +59,7 @@ internal class LrcNode(val start: Long, val text: String) {
                 end = end,
                 durationMillis = (end - start),
                 content = words.joinToString(separator = "") { it.content }.trim(),
+                backgroundContent = null,
                 rawContent = text,
                 words = words,
                 actor = actor
@@ -69,6 +70,7 @@ internal class LrcNode(val start: Long, val text: String) {
                 end = end,
                 durationMillis = (end - start),
                 content = text,
+                backgroundContent = null,
                 rawContent = text,
                 words = emptyList(),
                 actor = actor

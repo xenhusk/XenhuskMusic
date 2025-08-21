@@ -179,13 +179,16 @@ internal class TtmlNodeTree {
                             )
                         }
                     }
+                    val content = words.filterNot { it.isBackground }.joinToString("") { it.content }
+                    val backgroundContent = words.filter { it.isBackground }.joinToString("") { it.content }
                     lines.add(
                         Lyrics.Line(
                             startAt = line.begin,
                             end = line.end,
                             durationMillis = line.dur,
-                            content = words.joinToString("") { it.content },
-                            rawContent = words.joinToString("") { it.content },
+                            content = content,
+                            backgroundContent = backgroundContent,
+                            rawContent = content + "\n" + backgroundContent,
                             words = words,
                             actor = line.agent?.agent
                         )
@@ -197,6 +200,7 @@ internal class TtmlNodeTree {
                             end = line.end,
                             durationMillis = line.dur,
                             content = line.text.orEmpty(),
+                            backgroundContent = null,
                             rawContent = line.text.orEmpty(),
                             words = emptyList(),
                             actor = line.agent?.agent

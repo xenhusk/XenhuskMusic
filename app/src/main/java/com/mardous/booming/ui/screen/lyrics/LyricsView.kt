@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -43,28 +44,42 @@ import kotlinx.coroutines.withTimeout
 @Composable
 fun LyricsView(
     state: LyricsViewState,
+    settings: LyricsViewSettings,
     onLineClick: (Lyrics.Line) -> Unit,
     contentColor: Color,
-    contentPadding: PaddingValues,
     fadingEdges: FadingEdges,
-    fontSize: TextUnit,
     modifier: Modifier = Modifier,
     fontWeight: FontWeight = FontWeight.Bold,
-    lineHeight: TextUnit = 1.2.em,
+    lineHeight: TextUnit = 1.4.em,
 ) {
+    val density = LocalDensity.current
+    val systemBars = WindowInsets.systemBars
+
     val listState = rememberLazyListState()
 
     LaunchedEffect(state.currentLineIndex) {
         if (state.currentLineIndex >= 0) {
             if (!listState.isScrollInProgress) {
-                listState.animateScrollToItem(state.currentLineIndex)
+                if (settings.isCenterCurrentLine) {
+                    listState.animateScrollToItem(
+                        index = state.currentLineIndex,
+                        scrollOffset = settings.calculateCenterOffset(
+                            currentIndex = state.currentLineIndex,
+                            listState = listState,
+                            density = density,
+                            insets = systemBars
+                        )
+                    )
+                } else {
+                    listState.animateScrollToItem(state.currentLineIndex)
+                }
             }
         }
     }
 
     LazyColumn(
         state = listState,
-        contentPadding = contentPadding,
+        contentPadding = settings.contentPadding,
         modifier = modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
             .fadingEdges(edges = fadingEdges)
@@ -83,7 +98,7 @@ fun LyricsView(
                     isOppositeTurn = line.isOppositeTurn,
                     activeWordIndex = activeWordIndex,
                     activeBackgroundIndex = activeBackgroundIndex,
-                    fontSize = fontSize,
+                    fontSize = settings.syncedFontSize,
                     fontWeight = fontWeight,
                     lineHeight = lineHeight,
                     contentColor = contentColor,
@@ -98,7 +113,7 @@ fun LyricsView(
                     isOppositeTurn = line.isOppositeTurn,
                     content = line.content,
                     contentColor = contentColor,
-                    fontSize = fontSize,
+                    fontSize = settings.syncedFontSize,
                     fontWeight = fontWeight,
                     lineHeight = lineHeight,
                     onClick = { onLineClick(line) },

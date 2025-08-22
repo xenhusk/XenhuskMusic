@@ -11,15 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.keepScreenOn
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mardous.booming.R
@@ -40,6 +38,8 @@ fun LyricsScreen(
     playerViewModel: PlayerViewModel,
     onEditClick: () -> Unit
 ) {
+    val lyricsViewSettings by lyricsViewModel.fullLyricsViewSettings.collectAsState()
+
     val miniPlayerMargin by libraryViewModel.getMiniPlayerMargin().observeAsState(LibraryMargin(0))
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
     val songProgress by playerViewModel.currentProgressFlow.collectAsState()
@@ -80,12 +80,7 @@ fun LyricsScreen(
                 .padding(innerPadding),
             lyricsResult = lyricsResult,
             lyricsViewState = lyricsViewState,
-            contentPadding = PaddingValues(
-                top = 96.dp,
-                bottom = dimensionResource(R.dimen.fab_size_padding),
-                start = 16.dp,
-                end = 16.dp
-            ),
+            lyricsViewSettings = lyricsViewSettings,
             plainScrollState = plainScrollState,
             onSeekToLine = { playerViewModel.seekTo(it.startAt) }
         )
@@ -99,6 +94,8 @@ fun CoverLyricsScreen(
     onExpandClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val lyricsViewSettings by lyricsViewModel.playerLyricsViewSettings.collectAsState()
+
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
     val songProgress by playerViewModel.currentProgressFlow.collectAsStateWithLifecycle(
         initialValue = 0,
@@ -126,11 +123,9 @@ fun CoverLyricsScreen(
                 modifier = Modifier.fillMaxSize(),
                 lyricsResult = lyricsResult,
                 lyricsViewState = lyricsViewState,
-                contentPadding = PaddingValues(vertical = 72.dp, horizontal = 8.dp),
+                lyricsViewSettings = lyricsViewSettings,
                 syncedContentColor = MaterialTheme.colorScheme.onSurface,
                 syncedFadingEdges = FadingEdges(top = 72.dp, bottom = 64.dp),
-                syncedFontSize = 24.sp,
-                plainFontSize = 16.sp,
                 plainTextAlign = TextAlign.Center,
                 plainScrollState = plainScrollState,
                 plainContentColor = MaterialTheme.colorScheme.onSurface,
@@ -161,15 +156,13 @@ fun CoverLyricsScreen(
 private fun LyricsSurface(
     lyricsResult: LyricsResult,
     lyricsViewState: LyricsViewState,
+    lyricsViewSettings: LyricsViewSettings,
     onSeekToLine: (Lyrics.Line) -> Unit,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues,
     syncedContentColor: Color = MaterialTheme.colorScheme.secondary,
     syncedFadingEdges: FadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
-    syncedFontSize: TextUnit = 30.sp,
     plainContentColor: Color = Color.Unspecified,
     plainScrollState: ScrollState = rememberScrollState(),
-    plainFontSize: TextUnit = 20.sp,
     plainTextAlign: TextAlign? = null
 ) {
     Box(modifier) {
@@ -182,11 +175,10 @@ private fun LyricsSurface(
                 lyricsViewState.lyrics != null -> {
                     LyricsView(
                         state = lyricsViewState,
+                        settings = lyricsViewSettings,
                         onLineClick = { onSeekToLine(it) },
                         fadingEdges = syncedFadingEdges,
-                        fontSize = syncedFontSize,
-                        contentColor = syncedContentColor,
-                        contentPadding = contentPadding
+                        contentColor = syncedContentColor
                     )
                 }
 
@@ -197,12 +189,13 @@ private fun LyricsSurface(
                             .nestedScroll(rememberNestedScrollInteropConnection())
                             .fadingEdges(syncedFadingEdges)
                             .verticalScroll(plainScrollState)
-                            .padding(contentPadding)
+                            .padding(lyricsViewSettings.contentPadding)
                     ) {
                         Text(
                             text = lyricsResult.plainLyrics.content,
                             textAlign = plainTextAlign,
-                            fontSize = plainFontSize,
+                            fontSize = lyricsViewSettings.unsyncedFontSize,
+                            lineHeight = lyricsViewSettings.unsyncedFontSize * 1.4,
                             color = plainContentColor,
                             modifier = Modifier.fillMaxSize()
                         )

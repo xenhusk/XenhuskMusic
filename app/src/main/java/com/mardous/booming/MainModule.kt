@@ -289,7 +289,7 @@ private val viewModule = module {
     }
 
     viewModel {
-        LyricsViewModel(queueManager = get(), lyricsRepository = get())
+        LyricsViewModel(preferences = get(), queueManager = get(), lyricsRepository = get())
     }
 
     viewModel {

@@ -1,5 +1,7 @@
 package com.mardous.booming.ui.screen.lyrics
 
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
@@ -17,18 +19,26 @@ import kotlinx.coroutines.flow.asStateFlow
  * @author Christians M. A. (mardous)
  */
 class LyricsViewModel(
+    private val preferences: SharedPreferences,
     private val queueManager: QueueManager,
     private val lyricsRepository: LyricsRepository
-) : ViewModel(), QueueObserver {
+) : ViewModel(), QueueObserver, OnSharedPreferenceChangeListener {
 
     private var lyricsJob: Job? = null
     private val _lyricsResult = MutableStateFlow(LyricsResult.Empty)
     val lyricsResult = _lyricsResult.asStateFlow()
 
+    private val _playerLyricsViewSettings = MutableStateFlow(createViewSettings(LyricsViewSettings.Mode.Player))
+    val playerLyricsViewSettings = _playerLyricsViewSettings.asStateFlow()
+
+    private val _fullLyricsViewSettings = MutableStateFlow(createViewSettings(LyricsViewSettings.Mode.Full))
+    val fullLyricsViewSettings = _fullLyricsViewSettings.asStateFlow()
+
     private val silentHandler = CoroutineExceptionHandler { _, _ -> }
 
     init {
         queueManager.addObserver(this)
+        preferences.registerOnSharedPreferenceChangeListener(this)
         if (lyricsResult.value == LyricsResult.Empty) {
             updateSong(queueManager.currentSong)
         }
@@ -37,7 +47,21 @@ class LyricsViewModel(
     override fun onCleared() {
         lyricsJob?.cancel()
         queueManager.removeObserver(this)
+        preferences.unregisterOnSharedPreferenceChangeListener(this)
         super.onCleared()
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        if (key == LyricsViewSettings.Key.CENTER_CURRENT_LINE ||
+            key == LyricsViewSettings.Key.SYNCED_FONT_SIZE_PLAYER ||
+            key == LyricsViewSettings.Key.UNSYNCED_FONT_SIZE_PLAYER) {
+            _playerLyricsViewSettings.value = createViewSettings(LyricsViewSettings.Mode.Player)
+        }
+        if (key == LyricsViewSettings.Key.CENTER_CURRENT_LINE ||
+            key == LyricsViewSettings.Key.SYNCED_FONT_SIZE_FULL ||
+            key == LyricsViewSettings.Key.UNSYNCED_FONT_SIZE_FULL) {
+            _fullLyricsViewSettings.value = createViewSettings(LyricsViewSettings.Mode.Full)
+        }
     }
 
     override fun songChanged(currentSong: Song, nextSong: Song) {
@@ -87,6 +111,15 @@ class LyricsViewModel(
 
     fun deleteLyrics() = viewModelScope.launch(Dispatchers.IO) {
         lyricsRepository.deleteAllLyrics()
+    }
+
+    private fun createViewSettings(mode: LyricsViewSettings.Mode): LyricsViewSettings {
+        return LyricsViewSettings(
+            mode = mode,
+            isCenterCurrentLine = mode.isCenterCurrentLine(preferences),
+            syncedFontSize = mode.getSyncedFontSize(preferences),
+            unsyncedFontSize = mode.getUnsyncedFontSize(preferences)
+        )
     }
 
     private fun updateSong(song: Song) {

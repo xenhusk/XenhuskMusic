@@ -24,7 +24,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.mardous.booming.R
-import com.mardous.booming.extensions.keepScreenOn
 import com.mardous.booming.extensions.materialSharedAxis
 import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.ui.screen.player.PlayerViewModel
@@ -67,15 +66,5 @@ class LyricsFragment : Fragment() {
         }.also {
             materialSharedAxis(it)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        requireActivity().keepScreenOn(true)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        requireActivity().keepScreenOn(false)
     }
 }

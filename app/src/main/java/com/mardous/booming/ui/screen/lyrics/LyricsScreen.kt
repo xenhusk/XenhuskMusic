@@ -165,7 +165,7 @@ private fun LyricsSurface(
     plainScrollState: ScrollState = rememberScrollState(),
     plainTextAlign: TextAlign? = null
 ) {
-    Box(modifier) {
+    Box(modifier.keepScreenOn()) {
         if (lyricsResult.loading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center)

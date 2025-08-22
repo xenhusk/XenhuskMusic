@@ -213,7 +213,7 @@ internal class TtmlNodeTree {
                 artist = null,
                 album = null,
                 durationMillis = duration,
-                lines = lines
+                lines = lines.distinctBy { it.id }
             )
         }
         return null

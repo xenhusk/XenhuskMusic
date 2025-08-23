@@ -244,6 +244,9 @@ object Preferences : KoinComponent {
     val circularPlayButton: Boolean
         get() = preferences.getBoolean(CIRCLE_PLAY_BUTTON, false)
 
+    val enableScrollingText: Boolean
+        get() = preferences.getBoolean(ENABLE_SCROLLING_TEXT, false)
+
     val displayAlbumTitle
         get() = preferences.getBoolean(DISPLAY_ALBUM_TITLE, true)
 
@@ -669,6 +672,7 @@ const val COVER_DOUBLE_TAP_ACTION = "cover_double_tap_action"
 const val COVER_LONG_PRESS_ACTION = "cover_long_press_action"
 const val ANIMATE_PLAYER_CONTROL = "animate_player_control"
 const val CIRCLE_PLAY_BUTTON = "circle_play_button"
+const val ENABLE_SCROLLING_TEXT = "enable_scrolling_text"
 const val DISPLAY_ALBUM_TITLE = "display_album_title"
 const val DISPLAY_EXTRA_INFO = "display_extra_info"
 const val EXTRA_INFO = "now_playing_extra_info"

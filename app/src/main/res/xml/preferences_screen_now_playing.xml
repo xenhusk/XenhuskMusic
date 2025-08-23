@@ -151,6 +151,14 @@
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="true"
+            app:title="@string/scrolling_text_title"
+            app:summary="@string/scrolling_text_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view_switch"
+            app:key="enable_scrolling_text" />
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
             app:title="@string/display_album_name_title"
             app:defaultValue="true"
             app:layout="@layout/list_item_view_switch_no_title"

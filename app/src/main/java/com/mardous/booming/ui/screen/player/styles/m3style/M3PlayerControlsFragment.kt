@@ -63,6 +63,12 @@ class M3PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_m3_
     override val songTotalTime: TextView
         get() = binding.songTotalTime
 
+    override val songTitleView: TextView?
+        get() = binding.title
+
+    override val songArtistView: TextView?
+        get() = binding.text
+
     override val songInfoView: TextView?
         get() = binding.songInfo
 

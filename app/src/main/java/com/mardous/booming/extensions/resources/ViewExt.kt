@@ -23,6 +23,7 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.text.TextUtils
 import android.util.TypedValue
 import android.view.*
 import android.view.animation.AccelerateInterpolator
@@ -272,6 +273,20 @@ fun EditText.requestInputMethod() {
             imm?.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
         }
     }
+}
+
+fun TextView.setMarquee(marquee: Boolean) {
+    isFocusable = marquee
+    isFocusableInTouchMode = marquee
+    setHorizontallyScrolling(marquee)
+    if (marquee) {
+        ellipsize = TextUtils.TruncateAt.MARQUEE
+        marqueeRepeatLimit = -1
+        isHorizontalFadingEdgeEnabled = true
+    } else {
+        ellipsize = TextUtils.TruncateAt.END
+    }
+    isSelected = marquee
 }
 
 fun TextView.setMarkdownText(str: String) {

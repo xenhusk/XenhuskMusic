@@ -24,10 +24,10 @@
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="marquee"
             android:gravity="center"
-            android:marqueeRepeatLimit="marquee_forever"
+            android:freezesText="true"
             android:singleLine="true"
+            android:ellipsize="end"
             android:textAppearance="?textAppearanceHeadline6"
             android:textStyle="bold"
             tools:text="@tools:sample/lorem"/>
@@ -38,9 +38,9 @@
             android:layout_height="wrap_content"
             android:paddingTop="6dp"
             android:gravity="center"
-            android:maxLines="1"
+            android:freezesText="true"
+            android:singleLine="true"
             android:ellipsize="end"
-            android:alpha="0.75"
             tools:text="@tools:sample/lorem"/>
 
     </LinearLayout>
@@ -173,10 +173,10 @@
         android:layout_marginTop="8dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:alpha="0.75"
-        android:ellipsize="end"
-        android:maxLines="1"
         android:gravity="center"
+        android:freezesText="true"
+        android:singleLine="true"
+        android:ellipsize="end"
         android:textAlignment="center"
         android:textAppearance="?textAppearanceBody2"
         app:layout_constrainedWidth="true"
@@ -184,7 +184,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text="Info"
-        tools:ignore="SmallSp"/>
+        tools:text="@tools:sample/lorem"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -71,6 +71,12 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
     override val songTotalTime: TextView
         get() = binding.songTotalTime
 
+    override val songTitleView: TextView?
+        get() = binding.title
+
+    override val songArtistView: TextView?
+        get() = binding.text
+
     override val songInfoView: TextView
         get() = binding.songInfo
 

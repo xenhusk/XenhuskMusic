@@ -60,6 +60,15 @@ class Peek2PlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_
     override val songTotalTime: TextView
         get() = binding.songTotalTime
 
+    override val songTitleView: TextView?
+        get() = binding.title
+
+    override val songArtistView: TextView?
+        get() = binding.text
+
+    override val songInfoView: TextView?
+        get() = binding.songInfo
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

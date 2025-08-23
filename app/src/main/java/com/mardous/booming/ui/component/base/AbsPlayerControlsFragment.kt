@@ -29,6 +29,7 @@ import android.view.View.OnTouchListener
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mardous.booming.R
@@ -39,14 +40,17 @@ import com.mardous.booming.extensions.getShapeAppearanceModel
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.media.durationStr
 import com.mardous.booming.extensions.resources.applyColor
+import com.mardous.booming.extensions.resources.setMarquee
 import com.mardous.booming.service.playback.Playback
 import com.mardous.booming.ui.component.preferences.dialog.NowPlayingExtraInfoPreferenceDialog
 import com.mardous.booming.ui.component.views.MusicSlider
+import com.mardous.booming.ui.screen.MainActivity
 import com.mardous.booming.ui.screen.player.PlayerAnimator
 import com.mardous.booming.ui.screen.player.PlayerColorScheme
 import com.mardous.booming.ui.screen.player.PlayerTintTarget
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.util.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
@@ -73,6 +77,8 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
     protected open val shuffleButton: MaterialButton? = null
     protected open val songTotalTime: TextView? = null
     protected open val songCurrentProgress: TextView? = null
+    protected open val songTitleView: TextView? = null
+    protected open val songArtistView: TextView? = null
     protected open val songInfoView: TextView? = null
 
     protected val isShuffleModeOn: Boolean
@@ -85,6 +91,7 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
     private var lastDisabledPlaybackControlsColor: Int = 0
 
     private var isShown = false
+    private var extraInfoJob: Job? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -160,15 +167,23 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         setUpProgressSlider()
     }
 
+    override fun onResume() {
+        super.onResume()
+        val isShown = (activity as? MainActivity)?.panelState == STATE_EXPANDED
+        if (isShown && playerAnimator?.isPrepared == true) {
+            onShow()
+        } else if (!isShown && playerAnimator?.isPrepared == false) {
+            onHide()
+        } else {
+            onShow()
+        }
+    }
+
     override fun onClick(view: View) {
-        when (view.id) {
-            R.id.title -> {
-                goToAlbum(requireActivity(), playerViewModel.currentSong)
-            }
-            R.id.text -> {
-                goToArtist(requireActivity(), playerViewModel.currentSong)
-            }
-            R.id.songTotalTime -> {
+        when (view) {
+            songTitleView -> goToAlbum(requireActivity(), playerViewModel.currentSong)
+            songArtistView -> goToArtist(requireActivity(), playerViewModel.currentSong)
+            songTotalTime -> {
                 val preferRemainingTime = Preferences.preferRemainingTime
                 Preferences.preferRemainingTime = !preferRemainingTime
             }
@@ -260,12 +275,19 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
         )
     }
 
+    fun setMarquee(vararg textView: TextView?, marquee: Boolean) {
+        if (isShown) {
+            textView.forEach { it?.setMarquee(marquee) }
+        }
+    }
+
     /**
      * Called to notify that the player has been expanded.
      */
     internal open fun onShow() {
         isShown = true
         playerAnimator?.start()
+        setMarquee(songTitleView, songArtistView, songInfoView, marquee = Preferences.enableScrollingText)
     }
 
     /**
@@ -274,15 +296,7 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
     internal open fun onHide() {
         isShown = false
         playerAnimator?.prepare()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (isShown && playerAnimator?.isPrepared == true) {
-            onShow()
-        } else if (!isShown && playerAnimator?.isPrepared == false) {
-            onHide()
-        }
+        setMarquee(songTitleView, songArtistView, songInfoView, marquee = false)
     }
 
     abstract fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget>
@@ -308,10 +322,17 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
                 musicSlider?.setUseSquiggly(sharedPreferences.getBoolean(key, false))
                 musicSlider?.animateSquigglyProgress = playerViewModel.isPlaying
             }
-            DISPLAY_EXTRA_INFO,
-            EXTRA_INFO,
+            ENABLE_SCROLLING_TEXT -> {
+                val marquee = sharedPreferences.getBoolean(key, false)
+                setMarquee(songTitleView, songArtistView, songInfoView, marquee = marquee)
+            }
             DISPLAY_ALBUM_TITLE,
             PREFER_ALBUM_ARTIST_NAME -> onSongInfoChanged(playerViewModel.currentSong)
+            DISPLAY_EXTRA_INFO,
+            EXTRA_INFO -> {
+                extraInfoJob?.cancel()
+                extraInfoJob = playerViewModel.requestExtraInfo()
+            }
         }
     }
 

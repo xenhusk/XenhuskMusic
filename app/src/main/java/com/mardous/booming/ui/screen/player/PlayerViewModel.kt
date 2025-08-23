@@ -182,6 +182,10 @@ class PlayerViewModel(
         transportControls?.seekTo(positionMillis)
     }
 
+    fun requestExtraInfo() = viewModelScope.launch(IO) {
+        _extraInfoFlow.value = currentSong.extraInfo(Preferences.nowPlayingExtraInfoList)
+    }
+
     fun isPlayingSong(song: Song) = song.id == currentSong.id
 
     fun playSongAt(position: Int, newPlayback: Boolean = false) {

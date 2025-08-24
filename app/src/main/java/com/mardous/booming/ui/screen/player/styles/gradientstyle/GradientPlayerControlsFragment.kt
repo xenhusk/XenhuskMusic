@@ -33,6 +33,7 @@ import com.mardous.booming.R
 import com.mardous.booming.core.model.action.NowPlayingAction
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.databinding.FragmentGradientPlayerPlaybackControlsBinding
+import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
 import com.mardous.booming.ui.component.base.SkipButtonTouchHandler.Companion.DIRECTION_NEXT
 import com.mardous.booming.ui.component.base.SkipButtonTouchHandler.Companion.DIRECTION_PREVIOUS
@@ -83,6 +84,10 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
         ViewCompat.setOnApplyWindowInsetsListener(view) { v: View, insets: WindowInsetsCompat ->
             val displayCutout = insets.getInsets(Type.displayCutout())
             v.updatePadding(left = displayCutout.left, right = displayCutout.right)
+            if (view.resources.isLandscape) {
+                val systemBars = insets.getInsets(Type.systemBars())
+                v.updatePadding(top = systemBars.top)
+            }
             insets
         }
     }

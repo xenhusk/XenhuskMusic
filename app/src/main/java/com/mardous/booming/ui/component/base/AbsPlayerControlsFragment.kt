@@ -106,6 +106,7 @@ abstract class AbsPlayerControlsFragment(@LayoutRes layoutRes: Int) : Fragment(l
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view.layoutDirection = View.LAYOUT_DIRECTION_LTR
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.colorSchemeFlow.collect { scheme ->
                 lastPlaybackControlsColor = scheme.primaryControlColor

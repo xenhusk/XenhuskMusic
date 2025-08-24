@@ -168,27 +168,35 @@
         app:icon="@drawable/ic_play_24dp"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintTop_toBottomOf="@+id/progressSlider"
-        app:layout_constraintBottom_toTopOf="@+id/songInfo"
+        app:layout_constraintBottom_toTopOf="@+id/songInfoContainer"
         app:layout_constraintStart_toEndOf="@+id/previousButton"
         app:layout_constraintEnd_toStartOf="@+id/nextButton"/>
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/songInfo"
+    <!-- FrameLayout prevents marquee from jittering due to ConstraintLayout re-layouts -->
+    <FrameLayout
+        android:id="@+id/songInfoContainer"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="6dp"
-        android:gravity="center"
-        android:freezesText="true"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:textAlignment="center"
-        android:textAppearance="?textAppearanceBody2"
         app:layout_constrainedWidth="true"
         app:layout_constraintTop_toBottomOf="@+id/playPauseButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:text="@tools:sample/lorem"/>
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/songInfo"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="16dp"
+            android:gravity="center"
+            android:freezesText="true"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textAppearance="?textAppearanceBody2"
+            tools:text="@tools:sample/lorem" />
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

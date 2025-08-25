@@ -56,6 +56,8 @@ interface Playback {
         fun onTrackEndedWithCrossFade()
 
         fun onPlayStateChanged()
+
+        fun onPlaybackModeChanged(wasPlaying: Boolean, position: Int)
     }
 
     suspend fun setDataSource(song: Song, force: Boolean, completion: (success: Boolean) -> Unit)

@@ -82,7 +82,7 @@ object Preferences : KoinComponent {
         else -> AppTheme.Mode.FollowSystem
     }
 
-    fun getDayNightMode(themeName: String = Preferences.generalTheme) = when (themeName) {
+    fun getDayNightMode(themeName: String = generalTheme) = when (themeName) {
         GeneralTheme.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
         GeneralTheme.DARK,
         GeneralTheme.BLACK -> AppCompatDelegate.MODE_NIGHT_YES
@@ -276,14 +276,8 @@ object Preferences : KoinComponent {
     val gaplessPlayback: Boolean
         get() = preferences.getBoolean(GAPLESS_PLAYBACK, false)
 
-    val crossFadeDuration: Int
-        get() = preferences.getInt(CROSSFADE_DURATION, 0)
-
     val noCrossFadeOnAlbums: Boolean
         get() = preferences.getBoolean(NO_CROSSFADE_ON_ALBUMS, true)
-
-    val audioFadeDuration: Int
-        get() = preferences.getInt(AUDIO_FADE_DURATION, 0)
 
     val autoPlayOnSkip: Boolean
         get() = preferences.getBoolean(AUTO_PLAY_ON_SKIP, true)
@@ -681,9 +675,7 @@ const val PREFER_ALBUM_ARTIST_NAME = "prefer_album_artist_name_on_np"
 const val PLAYBACK_SPEED = "playback_speed"
 const val PLAYBACK_PITCH = "playback_pitch"
 const val GAPLESS_PLAYBACK = "gapless_playback"
-const val CROSSFADE_DURATION = "crossfade_duration"
 const val NO_CROSSFADE_ON_ALBUMS = "no_crossfade_on_albums"
-const val AUDIO_FADE_DURATION = "audio_fade_duration"
 const val AUTO_PLAY_ON_SKIP = "auto_play_on_skip"
 const val REWIND_WITH_BACK = "rewind_with_back"
 const val SEEK_INTERVAL = "seek_interval"

@@ -25,8 +25,11 @@ import android.media.AudioDeviceCallback
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Build
+import android.provider.Settings
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import androidx.fragment.app.FragmentActivity
 import androidx.media.AudioManagerCompat.getStreamMaxVolume
 import androidx.media.AudioManagerCompat.getStreamMinVolume
 import androidx.mediarouter.media.MediaControlIntent
@@ -36,6 +39,8 @@ import com.mardous.booming.core.model.audiodevice.AudioDeviceType
 import com.mardous.booming.core.model.audiodevice.getDeviceType
 import com.mardous.booming.core.model.audiodevice.getMediaRouteType
 import com.mardous.booming.core.model.equalizer.VolumeState
+import com.mardous.booming.extensions.resolveActivity
+import com.mardous.booming.extensions.tryStartActivity
 import com.mardous.booming.service.playback.PlaybackManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -86,6 +91,27 @@ class AudioOutputObserver(
             context.unregisterReceiver(this)
             audioManager?.unregisterAudioDeviceCallback(audioDeviceCallback)
             this.isObserving = false
+        }
+    }
+
+    fun showOutputDeviceSelector(context: Context) {
+        val intents = listOf(
+            Intent("android.settings.MEDIA_OUTPUT"),
+            Intent("com.android.settings.panel.MediaOutputPanel"),
+            Intent("android.settings.panel.MediaOutputPanel"),
+            Intent("android.settings.MEDIA_OUTPUT_SETTINGS"),
+            Intent("android.settings.SOUND_SETTINGS"),
+            Intent(Settings.ACTION_SOUND_SETTINGS)
+        )
+        val packageManager = context.packageManager
+        for (intent in intents) {
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            if (packageManager.resolveActivity(intent) != null) {
+                context.tryStartActivity(intent) { t ->
+                    Log.e("AudioOutputObserver", "Error showing output device selector intent ${intent.action}", t)
+                }
+                break
+            }
         }
     }
 

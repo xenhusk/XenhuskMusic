@@ -630,11 +630,9 @@
     <string name="gapless_playback_title">Reproducció sense interrupcions</string>
     <string name="gapless_playback_summary">Transició suau entre cançons. Pot causar errors de reproducció en alguns dispositius.</string>
     <string name="crossfade_title">Encadenament (experimental)</string>
-    <string name="crossfade_summary">Els segons que triga l\'encadenament entre dues cançons (el 0 el desactiva).</string>
     <string name="no_crossfade_on_albums_title">Sense encadenament als àlbums</string>
     <string name="no_crossfade_on_albums_summary">No es fa encadenament en reproduir àlbums en el seu ordre original.</string>
     <string name="audio_fade_duration_title">Durada de la fosa d\'àudio (experimental)</string>
-    <string name="audio_fade_duration_summary">Els segons que triga la fosa del volum d\'entrada o sortida quan la reproducció comença o es pausa (el 0 la desactiva).</string>
     <string name="replaygain_source_mode_title">Mode d\'origen</string>
     <string name="replaygain_preamp_title">Nivell de PreAmp</string>
     <string name="replaygain_preamp_summary">Establiu el nivell de volum quan el Guany de reproducció està activat.</string>

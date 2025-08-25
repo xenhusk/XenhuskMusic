@@ -51,7 +51,6 @@ class CrossFadePlayer(context: Context) : LocalPlayback(context) {
         player1.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
         player2.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
         currentPlayer = CurrentPlayer.PLAYER_ONE
-        setCrossFadeDuration(Preferences.crossFadeDuration)
     }
 
     override fun isInitialized(): Boolean {

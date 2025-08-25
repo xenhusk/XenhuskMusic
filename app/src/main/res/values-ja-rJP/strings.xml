@@ -622,11 +622,9 @@
     <string name="gapless_playback_title">ギャップレス再生</string>
     <string name="gapless_playback_summary">曲間のスムーズなトランジション。一部のデバイスで再生の問題を引き起こす可能性があります。</string>
     <string name="crossfade_title">クロスフェード (実験的)</string>
-    <string name="crossfade_summary">曲間のクロスフェードにかかる秒数(0に設定すると無効になります)。</string>
     <string name="no_crossfade_on_albums_title">アルバムではクロスフェードしません</string>
     <string name="no_crossfade_on_albums_summary">アルバムを元の順序で再生するときはクロスフェードしないでください。</string>
     <string name="audio_fade_duration_title">オーディオフェード時間（実験的）</string>
-    <string name="audio_fade_duration_summary">再生の開始時または一時停止時にボリュームをフェードインまたはフェードアウトするのにかかる秒数(0に設定すると無効になります)。</string>
     <string name="replaygain_source_mode_title">ソースモード</string>
     <string name="replaygain_preamp_title">PreAmp レベル</string>
     <string name="replaygain_preamp_summary">ReplayGain が有効な場合、音量レベルを設定します。</string>

@@ -86,12 +86,6 @@ class PlaybackManager(
     private val progressObserver = ProgressObserver(intervalMs = 100)
     private var playback: Playback? = null
 
-    private val crossFadeDuration: Int
-        get() = Preferences.crossFadeDuration
-
-    private val audioFadeDuration: Int
-        get() = Preferences.audioFadeDuration
-
     fun initialize(callbacks: Playback.PlaybackCallbacks, coroutineScope: CoroutineScope) {
         playback = createLocalPlayback()
         setCallbacks(callbacks)
@@ -103,6 +97,13 @@ class PlaybackManager(
         coroutineScope.launch {
             soundSettings.tempoFlow.collect { tempo ->
                 updateTempo(tempo.value.speed, tempo.value.actualPitch)
+            }
+        }
+        coroutineScope.launch {
+            soundSettings.crossfadeFlow.collect {
+                if (it.value.apply) {
+                    updateCrossfade(it.value.crossfadeDuration)
+                }
             }
         }
     }
@@ -118,7 +119,7 @@ class PlaybackManager(
                         if (!(playback as CrossFadePlayer).isCrossFading) {
                             AudioFader.startFadeAnimator(
                                 playback = playback!!,
-                                fadeDuration = audioFadeDuration,
+                                fadeDuration = soundSettings.crossfade.audioFadeDuration,
                                 balanceLeft = soundSettings.balance.left,
                                 balanceRight = soundSettings.balance.right,
                                 fadeIn = true
@@ -127,7 +128,7 @@ class PlaybackManager(
                     } else {
                         AudioFader.startFadeAnimator(
                             playback = playback!!,
-                            fadeDuration = audioFadeDuration,
+                            fadeDuration = soundSettings.crossfade.audioFadeDuration,
                             balanceLeft = soundSettings.balance.left,
                             balanceRight = soundSettings.balance.right,
                             fadeIn = true
@@ -145,7 +146,7 @@ class PlaybackManager(
             } else {
                 AudioFader.startFadeAnimator(
                     playback = playback!!,
-                    fadeDuration = audioFadeDuration,
+                    fadeDuration = soundSettings.crossfade.audioFadeDuration,
                     balanceLeft = soundSettings.balance.left,
                     balanceRight = soundSettings.balance.right,
                     fadeIn = false
@@ -278,29 +279,6 @@ class PlaybackManager(
         closeAudioEffectSession(true)
     }
 
-    fun maybeSwitchToCrossFade(crossFadeDuration: Int): Boolean {
-        /* Switch to MultiPlayer if CrossFade duration is 0 and
-           Playback is not an instance of MultiPlayer
-        */
-        if (playback !is MultiPlayer && crossFadeDuration == 0) {
-            if (playback != null) {
-                playback?.release()
-            }
-            playback = null
-            playback = MultiPlayer(context)
-            return true
-        } else if (playback !is CrossFadePlayer && crossFadeDuration > 0) {
-            if (playback != null) {
-                playback?.release()
-            }
-            playback = null
-            playback = CrossFadePlayer(context)
-            playback?.setCrossFadeDuration(crossFadeDuration)
-            return true
-        }
-        return false
-    }
-
     fun openAudioEffectSession(internal: Boolean) {
         equalizerManager.openAudioEffectSession(getAudioSessionId(), internal)
     }
@@ -323,6 +301,16 @@ class PlaybackManager(
         playback?.setTempo(speed, pitch)
     }
 
+    fun updateCrossfade(crossFadeDuration: Int) {
+        val wasPlaying = isPlaying()
+        val progress = position()
+        if (maybeSwitchToCrossFade(crossFadeDuration)) {
+            getCallbacks()?.onPlaybackModeChanged(wasPlaying, progress)
+        } else {
+            setCrossFadeDuration(crossFadeDuration)
+        }
+    }
+
     private fun updateProgress(progress: Int = position(), duration: Int = duration()) {
         _progressFlow.value = progress
         _durationFlow.value = duration
@@ -330,10 +318,39 @@ class PlaybackManager(
 
     private fun createLocalPlayback(): Playback {
         // Set MultiPlayer when crossfade duration is 0 i.e. off
-        return if (crossFadeDuration == 0) {
+        return if (soundSettings.crossfade.crossfadeDuration == 0) {
             MultiPlayer(context)
         } else {
             CrossFadePlayer(context)
         }
+    }
+
+    private fun maybeSwitchToCrossFade(crossFadeDuration: Int): Boolean {
+        /* Switch to MultiPlayer if CrossFade duration is 0 and
+           Playback is not an instance of MultiPlayer
+        */
+        val callbacks = getCallbacks()
+        val switched = if (playback !is MultiPlayer && crossFadeDuration == 0) {
+            if (playback != null) {
+                playback?.release()
+            }
+            playback = null
+            playback = MultiPlayer(context)
+            true
+        } else if (playback !is CrossFadePlayer && crossFadeDuration > 0) {
+            if (playback != null) {
+                playback?.release()
+            }
+            playback = null
+            playback = CrossFadePlayer(context)
+            setCrossFadeDuration(crossFadeDuration)
+            true
+        } else {
+            false
+        }
+        if (switched && callbacks != null) {
+            setCallbacks(callbacks)
+        }
+        return switched
     }
 }

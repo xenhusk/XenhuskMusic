@@ -453,6 +453,19 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         songPlayCountHelper.notifyPlayStateChanged(isPlaying)
     }
 
+    override fun onPlaybackModeChanged(wasPlaying: Boolean, position: Int) {
+        openCurrentAndPrepareNext { success ->
+            if (success) {
+                seek(position)
+                if (wasPlaying) {
+                    play()
+                } else {
+                    pause()
+                }
+            }
+        }
+    }
+
     private fun processCommand(command: Intent) {
         when (command.action) {
             ServiceAction.ACTION_TOGGLE_PAUSE -> if (isPlaying) {
@@ -1011,20 +1024,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         }
     }
 
-    private fun restorePlaybackState(wasPlaying: Boolean, progress: Int) {
-        playbackManager.setCallbacks(this)
-        openCurrentAndPrepareNext { success ->
-            if (success) {
-                seek(progress)
-                if (wasPlaying) {
-                    play()
-                } else {
-                    pause()
-                }
-            }
-        }
-    }
-
     override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String?) {
         when (key) {
             ENABLE_HISTORY ->
@@ -1040,18 +1039,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
 
             PLAYBACK_SPEED -> {
                 updateMediaSessionPlaybackState()
-            }
-
-            CROSSFADE_DURATION -> {
-                val progress = currentSongProgress
-                val wasPlaying = isPlaying
-
-                val crossFadeDuration = Preferences.crossFadeDuration
-                if (playbackManager.maybeSwitchToCrossFade(crossFadeDuration)) {
-                    restorePlaybackState(wasPlaying, progress)
-                } else {
-                    playbackManager.setCrossFadeDuration(crossFadeDuration)
-                }
             }
 
             GAPLESS_PLAYBACK -> {

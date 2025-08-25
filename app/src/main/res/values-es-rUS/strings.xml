@@ -630,11 +630,9 @@
     <string name="gapless_playback_title">Reproducción sin interrupciones</string>
     <string name="gapless_playback_summary">Transición rápida entre canciones. Puede causar problemas en algunos dispositivos.</string>
     <string name="crossfade_title">Transición (experimental)</string>
-    <string name="crossfade_summary">Cuantos segundos tarda en realizarse el fundido entre canciones (establece 0 para desactivar).</string>
     <string name="no_crossfade_on_albums_title">Sin fundido en álbumes</string>
     <string name="no_crossfade_on_albums_summary">No transicionar al reproducir álbumes en su orden original.</string>
     <string name="audio_fade_duration_title">Duración del fundido de audio (experimental)</string>
-    <string name="audio_fade_duration_summary">Cuantos segundos tarda en subir o bajar el volumen al reproducir o pausar la música (establece 0 para desactivar).</string>
     <string name="replaygain_source_mode_title">Modo de origen</string>
     <string name="replaygain_preamp_title">Nivel de PreAmp</string>
     <string name="replaygain_preamp_summary">Elija el nivel de volumen a usar cuando ReplayGain está activado.</string>

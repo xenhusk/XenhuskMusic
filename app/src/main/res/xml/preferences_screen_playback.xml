@@ -22,18 +22,6 @@
         app:widgetLayout="@layout/preference_switch"
         app:key="gapless_playback"/>
 
-    <SeekBarPreference
-        app:iconSpaceReserved="true"
-        app:title="@string/crossfade_title"
-        app:summary="@string/crossfade_summary"
-        android:max="10"
-        app:min="0"
-        app:defaultValue="0"
-        app:showSeekBarValue="true"
-        app:layout="@layout/list_item_view_bottom_widget"
-        app:widgetLayout="@layout/preference_seekbar"
-        app:key="crossfade_duration"/>
-
     <SwitchPreferenceCompat
         app:iconSpaceReserved="true"
         app:title="@string/no_crossfade_on_albums_title"
@@ -42,17 +30,6 @@
         app:layout="@layout/list_item_view"
         app:widgetLayout="@layout/preference_switch"
         app:key="no_crossfade_on_albums"/>
-
-    <SeekBarPreference
-        app:iconSpaceReserved="true"
-        app:title="@string/audio_fade_duration_title"
-        app:summary="@string/audio_fade_duration_summary"
-        android:max="5"
-        app:min="0"
-        app:defaultValue="0"
-        app:layout="@layout/list_item_view_bottom_widget"
-        app:widgetLayout="@layout/preference_seekbar"
-        app:key="audio_fade_duration"/>
 
     <PreferenceCategory
         app:title="@string/playing_queue_label"

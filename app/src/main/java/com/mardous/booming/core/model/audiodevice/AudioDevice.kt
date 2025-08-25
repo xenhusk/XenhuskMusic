@@ -28,8 +28,10 @@ class AudioDevice(
     private val isProduct: Boolean = type.isProduct
 ) {
 
+    val hasProductName get() = isProduct && !productName.isNullOrBlank()
+
     fun getDeviceName(context: Context): CharSequence {
-        return if (isProduct && !productName.isNullOrEmpty()) productName else context.getString(type.nameRes)
+        return if (hasProductName) productName!! else context.getString(type.nameRes)
     }
 
     companion object {

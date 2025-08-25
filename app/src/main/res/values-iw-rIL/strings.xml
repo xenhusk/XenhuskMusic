@@ -646,11 +646,9 @@
     <string name="gapless_playback_title">השמעה רציפה</string>
     <string name="gapless_playback_summary">מעבר חלק בין שירים. עלול לגרום לבעיות בהשמעה במכשירים מסוימים.</string>
     <string name="crossfade_title">מעבר חלק בין שירים (ניסוי)</string>
-    <string name="crossfade_summary">משך הצלבה בין שירים בשניות (הגדר ל-0 כדי לבטל).</string>
     <string name="no_crossfade_on_albums_title">ללא הצלבה באלבומים</string>
     <string name="no_crossfade_on_albums_summary">אל תבצע הצלבה בעת השמעת אלבומים לפי הסדר המקורי.</string>
     <string name="audio_fade_duration_title">משך דעיכת האודיו (ניסיוני)</string>
-    <string name="audio_fade_duration_summary">משך הזמן בשניות לדעיכת עוצמת הקול בתחילת או בהפסקת ההשמעה (הגדר ל-0 כדי לבטל).</string>
     <string name="replaygain_source_mode_title">מצב מקור</string>
     <string name="replaygain_preamp_title">PreAmp level</string>
     <string name="replaygain_preamp_summary">Set volume level when ReplayGain is enabled.</string>

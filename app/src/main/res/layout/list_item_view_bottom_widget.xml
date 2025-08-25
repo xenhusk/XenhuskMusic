@@ -34,9 +34,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline_front_margin"
-        app:layout_constraintEnd_toStartOf="@android:id/widget_frame">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@android:id/title"
@@ -45,7 +44,6 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:textAlignment="viewStart"
-            android:textAppearance="?textAppearanceTitleMedium"
             android:textColor="?colorOnSurface"
             android:textSize="18sp"
             tools:text="@tools:sample/lorem/random" />
@@ -56,22 +54,20 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:textAlignment="viewStart"
-            android:textAppearance="?textAppearanceSubtitle2"
+            android:textAppearance="?textAppearanceBody2"
             android:textColor="?colorOnSurfaceVariant"
             tools:maxLines="2"
             tools:text="@tools:sample/lorem/random" />
 
     </LinearLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@android:id/widget_frame"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/titleContainer"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:ignore="RtlSymmetry" />
+        app:layout_constraintStart_toStartOf="@+id/guideline_front_margin"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

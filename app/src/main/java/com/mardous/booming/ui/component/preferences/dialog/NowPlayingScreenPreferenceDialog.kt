@@ -34,7 +34,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.core.model.theme.NowPlayingScreen
 import com.mardous.booming.databinding.PreferenceDialogNowPlayingScreenBinding
-import com.mardous.booming.databinding.PreferenceNowPlayingScreenItemBinding
+import com.mardous.booming.databinding.PreferenceDialogNowPlayingScreenItemBinding
 import com.mardous.booming.extensions.dp
 import com.mardous.booming.extensions.resources.hide
 import com.mardous.booming.ui.screen.player.PlayerColorSchemeMode
@@ -117,7 +117,7 @@ class NowPlayingScreenPreferenceDialog : DialogFragment(), ViewPager.OnPageChang
             val nowPlayingScreen = NowPlayingScreen.entries[position]
             val inflater = LayoutInflater.from(collection.context)
 
-            val binding = PreferenceNowPlayingScreenItemBinding.inflate(inflater)
+            val binding = PreferenceDialogNowPlayingScreenItemBinding.inflate(inflater)
             collection.addView(binding.root)
 
             binding.image.setImageResource(nowPlayingScreen.drawableResId)

@@ -143,6 +143,9 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(LOCKED_PLAYLISTS, false)
         set(value) = preferences.edit { putBoolean(LOCKED_PLAYLISTS, value) }
 
+    val largerHeaderImage: Boolean
+        get() = preferences.getBoolean(LARGER_HEADER_IMAGE, false)
+
     var horizontalArtistAlbums: Boolean
         get() = preferences.getBoolean(HORIZONTAL_ARTIST_ALBUMS, true)
         set(value) = preferences.edit { putBoolean(HORIZONTAL_ARTIST_ALBUMS, value) }
@@ -646,6 +649,7 @@ const val REMEMBER_LAST_PAGE = "remember_last_page"
 const val TAB_TITLES_MODE = "tab_titles_mode"
 const val HOLD_TAB_TO_SEARCH = "hold_tab_to_search"
 const val LAST_PAGE = "last_page"
+const val LARGER_HEADER_IMAGE = "larger_header_image"
 const val HORIZONTAL_ARTIST_ALBUMS = "horizontal_artist_albums"
 const val COMPACT_ALBUM_SONG_VIEW = "compact_album_song_view"
 const val COMPACT_ARTIST_SONG_VIEW = "compact_artist_song_view"

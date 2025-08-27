@@ -109,6 +109,7 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
 
         binding.appBarLayout.setupStatusBarForeground()
         binding.image.transitionName = arguments.albumId.toString()
+        binding.image.removeHorizontalMarginIfRequired()
 
         postponeEnterTransition()
         detailViewModel.getAlbumDetail().observe(viewLifecycleOwner) { album ->

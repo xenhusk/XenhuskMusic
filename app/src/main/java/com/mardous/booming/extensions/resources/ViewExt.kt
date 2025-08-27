@@ -38,10 +38,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.toColorInt
-import androidx.core.view.drawToBitmap
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
-import androidx.core.view.updatePaddingRelative
+import androidx.core.view.*
 import androidx.core.widget.ImageViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -60,6 +57,7 @@ import com.google.android.material.slider.Slider
 import com.mardous.booming.R
 import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.resolveColor
+import com.mardous.booming.util.Preferences
 import com.skydoves.balloon.*
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
@@ -261,6 +259,14 @@ fun View.animateTintColor(
                 is TextView -> applyColor(animatedColor)
                 else -> backgroundTintList = colorStateList
             }
+        }
+    }
+}
+
+fun ImageView.removeHorizontalMarginIfRequired() {
+    if (Preferences.largerHeaderImage) {
+        doOnLayout {
+            updateLayoutParams<ViewGroup.MarginLayoutParams> { marginStart = 0; marginEnd = 0; }
         }
     }
 }

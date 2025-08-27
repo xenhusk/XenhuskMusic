@@ -112,6 +112,7 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
         view.applyHorizontalWindowInsets()
 
         binding.appBarLayout.setupStatusBarForeground()
+        binding.image.removeHorizontalMarginIfRequired()
         binding.image.transitionName = if (isAlbumArtist) arguments.artistName
         else arguments.artistId.toString()
 

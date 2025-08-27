@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.mardous.booming.ui.component.preferences.ThemePreference
         app:icon="@drawable/ic_contrast_24dp"
@@ -84,6 +82,21 @@
             app:layout="@layout/list_item_view"
             app:widgetLayout="@layout/preference_switch"
             app:key="hold_tab_to_search"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="@string/display_header"
+        app:layout="@layout/preference_category_title">
+
+        <SwitchPreferenceCompat
+            app:icon="@drawable/ic_image_24dp"
+            app:title="@string/larger_header_image_title"
+            app:summary="@string/larger_header_image_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="larger_header_image"/>
 
     </PreferenceCategory>
 

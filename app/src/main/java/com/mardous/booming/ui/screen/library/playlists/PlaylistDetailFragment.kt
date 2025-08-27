@@ -49,6 +49,7 @@ import com.mardous.booming.extensions.media.isFavorites
 import com.mardous.booming.extensions.media.playlistInfo
 import com.mardous.booming.extensions.navigation.searchArgs
 import com.mardous.booming.extensions.resources.createFastScroller
+import com.mardous.booming.extensions.resources.removeHorizontalMarginIfRequired
 import com.mardous.booming.extensions.resources.surfaceColor
 import com.mardous.booming.glide.playlistPreview.PlaylistPreview
 import com.mardous.booming.service.playback.Playback
@@ -102,6 +103,8 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
 
         materialSharedAxis(view)
         view.applyHorizontalWindowInsets()
+
+        binding.image.removeHorizontalMarginIfRequired()
 
         setSupportActionBar(binding.toolbar)
         //binding.collapsingAppBarLayout.setupStatusBarScrim(requireContext())

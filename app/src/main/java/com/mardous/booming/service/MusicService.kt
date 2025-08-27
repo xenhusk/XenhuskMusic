@@ -431,18 +431,15 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         updateWidgets()
 
         val isPlaying = playbackManager.isPlaying()
-        if (isPlaying) {
-            playingNotificationManager.startForeground(this) {
-                displayPlayingNotification(true)
-            }
-        } else {
-            playingNotificationManager.displayPlayingNotification(false)
+        playingNotificationManager.startForeground(this) {
+            displayPlayingNotification(isPlaying)
+        }
+        if (!isPlaying) {
             if (!mayResumeOnFocusGain) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                     foregroundNotificationHandler?.postDelayed(150) {
                         stopForeground(STOP_FOREGROUND_DETACH)
                     }
-                    postDelayedShutdown()
                 }
             }
             if (currentSongDuration > 0) {

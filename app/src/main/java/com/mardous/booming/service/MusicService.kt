@@ -242,7 +242,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
                 pendingStartCommands.add(intent)
             }
         }
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     override fun onUnbind(intent: Intent?): Boolean {

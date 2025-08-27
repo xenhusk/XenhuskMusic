@@ -147,7 +147,7 @@
             app:key="swipe_controls" />
 
         <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
+            app:icon="@drawable/ic_squiggly_seekbar_24dp"
             app:title="@string/squiggly_seek_bar_title"
             app:summary="@string/squiggly_seek_bar_summary"
             app:defaultValue="false"

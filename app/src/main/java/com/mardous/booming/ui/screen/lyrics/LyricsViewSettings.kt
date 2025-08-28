@@ -2,10 +2,8 @@ package com.mardous.booming.ui.screen.lyrics
 
 import android.content.SharedPreferences
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -34,18 +32,12 @@ class LyricsViewSettings(
         }
     }
 
-    fun calculateCenterOffset(
-        currentIndex: Int,
-        listState: LazyListState,
-        density: Density,
-        insets: WindowInsets
-    ): Int {
-        val topPadding = contentPadding.calculateTopPadding().value
+    fun calculateCenterOffset(currentIndex: Int, listState: LazyListState): Int {
+        val paddingOffset = contentPadding.calculateTopPadding() + contentPadding.calculateBottomPadding()
         val viewportHeight = with(listState.layoutInfo) { viewportEndOffset - viewportStartOffset }
         val currentItemHeight = listState.layoutInfo.visibleItemsInfo.find { it.index == currentIndex }
             ?.size ?: (syncedFontSize.value * 2).toInt()
-        val offset = (viewportHeight / 2) - (currentItemHeight / 2) - topPadding.toInt() - insets.getTop(density)
-        return -offset
+        return -((viewportHeight / 2) - (currentItemHeight / 2) - paddingOffset.value.toInt())
     }
 
     enum class Mode(

@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -52,9 +51,6 @@ fun LyricsView(
     fontWeight: FontWeight = FontWeight.Bold,
     lineHeight: TextUnit = 1.4.em,
 ) {
-    val density = LocalDensity.current
-    val systemBars = WindowInsets.systemBars
-
     val listState = rememberLazyListState()
 
     LaunchedEffect(state.currentLineIndex) {
@@ -65,9 +61,7 @@ fun LyricsView(
                         index = state.currentLineIndex,
                         scrollOffset = settings.calculateCenterOffset(
                             currentIndex = state.currentLineIndex,
-                            listState = listState,
-                            density = density,
-                            insets = systemBars
+                            listState = listState
                         )
                     )
                 } else {

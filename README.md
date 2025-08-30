@@ -20,7 +20,6 @@
 <a href="https://f-droid.org/packages/com.mardous.booming/"><img src="assets/badge-fdroid.png" height="60"></a>
 <a href="https://apt.izzysoft.de/packages/com.mardous.booming/"><img src="assets/badge-izzyondroid.png" height="60"></a>
 <a href="https://www.openapk.net/boomingmusic/com.mardous.booming/"><img src="assets/badge-openapk.png" height="60"></a>
-<a href="https://www.androidfreeware.net/download-boomingmusic-apk.html"><img src="assets/badge-androidfreeware.png" height="60"></a>
 <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/mardous/BoomingMusic/"><img src="assets/badge-obtainium.png" height="60"></a>
 
 </div>

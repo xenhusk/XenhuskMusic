@@ -1,80 +1,47 @@
 package com.mardous.booming.ui.screen.lyrics
 
-import android.content.SharedPreferences
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Immutable
 class LyricsViewSettings(
-    private val mode: Mode,
+    mode: Mode,
     val isCenterCurrentLine: Boolean,
-    syncedFontSize: Int,
-    unsyncedFontSize: Int
+    val progressiveColoring: Boolean,
+    val syncedStyle: TextStyle,
+    val unsyncedStyle: TextStyle
 ) {
-    val syncedFontSize = syncedFontSize.sp
-    val unsyncedFontSize = unsyncedFontSize.sp
 
-    val contentPadding by lazy {
-        when (mode) {
-            Mode.Full -> {
-                PaddingValues(
-                    vertical = 96.dp,
-                    horizontal = 16.dp
-                )
-            }
-
-            Mode.Player -> {
-                PaddingValues(vertical = 72.dp, horizontal = 8.dp)
-            }
-        }
+    val contentPadding: PaddingValues = when (mode) {
+        Mode.Full -> PaddingValues(vertical = 96.dp, horizontal = 16.dp)
+        Mode.Player -> PaddingValues(vertical = 72.dp, horizontal = 8.dp)
     }
 
-    fun calculateCenterOffset(currentIndex: Int, listState: LazyListState): Int {
+    fun calculateCenterOffset(currentIndex: Int, listState: LazyListState, density: Density): Int {
         val paddingOffset = contentPadding.calculateTopPadding() + contentPadding.calculateBottomPadding()
         val viewportHeight = with(listState.layoutInfo) { viewportEndOffset - viewportStartOffset }
         val currentItemHeight = listState.layoutInfo.visibleItemsInfo.find { it.index == currentIndex }
-            ?.size ?: (syncedFontSize.value * 2).toInt()
+            ?.size ?: with(density) { syncedStyle.fontSize.toPx().toInt() * 2 }
         return -((viewportHeight / 2) - (currentItemHeight / 2) - paddingOffset.value.toInt())
     }
 
-    enum class Mode(
-        private val syncedKey: String,
-        private val syncedDefault: Int,
-        private val unsyncedKey: String,
-        private val unsyncedDefault: Int,
-    ) {
-        Player(
-            syncedDefault = 24,
-            syncedKey = Key.SYNCED_FONT_SIZE_PLAYER,
-            unsyncedDefault = 16,
-            unsyncedKey = Key.UNSYNCED_FONT_SIZE_PLAYER
-        ),
-        Full(
-            syncedKey = Key.SYNCED_FONT_SIZE_FULL,
-            syncedDefault = 30,
-            unsyncedKey = Key.UNSYNCED_FONT_SIZE_FULL,
-            unsyncedDefault = 20
-        );
-
-        fun isCenterCurrentLine(preferences: SharedPreferences): Boolean {
-            return preferences.getBoolean(Key.CENTER_CURRENT_LINE, false)
-        }
-
-        fun getSyncedFontSize(preferences: SharedPreferences): Int {
-            return preferences.getInt(syncedKey, syncedDefault)
-        }
-
-        fun getUnsyncedFontSize(preferences: SharedPreferences): Int {
-            return preferences.getInt(unsyncedKey, unsyncedDefault)
-        }
+    enum class Mode {
+        Player, Full
     }
 
     interface Key {
         companion object {
+            const val USE_CUSTOM_FONT = "lyrics_use_custom_font"
+            const val SELECTED_CUSTOM_FONT = "lyrics_custom_font"
             const val CENTER_CURRENT_LINE = "lyrics_center_current_line"
+            const val LINE_SPACING = "lyrics_line_spacing"
+            const val PROGRESSIVE_COLORING = "lyrics_progressive_coloring"
+            const val SYNCED_BOLD_FONT = "synced_lyrics_bold_font"
+            const val UNSYNCED_BOLD_FONT = "unsynced_lyrics_bold_font"
             const val SYNCED_FONT_SIZE_PLAYER = "synced_lyrics_font_size_player"
             const val UNSYNCED_FONT_SIZE_PLAYER = "unsynced_lyrics_font_size_player"
             const val SYNCED_FONT_SIZE_FULL = "synced_lyrics_font_size_full"

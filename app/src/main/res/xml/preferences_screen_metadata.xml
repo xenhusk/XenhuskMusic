@@ -63,17 +63,4 @@
 
 	</PreferenceCategory>
 
-	<PreferenceCategory
-		app:title="@string/lyrics"
-		app:layout="@layout/preference_category_title">
-
-		<Preference
-			app:icon="@drawable/ic_lyrics_outline_24dp"
-			app:title="@string/delete_downloaded_lyrics_title"
-			app:summary="@string/delete_downloaded_lyrics_summary"
-			app:layout="@layout/list_item_view"
-			app:key="clear_lyrics"/>
-
-	</PreferenceCategory>
-
 </PreferenceScreen>

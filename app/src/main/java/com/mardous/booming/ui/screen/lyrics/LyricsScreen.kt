@@ -23,7 +23,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mardous.booming.R
 import com.mardous.booming.core.model.LibraryMargin
 import com.mardous.booming.data.model.lyrics.Lyrics
-import com.mardous.booming.ui.component.compose.color.primaryTextColor
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.fadingEdges
 import com.mardous.booming.ui.screen.library.LibraryViewModel
@@ -78,12 +77,14 @@ fun LyricsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            lyricsResult = lyricsResult,
-            lyricsViewState = lyricsViewState,
-            lyricsViewSettings = lyricsViewSettings,
-            plainScrollState = plainScrollState,
-            onSeekToLine = { playerViewModel.seekTo(it.startAt) }
-        )
+            result = lyricsResult,
+            state = lyricsViewState,
+            settings = lyricsViewSettings,
+            contentColor = MaterialTheme.colorScheme.secondary,
+            fadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
+            scrollState = plainScrollState,
+            textAlign = TextAlign.Start
+        ) { playerViewModel.seekTo(it.startAt) }
     }
 }
 
@@ -121,16 +122,14 @@ fun CoverLyricsScreen(
         Box(modifier = modifier.fillMaxSize()) {
             LyricsSurface(
                 modifier = Modifier.fillMaxSize(),
-                lyricsResult = lyricsResult,
-                lyricsViewState = lyricsViewState,
-                lyricsViewSettings = lyricsViewSettings,
-                syncedContentColor = MaterialTheme.colorScheme.onSurface,
-                syncedFadingEdges = FadingEdges(top = 72.dp, bottom = 64.dp),
-                plainTextAlign = TextAlign.Center,
-                plainScrollState = plainScrollState,
-                plainContentColor = MaterialTheme.colorScheme.onSurface,
-                onSeekToLine = { playerViewModel.seekTo(it.startAt) }
-            )
+                result = lyricsResult,
+                state = lyricsViewState,
+                settings = lyricsViewSettings,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                fadingEdges = FadingEdges(top = 72.dp, bottom = 64.dp),
+                scrollState = plainScrollState,
+                textAlign = TextAlign.Center
+            ) { playerViewModel.seekTo(it.startAt) }
 
             FilledIconButton(
                 modifier = Modifier
@@ -139,7 +138,7 @@ fun CoverLyricsScreen(
                     .padding(16.dp),
                 colors = IconButtonDefaults.filledIconButtonColors(
                     containerColor = MaterialTheme.colorScheme.onSurface,
-                    contentColor = MaterialTheme.colorScheme.onSurface.primaryTextColor()
+                    contentColor = MaterialTheme.colorScheme.surface
                 ),
                 onClick = onExpandClick
             ) {
@@ -154,63 +153,64 @@ fun CoverLyricsScreen(
 
 @Composable
 private fun LyricsSurface(
-    lyricsResult: LyricsResult,
-    lyricsViewState: LyricsViewState,
-    lyricsViewSettings: LyricsViewSettings,
-    onSeekToLine: (Lyrics.Line) -> Unit,
+    result: LyricsResult,
+    state: LyricsViewState,
+    settings: LyricsViewSettings,
+    contentColor: Color,
+    fadingEdges: FadingEdges,
+    scrollState: ScrollState,
+    textAlign: TextAlign?,
     modifier: Modifier = Modifier,
-    syncedContentColor: Color = MaterialTheme.colorScheme.secondary,
-    syncedFadingEdges: FadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
-    plainContentColor: Color = Color.Unspecified,
-    plainScrollState: ScrollState = rememberScrollState(),
-    plainTextAlign: TextAlign? = null
+    onSeekToLine: (Lyrics.Line) -> Unit
 ) {
-    Box(modifier.keepScreenOn()) {
-        if (lyricsResult.loading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        } else {
-            when {
-                lyricsViewState.lyrics != null -> {
-                    LyricsView(
-                        state = lyricsViewState,
-                        settings = lyricsViewSettings,
-                        onLineClick = { onSeekToLine(it) },
-                        fadingEdges = syncedFadingEdges,
-                        contentColor = syncedContentColor
-                    )
-                }
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor
+    ) {
+        Box(modifier.keepScreenOn()) {
+            if (result.loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                when {
+                    state.lyrics != null -> {
+                        LyricsView(
+                            state = state,
+                            settings = settings,
+                            fadingEdges = fadingEdges,
+                            textStyle = settings.syncedStyle
+                        ) { onSeekToLine(it) }
+                    }
 
-                !lyricsResult.plainLyrics.content.isNullOrBlank() -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .nestedScroll(rememberNestedScrollInteropConnection())
-                            .fadingEdges(syncedFadingEdges)
-                            .verticalScroll(plainScrollState)
-                            .padding(lyricsViewSettings.contentPadding)
-                    ) {
+                    !result.plainLyrics.content.isNullOrBlank() -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .nestedScroll(rememberNestedScrollInteropConnection())
+                                .fadingEdges(fadingEdges)
+                                .verticalScroll(scrollState)
+                                .padding(settings.contentPadding)
+                        ) {
+                            Text(
+                                text = result.plainLyrics.content,
+                                color = contentColor,
+                                textAlign = textAlign,
+                                style = settings.unsyncedStyle,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+
+                    else -> {
                         Text(
-                            text = lyricsResult.plainLyrics.content,
-                            textAlign = plainTextAlign,
-                            fontSize = lyricsViewSettings.unsyncedFontSize,
-                            lineHeight = lyricsViewSettings.unsyncedFontSize * 1.4,
-                            color = plainContentColor,
-                            modifier = Modifier.fillMaxSize()
+                            text = stringResource(R.string.no_lyrics_found),
+                            color = contentColor,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .align(Alignment.Center)
                         )
                     }
-                }
-
-                else -> {
-                    Text(
-                        text = stringResource(R.string.no_lyrics_found),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = plainContentColor,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .align(Alignment.Center)
-                    )
                 }
             }
         }

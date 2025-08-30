@@ -18,6 +18,13 @@
 
     <Preference
         app:layout="@layout/list_item_view"
+        app:title="@string/lyrics_preferences_title"
+        app:summary="@string/lyrics_preferences_summary"
+        app:icon="@drawable/ic_lyrics_outline_24dp"
+        app:key="lyrics"/>
+
+    <Preference
+        app:layout="@layout/list_item_view"
         app:title="@string/playback_title"
         app:summary="@string/playback_summary"
         app:icon="@drawable/ic_volume_up_24dp"

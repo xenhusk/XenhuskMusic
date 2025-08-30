@@ -1,7 +1,7 @@
 package com.mardous.booming.ui.screen.lyrics
 
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -12,45 +12,43 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import com.mardous.booming.data.model.lyrics.Lyrics
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.fadingEdges
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.android.awaitFrame
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
 @Composable
 fun LyricsView(
     state: LyricsViewState,
     settings: LyricsViewSettings,
-    onLineClick: (Lyrics.Line) -> Unit,
-    contentColor: Color,
+    textStyle: TextStyle,
     fadingEdges: FadingEdges,
     modifier: Modifier = Modifier,
-    fontWeight: FontWeight = FontWeight.Bold,
-    lineHeight: TextUnit = 1.4.em,
+    onLineClick: (Lyrics.Line) -> Unit
 ) {
+    val density = LocalDensity.current
     val listState = rememberLazyListState()
 
     LaunchedEffect(state.currentLineIndex) {
@@ -61,7 +59,8 @@ fun LyricsView(
                         index = state.currentLineIndex,
                         scrollOffset = settings.calculateCenterOffset(
                             currentIndex = state.currentLineIndex,
-                            listState = listState
+                            listState = listState,
+                            density = density
                         )
                     )
                 } else {
@@ -83,19 +82,15 @@ fun LyricsView(
         itemsIndexed(lines, key = { _, line -> line.id }) { index, line ->
             val isActive = index == state.currentLineIndex
             if (line.isWordByWord) {
-                val activeWordIndex = if (isActive) state.currentWordIndex else -1
-                val activeBackgroundIndex = if (isActive) state.currentBackgroundIndex else -1
                 LyricsLineWordByWord(
-                    words = line.main,
-                    backgrounds = line.background,
+                    line = line,
+                    index = state.currentWordIndex,
+                    backgroundIndex = state.currentBackgroundIndex,
+                    position = state.position,
                     isActive = isActive,
+                    isBackgroundActive = isActive && state.currentBackgroundIndex > -1,
                     isOppositeTurn = line.isOppositeTurn,
-                    activeWordIndex = activeWordIndex,
-                    activeBackgroundIndex = activeBackgroundIndex,
-                    fontSize = settings.syncedFontSize,
-                    fontWeight = fontWeight,
-                    lineHeight = lineHeight,
-                    contentColor = contentColor,
+                    style = textStyle,
                     onClick = { onLineClick(line) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -105,11 +100,10 @@ fun LyricsView(
                 LyricsViewLine(
                     isActive = isActive,
                     isOppositeTurn = line.isOppositeTurn,
-                    content = line.content,
-                    contentColor = contentColor,
-                    fontSize = settings.syncedFontSize,
-                    fontWeight = fontWeight,
-                    lineHeight = lineHeight,
+                    progressiveColoring = settings.progressiveColoring,
+                    position = state.position,
+                    line = line,
+                    style = textStyle,
                     onClick = { onLineClick(line) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -125,44 +119,53 @@ fun LyricsView(
 private fun LyricsViewLine(
     isActive: Boolean,
     isOppositeTurn: Boolean,
-    content: String,
-    contentColor: Color,
-    fontSize: TextUnit,
-    fontWeight: FontWeight,
-    lineHeight: TextUnit,
+    progressiveColoring: Boolean,
+    position: Long,
+    line: Lyrics.Line,
+    style: TextStyle,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    activeScale: Float = 1.1f,
-    inactiveScale: Float = 1f,
-    activeAlpha: Float = 1f,
-    inactiveAlpha: Float = 0.35f,
+    modifier: Modifier = Modifier
 ) {
-    var scale by remember { mutableFloatStateOf(if (isActive) activeScale else inactiveScale) }
-    var alpha by remember { mutableFloatStateOf(if (isActive) activeAlpha else inactiveAlpha) }
+    val localContentColor = LocalContentColor.current
 
-    LaunchedEffect(isActive) {
-        launch {
-            animate(
-                initialValue = scale,
-                targetValue = if (isActive) activeScale else inactiveScale,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessLow,
+    val animatedAlpha by animateFloatAsState(
+        targetValue = if (isActive) 1f else .5f,
+        animationSpec = tween(durationMillis = 400),
+        label = "current-line-alpha-animation"
+    )
+
+    val color = localContentColor.copy(alpha = animatedAlpha)
+
+    val scale by animateFloatAsState(
+        targetValue = if (isActive) 1.1f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioLowBouncy,
+            stiffness = Spring.StiffnessLow,
+        ),
+        label = "current-line-scale-animation"
+    )
+
+    var textHeight by remember { mutableFloatStateOf(0f) }
+    val textStyle by remember(isActive, progressiveColoring, position) {
+        derivedStateOf {
+            if (progressiveColoring) {
+                val progressFraction = ((position.toFloat() - line.startAt) / (line.end - line.startAt))
+                    .coerceIn(0f, 1f)
+
+                val gradientOrigin = progressFraction * textHeight
+
+                style.copy(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            color,
+                            color.copy(alpha = color.alpha / 2)
+                        ),
+                        startY = gradientOrigin - 10f,
+                        endY = gradientOrigin + 10f
+                    )
                 )
-            ) { value, _ ->
-                scale = value
-            }
-        }
-        launch {
-            // Composable could suddenly go invisible for one frame (or few frame?) when
-            // isActive changes to false and the alpha animation starts. Delay may help
-            // to reduce these glitches
-            repeat(10) { awaitFrame() }
-            animate(
-                initialValue = alpha,
-                targetValue = if (isActive) activeAlpha else inactiveAlpha,
-            ) { value, _ ->
-                alpha = value
+            } else {
+                style.copy(color = color)
             }
         }
     }
@@ -170,99 +173,64 @@ private fun LyricsViewLine(
     LyricsLineBox(
         modifier = modifier,
         isOppositeTurn = isOppositeTurn,
-        contentColor = contentColor,
         onClick = onClick,
     ) { pivotFractionX: Float, pivotFractionY: Float ->
         Text(
-            text = content.trim(),
+            text = line.content.trim(),
+            style = textStyle,
+            textAlign = if (isOppositeTurn) TextAlign.End else TextAlign.Start,
             modifier = Modifier
                 .fillMaxWidth()
+                .onGloballyPositioned {
+                    textHeight = it.size.height.toFloat()
+                }
                 .graphicsLayer {
                     transformOrigin = TransformOrigin(pivotFractionX, pivotFractionY)
                     scaleX = scale
                     scaleY = scale
-                    this.alpha = alpha
-                },
-            textAlign = if (isOppositeTurn) TextAlign.End else TextAlign.Start,
-            color = contentColor,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            lineHeight = lineHeight,
+                }
         )
     }
 }
 
 @Composable
 fun LyricsLineWordByWord(
-    words: List<Lyrics.Word>,
-    backgrounds: List<Lyrics.Word>,
+    line: Lyrics.Line,
+    index: Int,
+    backgroundIndex: Int,
+    position: Long,
     isActive: Boolean,
+    isBackgroundActive: Boolean,
     isOppositeTurn: Boolean,
-    activeWordIndex: Int,
-    activeBackgroundIndex: Int,
-    fontSize: TextUnit,
-    fontWeight: FontWeight,
-    lineHeight: TextUnit,
-    contentColor: Color,
+    style: TextStyle,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    activeScale: Float = 1.1f,
-    inactiveScale: Float = 1f,
-    activeAlpha: Float = 1f,
-    inactiveAlpha: Float = 0.35f,
+    modifier: Modifier = Modifier
 ) {
-    val hasBackground = remember { backgrounds.isNotEmpty() }
-    val isBackgroundActive = isActive && activeBackgroundIndex > -1
+    val hasBackground = line.background.isNotEmpty()
 
-    var scale by remember { mutableFloatStateOf(if (isActive) activeScale else inactiveScale) }
-    var bgScale by remember { mutableFloatStateOf(if (isBackgroundActive) 1f else 0f) }
+    val scale by animateFloatAsState(
+        targetValue = if (isActive) 1.1f else 1f,
+        label = "current-line-scale-animation"
+    )
 
-    LaunchedEffect(isActive, isBackgroundActive) {
-        launch {
-            animate(
-                initialValue = scale,
-                targetValue = if (isActive) activeScale else inactiveScale,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessLow,
-                )
-            ) { value, _ ->
-                scale = value
-            }
-        }
-
-        launch {
-            animate(
-                initialValue = bgScale,
-                targetValue = if (isBackgroundActive) activeScale else inactiveScale,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessLow,
-                )
-            ) { value, _ ->
-                bgScale = value
-            }
-        }
-    }
+    val bgScale by animateFloatAsState(
+        targetValue = if (isBackgroundActive) 1.1f else 1f,
+        label = "current-line-scale-animation"
+    )
 
     LyricsLineBox(
         modifier = modifier,
         isOppositeTurn = isOppositeTurn,
-        contentColor = contentColor,
         onClick = onClick
     ) { pivotFractionX: Float, pivotFractionY: Float ->
         if (!hasBackground) {
             WordByWordText(
-                words = words,
+                words = line.main,
+                index = index,
+                position = position,
                 isOppositeTurn = isOppositeTurn,
                 isActive = isActive,
-                activeIndex = activeWordIndex,
-                fontSize = fontSize,
-                fontWeight = fontWeight,
-                lineHeight = lineHeight,
-                activeAlpha = activeAlpha,
-                inactiveAlpha = inactiveAlpha,
-                contentColor = contentColor,
+                style = style,
                 pivotFractionX = pivotFractionX,
                 pivotFractionY = pivotFractionY,
                 scale = scale
@@ -273,32 +241,24 @@ fun LyricsLineWordByWord(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 WordByWordText(
-                    words = words,
+                    words = line.main,
+                    index = index,
+                    position = position,
                     isOppositeTurn = isOppositeTurn,
                     isActive = isActive,
-                    activeIndex = activeWordIndex,
-                    fontSize = fontSize,
-                    fontWeight = fontWeight,
-                    lineHeight = lineHeight,
-                    activeAlpha = activeAlpha,
-                    inactiveAlpha = inactiveAlpha,
-                    contentColor = contentColor,
+                    style = style,
                     pivotFractionX = pivotFractionX,
                     pivotFractionY = pivotFractionY,
                     scale = scale
                 )
 
                 WordByWordText(
-                    words = backgrounds,
+                    words = line.background,
+                    index = backgroundIndex,
+                    position = position,
                     isOppositeTurn = isOppositeTurn,
-                    isActive = isActive,
-                    activeIndex = activeBackgroundIndex,
-                    fontSize = fontSize / 1.65,
-                    fontWeight = fontWeight,
-                    lineHeight = lineHeight,
-                    activeAlpha = activeAlpha,
-                    inactiveAlpha = inactiveAlpha,
-                    contentColor = contentColor,
+                    isActive = isBackgroundActive,
+                    style = style.copy(fontSize = style.fontSize / 1.65),
                     pivotFractionX = pivotFractionX,
                     pivotFractionY = pivotFractionY,
                     scale = bgScale
@@ -311,24 +271,21 @@ fun LyricsLineWordByWord(
 @Composable
 fun WordByWordText(
     words: List<Lyrics.Word>,
-    isOppositeTurn: Boolean,
+    index: Int,
+    position: Long,
     isActive: Boolean,
-    activeIndex: Int,
-    fontSize: TextUnit,
-    fontWeight: FontWeight,
-    lineHeight: TextUnit,
-    activeAlpha: Float,
-    inactiveAlpha: Float,
-    contentColor: Color,
+    isOppositeTurn: Boolean,
+    style: TextStyle,
     pivotFractionX: Float,
     pivotFractionY: Float,
     scale: Float,
     modifier: Modifier = Modifier
 ) {
-    val annotatedText = remember(words, activeIndex, isActive) {
+    val contentColor = LocalContentColor.current
+    val annotatedText = remember(words, index, isActive, position) {
         buildAnnotatedString {
             words.forEachIndexed { i, word ->
-                val alpha = if (isActive && i <= activeIndex) activeAlpha else inactiveAlpha
+                val alpha = if (isActive && i <= index) 1f else .5f
                 withStyle(SpanStyle(color = contentColor.copy(alpha = alpha))) {
                     if (i == words.lastIndex) {
                         append(word.content.trimEnd())
@@ -342,30 +299,27 @@ fun WordByWordText(
 
     Text(
         text = annotatedText,
+        style = style,
+        textAlign = if (isOppositeTurn) TextAlign.End else TextAlign.Start,
         modifier = modifier
             .fillMaxWidth()
             .graphicsLayer {
                 transformOrigin = TransformOrigin(pivotFractionX, pivotFractionY)
                 scaleX = scale
                 scaleY = scale
-            },
-        textAlign = if (isOppositeTurn) TextAlign.End else TextAlign.Start,
-        fontSize = fontSize,
-        fontWeight = fontWeight,
-        lineHeight = lineHeight,
+            }
     )
 }
 
 @Composable
 fun LyricsLineBox(
     isOppositeTurn: Boolean,
-    contentColor: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable (pivotFractionX: Float, pivotFractionY: Float) -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val indication = ripple(color = contentColor)
+    val indication = ripple(color = LocalContentColor.current)
 
     val paddingValues = if (isOppositeTurn) {
         PaddingValues(start = 32.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)

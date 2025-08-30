@@ -23,6 +23,13 @@
             app:popExitAnim="@anim/booming_fragment_close_exit"
             app:destination="@+id/nav_now_playing_preferences"/>
         <action
+            android:id="@+id/action_to_lyricsPreferences"
+            app:enterAnim="@anim/booming_fragment_open_enter"
+            app:exitAnim="@anim/booming_fragment_open_exit"
+            app:popEnterAnim="@anim/booming_fragment_close_enter"
+            app:popExitAnim="@anim/booming_fragment_close_exit"
+            app:destination="@+id/nav_lyrics_preferences"/>
+        <action
             android:id="@+id/action_to_playbackPreferences"
             app:enterAnim="@anim/booming_fragment_open_enter"
             app:exitAnim="@anim/booming_fragment_open_exit"
@@ -73,6 +80,10 @@
         android:id="@+id/nav_now_playing_preferences"
         android:name="com.mardous.booming.ui.screen.settings.NowPlayingPreferencesFragment"
         android:label="@string/now_playing_title"/>
+    <fragment
+        android:id="@+id/nav_lyrics_preferences"
+        android:name="com.mardous.booming.ui.screen.settings.LyricsPreferencesFragment"
+        android:label="@string/lyrics_preferences_title"/>
     <fragment
         android:id="@+id/nav_playback_preferences"
         android:name="com.mardous.booming.ui.screen.settings.PlaybackPreferencesFragment"

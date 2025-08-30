@@ -3,6 +3,7 @@ package com.mardous.booming.data.local.lyrics.ttml
 import android.util.Log
 import com.mardous.booming.data.LyricsParser
 import com.mardous.booming.data.model.lyrics.Lyrics
+import com.mardous.booming.data.model.lyrics.LyricsActor
 import com.mardous.booming.data.model.lyrics.LyricsFile
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
@@ -94,7 +95,7 @@ class TtmlLyricsParser : LyricsParser {
                                         begin = parser.getTimeAttribute("begin"),
                                         end = parser.getTimeAttribute("end"),
                                         dur = parser.getTimeAttribute("dur"),
-                                        agent = parser.getAgentAttribute("ttm:agent")
+                                        actor = parser.getAgentAttribute("ttm:agent")
                                     )
                                 )
                                 if (!openLine && nodeTree.hasRoot) break
@@ -155,10 +156,10 @@ class TtmlLyricsParser : LyricsParser {
 
     private fun isSupportedTag(name: String?) = TtmlNode.isSupportedTag(name)
 
-    private fun XmlPullParser.getAgentAttribute(name: String): TtmlAgent? {
+    private fun XmlPullParser.getAgentAttribute(name: String): LyricsActor? {
         val attribute = getAttributeValue(null, name)
         if (attribute != null) {
-            return TtmlAgent.entries.firstOrNull { it.agent == attribute }
+            return LyricsActor.entries.firstOrNull { it.value == attribute }
         }
         return null
     }

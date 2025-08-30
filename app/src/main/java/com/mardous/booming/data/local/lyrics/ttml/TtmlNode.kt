@@ -1,5 +1,7 @@
 package com.mardous.booming.data.local.lyrics.ttml
 
+import com.mardous.booming.data.model.lyrics.LyricsActor
+
 /**
  * Represents a single node in a TTML (Timed Text Markup Language) document.
  *
@@ -19,7 +21,7 @@ internal data class TtmlNode(
     val begin: Long,
     var end: Long,
     var dur: Long,
-    val agent: TtmlAgent? = null
+    val actor: LyricsActor? = null
 ) {
 
     private val children = mutableListOf<TtmlNode>()
@@ -117,7 +119,7 @@ internal data class TtmlNode(
                 "end=$end, " +
                 "dur=$dur, " +
                 "background=$background, " +
-                "agent=$agent, " +
+                "agent=$actor, " +
                 "text='$text', " +
                 "closed=$closed" +
                 "}"
@@ -146,8 +148,8 @@ internal data class TtmlNode(
             return TtmlNode(type = NODE_SECTION, begin = begin, end = end, dur = dur)
         }
 
-        fun buildLine(begin: Long, end: Long, dur: Long, agent: TtmlAgent?): TtmlNode {
-            return TtmlNode(type = NODE_LINE, begin = begin, end = end, dur = dur, agent = agent)
+        fun buildLine(begin: Long, end: Long, dur: Long, actor: LyricsActor?): TtmlNode {
+            return TtmlNode(type = NODE_LINE, begin = begin, end = end, dur = dur, actor = actor)
         }
 
         fun buildWord(begin: Long, end: Long, dur: Long): TtmlNode {

@@ -1,27 +1,40 @@
 package com.mardous.booming.data.local.lyrics.lrc
 
 import com.mardous.booming.data.model.lyrics.Lyrics
+import com.mardous.booming.data.model.lyrics.LyricsActor
 
-internal class LrcNode(val start: Long, val text: String, val rawLine: String?) {
+internal class LrcNode(
+    val start: Long,
+    val text: String,
+    val bgText: String?,
+    val rawLine: String?,
+    actor: LyricsActor? = null
+) {
     private val children = mutableListOf<LrcNode>()
 
     var end: Long = INVALID_DURATION
         private set
 
-    var actor: String? = null
+    var actor: LyricsActor? = actor
         private set
 
     fun setEnd(end: Long) {
         this.end = end
     }
 
-    fun setActor(actor: String?) {
-        this.actor = actor
+    fun setActor(agent: LyricsActor?) {
+        this.actor = agent
     }
 
-    fun addChildren(start: Long, text: String?): Boolean {
+    fun addChild(start: Long, text: String?, actor: LyricsActor?): Boolean {
         if (start > INVALID_DURATION && !text.isNullOrBlank()) {
-            return children.add(LrcNode(start, text, null))
+            return children.add(LrcNode(
+                start = start,
+                text = text,
+                bgText = null,
+                rawLine = null,
+                actor = actor
+            ))
         }
         return false
     }
@@ -33,7 +46,8 @@ internal class LrcNode(val start: Long, val text: String, val rawLine: String?) 
             startIndex = startIndex,
             endMillis = end,
             endIndex = startIndex + (text.length - 1),
-            durationMillis = (end - start)
+            durationMillis = (end - start),
+            actor = actor
         )
     }
 
@@ -58,8 +72,10 @@ internal class LrcNode(val start: Long, val text: String, val rawLine: String?) 
                 startAt = start,
                 end = end,
                 durationMillis = (end - start),
-                content = words.joinToString(separator = "") { it.content }.trim(),
-                backgroundContent = null,
+                content = words.filterNot { it.isBackground }
+                    .joinToString(separator = "") { it.content }.trim(),
+                backgroundContent = words.filter { it.isBackground }
+                    .joinToString(separator = "") { it.content }.trim(),
                 rawContent = rawLine.orEmpty(),
                 words = words,
                 actor = actor

@@ -3,6 +3,7 @@ package com.mardous.booming.data.local.lyrics.lrc
 import android.util.Log
 import com.mardous.booming.data.LyricsParser
 import com.mardous.booming.data.model.lyrics.Lyrics
+import com.mardous.booming.data.model.lyrics.LyricsActor
 import com.mardous.booming.data.model.lyrics.LyricsFile
 import java.io.IOException
 import java.io.Reader
@@ -57,13 +58,14 @@ class LrcLyricsParser : LyricsParser {
                             val time = lineResult.groupValues[1].trim()
                                 .takeUnless { it.isEmpty() } ?: continue
                             val text = lineResult.groupValues[2].trim()
-                                .takeUnless { it.isEmpty() } ?: continue
+                            val bgText = lineResult.groupValues[3]
+                                .takeIf { it.isNotEmpty() }
 
                             val timeResult = LINE_TIME_PATTERN.find(time)
                             if (timeResult != null) {
                                 val timeMs = parseTime(timeResult)
                                 if (timeMs > LrcNode.INVALID_DURATION) {
-                                    rawLines.add(LrcNode(timeMs, text, line))
+                                    rawLines.add(LrcNode(timeMs, text, bgText, line))
                                 }
                             }
                         }
@@ -93,15 +95,28 @@ class LrcLyricsParser : LyricsParser {
                 entry.setEnd(rawLines.getOrNull(i + 1)?.start ?: length)
 
                 val matchResult = LINE_ACTOR_PATTERN.find(entry.text)
-                val actor = matchResult?.groupValues?.get(1)
+                val actor = LyricsActor.entries.firstOrNull {
+                    it.value == matchResult?.groupValues?.get(1)
+                }
                 entry.setActor(actor)
 
                 val text = matchResult?.groupValues?.get(2) ?: entry.text
                 LINE_WORD_PATTERN.findAll(text).forEach { match ->
-                    entry.addChildren(
+                    entry.addChild(
                         start = parseTime(match),
                         text = match.groupValues.getOrNull(3),
+                        actor = actor
                     )
+                }
+
+                entry.bgText?.let {
+                    LINE_WORD_PATTERN.findAll(it).forEach { match ->
+                        entry.addChild(
+                            start = parseTime(match),
+                            text = match.groupValues.getOrNull(3),
+                            actor = actor?.asBackground(true)
+                        )
+                    }
                 }
 
                 val line = entry.toLine()
@@ -148,9 +163,9 @@ class LrcLyricsParser : LyricsParser {
         private const val LRC_MINUTES_TO_MS_MULTIPLIER = 60 * 1000
 
         private val TIME_PATTERN = Regex("(\\d+):(\\d{2}(?:\\.\\d+)?)")
-        private val LINE_PATTERN = Regex("((?:\\[.*?])+)(.*)")
+        private val LINE_PATTERN = Regex("((?:\\[.*?])+)(.*?)(?:\\[bg:(.*?)])?$")
         private val LINE_TIME_PATTERN = Regex("\\[${TIME_PATTERN.pattern}]")
-        private val LINE_ACTOR_PATTERN = Regex("^(v\\d+):\\s*(.*)", RegexOption.IGNORE_CASE)
+        private val LINE_ACTOR_PATTERN = Regex("^([vV]\\d+|D|M|F)\\s*:\\s*(.*)")
         private val LINE_WORD_PATTERN = Regex("<${TIME_PATTERN.pattern}>([^<]+)")
         private val ATTRIBUTE_PATTERN = Regex("\\[(offset|ti|ar|al|length|by):(.+)]", RegexOption.IGNORE_CASE)
     }

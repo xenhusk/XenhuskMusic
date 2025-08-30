@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.mardous.booming.data.model.lyrics.Lyrics
+import com.mardous.booming.data.model.lyrics.LyricsActor
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.fadingEdges
 import kotlinx.coroutines.TimeoutCancellationException
@@ -81,6 +82,17 @@ fun LyricsView(
         val lines = state.lyrics?.lines ?: emptyList()
         itemsIndexed(lines, key = { _, line -> line.id }) { index, line ->
             val isActive = index == state.currentLineIndex
+            val textAlign = when (line.actor) {
+                LyricsActor.Voice2,
+                LyricsActor.Voice2Background -> TextAlign.End
+
+                LyricsActor.Group,
+                LyricsActor.GroupBackground,
+                LyricsActor.Duet,
+                LyricsActor.DuetBackground -> TextAlign.Center
+
+                else -> TextAlign.Start
+            }
             if (line.isWordByWord) {
                 LyricsLineWordByWord(
                     line = line,
@@ -89,8 +101,8 @@ fun LyricsView(
                     position = state.position,
                     isActive = isActive,
                     isBackgroundActive = isActive && state.currentBackgroundIndex > -1,
-                    isOppositeTurn = line.isOppositeTurn,
                     style = textStyle,
+                    align = textAlign,
                     onClick = { onLineClick(line) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -99,11 +111,11 @@ fun LyricsView(
             } else {
                 LyricsViewLine(
                     isActive = isActive,
-                    isOppositeTurn = line.isOppositeTurn,
                     progressiveColoring = settings.progressiveColoring,
                     position = state.position,
                     line = line,
                     style = textStyle,
+                    align = textAlign,
                     onClick = { onLineClick(line) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -118,11 +130,11 @@ fun LyricsView(
 @Composable
 private fun LyricsViewLine(
     isActive: Boolean,
-    isOppositeTurn: Boolean,
     progressiveColoring: Boolean,
     position: Long,
     line: Lyrics.Line,
     style: TextStyle,
+    align: TextAlign,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -172,20 +184,21 @@ private fun LyricsViewLine(
 
     LyricsLineBox(
         modifier = modifier,
-        isOppositeTurn = isOppositeTurn,
+        style = style,
+        align = align,
         onClick = onClick,
-    ) { pivotFractionX: Float, pivotFractionY: Float ->
+    ) { transformOrigin ->
         Text(
             text = line.content.trim(),
             style = textStyle,
-            textAlign = if (isOppositeTurn) TextAlign.End else TextAlign.Start,
+            textAlign = align,
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned {
                     textHeight = it.size.height.toFloat()
                 }
                 .graphicsLayer {
-                    transformOrigin = TransformOrigin(pivotFractionX, pivotFractionY)
+                    this.transformOrigin = transformOrigin
                     scaleX = scale
                     scaleY = scale
                 }
@@ -201,8 +214,8 @@ fun LyricsLineWordByWord(
     position: Long,
     isActive: Boolean,
     isBackgroundActive: Boolean,
-    isOppositeTurn: Boolean,
     style: TextStyle,
+    align: TextAlign,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -220,20 +233,23 @@ fun LyricsLineWordByWord(
 
     LyricsLineBox(
         modifier = modifier,
-        isOppositeTurn = isOppositeTurn,
+        style = style,
+        align = align,
         onClick = onClick
-    ) { pivotFractionX: Float, pivotFractionY: Float ->
+    ) { transformOrigin ->
         if (!hasBackground) {
             WordByWordText(
                 words = line.main,
                 index = index,
                 position = position,
-                isOppositeTurn = isOppositeTurn,
                 isActive = isActive,
                 style = style,
-                pivotFractionX = pivotFractionX,
-                pivotFractionY = pivotFractionY,
-                scale = scale
+                align = align,
+                modifier = Modifier.graphicsLayer {
+                    this.transformOrigin = transformOrigin
+                    scaleX = scale
+                    scaleY = scale
+                }
             )
         } else {
             Column(
@@ -244,24 +260,28 @@ fun LyricsLineWordByWord(
                     words = line.main,
                     index = index,
                     position = position,
-                    isOppositeTurn = isOppositeTurn,
                     isActive = isActive,
                     style = style,
-                    pivotFractionX = pivotFractionX,
-                    pivotFractionY = pivotFractionY,
-                    scale = scale
+                    align = align,
+                    modifier = Modifier.graphicsLayer {
+                        this.transformOrigin = transformOrigin
+                        scaleX = scale
+                        scaleY = scale
+                    }
                 )
 
                 WordByWordText(
                     words = line.background,
                     index = backgroundIndex,
                     position = position,
-                    isOppositeTurn = isOppositeTurn,
                     isActive = isBackgroundActive,
                     style = style.copy(fontSize = style.fontSize / 1.65),
-                    pivotFractionX = pivotFractionX,
-                    pivotFractionY = pivotFractionY,
-                    scale = bgScale
+                    align = align,
+                    modifier = Modifier.graphicsLayer {
+                        this.transformOrigin = transformOrigin
+                        scaleX = bgScale
+                        scaleY = bgScale
+                    }
                 )
             }
         }
@@ -274,11 +294,8 @@ fun WordByWordText(
     index: Int,
     position: Long,
     isActive: Boolean,
-    isOppositeTurn: Boolean,
     style: TextStyle,
-    pivotFractionX: Float,
-    pivotFractionY: Float,
-    scale: Float,
+    align: TextAlign,
     modifier: Modifier = Modifier
 ) {
     val contentColor = LocalContentColor.current
@@ -300,31 +317,44 @@ fun WordByWordText(
     Text(
         text = annotatedText,
         style = style,
-        textAlign = if (isOppositeTurn) TextAlign.End else TextAlign.Start,
+        textAlign = align,
         modifier = modifier
             .fillMaxWidth()
-            .graphicsLayer {
-                transformOrigin = TransformOrigin(pivotFractionX, pivotFractionY)
-                scaleX = scale
-                scaleY = scale
-            }
     )
 }
 
 @Composable
 fun LyricsLineBox(
-    isOppositeTurn: Boolean,
+    style: TextStyle,
+    align: TextAlign,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable (pivotFractionX: Float, pivotFractionY: Float) -> Unit
+    content: @Composable (transformOrigin: TransformOrigin) -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val indication = ripple(color = LocalContentColor.current)
 
-    val paddingValues = if (isOppositeTurn) {
-        PaddingValues(start = 32.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
-    } else {
-        PaddingValues(start = 8.dp, top = 8.dp, end = 32.dp, bottom = 8.dp)
+    val transformOrigin = when (align) {
+        TextAlign.End -> TransformOrigin(1f, 1f)
+        TextAlign.Start -> TransformOrigin(0f, 1f)
+        else -> TransformOrigin.Center
+    }
+
+    val verticalPadding = (8f * style.lineHeight.value).dp
+    val paddingValues = when (align) {
+        TextAlign.End -> PaddingValues(
+            start = 32.dp,
+            top = verticalPadding,
+            end = 8.dp,
+            bottom = verticalPadding
+        )
+        TextAlign.Start -> PaddingValues(
+            start = 8.dp,
+            top = verticalPadding,
+            end = 32.dp,
+            bottom = verticalPadding
+        )
+        else -> PaddingValues(horizontal = 32.dp, vertical = verticalPadding)
     }
 
     Box(
@@ -342,7 +372,7 @@ fun LyricsLineBox(
                             withTimeout(timeMillis = 100) {
                                 tryAwaitRelease()
                             }
-                        } catch (e: TimeoutCancellationException) {
+                        } catch (_: TimeoutCancellationException) {
                             interactionSource.emit(press)
                             tryAwaitRelease()
                         }
@@ -353,6 +383,6 @@ fun LyricsLineBox(
             }
             .padding(paddingValues)
     ) {
-        content(if (isOppositeTurn) 1f else 0f, 1f)
+        content(transformOrigin)
     }
 }

@@ -174,7 +174,7 @@ internal class TtmlNodeTree {
                                     endMillis = word.end,
                                     endIndex = endIndex,
                                     durationMillis = word.dur,
-                                    isBackground = word.background
+                                    actor = line.actor?.asBackground(word.background)
                                 )
                             )
                         }
@@ -190,7 +190,7 @@ internal class TtmlNodeTree {
                             backgroundContent = backgroundContent,
                             rawContent = content + "\n" + backgroundContent,
                             words = words,
-                            actor = line.agent?.agent
+                            actor = line.actor
                         )
                     )
                 } else {
@@ -203,7 +203,7 @@ internal class TtmlNodeTree {
                             backgroundContent = null,
                             rawContent = line.text.orEmpty(),
                             words = emptyList(),
-                            actor = line.agent?.agent
+                            actor = line.actor
                         )
                     )
                 }

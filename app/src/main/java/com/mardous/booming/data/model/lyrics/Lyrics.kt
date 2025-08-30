@@ -39,12 +39,11 @@ data class Lyrics(
         val backgroundContent: String?,
         val rawContent: String,
         val words: List<Word>,
-        val actor: String?
+        val actor: LyricsActor?
     ) {
         val id: Long = 31 * (31 * startAt + durationMillis) + content.hashCode()
 
         val isWordByWord: Boolean = words.isNotEmpty()
-        val isOppositeTurn: Boolean = actor != null && actor != "v1"
 
         val hasBackground: Boolean
             get() = words.any { it.isBackground } && !backgroundContent.isNullOrBlank()
@@ -64,6 +63,8 @@ data class Lyrics(
         val endMillis: Long,
         val endIndex: Int,
         val durationMillis: Long,
-        val isBackground: Boolean = false
-    )
+        val actor: LyricsActor?
+    ) {
+        val isBackground = actor?.isBackground == true
+    }
 }

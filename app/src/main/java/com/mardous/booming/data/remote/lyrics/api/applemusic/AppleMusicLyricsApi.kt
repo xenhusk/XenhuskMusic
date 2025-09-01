@@ -47,9 +47,7 @@ class AppleMusicLyricsApi(private val client: HttpClient) : LyricsApi {
             val response = client.get("https://booming-music-api.vercel.app/api/search?source=$AppleMusicSource") {
                 url.encodedParameters.append("q", "$title $artist".encodeURLParameter())
             }
-            response.body<List<LyricsSearchResponse>>().first {
-                it.name == song.title && (it.artist == song.artistName || it.artist == song.albumArtistName)
-            }
+            response.body<List<LyricsSearchResponse>>().first()
         }
     }
 

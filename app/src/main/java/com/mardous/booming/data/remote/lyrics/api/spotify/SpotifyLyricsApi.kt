@@ -46,9 +46,7 @@ class SpotifyLyricsApi(private val client: HttpClient) : LyricsApi {
         return searchResults.getOrPut(song.id) {
             client.get("https://booming-music-api.vercel.app/api/search?source=$SpotifySource") {
                 url.encodedParameters.append("q", "$artist $title".encodeURLParameter())
-            }.body<List<LyricsSearchResponse>>().first {
-                it.name == song.title && (it.artist == song.artistName || it.artist == song.albumArtistName)
-            }
+            }.body<List<LyricsSearchResponse>>().first()
         }
     }
 

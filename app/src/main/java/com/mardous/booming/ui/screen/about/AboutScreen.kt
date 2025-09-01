@@ -20,7 +20,9 @@ package com.mardous.booming.ui.screen.about
 import android.content.ClipData
 import android.content.Intent
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -198,7 +200,7 @@ fun AboutScreen(
 }
 
 @Composable
-fun AboutHeader(
+private fun AboutHeader(
     version: String,
     onChangelogClick: () -> Unit = {},
     onForkClick: () -> Unit = {},
@@ -262,7 +264,7 @@ fun AboutHeader(
 }
 
 @Composable
-fun AboutAuthorSection(
+private fun AboutAuthorSection(
     onTelegramClick: () -> Unit,
     onGitHubClick: () -> Unit,
     onEmailClick: () -> Unit
@@ -294,7 +296,7 @@ fun AboutAuthorSection(
 }
 
 @Composable
-fun AboutContributorSection(
+private fun AboutContributorSection(
     contributors: List<Contribution>,
     onClick: (Contribution) -> Unit
 ) {
@@ -310,7 +312,7 @@ fun AboutContributorSection(
 }
 
 @Composable
-fun AboutSupportSection(
+private fun AboutSupportSection(
     onReportBugsClick: () -> Unit,
     onTranslateClick: () -> Unit,
     onJoinChatClick: () -> Unit,
@@ -347,7 +349,7 @@ fun AboutSupportSection(
 }
 
 @Composable
-fun AboutAcknowledgmentSection(
+private fun AboutAcknowledgmentSection(
     onTranslatorsClick: () -> Unit
 ) {
     AboutSection(title = stringResource(R.string.acknowledgments_title)) {
@@ -363,7 +365,7 @@ fun AboutAcknowledgmentSection(
 }
 
 @Composable
-fun ReportBugsDialog(
+private fun ReportBugsDialog(
     onDismiss: () -> Unit = {},
     onContinue: () -> Unit = {}
 ) {
@@ -389,4 +391,92 @@ fun ReportBugsDialog(
             }
         }
     )
+}
+
+@Composable
+private fun AboutSection(
+    title: String,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(start = 24.dp)
+        )
+
+        content()
+    }
+}
+
+@Composable
+private fun AboutCard(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        shape = MaterialTheme.shapes.large,
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(modifier = Modifier.padding(vertical = 8.dp), content = content)
+    }
+}
+
+@Composable
+private fun AboutListItem(
+    @DrawableRes iconRes: Int,
+    title: String,
+    modifier: Modifier = Modifier,
+    summary: String? = null,
+    onClick: () -> Unit = {}
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.wrapContentSize()
+        )
+        if (summary.isNullOrEmpty()) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        } else {
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = summary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
 }

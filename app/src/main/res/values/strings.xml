@@ -772,6 +772,10 @@
     <string name="backup_app_data_summary">Create a file containing essential app data and save it to external storage.</string>
     <string name="restore_backup_title">Restore backup</string>
     <string name="restore_backup_summary">Restore app data (and state) from a previous backup.</string>
+    <string name="stop_when_closed_from_recents_title">Stop when closed from recents</string>
+    <string name="stop_when_closed_from_recents_summary">Playback stops if the app is closed from the recents list.</string>
+    <string name="stop_when_closed_from_recents_note">Note: Some devices with aggressive memory
+        or battery management may ignore this setting and always stop the app when removed from recents.</string>
 
     <!-- Preference values -->
     <string name="advanced_label">Advanced</string>

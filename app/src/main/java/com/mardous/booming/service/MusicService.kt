@@ -283,7 +283,8 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
     }
 
     override fun onTaskRemoved(rootIntent: Intent) {
-        if (!isPlaying && !mayResumeOnFocusGain) {
+        val isPaused = !isPlaying && !mayResumeOnFocusGain
+        if (isPaused || Preferences.stopWhenClosedFromRecents) {
             quit()
         }
         super.onTaskRemoved(rootIntent)
@@ -419,10 +420,10 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
 
     override fun onPlayStateChanged() {
         // We use the foreground notification handler here to slightly delay the call to stopForeground().
-        // This appears to be necessary in order to allow our notification to become dismissable if pause() is called via onStartCommand() to this service.
-        // Presumably, there is an issue in calling stopForeground() too soon after startForeground() which causes the notification to be stuck in the 'ongoing' state and not able to be dismissed.
-        //
-        // This behavior is highly inspired by S2 Music Player: https://github.com/timusus/Shuttle2
+        // This appears to be necessary in order to allow our notification to become dismissable if pause()
+        // is called via onStartCommand() to this service.
+        // Presumably, there is an issue in calling stopForeground() too soon after startForeground()
+        // which causes the notification to be stuck in the 'ongoing' state and not able to be dismissed.
 
         foregroundNotificationHandler?.removeCallbacksAndMessages(null)
         delayedShutdownHandler?.removeCallbacksAndMessages(null)
@@ -431,15 +432,24 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         updateWidgets()
 
         val isPlaying = playbackManager.isPlaying()
+        if (isPlaying) {
+            // This allows us to receive the onTaskRemoved() callback
+            // when the user removes the app from recents.
+            ContextCompat.startForegroundService(this, Intent(this, MusicService::class.java))
+        }
+
         playingNotificationManager.startForeground(this) {
             displayPlayingNotification(isPlaying)
         }
         if (!isPlaying) {
-            if (!mayResumeOnFocusGain) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                    foregroundNotificationHandler?.postDelayed(150) {
-                        stopForeground(STOP_FOREGROUND_DETACH)
-                    }
+            if (!mayResumeOnFocusGain && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                // On Android versions prior to S, we can call stopForeground(STOP_FOREGROUND_DETACH) to allow
+                // the notification to remain dismissible and later resume foreground mode with startForeground().
+                // Starting with Android 12 (S), this behavior is no longer allowed and calling startForeground()
+                // after a STOP_FOREGROUND_DETACH will throw an exception.
+
+                foregroundNotificationHandler?.postDelayed(150) {
+                    stopForeground(STOP_FOREGROUND_DETACH)
                 }
             }
             if (currentSongDuration > 0) {

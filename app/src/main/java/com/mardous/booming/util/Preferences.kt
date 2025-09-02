@@ -437,6 +437,9 @@ object Preferences : KoinComponent {
     val blurredAlbumArtAllowed: Boolean
         get() = preferences.getBoolean(BLURRED_ALBUM_ART, false)
 
+    val stopWhenClosedFromRecents: Boolean
+        get() = preferences.getBoolean(STOP_WHEN_CLOSED_FROM_RECENTS, false)
+
     val classicNotification: Boolean
         get() = preferences.getBoolean(CLASSIC_NOTIFICATION, false)
 
@@ -717,6 +720,7 @@ const val BLACKLIST_ENABLED = "blacklist_enabled"
 const val ARTIST_MINIMUM_SONGS = "artist_minimum_songs"
 const val ALBUM_MINIMUM_SONGS = "album_minimum_songs"
 const val MINIMUM_SONG_DURATION = "minimum_song_duration"
+const val STOP_WHEN_CLOSED_FROM_RECENTS = "stop_when_closed_from_recents"
 const val CLASSIC_NOTIFICATION = "classic_notification"
 const val COLORED_NOTIFICATION = "colored_notification"
 const val NOTIFICATION_EXTRA_TEXT_LINE = "notification_extra_text_line"

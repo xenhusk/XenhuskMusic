@@ -18,4 +18,9 @@ enum class LyricsActor(val value: String, val isBackground: Boolean) {
             }
         } else this
     }
+
+    companion object {
+        fun getActorFromValue(value: String?): LyricsActor? =
+            LyricsActor.entries.firstOrNull { it.value == value }
+    }
 }

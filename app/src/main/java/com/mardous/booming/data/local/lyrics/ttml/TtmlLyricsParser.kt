@@ -69,6 +69,21 @@ class TtmlLyricsParser : LyricsParser {
                             continue
                         }
                         when (name) {
+                            TtmlNode.TAG_TRANSLATION -> {
+                                val openTranslation = nodeTree.createNewTranslation(
+                                    type = parser.getAttributeValue(null, "type"),
+                                    language = parser.getAttributeValue(null, "xml:lang")
+                                )
+                                if (!openTranslation) break
+                            }
+
+                            TtmlNode.TAG_TEXT -> {
+                                val preparedTranslation = nodeTree.prepareTranslation(
+                                    key = parser.getAttributeValue(null, "for")
+                                )
+                                if (!preparedTranslation) break
+                            }
+
                             TtmlNode.TAG_BODY -> {
                                 val hasRoot = nodeTree.addRoot(
                                     TtmlNode.buildBody(
@@ -95,6 +110,7 @@ class TtmlLyricsParser : LyricsParser {
                                         begin = parser.getTimeAttribute("begin"),
                                         end = parser.getTimeAttribute("end"),
                                         dur = parser.getTimeAttribute("dur"),
+                                        key = parser.getAttributeValue(null, "itunes:key"),
                                         actor = parser.getAgentAttribute("ttm:agent")
                                     )
                                 )
@@ -128,6 +144,8 @@ class TtmlLyricsParser : LyricsParser {
                             continue
                         }
                         when (name) {
+                            TtmlNode.TAG_TRANSLATION -> if (!nodeTree.closeCurrentTranslation()) break
+                            TtmlNode.TAG_TEXT -> if (!nodeTree.finishTranslation()) break
                             TtmlNode.TAG_BODY -> if (!nodeTree.closeNode(TtmlNode.NODE_BODY)) break
                             TtmlNode.TAG_DIV -> if (!nodeTree.closeNode(TtmlNode.NODE_SECTION)) break
                             TtmlNode.TAG_PARAGRAPH -> if (!nodeTree.closeNode(TtmlNode.NODE_LINE)) break
@@ -159,7 +177,7 @@ class TtmlLyricsParser : LyricsParser {
     private fun XmlPullParser.getAgentAttribute(name: String): LyricsActor? {
         val attribute = getAttributeValue(null, name)
         if (attribute != null) {
-            return LyricsActor.entries.firstOrNull { it.value == attribute }
+            return LyricsActor.getActorFromValue(attribute)
         }
         return null
     }

@@ -21,6 +21,7 @@ internal data class TtmlNode(
     val begin: Long,
     var end: Long,
     var dur: Long,
+    val key: String? = null,
     val actor: LyricsActor? = null
 ) {
 
@@ -136,9 +137,16 @@ internal data class TtmlNode(
         const val TAG_DIV = "div"
         const val TAG_PARAGRAPH = "p"
         const val TAG_SPAN = "span"
+        const val TAG_TRANSLATION = "translation"
+        const val TAG_TEXT = "text"
 
         fun isSupportedTag(name: String?) =
-            name == TAG_BODY || name == TAG_DIV || name == TAG_PARAGRAPH || name == TAG_SPAN
+            name == TAG_BODY ||
+                    name == TAG_DIV ||
+                    name == TAG_PARAGRAPH ||
+                    name == TAG_SPAN ||
+                    name == TAG_TRANSLATION ||
+                    name == TAG_TEXT
 
         fun buildBody(dur: Long): TtmlNode {
             return TtmlNode(type = NODE_BODY, begin = -1, end = -1, dur = dur)
@@ -148,8 +156,8 @@ internal data class TtmlNode(
             return TtmlNode(type = NODE_SECTION, begin = begin, end = end, dur = dur)
         }
 
-        fun buildLine(begin: Long, end: Long, dur: Long, actor: LyricsActor?): TtmlNode {
-            return TtmlNode(type = NODE_LINE, begin = begin, end = end, dur = dur, actor = actor)
+        fun buildLine(begin: Long, end: Long, dur: Long, key: String?, actor: LyricsActor?): TtmlNode {
+            return TtmlNode(type = NODE_LINE, begin = begin, end = end, dur = dur, key = key, actor = actor)
         }
 
         fun buildWord(begin: Long, end: Long, dur: Long): TtmlNode {

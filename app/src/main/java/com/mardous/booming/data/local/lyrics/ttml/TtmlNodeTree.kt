@@ -1,6 +1,7 @@
 package com.mardous.booming.data.local.lyrics.ttml
 
 import com.mardous.booming.data.model.lyrics.Lyrics
+import java.util.Locale
 
 /**
  * Represents the hierarchical structure of a TTML document as a tree of [TtmlNode]s.
@@ -18,6 +19,8 @@ import com.mardous.booming.data.model.lyrics.Lyrics
 internal class TtmlNodeTree {
 
     private var rootNode: TtmlNode? = null
+    private var translations = mutableSetOf<TtmlTranslation>()
+
     private var openNodes = mutableMapOf<Int, TtmlNode?>()
 
     private var background = false
@@ -32,6 +35,24 @@ internal class TtmlNodeTree {
         return openNodes.getOrPut(type) {
             rootNode?.getOpenChild(type)
         }
+    }
+
+    private fun getOpenTranslation(language: String? = null): TtmlTranslation? {
+        val open = translations.singleOrNull { !it.closed }
+        if (open != null && open.lang == language.orEmpty().ifEmpty { open.lang }) {
+            return open
+        }
+        return null
+    }
+
+    private fun getClosedTranslation(): TtmlTranslation? {
+        val systemLocale = Locale.getDefault()
+        val closedTranslations = translations.filter { it.closed }
+        val matchingLocale = closedTranslations.firstOrNull { it.matchesLocale(systemLocale) }
+        if (matchingLocale != null) {
+            return matchingLocale
+        }
+        return closedTranslations.firstOrNull()
     }
 
     fun addRoot(node: TtmlNode): Boolean {
@@ -78,6 +99,9 @@ internal class TtmlNodeTree {
     }
 
     fun setText(text: String?): Boolean {
+        if (getOpenTranslation()?.translate(text) == true)
+            return true
+
         if (!hasRoot) return false
 
         var textNode = getOpenNode(TtmlNode.NODE_WORD)
@@ -91,6 +115,9 @@ internal class TtmlNodeTree {
     }
 
     fun enterBackground(): Boolean {
+        if (getOpenTranslation()?.background(true) == true)
+            return true
+
         if (!hasRoot) return false
 
         val wordNode = getOpenNode(TtmlNode.NODE_WORD)
@@ -101,6 +128,9 @@ internal class TtmlNodeTree {
     }
 
     fun closeBackground(): Boolean {
+        if (getOpenTranslation()?.background(false) == true)
+            return true
+
         if (!hasRoot) return false
 
         val wordNode = getOpenNode(TtmlNode.NODE_WORD)
@@ -108,6 +138,29 @@ internal class TtmlNodeTree {
             this.background = false
         }
         return !background
+    }
+
+    fun createNewTranslation(type: String, language: String): Boolean {
+        val openTranslation = getOpenTranslation(language)
+        if (openTranslation == null) {
+            if (type.isNotEmpty() && language.isNotEmpty()) {
+                translations.add(TtmlTranslation(language))
+                return true
+            }
+        }
+        return false
+    }
+
+    fun prepareTranslation(key: String): Boolean {
+        return getOpenTranslation()?.prepare(key) == true
+    }
+
+    fun finishTranslation(): Boolean {
+        return getOpenTranslation()?.finish() == true
+    }
+
+    fun closeCurrentTranslation(): Boolean {
+        return getOpenTranslation()?.close() == true
     }
 
     fun closeNode(type: Int): Boolean {
@@ -138,6 +191,7 @@ internal class TtmlNodeTree {
         val duration = rootNode!!.dur.takeIf { it > -1 } ?: trackLength
         val sectionNodes = rootNode!!.getChildren(TtmlNode.NODE_SECTION)
         val lineNodes = sectionNodes.flatMap { it.getChildren(TtmlNode.NODE_LINE) }.sortedBy { it.begin }
+        val translation = getClosedTranslation()
         if (lineNodes.isNotEmpty()) {
             val lines = mutableListOf<Lyrics.Line>()
             val lastLineIndex = lineNodes.lastIndex
@@ -179,17 +233,27 @@ internal class TtmlNodeTree {
                             )
                         }
                     }
-                    val content = words.filterNot { it.isBackground }.joinToString("") { it.content }
-                    val backgroundContent = words.filter { it.isBackground }.joinToString("") { it.content }
+
+                    val content = words.filterNot { it.isBackground }
+                        .joinToString("") { it.content }
+                        .trim()
+
+                    val backgroundContent = words.filter { it.isBackground }
+                        .joinToString("") { it.content }
+                        .trim()
+
                     lines.add(
                         Lyrics.Line(
                             startAt = line.begin,
                             end = line.end,
                             durationMillis = line.dur,
-                            content = content,
-                            backgroundContent = backgroundContent,
-                            rawContent = content + "\n" + backgroundContent,
-                            words = words,
+                            content = Lyrics.TextContent(
+                                content = content,
+                                backgroundContent = backgroundContent,
+                                rawContent = content + "\n" + backgroundContent,
+                                words = words
+                            ),
+                            translation = translation?.get(line.key),
                             actor = line.actor
                         )
                     )
@@ -199,10 +263,13 @@ internal class TtmlNodeTree {
                             startAt = line.begin,
                             end = line.end,
                             durationMillis = line.dur,
-                            content = line.text.orEmpty(),
-                            backgroundContent = null,
-                            rawContent = line.text.orEmpty(),
-                            words = emptyList(),
+                            content = Lyrics.TextContent(
+                                content = line.text.orEmpty(),
+                                backgroundContent = null,
+                                rawContent = line.text.orEmpty(),
+                                words = emptyList()
+                            ),
+                            translation = translation?.get(line.key),
                             actor = line.actor
                         )
                     )

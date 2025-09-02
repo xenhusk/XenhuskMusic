@@ -14,10 +14,10 @@ data class Lyrics(
     val optimalDurationMillis = optimalDurationMillis()
 
     val plainText: String
-        get() = lines.joinToString("\n") { it.content }
+        get() = lines.joinToString("\n") { it.content.content }
 
     val rawText: String
-        get() = lines.joinToString("\n") { it.rawContent }
+        get() = lines.joinToString("\n") { it.content.rawContent.orEmpty() }.trim()
 
     init {
         for (line in lines) {
@@ -35,24 +35,15 @@ data class Lyrics(
         val startAt: Long,
         val end: Long,
         val durationMillis: Long = (end - startAt),
-        val content: String,
-        val backgroundContent: String?,
-        val rawContent: String,
-        val words: List<Word>,
+        val content: TextContent,
+        val translation: TextContent?,
         val actor: LyricsActor?
     ) {
         val id: Long = 31 * (31 * startAt + durationMillis) + content.hashCode()
 
-        val isWordByWord: Boolean = words.isNotEmpty()
+        val isEmpty = content.isEmpty
 
-        val hasBackground: Boolean
-            get() = words.any { it.isBackground } && !backgroundContent.isNullOrBlank()
-
-        val main: List<Word>
-            get() = words.filterNot { it.isBackground }
-
-        val background: List<Word>
-            get() = words.filter { it.isBackground }
+        val hasBackgroundVocals = content.hasBackgroundVocals
     }
 
     @Immutable
@@ -66,5 +57,23 @@ data class Lyrics(
         val actor: LyricsActor?
     ) {
         val isBackground = actor?.isBackground == true
+    }
+
+    @Immutable
+    data class TextContent(
+        val content: String,
+        val backgroundContent: String?,
+        val rawContent: String?,
+        val words: List<Word>
+    ) {
+        val isSyllable = words.isNotEmpty()
+
+        val isEmpty = content.isBlank()
+
+        val mainVocals = words.filterNot { it.isBackground }
+
+        val backgroundVocals = words.filter { it.isBackground }
+
+        val hasBackgroundVocals = backgroundVocals.isNotEmpty() && !backgroundContent.isNullOrBlank()
     }
 }

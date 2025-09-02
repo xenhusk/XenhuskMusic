@@ -44,7 +44,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:textAlignment="viewStart"
-            android:textColor="?colorOnSurface"
+            android:textAppearance="?textAppearanceBodyMedium"
             android:textSize="18sp"
             tools:text="@tools:sample/lorem/random" />
 

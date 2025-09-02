@@ -166,11 +166,11 @@ fun PlayerTheme(
             base
         } else {
             base.copy(
-                surface = playerColorScheme.composeColor { surfaceColor },
-                primary = playerColorScheme.composeColor { emphasisColor },
-                onPrimary = playerColorScheme.composeColor { emphasisColor }.primaryTextColor(),
-                onSurface = playerColorScheme.composeColor { primaryTextColor },
-                onSurfaceVariant = playerColorScheme.composeColor { secondaryTextColor }
+                surface = playerColorScheme.surface,
+                primary = playerColorScheme.primary,
+                onPrimary = playerColorScheme.onPrimary,
+                onSurface = playerColorScheme.onSurface,
+                onSurfaceVariant = playerColorScheme.onSurfaceVariant
             )
         }
     }

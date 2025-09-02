@@ -9,18 +9,21 @@ import com.mardous.booming.ui.theme.onSurfaceVariantLight
 
 fun Color.isDark(): Boolean = this.luminance() < 0.4
 
-fun Color.primaryTextColor(isDisabled: Boolean = false): Color {
-    return if (isDark()) {
-        if (isDisabled) Color(0x61FFFFFF) else onSurfaceDark
+fun Color.onThis(
+    isPrimary: Boolean = true,
+    isDisabled: Boolean = false
+): Color {
+    return if (isPrimary) {
+        if (isDark()) {
+            if (isDisabled) Color(0x61FFFFFF) else onSurfaceDark
+        } else {
+            if (isDisabled) Color(0x61000000) else onSurfaceLight
+        }
     } else {
-        if (isDisabled) Color(0x61000000) else onSurfaceLight
-    }
-}
-
-fun Color.secondaryTextColor(isDisabled: Boolean = false): Color {
-    return if (isDark()) {
-        if (isDisabled) Color(0x42FFFFFF) else onSurfaceVariantDark
-    } else {
-        if (isDisabled) Color(0x42000000) else onSurfaceVariantLight
+        if (isDark()) {
+            if (isDisabled) Color(0x42FFFFFF) else onSurfaceVariantDark
+        } else {
+            if (isDisabled) Color(0x42000000) else onSurfaceVariantLight
+        }
     }
 }

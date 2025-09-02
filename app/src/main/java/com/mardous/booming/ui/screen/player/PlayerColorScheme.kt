@@ -28,6 +28,7 @@ import com.mardous.booming.R
 import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.resources.*
 import com.mardous.booming.extensions.systemContrast
+import com.mardous.booming.ui.component.compose.color.onThis
 import com.mardous.booming.util.color.MediaNotificationProcessor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -64,8 +65,11 @@ data class PlayerColorScheme(
     @param:ColorInt val secondaryControlColor: Int = secondaryTextColor
 ) {
 
-    fun composeColor(composer: PlayerColorScheme.() -> Int) =
-        run { androidx.compose.ui.graphics.Color(composer()) }
+    val primary = androidx.compose.ui.graphics.Color(emphasisColor)
+    val onPrimary = androidx.compose.ui.graphics.Color(emphasisColor).onThis()
+    val surface = androidx.compose.ui.graphics.Color(surfaceColor)
+    val onSurface = androidx.compose.ui.graphics.Color(primaryTextColor)
+    val onSurfaceVariant = androidx.compose.ui.graphics.Color(secondaryTextColor)
 
     enum class Mode(
         @param:StringRes val titleRes: Int,

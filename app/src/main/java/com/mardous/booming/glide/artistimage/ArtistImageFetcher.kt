@@ -102,7 +102,7 @@ class ArtistImageFetcher(
             if (model.imageId <= -1) {
                 throw IOException("Artist \"${model.name}\" is not valid since imageId = ${model.imageId}")
             }
-            return context.contentResolver.openInputStream(model.imageId.albumCoverUri())
+            context.contentResolver.openInputStream(model.imageId.albumCoverUri())
         } catch (e: Exception) {
             throw IOException("Error during fallback image resolution", e)
         }

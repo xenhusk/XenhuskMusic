@@ -80,7 +80,7 @@ data class Lyrics(
     }
 
     companion object {
-        const val MIN_OFFSET_TIME = 2000
+        const val MIN_OFFSET_TIME = 3500
 
         val EmptyContent = TextContent("", null, null, emptyList())
     }

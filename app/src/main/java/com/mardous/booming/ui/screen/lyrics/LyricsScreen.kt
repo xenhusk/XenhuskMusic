@@ -24,6 +24,7 @@ import com.mardous.booming.R
 import com.mardous.booming.core.model.LibraryMargin
 import com.mardous.booming.data.model.lyrics.Lyrics
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
+import com.mardous.booming.ui.component.compose.decoration.animatedGradient
 import com.mardous.booming.ui.component.compose.decoration.fadingEdges
 import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.ui.screen.player.PlayerColorScheme
@@ -37,16 +38,18 @@ fun LyricsScreen(
     playerViewModel: PlayerViewModel,
     onEditClick: () -> Unit
 ) {
-    val lyricsViewSettings by lyricsViewModel.fullLyricsViewSettings.collectAsState()
-
     val miniPlayerMargin by libraryViewModel.getMiniPlayerMargin().observeAsState(LibraryMargin(0))
+
+    val lyricsViewSettings by lyricsViewModel.fullLyricsViewSettings.collectAsState()
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
-    val songProgress by playerViewModel.currentProgressFlow.collectAsState()
+
+    val isPlaying by playerViewModel.isPlayingFlow.collectAsState()
 
     val lyricsViewState = remember(lyricsResult.syncedLyrics) {
         LyricsViewState(lyricsResult.syncedLyrics.content)
     }
 
+    val songProgress by playerViewModel.currentProgressFlow.collectAsState()
     LaunchedEffect(songProgress) {
         lyricsViewState.updatePosition(songProgress.toLong())
     }
@@ -54,6 +57,12 @@ fun LyricsScreen(
     val plainScrollState = rememberScrollState()
     LaunchedEffect(lyricsResult.id) {
         plainScrollState.scrollTo(0)
+    }
+
+    val contentColor = if (lyricsViewSettings.gradientBackground) {
+        Color.White
+    } else {
+        MaterialTheme.colorScheme.secondary
     }
 
     Scaffold(
@@ -76,11 +85,12 @@ fun LyricsScreen(
         LyricsSurface(
             modifier = Modifier
                 .fillMaxSize()
+                .animatedGradient(lyricsViewSettings.gradientBackground, isPlaying)
                 .padding(innerPadding),
             result = lyricsResult,
             state = lyricsViewState,
             settings = lyricsViewSettings,
-            contentColor = MaterialTheme.colorScheme.secondary,
+            contentColor = contentColor,
             fadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
             scrollState = plainScrollState,
             textAlign = TextAlign.Start
@@ -177,8 +187,7 @@ private fun LyricsSurface(
                         LyricsView(
                             state = state,
                             settings = settings,
-                            fadingEdges = fadingEdges,
-                            textStyle = settings.syncedStyle
+                            fadingEdges = fadingEdges
                         ) { onSeekToLine(it) }
                     }
 

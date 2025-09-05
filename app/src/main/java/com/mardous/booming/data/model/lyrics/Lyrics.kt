@@ -66,8 +66,6 @@ data class Lyrics(
         val rawContent: String?,
         val words: List<Word>
     ) {
-        val isSyllable = words.isNotEmpty()
-
         val isEmpty = content.isBlank()
 
         val mainVocals = words.filterNot { it.isBackground }
@@ -75,5 +73,15 @@ data class Lyrics(
         val backgroundVocals = words.filter { it.isBackground }
 
         val hasBackgroundVocals = backgroundVocals.isNotEmpty() && !backgroundContent.isNullOrBlank()
+
+        fun getVocals(background: Boolean) = if (background) backgroundVocals else mainVocals
+
+        fun getText(background: Boolean) = if (background) backgroundContent.orEmpty() else content
+    }
+
+    companion object {
+        const val MIN_OFFSET_TIME = 2000
+
+        val EmptyContent = TextContent("", null, null, emptyList())
     }
 }

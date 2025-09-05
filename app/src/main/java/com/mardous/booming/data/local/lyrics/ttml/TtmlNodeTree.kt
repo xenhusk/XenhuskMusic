@@ -250,7 +250,7 @@ internal class TtmlNodeTree {
                             content = Lyrics.TextContent(
                                 content = content,
                                 backgroundContent = backgroundContent,
-                                rawContent = content + "\n" + backgroundContent,
+                                rawContent = "$content ($backgroundContent)",
                                 words = words
                             ),
                             translation = translation?.get(line.key),
@@ -275,12 +275,34 @@ internal class TtmlNodeTree {
                     )
                 }
             }
+
+            val linesWithOffset = lines
+                .distinctBy { it.id }
+                .toMutableList().apply {
+                    sortBy { it.startAt }
+                }
+
+            if (linesWithOffset.isNotEmpty()) {
+                val firstLine = linesWithOffset.first()
+                if (firstLine.startAt > Lyrics.MIN_OFFSET_TIME) {
+                    linesWithOffset.add(0,
+                        Lyrics.Line(
+                            startAt = 0,
+                            end = firstLine.startAt,
+                            content = Lyrics.EmptyContent,
+                            translation = null,
+                            actor = firstLine.actor
+                        )
+                    )
+                }
+            }
+
             return Lyrics(
                 title = null,
                 artist = null,
                 album = null,
                 durationMillis = duration,
-                lines = lines.distinctBy { it.id }
+                lines = linesWithOffset
             )
         }
         return null

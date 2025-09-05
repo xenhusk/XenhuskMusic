@@ -21,11 +21,11 @@ import com.mardous.booming.data.model.Song
 import com.mardous.booming.service.queue.QueueManager
 import com.mardous.booming.service.queue.QueueObserver
 import com.mardous.booming.ui.screen.lyrics.LyricsViewSettings.Key
-import com.mardous.booming.ui.screen.lyrics.LyricsViewSettings.Mode as LyricsViewMode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.io.File
+import com.mardous.booming.ui.screen.lyrics.LyricsViewSettings.Mode as LyricsViewMode
 
 /**
  * @author Christians M. A. (mardous)
@@ -61,29 +61,6 @@ class LyricsViewModel(
         queueManager.removeObserver(this)
         preferences.unregisterOnSharedPreferenceChangeListener(this)
         super.onCleared()
-    }
-
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        when (key) {
-            Key.CENTER_CURRENT_LINE,
-            Key.USE_CUSTOM_FONT,
-            Key.SELECTED_CUSTOM_FONT,
-            Key.LINE_SPACING,
-            Key.PROGRESSIVE_COLORING,
-            Key.SYNCED_BOLD_FONT,
-            Key.UNSYNCED_BOLD_FONT -> {
-                _playerLyricsViewSettings.value = createViewSettings(LyricsViewMode.Player)
-                _fullLyricsViewSettings.value = createViewSettings(LyricsViewMode.Full)
-            }
-            Key.SYNCED_FONT_SIZE_PLAYER,
-            Key.UNSYNCED_FONT_SIZE_PLAYER -> {
-                _playerLyricsViewSettings.value = createViewSettings(LyricsViewMode.Player)
-            }
-            Key.SYNCED_FONT_SIZE_FULL,
-            Key.UNSYNCED_FONT_SIZE_FULL -> {
-                _fullLyricsViewSettings.value = createViewSettings(LyricsViewMode.Full)
-            }
-        }
     }
 
     override fun songChanged(currentSong: Song, nextSong: Song) {
@@ -181,8 +158,29 @@ class LyricsViewModel(
         }
     }
 
+    private fun updateSong(song: Song) {
+        lyricsJob?.cancel()
+        lyricsJob = viewModelScope.launch {
+            if (song == Song.emptySong) {
+                _lyricsResult.value = LyricsResult.Empty
+            } else {
+                _lyricsResult.value = LyricsResult(id = song.id, loading = true)
+                val result = withContext(Dispatchers.IO + silentHandler) {
+                    lyricsRepository.allLyrics(song, allowDownload = true, fromEditor = false)
+                }
+                if (isActive) {
+                    _lyricsResult.value = result
+                }
+            }
+        }
+    }
+
     private fun createViewSettings(mode: LyricsViewMode): LyricsViewSettings {
-        val progressiveColoring = preferences.getBoolean(Key.PROGRESSIVE_COLORING, true)
+        val enableSyllableLyrics = preferences.getBoolean(Key.ENABLE_SYLLABLE_LYRICS, false)
+        val progressiveColoring = preferences.getBoolean(Key.PROGRESSIVE_COLORING, false)
+        val gradientBackground = mode.isFull && preferences.getBoolean(Key.GRADIENT_BACKGROUND, false)
+        val blurEffect = gradientBackground && preferences.getBoolean(Key.BLUR_EFFECT, false)
+        val shadowEffect = gradientBackground && preferences.getBoolean(Key.SHADOW_EFFECT, false)
         val fontFamily: FontFamily = if (preferences.getBoolean(Key.USE_CUSTOM_FONT, false)) {
             try {
                 preferences.getString(Key.SELECTED_CUSTOM_FONT, null)
@@ -225,25 +223,39 @@ class LyricsViewModel(
         return LyricsViewSettings(
             mode = mode,
             isCenterCurrentLine = preferences.getBoolean(Key.CENTER_CURRENT_LINE, false),
+            enableSyllableLyrics = enableSyllableLyrics,
             progressiveColoring = progressiveColoring,
+            gradientBackground = gradientBackground,
+            blurEffect = blurEffect,
+            shadowEffect = shadowEffect,
             syncedStyle = syncedStyle,
             unsyncedStyle = unsyncedStyle
         )
     }
 
-    private fun updateSong(song: Song) {
-        lyricsJob?.cancel()
-        lyricsJob = viewModelScope.launch {
-            if (song == Song.emptySong) {
-                _lyricsResult.value = LyricsResult.Empty
-            } else {
-                _lyricsResult.value = LyricsResult(id = song.id, loading = true)
-                val result = withContext(Dispatchers.IO) {
-                    lyricsRepository.allLyrics(song, allowDownload = true, fromEditor = false)
-                }
-                if (isActive) {
-                    _lyricsResult.value = result
-                }
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        when (key) {
+            Key.ENABLE_SYLLABLE_LYRICS,
+            Key.CENTER_CURRENT_LINE,
+            Key.USE_CUSTOM_FONT,
+            Key.SELECTED_CUSTOM_FONT,
+            Key.LINE_SPACING,
+            Key.PROGRESSIVE_COLORING,
+            Key.GRADIENT_BACKGROUND,
+            Key.BLUR_EFFECT,
+            Key.SHADOW_EFFECT,
+            Key.SYNCED_BOLD_FONT,
+            Key.UNSYNCED_BOLD_FONT -> {
+                _playerLyricsViewSettings.value = createViewSettings(LyricsViewMode.Player)
+                _fullLyricsViewSettings.value = createViewSettings(LyricsViewMode.Full)
+            }
+            Key.SYNCED_FONT_SIZE_PLAYER,
+            Key.UNSYNCED_FONT_SIZE_PLAYER -> {
+                _playerLyricsViewSettings.value = createViewSettings(LyricsViewMode.Player)
+            }
+            Key.SYNCED_FONT_SIZE_FULL,
+            Key.UNSYNCED_FONT_SIZE_FULL -> {
+                _fullLyricsViewSettings.value = createViewSettings(LyricsViewMode.Full)
             }
         }
     }

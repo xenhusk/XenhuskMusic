@@ -112,14 +112,33 @@ class LrcLyricsParser : LyricsParser {
                 }
             }
 
+            val linesWithOffset = lines.filterNotNull()
+                .distinctBy { it.id }
+                .toMutableList().apply {
+                    sortBy { it.startAt }
+                }
+
+            if (linesWithOffset.isNotEmpty()) {
+                val firstLine = linesWithOffset.first()
+                if (firstLine.startAt > Lyrics.MIN_OFFSET_TIME) {
+                    linesWithOffset.add(0,
+                        Lyrics.Line(
+                            startAt = 0,
+                            end = firstLine.startAt,
+                            content = Lyrics.EmptyContent,
+                            translation = null,
+                            actor = firstLine.actor
+                        )
+                    )
+                }
+            }
+
             return Lyrics(
                 title = attributes["ti"],
                 artist = attributes["ar"],
                 album = attributes["al"],
                 durationMillis = length,
-                lines = lines.filterNotNull()
-                    .sortedBy { it.startAt }
-                    .distinctBy { it.id }
+                lines = linesWithOffset
             )
         } catch (e: IOException) {
             e.printStackTrace()

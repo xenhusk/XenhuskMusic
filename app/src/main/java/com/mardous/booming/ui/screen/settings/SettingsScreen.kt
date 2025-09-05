@@ -27,7 +27,7 @@ import com.mardous.booming.R
 enum class SettingsScreen(@LayoutRes val layoutRes: Int, @IdRes val navAction: Int) {
     Appearance(R.xml.preferences_screen_appearance, R.id.action_to_appearancePreferences),
     NowPlaying(R.xml.preferences_screen_now_playing, R.id.action_to_nowPlayingPreferences),
-    Lyrics(R.xml.preference_screen_lyrics, R.id.action_to_lyricsPreferences),
+    Lyrics(R.xml.preferences_screen_lyrics, R.id.action_to_lyricsPreferences),
     Playback(R.xml.preferences_screen_playback, R.id.action_to_playbackPreferences),
     Metadata(R.xml.preferences_screen_metadata, R.id.action_to_metadataPreferences),
     Library(R.xml.preferences_screen_library, R.id.action_to_libraryPreferences),

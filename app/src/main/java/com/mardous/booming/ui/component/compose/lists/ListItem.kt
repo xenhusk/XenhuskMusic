@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.mardous.booming.core.model.about.Contribution
 import com.mardous.booming.core.model.shuffle.SpecialShuffleMode
 import dev.jeziellago.compose.markdowntext.MarkdownText

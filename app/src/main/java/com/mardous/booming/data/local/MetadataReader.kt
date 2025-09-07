@@ -45,7 +45,7 @@ class MetadataReader(uri: Uri, readPictures: Boolean = false) : KoinComponent {
     }
 
     fun sampleRate(): String? {
-        if (audioProperties == null)
+        if (audioProperties == null || audioProperties!!.sampleRate <= 0)
             return null
 
         return if (audioProperties!!.sampleRate >= 1000) {
@@ -58,6 +58,7 @@ class MetadataReader(uri: Uri, readPictures: Boolean = false) : KoinComponent {
     fun channels() = audioProperties?.channels ?: -1
     fun channelName(): String? {
         val channels = channels()
+        if (channels == 0) return null
         return CHANNEL_MAP[channels] ?: "$channels channels"
     }
 

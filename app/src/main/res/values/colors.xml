@@ -73,4 +73,9 @@
     <color name="md_theme_surfaceContainer">#EFEDF4</color>
     <color name="md_theme_surfaceContainerHigh">#E9E7EF</color>
     <color name="md_theme_surfaceContainerHighest">#E3E1E9</color>
+    
+    <color name="splash_color_4">@android:color/system_accent1_200</color>
+    <color name="splash_color_3">@android:color/system_accent1_500</color>
+    <color name="splash_color_2">@android:color/system_accent1_400</color>
+    <color name="splash_color_1">@android:color/system_neutral1_800</color>
 </resources>

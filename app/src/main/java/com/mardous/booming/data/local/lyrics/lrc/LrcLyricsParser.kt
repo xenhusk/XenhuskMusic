@@ -5,7 +5,6 @@ import com.mardous.booming.data.LyricsParser
 import com.mardous.booming.data.model.lyrics.Lyrics
 import com.mardous.booming.data.model.lyrics.LyricsActor
 import com.mardous.booming.data.model.lyrics.LyricsFile
-import java.io.IOException
 import java.io.Reader
 import java.util.Locale
 
@@ -72,7 +71,7 @@ class LrcLyricsParser : LyricsParser {
                     }
                 }
             }
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
         return parse(attributes, rawLines, trackLength)
@@ -83,7 +82,7 @@ class LrcLyricsParser : LyricsParser {
         rawLines: List<LrcNode>,
         trackLength: Long
     ): Lyrics? {
-        val lines = mutableListOf<Lyrics.Line?>()
+        val lines = mutableMapOf<Long, Lyrics.Line?>()
         val length = attributes["length"]
             ?.let { parseTime(it) }
             ?.takeIf { it > LrcNode.INVALID_DURATION }
@@ -93,26 +92,45 @@ class LrcLyricsParser : LyricsParser {
             for (i in 0 until rawLines.size) {
                 val entry = rawLines[i]
 
-                val nextEntry = rawLines.getOrNull(i + 1)
+                var nextStep = 1
+                var nextEntry = rawLines.getOrNull(i + nextStep)
+                while (nextEntry != null && entry.start == nextEntry.start) {
+                    nextEntry = rawLines.getOrNull(i + (nextStep++))
+                }
+
                 entry.end = nextEntry?.start ?: length
 
                 if (entry.text.isNullOrBlank()) {
-                    // we still allow empty lines
-                    lines.add(entry.toLine())
+                    if (!lines.containsKey(entry.start)) {
+                        // we still allow empty lines
+                        lines[entry.start] = entry.toLine()
+                    }
                 } else {
-                    val previousEntry = rawLines.getOrNull(i - 1)
-                    if (previousEntry != null && previousEntry.start == entry.start) {
-                        addChildren(entry, previousEntry.actor)
-                        previousEntry.setTranslation(entry)
-                        lines[i - 1] = previousEntry.toLine()
+                    val existing = lines[entry.start]
+                    if (existing != null && !existing.content.isEmpty &&
+                        existing.content.content != entry.text && existing.translation == null
+                    ) {
+                        addChildren(entry, existing.actor)
+
+                        var newDuration = existing.durationMillis
+                        val newEnd = if (existing.end == 0L) entry.end else existing.end
+                        if (newEnd != existing.end) {
+                            newDuration = (newEnd - existing.startAt)
+                        }
+                        lines[entry.start] = existing.copy(
+                            end = newEnd,
+                            durationMillis = newDuration,
+                            translation = entry.getTextContent()
+                        )
                     } else {
                         addChildren(entry, null)
-                        lines.add(entry.toLine())
+                        lines[entry.start] = entry.toLine()
                     }
                 }
             }
 
-            val linesWithOffset = lines.filterNotNull()
+            val linesWithOffset = lines.values
+                .filterNotNull()
                 .distinctBy { it.id }
                 .toMutableList().apply {
                     sortBy { it.startAt }
@@ -140,7 +158,7 @@ class LrcLyricsParser : LyricsParser {
                 durationMillis = length,
                 lines = linesWithOffset
             )
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
         return null

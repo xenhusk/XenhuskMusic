@@ -14,16 +14,6 @@ internal class LrcNode(
 
     var end: Long = INVALID_DURATION
 
-    private var translation: LrcNode? = null
-
-    fun setTranslation(newTranslation: LrcNode) {
-        if (newTranslation.start == start) {
-            newTranslation.actor = actor
-            translation = newTranslation
-            end = newTranslation.end
-        }
-    }
-
     fun addChild(start: Long, text: String?, actor: LyricsActor?): Boolean {
         if (start > INVALID_DURATION) {
             return children.add(LrcNode(
@@ -50,7 +40,7 @@ internal class LrcNode(
         )
     }
 
-    private fun getTextContent(): Lyrics.TextContent {
+    fun getTextContent(): Lyrics.TextContent {
         return if (children.isNotEmpty()) {
             children.sortBy { it.start }
             for (i in 0 until children.lastIndex) {
@@ -93,7 +83,7 @@ internal class LrcNode(
             end = end,
             durationMillis = (end - start),
             content = getTextContent(),
-            translation = translation?.getTextContent(),
+            translation = null,
             actor = actor
         )
     }

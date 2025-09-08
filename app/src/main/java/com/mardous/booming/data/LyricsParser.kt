@@ -8,21 +8,21 @@ import java.io.Reader
 interface LyricsParser {
 
     fun parse(file: LyricsFile, trackLength: Long): Lyrics? = try {
-        parse(reader = file.file.reader(), trackLength)
+        file.file.reader().use { parse(reader = it, trackLength) }
     } catch (e: IOException) {
         e.printStackTrace()
         null
     }
 
     fun parse(input: String, trackLength: Long): Lyrics? =
-        if (input.isNotBlank()) parse(input.reader(), trackLength) else null
+        if (input.isNotBlank()) input.reader().use { parse(it, trackLength) } else null
 
     fun parse(reader: Reader, trackLength: Long): Lyrics?
 
     fun handles(file: LyricsFile): Boolean
 
     fun handles(input: String): Boolean =
-        if (input.isNotBlank()) handles(input.reader()) else false
+        if (input.isNotBlank()) input.reader().use { handles(it) } else false
 
     fun handles(reader: Reader): Boolean
 }

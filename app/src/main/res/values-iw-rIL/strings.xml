@@ -566,7 +566,6 @@
     <string name="library_title">ספרייה</string>
     <string name="library_summary">הגדרות לרשימות השמעה ולמסנני הכללה/הוצאה.</string>
     <string name="notification_title">הודעה</string>
-    <string name="notification_summary">התאם אישית את סגנון ההודעות.</string>
     <string name="advanced_title">מתקדם</string>
     <string name="advanced_summary">הגדרות שפה ואחרות באפליקציה למשתמשים מתקדמים.</string>
     <string name="update_title">עדכן</string>
@@ -709,10 +708,6 @@
     <string name="min_song_duration_title">Minimum song duration</string>
     <string name="min_song_duration_summary">How many seconds (at least) must last a song to be shown in your library.</string>
     <!-- Remote preferences -->
-    <string name="classic_notification_title">Classic notification</string>
-    <string name="classic_notification_summary">Use the classic notification design.</string>
-    <string name="colored_notification_title">Colored notification</string>
-    <string name="colored_notification_summary">Colors the notification in the album cover\'s vibrant color</string>
     <string name="extra_line_of_text_title">Additional line of text</string>
     <string name="notification_priority_title">Notification priority</string>
     <string name="album_art_on_lockscreen_title">Show album cover</string>

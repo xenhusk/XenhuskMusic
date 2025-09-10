@@ -34,6 +34,32 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:title="@string/notification_title"
+        app:layout="@layout/preference_category_title">
+
+        <ListPreference
+            app:iconSpaceReserved="true"
+            app:title="@string/extra_line_of_text_title"
+            app:entries="@array/pref_notification_extra_text_line_entries"
+            app:entryValues="@array/pref_notification_extra_text_line_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="album"
+            app:layout="@layout/list_item_view"
+            app:key="notification_extra_text_line" />
+
+        <ListPreference
+            app:iconSpaceReserved="true"
+            app:title="@string/notification_priority_title"
+            app:entries="@array/pref_notification_priority_entries"
+            app:entryValues="@array/pref_notification_priority_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="maximum"
+            app:layout="@layout/list_item_view"
+            app:key="notification_priority" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         app:title="@string/backup_restore_header"
         app:layout="@layout/preference_category_title">
 

@@ -195,7 +195,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
             .registerReceiver(widgetIntentReceiver, IntentFilter(ServiceAction.ACTION_APP_WIDGET_UPDATE))
 
         sessionToken = mediaSession.sessionToken
-        playingNotificationManager = PlayingNotificationManager(this, mediaSession, playbackManager, queueManager)
+        playingNotificationManager = PlayingNotificationManager(this, playbackManager, queueManager, mediaSession)
 
         mediaStoreObserver = MediaStoreObserver(this, playerHandler!!)
         throttledSeekHandler = ThrottledSeekHandler(this, persistentStorage, playerHandler!!)
@@ -1069,14 +1069,6 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
                 updateMediaSessionMetadata(::updateMediaSessionPlaybackState)
             }
 
-            CLASSIC_NOTIFICATION -> {
-                playingNotificationManager.recreateNotification(this)
-                playingNotificationManager.startForeground(this) {
-                    displayPlayingNotification()
-                }
-            }
-
-            COLORED_NOTIFICATION,
             NOTIFICATION_EXTRA_TEXT_LINE,
             NOTIFICATION_PRIORITY -> {
                 playingNotificationManager.displayPlayingNotification()

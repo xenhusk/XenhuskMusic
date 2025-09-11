@@ -46,22 +46,17 @@ class BasicSearchFilter<T : Serializable>(private val name: String, private val 
 
     override fun getCompatibleModes(): List<FilterMode> {
         val modes = mutableListOf(FilterMode.Songs)
-        if (argument.type == Argument.YEAR) {
+        if (argument.type == Argument.YEAR || argument.type == Argument.FOLDER) {
             modes.add(FilterMode.Albums)
         }
         return modes
     }
 
     override suspend fun getResults(searchMode: FilterMode, query: String): List<Any> {
-        return when (argument.type) {
+        val songs = when (argument.type) {
             Argument.FOLDER -> {
                 val folderPath = argument.value as? String ?: return emptyList()
-                val songs = searchRepository.searchFolderSongs(folderPath, query)
-                if (searchMode == FilterMode.Albums) {
-                    albumRepository.splitIntoAlbums(songs, sorted = false)
-                } else {
-                    songs
-                }
+                searchRepository.searchFolderSongs(folderPath, query)
             }
             Argument.GENRE -> {
                 val genreId = argument.value as? Long ?: return emptyList()
@@ -77,6 +72,9 @@ class BasicSearchFilter<T : Serializable>(private val name: String, private val 
             }
             else -> arrayListOf()
         }
+        return if (searchMode == FilterMode.Albums) {
+            albumRepository.splitIntoAlbums(songs, sorted = false)
+        } else songs
     }
 
     @Parcelize

@@ -33,6 +33,7 @@ enum class NowPlayingAction(@StringRes val titleRes: Int) {
     OpenPlayQueue(R.string.playing_queue_label),
     ToggleFavoriteState(R.string.toggle_favorite),
     ShufflePlayQueue(R.string.shuffle_queue),
+    DeleteFromDevice(R.string.action_delete_from_device),
     TagEditor(R.string.action_tag_editor),
     SleepTimer(R.string.action_sleep_timer),
     SoundSettings(R.string.sound_settings),

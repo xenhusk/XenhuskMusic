@@ -312,19 +312,6 @@ data class ZipItem(
     val fileContent: String? = null
 )
 
-fun CharSequence.sanitize(): String {
-    return toString().replace("/", "_")
-        .replace(":", "_")
-        .replace("*", "_")
-        .replace("?", "_")
-        .replace("\"", "_")
-        .replace("<", "_")
-        .replace(">", "_")
-        .replace("|", "_")
-        .replace("\\", "_")
-        .replace("&", "_")
-}
-
 fun String.child(child: String): String {
     return this + File.separator + child
 }

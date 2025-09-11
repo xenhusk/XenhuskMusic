@@ -151,7 +151,6 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
                 .crossfade(false)
                 .allowHardware(false)
                 .memoryCachePolicy(CachePolicy.READ_ONLY)
-                .diskCachePolicy(CachePolicy.READ_ONLY)
                 .target(imageViewTarget)
                 .build()
         )

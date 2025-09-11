@@ -140,7 +140,6 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
             crossfade(false)
             allowHardware(false)
             memoryCachePolicy(CachePolicy.READ_ONLY)
-            diskCachePolicy(CachePolicy.READ_ONLY)
         }
     }
 

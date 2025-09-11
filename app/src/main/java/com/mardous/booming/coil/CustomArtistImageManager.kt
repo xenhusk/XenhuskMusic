@@ -49,7 +49,6 @@ class CustomArtistImageManager(private val context: Context) {
     suspend fun setCustomImage(artist: Artist, uri: Uri) {
         val request = ImageRequest.Builder(context)
             .data(uri)
-            .diskCachePolicy(CachePolicy.DISABLED)
             .memoryCachePolicy(CachePolicy.DISABLED)
             .size(2048)
             .target(

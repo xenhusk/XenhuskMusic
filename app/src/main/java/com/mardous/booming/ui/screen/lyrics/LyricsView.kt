@@ -264,7 +264,7 @@ fun LyricsLineContentView(
     modifier: Modifier = Modifier
 ) {
     val blurRadius = if (index == selectedIndex) 0f else {
-        (abs(index - selectedIndex).toFloat() - .5f)
+        (abs(index - selectedIndex).toFloat() - .20f)
             .coerceAtLeast(0f)
     }
 

@@ -21,9 +21,9 @@ import kotlin.math.sqrt
 // Based on: https://gist.github.com/KlassenKonstantin/d5f6ed1d74b3ddbdca699d66c6b9a3b2
 @Composable
 fun Modifier.animatedGradient(
-    enabled: Boolean,
+    colors: List<Color>,
     animating: Boolean
-): Modifier = if (enabled) {
+): Modifier = if (colors.isNotEmpty()) {
     composed {
         val rotation = remember { Animatable(0f) }
 
@@ -41,7 +41,6 @@ fun Modifier.animatedGradient(
             )
         }
 
-        // TODO use actual album colors
         drawWithCache {
             val rectSize = sqrt(size.width * size.width + size.height * size.height)
             val topLeft = Offset(
@@ -50,15 +49,15 @@ fun Modifier.animatedGradient(
             )
 
             val brush1 = Brush.linearGradient(
-                0f to Color.Magenta,
-                1f to Color.Cyan,
+                0f to colors[0],
+                1f to colors[1],
                 start = topLeft,
                 end = Offset(rectSize * 0.7f, rectSize * 0.7f),
             )
 
             val brush2 = Brush.linearGradient(
-                0f to Color(0xFF9E03FF),
-                1f to Color(0xFF11D36E),
+                0f to Color(0xFF1E1D1D),
+                1f to Color(0xFF8D938F),
                 start = Offset(rectSize, 0f),
                 end = Offset(0f, rectSize),
             )

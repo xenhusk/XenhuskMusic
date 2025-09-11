@@ -1,5 +1,10 @@
 package com.mardous.booming.ui.screen.lyrics
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,9 +25,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.SingletonImageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
+import coil3.toBitmap
 import com.mardous.booming.R
 import com.mardous.booming.core.model.LibraryMargin
 import com.mardous.booming.data.model.lyrics.Lyrics
+import com.mardous.booming.ui.component.compose.color.extractGradientColors
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.animatedGradient
 import com.mardous.booming.ui.component.compose.decoration.fadingEdges
@@ -30,6 +41,8 @@ import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.ui.screen.player.PlayerColorScheme
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.theme.PlayerTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LyricsScreen(
@@ -38,6 +51,7 @@ fun LyricsScreen(
     playerViewModel: PlayerViewModel,
     onEditClick: () -> Unit
 ) {
+    val context = LocalContext.current
     val miniPlayerMargin by libraryViewModel.getMiniPlayerMargin().observeAsState(LibraryMargin(0))
 
     val lyricsViewSettings by lyricsViewModel.fullLyricsViewSettings.collectAsState()
@@ -59,10 +73,32 @@ fun LyricsScreen(
         plainScrollState.scrollTo(0)
     }
 
-    val contentColor = if (lyricsViewSettings.gradientBackground) {
+    var gradientColors by remember { mutableStateOf<List<Color>>(emptyList()) }
+    LaunchedEffect(lyricsResult.id) {
+        if (!lyricsViewSettings.gradientBackground)
+            return@LaunchedEffect
+
+        withContext(Dispatchers.Default) {
+            val result = SingletonImageLoader.get(context).execute(
+                ImageRequest.Builder(context)
+                    .data(playerViewModel.currentSong)
+                    .allowHardware(false)
+                    .build()
+            )
+            gradientColors = if (result is SuccessResult) {
+                result.image.toBitmap().extractGradientColors()
+            } else {
+                emptyList()
+            }
+        }
+    }
+
+    val isGradientBackground = lyricsViewSettings.gradientBackground && gradientColors.size >= 2
+    val secondaryColor = MaterialTheme.colorScheme.secondary
+    val contentColor = if (isGradientBackground) {
         Color.White
     } else {
-        MaterialTheme.colorScheme.secondary
+        secondaryColor
     }
 
     Scaffold(
@@ -82,19 +118,35 @@ fun LyricsScreen(
             }
         }
     ) { innerPadding ->
-        LyricsSurface(
-            modifier = Modifier
-                .fillMaxSize()
-                .animatedGradient(lyricsViewSettings.gradientBackground, isPlaying)
-                .padding(innerPadding),
-            result = lyricsResult,
-            state = lyricsViewState,
-            settings = lyricsViewSettings,
-            contentColor = contentColor,
-            fadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
-            scrollState = plainScrollState,
-            textAlign = TextAlign.Start
-        ) { playerViewModel.seekTo(it.startAt) }
+        Box(modifier = Modifier.fillMaxSize()) {
+            AnimatedContent(
+                targetState = gradientColors,
+                transitionSpec = {
+                    fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
+                }
+            ) { colors ->
+                if (isGradientBackground) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .animatedGradient(colors, isPlaying)
+                    )
+                }
+            }
+
+            LyricsSurface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                result = lyricsResult,
+                state = lyricsViewState,
+                settings = lyricsViewSettings,
+                contentColor = contentColor,
+                fadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
+                scrollState = plainScrollState,
+                textAlign = TextAlign.Start
+            ) { playerViewModel.seekTo(it.startAt) }
+        }
     }
 }
 

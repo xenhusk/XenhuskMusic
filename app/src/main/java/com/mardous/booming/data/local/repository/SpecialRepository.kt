@@ -66,9 +66,10 @@ class RealSpecialRepository(private val songRepository: RealSongRepository) : Sp
                 selectionValues = arrayOf(year.toString())
             )
         } else {
+            val pattern = RealSongRepository.generateSearchPattern(query)
             songRepository.makeSongCursor(
-                selection = "${AudioColumns.YEAR}=? AND ${AudioColumns.TITLE} LIKE ?",
-                selectionValues = arrayOf(year.toString(), "%$query%")
+                selection = "${AudioColumns.YEAR}=? AND (${pattern.first})",
+                selectionValues = arrayOf(year.toString()) + pattern.second
             )
         }
         return songRepository.songs(cursor)
@@ -108,9 +109,10 @@ class RealSpecialRepository(private val songRepository: RealSongRepository) : Sp
     }
 
     override suspend fun songsByFolder(path: String, query: String): List<Song> {
+        val pattern = RealSongRepository.generateSearchPattern(query)
         val cursor = songRepository.makeSongCursor(
-            selection = "${AudioColumns.TITLE} LIKE ?",
-            selectionValues = arrayOf("%$query%")
+            selection = pattern.first,
+            selectionValues = pattern.second
         )
         return songRepository.songs(cursor).filter { song ->
             path == song.folderPath()

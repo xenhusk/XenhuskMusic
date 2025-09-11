@@ -304,6 +304,7 @@ class RealSongRepository(private val inclExclDao: InclExclDao) : SongRepository 
         private val TAG = RealSongRepository::class.java.simpleName
 
         const val BASE_SELECTION = "${AudioColumns.TITLE} != '' AND ${AudioColumns.IS_MUSIC} = 1"
+        const val SEARCH_SELECTION = "${AudioColumns.TITLE} LIKE ? OR ${AudioColumns.ARTIST} LIKE ? OR ${AudioColumns.ALBUM} LIKE ?"
 
         @SuppressLint("InlinedApi")
         private val BASE_PROJECTION = arrayOf(
@@ -337,5 +338,8 @@ class RealSongRepository(private val inclExclDao: InclExclDao) : SongRepository 
             }
             return baseProjection
         }
+
+        fun generateSearchPattern(term: String, selection: String = SEARCH_SELECTION) =
+            selection to Array(selection.count { it == '?' }) { "%$term%" }
     }
 }

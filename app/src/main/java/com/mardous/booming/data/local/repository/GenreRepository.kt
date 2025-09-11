@@ -23,7 +23,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
 import android.provider.MediaStore
-import android.provider.MediaStore.Audio.AudioColumns
 import android.provider.MediaStore.Audio.Genres
 import com.mardous.booming.data.model.Genre
 import com.mardous.booming.data.model.Song
@@ -82,13 +81,14 @@ class RealGenreRepository(
     override suspend fun songs(genreId: Long, query: String): List<Song> {
         // The genres table only stores songs that have a genre specified,
         // so we need to get songs without a genre a different way.
+        val pattern = RealSongRepository.generateSearchPattern(query)
         return if (genreId == -1L) {
             emptyList()
         } else songRepository.songs(
             makeGenreSongCursor(
-                genreId,
-                "${RealSongRepository.BASE_SELECTION} AND ${AudioColumns.TITLE} LIKE ?",
-                arrayOf("%$query%")
+                genreId = genreId,
+                selection = "${RealSongRepository.BASE_SELECTION} AND (${pattern.first})",
+                selectionValues = pattern.second
             )
         )
     }

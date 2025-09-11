@@ -566,7 +566,6 @@
     <string name="library_title">Бібліотека</string>
     <string name="library_summary">Налаштування списків відтворення та фільтрів винятків/включення.</string>
     <string name="notification_title">Сповіщення</string>
-    <string name="notification_summary">Налаштування стилю сповіщень.</string>
     <string name="advanced_title">Додатково</string>
     <string name="advanced_summary">Вбудована мова та інші налаштування для досвідчених користувачів.</string>
     <string name="update_title">Оновити</string>
@@ -709,10 +708,6 @@
     <string name="min_song_duration_title">Мінімальна тривалість пісні</string>
     <string name="min_song_duration_summary">Скільки секунд (у всякому менші) повинно бути показано в вашій бібліотеці.</string>
     <!-- Remote preferences -->
-    <string name="classic_notification_title">Класичне повідомлення</string>
-    <string name="classic_notification_summary">Використовувати класичне оформлення сповіщення.</string>
-    <string name="colored_notification_title">Кольорове сповіщення</string>
-    <string name="colored_notification_summary">Колір сповіщення яскравого кольору обкладинки альбому</string>
     <string name="extra_line_of_text_title">Додатковий рядок тексту</string>
     <string name="notification_priority_title">Пріоритет повідомлення</string>
     <string name="album_art_on_lockscreen_title">Показати обкладинку альбому</string>

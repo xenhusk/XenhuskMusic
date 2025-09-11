@@ -348,18 +348,6 @@ object Preferences : KoinComponent {
     val autoDownloadMetadataPolicy: String
         get() = preferences.requireString(AUTO_DOWNLOAD_METADATA_POLICY, appStr(R.string.default_metadata_policy))
 
-    val ignoreMediaStore: Boolean
-        get() = preferences.getBoolean(IGNORE_MEDIA_STORE, false)
-
-    val useFolderImages: Boolean
-        get() = preferences.getBoolean(USE_FOLDER_ART, true)
-
-    val downloadArtistImages: Boolean
-        get() = preferences.getBoolean(ALLOW_ONLINE_ARTIST_IMAGES, appBool(R.bool.default_artist_images_download))
-
-    val preferredArtistImageSize: String
-        get() = preferences.requireString(PREFERRED_ARTIST_IMAGE_SIZE, ImageSize.MEDIUM)
-
     var onlyAlbumArtists: Boolean
         get() = preferences.getBoolean(ONLY_ALBUM_ARTISTS, true)
         set(value) = preferences.edit { putBoolean(ONLY_ALBUM_ARTISTS, value) }
@@ -440,12 +428,6 @@ object Preferences : KoinComponent {
     val stopWhenClosedFromRecents: Boolean
         get() = preferences.getBoolean(STOP_WHEN_CLOSED_FROM_RECENTS, false)
 
-    val classicNotification: Boolean
-        get() = preferences.getBoolean(CLASSIC_NOTIFICATION, false)
-
-    val coloredNotification: Boolean
-        get() = preferences.getBoolean(COLORED_NOTIFICATION, false)
-
     val notificationExtraTextLine: String
         get() = preferences.requireString(
             NOTIFICATION_EXTRA_TEXT_LINE,
@@ -515,8 +497,6 @@ object Preferences : KoinComponent {
 
     private inline fun <reified T : Enum<T>> SharedPreferences.enumValue(key: String, defaultValue: T): T =
         nullString(key)?.toEnum<T>() ?: defaultValue
-
-    private fun appBool(resid: Int): Boolean = appContext().resources.getBoolean(resid)
 
     private fun appStr(resid: Int): String = appContext().getString(resid)
 }
@@ -721,8 +701,6 @@ const val ARTIST_MINIMUM_SONGS = "artist_minimum_songs"
 const val ALBUM_MINIMUM_SONGS = "album_minimum_songs"
 const val MINIMUM_SONG_DURATION = "minimum_song_duration"
 const val STOP_WHEN_CLOSED_FROM_RECENTS = "stop_when_closed_from_recents"
-const val CLASSIC_NOTIFICATION = "classic_notification"
-const val COLORED_NOTIFICATION = "colored_notification"
 const val NOTIFICATION_EXTRA_TEXT_LINE = "notification_extra_text_line"
 const val NOTIFICATION_PRIORITY = "notification_priority"
 const val ALBUM_ART_ON_LOCK_SCREEN = "album_art_on_lock_screen"

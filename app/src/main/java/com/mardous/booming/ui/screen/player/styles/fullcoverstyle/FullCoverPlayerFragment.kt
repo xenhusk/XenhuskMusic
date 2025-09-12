@@ -17,7 +17,6 @@
 
 package com.mardous.booming.ui.screen.player.styles.fullcoverstyle
 
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
@@ -36,8 +35,6 @@ import com.mardous.booming.data.model.Song
 import com.mardous.booming.databinding.FragmentFullCoverPlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
-import com.mardous.booming.extensions.resources.applyColor
-import com.mardous.booming.extensions.resources.getPrimaryTextColor
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
 import com.mardous.booming.ui.component.base.AbsPlayerFragment
@@ -58,9 +55,6 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
 
     private lateinit var controlsFragment: FullCoverPlayerControlsFragment
 
-    private var playbackControlsColor = 0
-    private var disabledPlaybackControlsColor = 0
-
     private var disposable: Disposable? = null
 
     override val colorSchemeMode: PlayerColorSchemeMode
@@ -69,16 +63,9 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
     override val playerControlsFragment: AbsPlayerControlsFragment
         get() = controlsFragment
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        playbackControlsColor = getPrimaryTextColor(context, isDark = false)
-        disabledPlaybackControlsColor = getPrimaryTextColor(context, isDark = false, isDisabled = true)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentFullCoverPlayerBinding.bind(view)
-        setupColors()
         setupListeners()
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { v: View, insets: WindowInsetsCompat ->
             val statusBar = insets.getInsets(Type.systemBars())
@@ -95,12 +82,6 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
     }
 
     override fun onPrepareViewGestures(view: View) {}
-
-    private fun setupColors() {
-        binding.nextSongLabel.setTextColor(disabledPlaybackControlsColor)
-        binding.nextSongText.setTextColor(playbackControlsColor)
-        binding.close.applyColor(playbackControlsColor, isIconButton = true)
-    }
 
     private fun setupListeners() {
         binding.nextSongText.setOnClickListener(this)

@@ -40,10 +40,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
 import com.mardous.booming.R
-import com.mardous.booming.extensions.hasS
 import com.mardous.booming.extensions.isNightMode
 import com.mardous.booming.extensions.resolveColor
-import com.mardous.booming.util.Preferences
 import kotlin.math.abs
 
 val Int.isColorLight: Boolean
@@ -124,17 +122,10 @@ fun Fragment.surfaceColor() = requireContext().surfaceColor()
 fun Context.surfaceColor() = resolveColor(com.google.android.material.R.attr.colorSurface)
 
 @ColorInt
-fun Fragment.accentColor() = requireContext().accentColor()
-
-@ColorInt
-fun Context.accentColor() =
-    if (hasS() && Preferences.materialYou) getColorCompat(R.color.m3_accent_color) else primaryColor()
-
-@ColorInt
 fun Fragment.primaryColor() = requireContext().primaryColor()
 
 @ColorInt
-fun Context.primaryColor() = resolveColor(com.google.android.material.R.attr.colorPrimary)
+fun Context.primaryColor() = resolveColor(androidx.appcompat.R.attr.colorPrimary)
 
 @ColorInt
 fun Fragment.secondaryColor() = requireContext().secondaryColor()
@@ -143,10 +134,7 @@ fun Fragment.secondaryColor() = requireContext().secondaryColor()
 fun Context.secondaryColor() = resolveColor(com.google.android.material.R.attr.colorSecondary)
 
 @ColorInt
-fun Fragment.controlColorNormal() = requireContext().controlColorNormal()
-
-@ColorInt
-fun Context.controlColorNormal() = resolveColor(com.google.android.material.R.attr.colorControlNormal)
+fun Context.controlColorNormal() = resolveColor(androidx.appcompat.R.attr.colorControlNormal)
 
 @ColorInt
 fun Fragment.textColorPrimary() = requireContext().textColorPrimary()
@@ -238,15 +226,6 @@ fun getPrimaryTextColor(context: Context, isDark: Boolean = !context.isNightMode
         if (isDisabled) R.color.primary_text_disabled_light else R.color.primary_text_light
     } else {
         if (isDisabled) R.color.primary_text_disabled_dark else R.color.primary_text_dark
-    }
-    return context.getColorCompat(resolveColor)
-}
-
-fun getSecondaryTextColor(context: Context, isDark: Boolean = !context.isNightMode, isDisabled: Boolean = false): Int {
-    val resolveColor = if (isDark) {
-        if (isDisabled) R.color.secondary_text_disabled_light else R.color.secondary_text_light
-    } else {
-        if (isDisabled) R.color.secondary_text_disabled_dark else R.color.secondary_text_dark
     }
     return context.getColorCompat(resolveColor)
 }

@@ -160,9 +160,6 @@ fun Fragment.textColorSecondary() = requireContext().textColorSecondary()
 @ColorInt
 fun Context.textColorSecondary() = resolveColor(android.R.attr.textColorSecondary)
 
-@ColorInt
-fun Context.defaultFooterColor() = resolveColor(R.attr.defaultFooterColor)
-
 fun SeekBar.applyColor(@ColorInt color: Int) {
     color.toColorStateList().let {
         thumbTintList = it

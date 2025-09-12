@@ -16,7 +16,6 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:actionBarSize">@dimen/toolbar_height</item>
         <item name="homeAsUpIndicator">@drawable/ic_back_24dp</item>
-        <item name="defaultFooterColor">@color/material_dynamic_neutral_variant10</item>
     </style>
 
     <style name="Theme.Booming.SplashScreen" parent="Theme.SplashScreen">

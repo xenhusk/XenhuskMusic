@@ -64,7 +64,6 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:actionBarSize">@dimen/toolbar_height</item>
         <item name="homeAsUpIndicator">@drawable/ic_back_24dp</item>
-        <item name="defaultFooterColor">@color/footerDark</item>
     </style>
 
     <style name="Base.Theme.Booming.Light" parent="Theme.Material3.Light.NoActionBar">
@@ -130,7 +129,6 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:actionBarSize">@dimen/toolbar_height</item>
         <item name="homeAsUpIndicator">@drawable/ic_back_24dp</item>
-        <item name="defaultFooterColor">@color/footerLight</item>
     </style>
 
     <style name="Base.Theme.Booming.Adaptive" parent="Theme.Material3.DayNight.NoActionBar">
@@ -196,7 +194,6 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:actionBarSize">@dimen/toolbar_height</item>
         <item name="homeAsUpIndicator">@drawable/ic_back_24dp</item>
-        <item name="defaultFooterColor">@color/footerLight</item>
     </style>
 
     <style name="Base.Theme.Booming.Black">
@@ -204,7 +201,6 @@
         <item name="colorSurfaceContainer">#0B0B0B</item>
         <item name="android:windowBackground">?colorSurface</item>
         <item name="elevationOverlayColor">@color/elevationOverlayBlack</item>
-        <item name="defaultFooterColor">@color/footerBlack</item>
         <item name="dividerColor">@color/dividerBlack</item>
     </style>
 

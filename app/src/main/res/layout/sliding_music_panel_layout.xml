@@ -49,6 +49,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:minHeight="@dimen/bottom_nav_height"
+        app:itemGravity="center"
+        app:itemIconGravity="@integer/bottomNavViewItemIconGravity"
         app:itemHorizontalTranslationEnabled="false"
         app:menu="@menu/menu_bottom_navigation"
         tools:viewBindingType="com.google.android.material.navigation.NavigationBarView"/>

@@ -73,8 +73,6 @@ class PlayingQueueSongAdapter(
             notifyItemRangeChanged(currentPosition, (newPosition - currentPosition) + 1)
         } else if (newPosition < this.currentPosition) {
             notifyItemRangeChanged(newPosition, (currentPosition - newPosition) + 1)
-        } else {
-            notifyItemRangeChanged(0, newPosition)
         }
         this.currentPosition = newPosition
     }
@@ -97,7 +95,7 @@ class PlayingQueueSongAdapter(
     }
 
     override fun getItemId(position: Int): Long {
-        return dataSet[position].id
+        return dataSet[position].id xor position.toLong().shl(32)
     }
 
     override fun getItemViewType(position: Int): Int {

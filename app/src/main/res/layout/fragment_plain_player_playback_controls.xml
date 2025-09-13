@@ -102,7 +102,6 @@
         android:id="@+id/playPauseButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="?attr/roundSelector"
         android:importantForAccessibility="no"
         app:layout_constraintEnd_toStartOf="@+id/nextButton"
         app:layout_constraintStart_toEndOf="@+id/previousButton"

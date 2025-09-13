@@ -10,7 +10,6 @@
     <style name="Theme.Booming.FollowSystem" parent="Base.Theme.Booming.Adaptive"/>
 
     <style name="Theme.Booming.DynamicColors" parent="@style/Theme.Material3.DayNight.NoActionBar">
-        <item name="roundSelector">@drawable/round_selector</item>
         <item name="rectSelector">@drawable/rect_selector</item>
         <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>
     </style>

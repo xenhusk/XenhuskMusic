@@ -54,10 +54,10 @@ class PlayingQueueSongAdapter(
 
     override fun onBindViewHolder(holder: SongAdapter.ViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
-        if (holder.itemViewType == HISTORY || holder.itemViewType == CURRENT) {
+        holder.title?.isSelected = holder.itemViewType == CURRENT
+        if (holder.itemViewType == HISTORY) {
             setAlpha(holder, 0.5f)
         }
-
         if (Preferences.isQueueLocked) {
             holder.dragView?.visibility = View.GONE
         }else {

@@ -42,7 +42,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:textAppearance="?textAppearanceSubtitle1"
-            android:textColor="?android:textColorPrimary"
+            android:textColor="@color/checkable_text_primary"
             tools:text="@tools:sample/lorem"/>
 
         <com.google.android.material.textview.MaterialTextView

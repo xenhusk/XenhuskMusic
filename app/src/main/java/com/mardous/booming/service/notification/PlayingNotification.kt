@@ -31,6 +31,7 @@ import coil3.Image
 import coil3.SingletonImageLoader
 import coil3.request.Disposable
 import coil3.request.ImageRequest
+import coil3.request.allowHardware
 import coil3.size.Scale
 import coil3.target.Target
 import coil3.toBitmap
@@ -131,6 +132,7 @@ class PlayingNotification(
         disposable = SingletonImageLoader.get(context).enqueue(
             ImageRequest.Builder(context)
                 .songImage(song)
+                .allowHardware(false)
                 .scale(Scale.FILL)
                 .size(bigNotificationImageSize)
                 .target(object : Target {

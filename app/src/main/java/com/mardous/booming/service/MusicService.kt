@@ -50,6 +50,7 @@ import androidx.media.MediaBrowserServiceCompat
 import coil3.Image
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
+import coil3.request.allowHardware
 import coil3.request.transformations
 import coil3.size.Scale
 import coil3.target.Target
@@ -750,6 +751,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         if (Preferences.albumArtOnLockscreenAllowed || resources.isCarMode || hasT()) {
             val request = ImageRequest.Builder(this)
                 .songImage(song)
+                .allowHardware(false)
                 .scale(Scale.FILL)
                 .target(object : Target {
                     override fun onError(error: Image?) {

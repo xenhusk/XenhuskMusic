@@ -10,7 +10,6 @@ import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import coil3.dispose
-import coil3.load
 import coil3.request.Disposable
 import coil3.request.allowHardware
 import coil3.request.crossfade
@@ -20,6 +19,7 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.CornerFamily
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.mardous.booming.R
+import com.mardous.booming.coil.songImage
 import com.mardous.booming.core.model.PaletteColor
 import com.mardous.booming.core.model.theme.NowPlayingScreen
 import com.mardous.booming.core.palette.PaletteProcessor
@@ -104,21 +104,26 @@ class ImageFragment : Fragment() {
 
     private fun loadAlbumCover() {
         disposable?.dispose()
-        disposable = albumCover?.load(song) {
+        disposable = albumCover?.songImage(song) {
             crossfade(false)
             allowHardware(false)
-            listener { request, result ->
-                viewLifecycleOwner.lifecycleScope.launch {
-                    val color = withContext(Dispatchers.Default) {
-                        context?.let { fragmentCtx ->
-                            PaletteProcessor.getPaletteColor(fragmentCtx, result.image.toBitmap())
+            listener(
+                onError = { request, result ->
+                    setPalette(PaletteColor.Error)
+                },
+                onSuccess = { request, result ->
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val color = withContext(Dispatchers.Default) {
+                            context?.let { fragmentCtx ->
+                                PaletteProcessor.getPaletteColor(fragmentCtx, result.image.toBitmap())
+                            }
+                        }
+                        if (isActive && color != null) {
+                            setPalette(color)
                         }
                     }
-                    if (isActive && color != null) {
-                        setPalette(color)
-                    }
                 }
-            }
+            )
         }
     }
 

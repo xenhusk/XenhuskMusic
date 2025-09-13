@@ -26,6 +26,7 @@ import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.toBitmap
 import com.google.android.material.card.MaterialCardView
+import com.mardous.booming.core.model.PaletteColor
 import com.mardous.booming.core.palette.PaletteProcessor
 import com.mardous.booming.extensions.resources.toColorStateList
 import com.mardous.booming.ui.component.base.MediaEntryViewHolder
@@ -34,33 +35,45 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private fun MediaEntryViewHolder.setColor(color: PaletteColor) {
+    if (paletteColorContainer == null) return
+
+    if (paletteColorContainer is CardView) {
+        paletteColorContainer.setCardBackgroundColor(color.backgroundColor)
+    } else {
+        paletteColorContainer.setBackgroundColor(color.backgroundColor)
+    }
+
+    imageGradient?.backgroundTintList =
+        color.backgroundColor.toColorStateList()
+
+    title?.setTextColor(color.primaryTextColor)
+    text?.setTextColor(color.secondaryTextColor)
+    imageText?.setTextColor(color.secondaryTextColor)
+    menu?.iconTint = color.secondaryTextColor.toColorStateList()
+}
+
 fun MediaEntryViewHolder.loadPaletteImage(data: Any?, builder: ImageRequest.Builder.() -> Unit = {}) =
     image?.load(data) {
         allowHardware(false)
         builder()
-        listener { request, result ->
-            if (paletteColorContainer != null) {
-                itemView.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
-                    val color = withContext(Dispatchers.Default) {
-                        PaletteProcessor.getPaletteColor(itemView.context, result.image.toBitmap())
-                    }
-                    if (isActive) {
-                        if (paletteColorContainer is CardView) {
-                            paletteColorContainer.setCardBackgroundColor(color.backgroundColor)
-                        } else {
-                            paletteColorContainer.setBackgroundColor(color.backgroundColor)
+        listener(
+            onError = { request, result ->
+                setColor(PaletteColor.Error)
+            },
+            onSuccess = { request, result ->
+                if (paletteColorContainer != null) {
+                    itemView.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
+                        val color = withContext(Dispatchers.Default) {
+                            PaletteProcessor.getPaletteColor(
+                                itemView.context,
+                                result.image.toBitmap()
+                            )
                         }
-
-                        imageGradient?.backgroundTintList = color.backgroundColor.toColorStateList()
-
-                        title?.setTextColor(color.primaryTextColor)
-                        text?.setTextColor(color.secondaryTextColor)
-                        imageText?.setTextColor(color.secondaryTextColor)
-                        menu?.iconTint = color.secondaryTextColor.toColorStateList()
+                        if (isActive) setColor(color)
                     }
                 }
-            }
-        }
+            })
     }
 
 var MediaEntryViewHolder.isActivated: Boolean

@@ -21,7 +21,6 @@ import coil3.Image
 import coil3.SingletonImageLoader
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
-import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.target.Target
 import coil3.toBitmap
@@ -47,6 +46,8 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
 
     protected fun getEditTarget() =
         IntentCompat.getParcelableExtra(intent, EXTRA_TARGET, EditTarget::class.java) ?: EditTarget.Companion.Empty
+
+    protected abstract val placeholderDrawable: Drawable
 
     @SuppressLint("InlinedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -138,7 +139,6 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
             ImageRequest.Builder(this)
                 .data(url)
                 .crossfade(false)
-                .allowHardware(false)
                 .target(imageViewTarget)
                 .build()
         )
@@ -149,7 +149,6 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
             ImageRequest.Builder(this)
                 .data(selectedFileUri)
                 .crossfade(false)
-                .allowHardware(false)
                 .memoryCachePolicy(CachePolicy.READ_ONLY)
                 .target(imageViewTarget)
                 .build()
@@ -174,7 +173,7 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
 
     protected fun setImageBitmap(bitmap: Bitmap?) {
         if (bitmap == null) {
-            binding.image.setImageDrawable(getDefaultPlaceholder())
+            binding.image.setImageDrawable(placeholderDrawable)
         } else {
             binding.image.setImageBitmap(bitmap)
         }
@@ -221,8 +220,6 @@ abstract class AbsTagEditorActivity : AbsBaseActivity(),
     protected fun selectDefaultGenre() {
         defaultGenreSelector.show()
     }
-
-    protected abstract fun getDefaultPlaceholder(): Drawable
 
     companion object {
         const val EXTRA_TARGET = "extra_target"

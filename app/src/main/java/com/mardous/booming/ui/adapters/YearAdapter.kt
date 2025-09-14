@@ -22,10 +22,8 @@ import android.view.*
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
-import coil3.request.error
-import coil3.request.placeholder
 import com.mardous.booming.R
-import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
+import com.mardous.booming.coil.DEFAULT_YEAR_IMAGE
 import com.mardous.booming.data.model.ReleaseYear
 import com.mardous.booming.extensions.isActivated
 import com.mardous.booming.extensions.loadPaletteImage
@@ -68,10 +66,7 @@ class YearAdapter(
         holder.title?.text = year.name
         holder.text?.text = year.songCount.songsStr(holder.itemView.context)
 
-        holder.loadPaletteImage(year) {
-            placeholder(DEFAULT_SONG_IMAGE)
-            error(DEFAULT_SONG_IMAGE)
-        }
+        holder.loadPaletteImage(year, DEFAULT_YEAR_IMAGE)
     }
 
     override fun getItemCount(): Int = dataSet.size

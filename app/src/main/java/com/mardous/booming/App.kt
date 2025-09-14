@@ -31,6 +31,7 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.util.Logger
 import com.mardous.booming.coil.fetcher.ArtistImageFetcher
@@ -88,6 +89,7 @@ class App : Application(), SingletonImageLoader.Factory {
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(context)
             .crossfade(true)
+            .allowHardware(false)
             .components {
                 // Song/album
                 add(SongMapper(preferences = get()))

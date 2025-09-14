@@ -30,7 +30,6 @@
                 android:layout_height="match_parent"
                 android:background="?attr/colorSurfaceVariant"
                 android:scaleType="centerCrop"
-                android:src="@drawable/default_audio_art"
                 app:shapeAppearanceOverlay="?shapeAppearanceCornerSmall"
                 tools:ignore="ContentDescription" />
 

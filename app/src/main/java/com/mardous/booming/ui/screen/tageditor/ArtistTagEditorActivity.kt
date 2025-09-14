@@ -27,19 +27,16 @@ import coil3.SingletonImageLoader
 import coil3.load
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
-import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.toBitmap
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_ARTIST_IMAGE
-import com.mardous.booming.coil.artistImage
-import com.mardous.booming.coil.onSuccess
 import com.mardous.booming.data.local.MetadataReader
 import com.mardous.booming.databinding.TagEditorArtistFieldBinding
-import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.extensions.webSearch
 import com.mardous.booming.ui.component.base.AbsTagEditorActivity
+import com.mardous.booming.ui.component.views.getPlaceholderDrawable
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -52,6 +49,10 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
         parametersOf(getEditTarget())
     }
 
+    override val placeholderDrawable: Drawable by lazy {
+        getPlaceholderDrawable(DEFAULT_ARTIST_IMAGE)
+    }
+
     private lateinit var artistBinding: TagEditorArtistFieldBinding
 
     private var albumArtistName: String? = null
@@ -59,7 +60,7 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupImageView()
+        binding.image.setImageDrawable(placeholderDrawable)
         viewModel.tagResult.observe(this) {
             artistName = it.artist
             albumArtistName = it.albumArtist
@@ -72,17 +73,18 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
             SingletonImageLoader.get(this)
                 .enqueue(
                     ImageRequest.Builder(this)
-                        .artistImage(artist)
-                        .onSuccess { _, result ->
-                            setImageBitmap(result.image.toBitmap())
-                        }
+                        .data(artist)
+                        .listener(
+                            onError = { _, _ ->
+                                setImageBitmap(null)
+                            },
+                            onSuccess = { _, result ->
+                                setImageBitmap(result.image.toBitmap())
+                            }
+                        )
                         .build()
                 )
         }
-    }
-
-    private fun setupImageView() {
-        binding.image.setImageDrawable(getDefaultPlaceholder())
     }
 
     override fun onWrapFieldViews(inflater: LayoutInflater, parent: ViewGroup) {
@@ -99,9 +101,6 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
             artistBinding.genre.setText(String.format("%s;%s", genreContent, genre))
         } else artistBinding.genre.setText(genre)
     }
-
-    override fun getDefaultPlaceholder(): Drawable =
-        getDrawableCompat(DEFAULT_ARTIST_IMAGE)!!
 
     override fun selectImage() {
         val items = arrayOf(
@@ -138,7 +137,6 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
         viewModel.setArtistImage(selectedFileUri)
         binding.image.load(selectedFileUri) {
             crossfade(false)
-            allowHardware(false)
             memoryCachePolicy(CachePolicy.READ_ONLY)
         }
     }

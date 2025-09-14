@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import coil3.dispose
 import coil3.request.Disposable
-import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.toBitmap
 import com.google.android.material.card.MaterialCardView
@@ -106,10 +105,11 @@ class ImageFragment : Fragment() {
         disposable?.dispose()
         disposable = albumCover?.songImage(song) {
             crossfade(false)
-            allowHardware(false)
             listener(
                 onError = { request, result ->
-                    setPalette(PaletteColor.Error)
+                    context?.let {
+                        setPalette(PaletteColor.errorColor(it))
+                    }
                 },
                 onSuccess = { request, result ->
                     viewLifecycleOwner.lifecycleScope.launch {

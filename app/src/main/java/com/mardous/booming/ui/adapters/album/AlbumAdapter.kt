@@ -24,8 +24,6 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.core.view.isGone
 import androidx.fragment.app.FragmentActivity
-import coil3.request.error
-import coil3.request.placeholder
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_ALBUM_IMAGE
 import com.mardous.booming.data.model.Album
@@ -83,14 +81,7 @@ open class AlbumAdapter(
         } else {
             holder.image?.transitionName = album.id.toString()
         }
-        loadAlbumCover(album, holder)
-    }
-
-    protected open fun loadAlbumCover(album: Album, holder: ViewHolder) {
-        holder.loadPaletteImage(album) {
-            placeholder(DEFAULT_ALBUM_IMAGE)
-            error(DEFAULT_ALBUM_IMAGE)
-        }
+        holder.loadPaletteImage(album, DEFAULT_ALBUM_IMAGE)
     }
 
     private fun getAlbumTitle(album: Album): String {

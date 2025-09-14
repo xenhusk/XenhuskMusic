@@ -28,7 +28,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
-import coil3.request.allowHardware
 import coil3.toBitmap
 import com.mardous.booming.R
 import com.mardous.booming.core.model.LibraryMargin
@@ -82,7 +81,6 @@ fun LyricsScreen(
             val result = SingletonImageLoader.get(context).execute(
                 ImageRequest.Builder(context)
                     .data(playerViewModel.currentSong)
-                    .allowHardware(false)
                     .build()
             )
             gradientColors = if (result is SuccessResult) {

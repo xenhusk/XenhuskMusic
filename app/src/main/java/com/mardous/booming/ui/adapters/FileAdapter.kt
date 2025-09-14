@@ -25,10 +25,9 @@ import android.view.ViewGroup
 import androidx.core.view.isGone
 import androidx.fragment.app.FragmentActivity
 import coil3.load
-import coil3.request.error
-import coil3.request.placeholder
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
+import com.mardous.booming.coil.placeholderDrawableRes
 import com.mardous.booming.core.model.filesystem.FileSystemItem
 import com.mardous.booming.data.model.Folder
 import com.mardous.booming.data.model.Song
@@ -71,8 +70,7 @@ class FileAdapter(
         holder.text?.text = file.getFileDescription(holder.itemView.context)
         if (getItemViewType(position) == VIEW_TYPE_SONG) {
             holder.image?.load(file) {
-                placeholder(DEFAULT_SONG_IMAGE)
-                error(DEFAULT_SONG_IMAGE)
+                placeholderDrawableRes(holder.itemView.context, DEFAULT_SONG_IMAGE)
             }
         } else {
             holder.image?.setImageDrawable(file.getFileIcon(holder.itemView.context))

@@ -22,7 +22,6 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
@@ -31,13 +30,10 @@ import coil3.Image
 import coil3.SingletonImageLoader
 import coil3.request.Disposable
 import coil3.request.ImageRequest
-import coil3.request.allowHardware
 import coil3.size.Scale
 import coil3.target.Target
 import coil3.toBitmap
 import com.mardous.booming.R
-import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
-import com.mardous.booming.coil.songImage
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.hasS
@@ -126,13 +122,10 @@ class PlayingNotification(
         setSubText(getExtraTextString(song))
         val bigNotificationImageSize = context.dip(R.dimen.notification_big_image_size)
 
-        setAlbumArtImage(null)
-
         disposable?.dispose()
         disposable = SingletonImageLoader.get(context).enqueue(
             ImageRequest.Builder(context)
-                .songImage(song)
-                .allowHardware(false)
+                .data(song)
                 .scale(Scale.FILL)
                 .size(bigNotificationImageSize)
                 .target(object : Target {
@@ -147,7 +140,7 @@ class PlayingNotification(
                     }
 
                     override fun onSuccess(result: Image) {
-                        setAlbumArtImage(result.toBitmap())
+                        setAlbumArtImage(result)
                         onUpdate()
                     }
                 })
@@ -165,11 +158,11 @@ class PlayingNotification(
         mActions[0] = buildFavoriteAction(isFavorite)
     }
 
-    private fun setAlbumArtImage(image: Bitmap?) {
+    private fun setAlbumArtImage(image: Image?) {
         if (image == null) {
-            setLargeIcon(BitmapFactory.decodeResource(context.resources, DEFAULT_SONG_IMAGE))
+            setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.default_audio_art))
         } else {
-            setLargeIcon(image)
+            setLargeIcon(image.toBitmap())
         }
     }
 

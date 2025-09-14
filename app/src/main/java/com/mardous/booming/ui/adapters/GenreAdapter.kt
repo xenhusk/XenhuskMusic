@@ -22,9 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
-import coil3.request.error
-import coil3.request.placeholder
-import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
+import com.mardous.booming.coil.DEFAULT_GENRE_IMAGE
 import com.mardous.booming.data.model.Genre
 import com.mardous.booming.extensions.loadPaletteImage
 import com.mardous.booming.extensions.media.sectionName
@@ -64,11 +62,7 @@ class GenreAdapter(
         val genre = dataSet[position]
         holder.title?.text = genre.name
         holder.text?.text = genre.songCount.songsStr(holder.itemView.context)
-
-        holder.loadPaletteImage(genre) {
-            placeholder(DEFAULT_SONG_IMAGE)
-            error(DEFAULT_SONG_IMAGE)
-        }
+        holder.loadPaletteImage(genre, DEFAULT_GENRE_IMAGE)
     }
 
     override fun getItemCount(): Int {

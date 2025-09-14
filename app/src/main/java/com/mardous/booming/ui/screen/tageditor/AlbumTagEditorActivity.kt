@@ -27,11 +27,11 @@ import com.mardous.booming.core.model.task.Result
 import com.mardous.booming.data.local.MetadataReader
 import com.mardous.booming.data.local.toBitmap
 import com.mardous.booming.databinding.TagEditorAlbumFieldBinding
-import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.extensions.resources.getResized
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.webSearch
 import com.mardous.booming.ui.component.base.AbsTagEditorActivity
+import com.mardous.booming.ui.component.views.getPlaceholderDrawable
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -42,6 +42,10 @@ class AlbumTagEditorActivity : AbsTagEditorActivity() {
 
     override val viewModel by viewModel<TagEditorViewModel> {
         parametersOf(getEditTarget())
+    }
+
+    override val placeholderDrawable: Drawable by lazy {
+        getPlaceholderDrawable(DEFAULT_ALBUM_IMAGE)
     }
 
     private lateinit var albumBinding: TagEditorAlbumFieldBinding
@@ -79,8 +83,6 @@ class AlbumTagEditorActivity : AbsTagEditorActivity() {
             albumBinding.genre.setText(String.format("%s;%s", genreContent, genre))
         } else albumBinding.genre.setText(genre)
     }
-
-    override fun getDefaultPlaceholder(): Drawable = getDrawableCompat(DEFAULT_ALBUM_IMAGE)!!
 
     override fun downloadOnlineImage() {
         val albumTitleStr = albumBinding.album.text?.toString()

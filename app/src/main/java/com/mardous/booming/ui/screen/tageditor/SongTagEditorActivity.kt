@@ -27,11 +27,11 @@ import com.mardous.booming.core.model.task.Result
 import com.mardous.booming.data.local.MetadataReader
 import com.mardous.booming.data.local.toBitmap
 import com.mardous.booming.databinding.TagEditorSongFieldBinding
-import com.mardous.booming.extensions.resources.getDrawableCompat
 import com.mardous.booming.extensions.resources.getResized
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.webSearch
 import com.mardous.booming.ui.component.base.AbsTagEditorActivity
+import com.mardous.booming.ui.component.views.getPlaceholderDrawable
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -42,6 +42,10 @@ class SongTagEditorActivity : AbsTagEditorActivity() {
 
     override val viewModel by viewModel<TagEditorViewModel> {
         parametersOf(getEditTarget())
+    }
+
+    override val placeholderDrawable: Drawable by lazy {
+        getPlaceholderDrawable(DEFAULT_SONG_IMAGE)
     }
 
     private var _songBinding: TagEditorSongFieldBinding? = null
@@ -87,9 +91,6 @@ class SongTagEditorActivity : AbsTagEditorActivity() {
             songBinding.genre.setText(String.format("%s;%s", genreContent, genre))
         } else songBinding.genre.setText(genre)
     }
-
-    override fun getDefaultPlaceholder(): Drawable =
-        getDrawableCompat(DEFAULT_SONG_IMAGE)!!
 
     override fun downloadOnlineImage() {
         val songTitleStr = songBinding.title.text?.toString()

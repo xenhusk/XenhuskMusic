@@ -28,7 +28,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 app:shapeAppearanceOverlay="?shapeAppearanceCornerLarge"
-                tools:srcCompat="@drawable/default_audio_art"/>
+                tools:srcCompat="@tools:sample/avatars"/>
 
         </com.mardous.booming.ui.component.views.WidthFitSquareLayout>
 

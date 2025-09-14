@@ -66,9 +66,9 @@ object PaletteProcessor {
     }
 
     suspend fun getPaletteColor(context: Context, bitmap: Bitmap): PaletteColor =
-        getPaletteColor(bitmap.toDrawable(context.resources))
+        getPaletteColor(context, bitmap.toDrawable(context.resources))
 
-    private suspend fun getPaletteColor(drawable: Drawable) = withContext(Dispatchers.Default) {
+    private suspend fun getPaletteColor(context: Context, drawable: Drawable) = withContext(Dispatchers.Default) {
         if (!isRecycled(drawable)) {
             var width = drawable.intrinsicWidth
             var height = drawable.intrinsicHeight
@@ -137,7 +137,7 @@ object PaletteProcessor {
             val foregroundColors = ensureColors(backgroundColor, foregroundColor)
             PaletteColor(backgroundColor, foregroundColors.first, foregroundColors.second)
         } else {
-            PaletteColor.Companion.Error
+            PaletteColor.errorColor(context)
         }
     }
 

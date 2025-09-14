@@ -22,6 +22,7 @@ import android.graphics.Color
 import android.os.Build
 import androidx.annotation.ColorInt
 import androidx.annotation.StyleRes
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import com.mardous.booming.R
 import com.mardous.booming.util.GeneralTheme
@@ -63,11 +64,13 @@ class AppTheme private constructor(
                 if (Preferences.materialYou) {
                     return AppTheme(generalTheme, themeRes)
                 }
-                return AppTheme(
-                    generalTheme,
-                    themeRes,
-                    ContextCompat.getColor(context, R.color.md_theme_primary)
-                )
+                if (context is ContextThemeWrapper) {
+                    return AppTheme(
+                        generalTheme,
+                        themeRes,
+                        ContextCompat.getColor(context, R.color.md_theme_primary)
+                    )
+                }
             }
             return AppTheme(generalTheme, themeMode.themeRes)
         }

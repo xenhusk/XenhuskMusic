@@ -28,13 +28,11 @@ import coil3.Image
 import coil3.SingletonImageLoader
 import coil3.request.Disposable
 import coil3.request.ImageRequest
-import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.size.Scale
 import coil3.target.Target
 import coil3.toBitmap
 import com.mardous.booming.R
-import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.core.appwidgets.base.BaseAppWidget
 import com.mardous.booming.extensions.getTintedDrawable
 import com.mardous.booming.extensions.resources.getPrimaryTextColor
@@ -56,7 +54,7 @@ class AppWidgetBig : BaseAppWidget() {
         val primaryTextColor = getPrimaryTextColor(context, isDark = false)
 
         appWidgetView.setViewVisibility(R.id.media_titles, View.INVISIBLE)
-        appWidgetView.setImageViewResource(R.id.image, DEFAULT_SONG_IMAGE)
+        appWidgetView.setImageViewResource(R.id.image, R.drawable.default_audio_art)
         appWidgetView.setImageViewBitmap(
             R.id.button_next,
             context.getTintedDrawable(R.drawable.ic_next_24dp, primaryTextColor)!!.toBitmap()
@@ -126,7 +124,6 @@ class AppWidgetBig : BaseAppWidget() {
                     .size(imageSize)
                     .scale(Scale.FILL)
                     .crossfade(false)
-                    .allowHardware(false)
                     .target(object : Target {
                         override fun onError(error: Image?) {
                             update(null)
@@ -138,7 +135,7 @@ class AppWidgetBig : BaseAppWidget() {
 
                         private fun update(bitmap: Bitmap?) {
                             if (bitmap == null) {
-                                appWidgetView.setImageViewResource(R.id.image, DEFAULT_SONG_IMAGE)
+                                appWidgetView.setImageViewResource(R.id.image, R.drawable.default_audio_art)
                             } else {
                                 appWidgetView.setImageViewBitmap(R.id.image, bitmap)
                             }

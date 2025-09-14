@@ -21,11 +21,8 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.LayoutRes
 import androidx.core.view.isGone
 import androidx.fragment.app.FragmentActivity
-import coil3.request.error
-import coil3.request.placeholder
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_ARTIST_IMAGE
 import com.mardous.booming.data.model.Artist
@@ -44,11 +41,11 @@ import me.zhanghai.android.fastscroll.PopupTextProvider
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
-open class ArtistAdapter(
+class ArtistAdapter(
     activity: FragmentActivity,
     dataSet: List<Artist>,
-    @LayoutRes protected val itemLayoutRes: Int,
-    protected val callback: IArtistCallback? = null,
+    private val itemLayoutRes: Int,
+    private val callback: IArtistCallback? = null,
 ) : AbsMultiSelectAdapter<ArtistAdapter.ViewHolder, Artist>(activity, R.menu.menu_media_selection),
     PopupTextProvider {
 
@@ -59,13 +56,9 @@ open class ArtistAdapter(
         notifyDataSetChanged()
     }
 
-    protected open fun createArtistHolder(view: View, viewType: Int): ViewHolder {
-        return ViewHolder(view)
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View = LayoutInflater.from(parent.context).inflate(itemLayoutRes, parent, false)
-        return createArtistHolder(view, viewType)
+        return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -81,14 +74,7 @@ open class ArtistAdapter(
         } else {
             holder.image?.transitionName = transitionName
         }
-        loadArtistImage(artist, holder)
-    }
-
-    protected open fun loadArtistImage(artist: Artist, holder: ViewHolder) {
-        holder.loadPaletteImage(artist) {
-            placeholder(DEFAULT_ARTIST_IMAGE)
-            error(DEFAULT_ARTIST_IMAGE)
-        }
+        holder.loadPaletteImage(artist, DEFAULT_ARTIST_IMAGE)
     }
 
     private fun getArtistTitle(artist: Artist): String {

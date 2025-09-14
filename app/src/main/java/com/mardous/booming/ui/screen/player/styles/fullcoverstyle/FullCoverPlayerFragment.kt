@@ -18,6 +18,7 @@
 package com.mardous.booming.ui.screen.player.styles.fullcoverstyle
 
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -38,6 +39,7 @@ import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
 import com.mardous.booming.ui.component.base.AbsPlayerFragment
+import com.mardous.booming.ui.component.views.getPlaceholderDrawable
 import com.mardous.booming.ui.screen.player.PlayerColorScheme
 import com.mardous.booming.ui.screen.player.PlayerColorSchemeMode
 import com.mardous.booming.ui.screen.player.PlayerTintTarget
@@ -55,6 +57,7 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
 
     private lateinit var controlsFragment: FullCoverPlayerControlsFragment
 
+    private var errorDrawable: Drawable? = null
     private var disposable: Disposable? = null
 
     override val colorSchemeMode: PlayerColorSchemeMode
@@ -66,6 +69,7 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentFullCoverPlayerBinding.bind(view)
+        errorDrawable = view.context.getPlaceholderDrawable(DEFAULT_SONG_IMAGE)
         setupListeners()
         ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarContainer) { v: View, insets: WindowInsetsCompat ->
             val statusBar = insets.getInsets(Type.systemBars())
@@ -103,7 +107,7 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
             _binding?.nextSongText?.text = nextSong.title
         } else {
             _binding?.nextSongText?.setText(R.string.now_playing)
-            _binding?.nextSongAlbumArt?.setImageResource(DEFAULT_SONG_IMAGE)
+            _binding?.nextSongAlbumArt?.setImageDrawable(errorDrawable)
         }
     }
 

@@ -25,8 +25,6 @@ import androidx.annotation.MenuRes
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
-import coil3.request.error
-import coil3.request.placeholder
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.data.model.Song
@@ -86,14 +84,7 @@ open class SongAdapter(
         } else {
             holder.image?.transitionName = song.id.toString()
         }
-        loadAlbumCover(song, holder)
-    }
-
-    protected open fun loadAlbumCover(song: Song, holder: ViewHolder) {
-        holder.loadPaletteImage(song) {
-            placeholder(DEFAULT_SONG_IMAGE)
-            error(DEFAULT_SONG_IMAGE)
-        }
+        holder.loadPaletteImage(song, DEFAULT_SONG_IMAGE)
     }
 
     private fun getSongTitle(song: Song): String {

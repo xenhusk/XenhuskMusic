@@ -50,7 +50,6 @@ import androidx.media.MediaBrowserServiceCompat
 import coil3.Image
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
-import coil3.request.allowHardware
 import coil3.request.transformations
 import coil3.size.Scale
 import coil3.target.Target
@@ -58,8 +57,6 @@ import coil3.toBitmap
 import com.commit451.coiltransformations.BlurTransformation
 import com.mardous.booming.BuildConfig
 import com.mardous.booming.R
-import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
-import com.mardous.booming.coil.songImage
 import com.mardous.booming.core.androidauto.AutoMediaIDHelper
 import com.mardous.booming.core.androidauto.AutoMusicProvider
 import com.mardous.booming.core.androidauto.PackageValidator
@@ -750,14 +747,13 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
         // else album art is blurry in notification
         if (Preferences.albumArtOnLockscreenAllowed || resources.isCarMode || hasT()) {
             val request = ImageRequest.Builder(this)
-                .songImage(song)
-                .allowHardware(false)
+                .data(song)
                 .scale(Scale.FILL)
                 .target(object : Target {
                     override fun onError(error: Image?) {
                         metadata.putBitmap(
                             MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
-                            BitmapFactory.decodeResource(resources, DEFAULT_SONG_IMAGE)
+                            BitmapFactory.decodeResource(resources, R.drawable.default_audio_art)
                         )
                         mediaSession.setMetadata(metadata.build())
                         onCompletion()
@@ -765,8 +761,7 @@ class MusicService : MediaBrowserServiceCompat(), PlaybackCallbacks, QueueObserv
 
                     override fun onSuccess(result: Image) {
                         metadata.putBitmap(
-                            MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
-                            result.toBitmap()
+                            MediaMetadataCompat.METADATA_KEY_ALBUM_ART, result.toBitmap()
                         )
                         mediaSession.setMetadata(metadata.build())
                         onCompletion()

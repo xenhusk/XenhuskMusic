@@ -23,9 +23,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
 import coil3.request.ImageRequest
-import coil3.request.allowHardware
 import coil3.toBitmap
 import com.google.android.material.card.MaterialCardView
+import com.mardous.booming.coil.placeholderDrawableRes
 import com.mardous.booming.core.model.PaletteColor
 import com.mardous.booming.core.palette.PaletteProcessor
 import com.mardous.booming.extensions.resources.toColorStateList
@@ -53,13 +53,17 @@ private fun MediaEntryViewHolder.setColor(color: PaletteColor) {
     menu?.iconTint = color.secondaryTextColor.toColorStateList()
 }
 
-fun MediaEntryViewHolder.loadPaletteImage(data: Any?, builder: ImageRequest.Builder.() -> Unit = {}) =
+fun MediaEntryViewHolder.loadPaletteImage(
+    data: Any?,
+    placeholderRes: Int,
+    builder: ImageRequest.Builder.() -> Unit = {}
+) =
     image?.load(data) {
-        allowHardware(false)
+        placeholderDrawableRes(itemView.context, placeholderRes)
         builder()
         listener(
             onError = { request, result ->
-                setColor(PaletteColor.Error)
+                setColor(PaletteColor.errorColor(itemView.context))
             },
             onSuccess = { request, result ->
                 if (paletteColorContainer != null) {

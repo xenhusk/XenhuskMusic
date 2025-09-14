@@ -30,7 +30,6 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mardous.booming.R
-import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.media.songInfo
 import com.mardous.booming.extensions.resources.getDrawableCompat
@@ -95,7 +94,7 @@ abstract class BaseAppWidget : AppWidgetProvider() {
     @Suppress("DEPRECATION")
     protected fun getAlbumArtDrawable(context: Context, bitmap: Bitmap?): Drawable {
         return bitmap?.toDrawable(context.resources)
-            ?: context.getDrawableCompat(DEFAULT_SONG_IMAGE)!!
+            ?: context.getDrawableCompat(R.drawable.default_audio_art)!!
     }
 
     protected fun getSongArtistAndAlbum(song: Song): String {

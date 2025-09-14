@@ -25,12 +25,10 @@ import coil3.Image
 import coil3.SingletonImageLoader
 import coil3.request.Disposable
 import coil3.request.ImageRequest
-import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.size.Scale
 import coil3.toBitmap
 import com.mardous.booming.R
-import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.core.appwidgets.base.BaseAppWidget
 import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.resources.getDrawableCompat
@@ -54,7 +52,7 @@ class AppWidgetSmall : BaseAppWidget() {
         appWidgetView.setImageViewBitmap(
             R.id.image,
             createRoundedBitmap(
-                context.getDrawableCompat(DEFAULT_SONG_IMAGE),
+                context.getDrawableCompat(R.drawable.default_audio_art),
                 imageSize, imageSize, innerRadius, innerRadius, innerRadius, innerRadius
             )
         )
@@ -103,7 +101,6 @@ class AppWidgetSmall : BaseAppWidget() {
                     .size(imageSize)
                     .scale(Scale.FILL)
                     .crossfade(false)
-                    .allowHardware(false)
                     .target(object : coil3.target.Target {
                         override fun onError(error: Image?) {
                             update(null)

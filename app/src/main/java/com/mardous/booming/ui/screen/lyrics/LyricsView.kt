@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
@@ -236,7 +237,8 @@ private fun LyricsLineView(
                         startMillis = line.startAt,
                         endMillis = line.end,
                         style = textStyle.copy(
-                            fontSize = textStyle.fontSize / 1.40f
+                            fontSize = textStyle.fontSize / 1.40f,
+                            fontWeight = FontWeight.Normal
                         ),
                         align = textAlign
                     )
@@ -305,7 +307,7 @@ fun LyricsLineContentView(
             selectedLine = selectedLine,
             progressFraction = mainProgressFraction,
             content = mainText,
-            contentColor = contentColor,
+            contentColor = contentColor.copy(alpha = 1f),
             style = style.copy(shadow = shadow),
             align = align,
             modifier = modifier.graphicsLayer {
@@ -335,9 +337,10 @@ fun LyricsLineContentView(
                 progressFraction = calculateLineProgress(translatedVocals, position, startMillis, endMillis)
                     .coerceIn(0f, 1f),
                 content = translatedText,
-                contentColor = contentColor,
+                contentColor = contentColor.copy(alpha = 1f),
                 style = style.copy(
                     fontSize = style.fontSize / 1.40,
+                    fontWeight = FontWeight.Normal,
                     shadow = shadow
                 ),
                 align = align,
@@ -348,12 +351,13 @@ fun LyricsLineContentView(
         } else {
             LyricsTextView(
                 selectedLine = selectedLine,
-                progressiveColoring = mainVocals.isEmpty(),
+                progressiveColoring = progressiveColoring && mainVocals.isEmpty(),
                 progressFraction = mainProgressFraction,
                 content = translatedText,
                 color = contentColor,
                 style = style.copy(
                     fontSize = style.fontSize / 1.40,
+                    fontWeight = FontWeight.Normal,
                     shadow = shadow
                 ),
                 align = align,

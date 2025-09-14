@@ -28,6 +28,7 @@ import coil3.load
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import coil3.size.Scale
 import coil3.toBitmap
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
@@ -137,6 +138,7 @@ class ArtistTagEditorActivity : AbsTagEditorActivity() {
         viewModel.setArtistImage(selectedFileUri)
         binding.image.load(selectedFileUri) {
             crossfade(false)
+            scale(Scale.FILL)
             memoryCachePolicy(CachePolicy.READ_ONLY)
         }
     }

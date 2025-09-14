@@ -51,6 +51,7 @@ fun LyricsView(
     state: LyricsViewState,
     settings: LyricsViewSettings,
     fadingEdges: FadingEdges,
+    hasGradientBackground: Boolean,
     modifier: Modifier = Modifier,
     onLineClick: (Lyrics.Line) -> Unit
 ) {
@@ -102,8 +103,8 @@ fun LyricsView(
                 selectedLine = index == state.currentLineIndex,
                 enableSyllable = settings.enableSyllableLyrics,
                 progressiveColoring = settings.progressiveColoring,
-                enableBlurEffect = settings.blurEffect && disableBlurEffect.not(),
-                enableShadowEffect = settings.shadowEffect,
+                enableBlurEffect = settings.blurEffect && hasGradientBackground && disableBlurEffect.not(),
+                enableShadowEffect = settings.shadowEffect && hasGradientBackground,
                 position = state.position,
                 line = line,
                 textStyle = textStyle,

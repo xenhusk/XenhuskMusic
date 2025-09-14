@@ -142,7 +142,8 @@ fun LyricsScreen(
                 contentColor = contentColor,
                 fadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
                 scrollState = plainScrollState,
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Start,
+                hasGradientBackground = isGradientBackground
             ) { playerViewModel.seekTo(it.startAt) }
         }
     }
@@ -188,7 +189,8 @@ fun CoverLyricsScreen(
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 fadingEdges = FadingEdges(top = 72.dp, bottom = 64.dp),
                 scrollState = plainScrollState,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                hasGradientBackground = false
             ) { playerViewModel.seekTo(it.startAt) }
 
             FilledIconButton(
@@ -220,6 +222,7 @@ private fun LyricsSurface(
     fadingEdges: FadingEdges,
     scrollState: ScrollState,
     textAlign: TextAlign?,
+    hasGradientBackground: Boolean,
     modifier: Modifier = Modifier,
     onSeekToLine: (Lyrics.Line) -> Unit
 ) {
@@ -237,7 +240,8 @@ private fun LyricsSurface(
                         LyricsView(
                             state = state,
                             settings = settings,
-                            fadingEdges = fadingEdges
+                            fadingEdges = fadingEdges,
+                            hasGradientBackground = hasGradientBackground
                         ) { onSeekToLine(it) }
                     }
 

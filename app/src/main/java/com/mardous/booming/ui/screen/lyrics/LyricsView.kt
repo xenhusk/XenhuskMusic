@@ -51,6 +51,7 @@ fun LyricsView(
     state: LyricsViewState,
     settings: LyricsViewSettings,
     fadingEdges: FadingEdges,
+    isPowerSaveMode: Boolean,
     hasGradientBackground: Boolean,
     modifier: Modifier = Modifier,
     onLineClick: (Lyrics.Line) -> Unit
@@ -62,7 +63,8 @@ fun LyricsView(
     val isScrollInProgress = listState.isScrollInProgress
     val isInDragGesture by listState.interactionSource.collectIsDraggedAsState()
 
-    var disableBlurEffect by remember { mutableStateOf(false) }
+    val disableAdvancedEffects = isPowerSaveMode || hasGradientBackground.not()
+    var disableBlurEffect by remember { mutableStateOf(disableAdvancedEffects) }
     if (isInDragGesture) {
         disableBlurEffect = true
     }
@@ -82,7 +84,7 @@ fun LyricsView(
                 } else {
                     listState.animateScrollToItem(state.currentLineIndex)
                 }
-                disableBlurEffect = false
+                disableBlurEffect = disableAdvancedEffects
             }
         }
     }
@@ -101,10 +103,10 @@ fun LyricsView(
                 index = index,
                 selectedIndex = state.currentLineIndex,
                 selectedLine = index == state.currentLineIndex,
-                enableSyllable = settings.enableSyllableLyrics,
-                progressiveColoring = settings.progressiveColoring,
-                enableBlurEffect = settings.blurEffect && hasGradientBackground && disableBlurEffect.not(),
-                enableShadowEffect = settings.shadowEffect && hasGradientBackground,
+                enableSyllable = settings.enableSyllableLyrics && isPowerSaveMode.not(),
+                progressiveColoring = settings.progressiveColoring && isPowerSaveMode.not(),
+                enableBlurEffect = settings.blurEffect && disableBlurEffect.not(),
+                enableShadowEffect = settings.shadowEffect && disableAdvancedEffects.not(),
                 position = state.position,
                 line = line,
                 textStyle = textStyle,

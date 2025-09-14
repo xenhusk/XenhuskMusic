@@ -34,6 +34,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
@@ -119,6 +120,8 @@ fun Context.webSearch(vararg keys: String?) {
         openUrl("https://google.com/search?q=${query.encodeURLParameter(spaceToPlus = true)}")
     }
 }
+
+fun Context.isPowerSaveMode(): Boolean = getSystemService<PowerManager>()?.isPowerSaveMode == true
 
 fun Context.isOnline(requestOnlyWifi: Boolean): Boolean {
     val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

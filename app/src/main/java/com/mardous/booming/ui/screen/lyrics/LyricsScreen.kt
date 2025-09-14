@@ -32,6 +32,7 @@ import coil3.toBitmap
 import com.mardous.booming.R
 import com.mardous.booming.core.model.LibraryMargin
 import com.mardous.booming.data.model.lyrics.Lyrics
+import com.mardous.booming.extensions.isPowerSaveMode
 import com.mardous.booming.ui.component.compose.color.extractGradientColors
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
 import com.mardous.booming.ui.component.compose.decoration.animatedGradient
@@ -51,6 +52,8 @@ fun LyricsScreen(
     onEditClick: () -> Unit
 ) {
     val context = LocalContext.current
+    val isPowerSaveMode = remember { context.isPowerSaveMode() }
+
     val miniPlayerMargin by libraryViewModel.getMiniPlayerMargin().observeAsState(LibraryMargin(0))
 
     val lyricsViewSettings by lyricsViewModel.fullLyricsViewSettings.collectAsState()
@@ -74,7 +77,7 @@ fun LyricsScreen(
 
     var gradientColors by remember { mutableStateOf<List<Color>>(emptyList()) }
     LaunchedEffect(lyricsResult.id) {
-        if (!lyricsViewSettings.gradientBackground)
+        if (!lyricsViewSettings.gradientBackground || isPowerSaveMode)
             return@LaunchedEffect
 
         withContext(Dispatchers.Default) {
@@ -143,6 +146,7 @@ fun LyricsScreen(
                 fadingEdges = FadingEdges(top = 56.dp, bottom = 32.dp),
                 scrollState = plainScrollState,
                 textAlign = TextAlign.Start,
+                isPowerSaveMode = isPowerSaveMode,
                 hasGradientBackground = isGradientBackground
             ) { playerViewModel.seekTo(it.startAt) }
         }
@@ -156,6 +160,9 @@ fun CoverLyricsScreen(
     onExpandClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val isPowerSaveMode = remember { context.isPowerSaveMode() }
+
     val lyricsViewSettings by lyricsViewModel.playerLyricsViewSettings.collectAsState()
 
     val lyricsResult by lyricsViewModel.lyricsResult.collectAsState()
@@ -190,6 +197,7 @@ fun CoverLyricsScreen(
                 fadingEdges = FadingEdges(top = 72.dp, bottom = 64.dp),
                 scrollState = plainScrollState,
                 textAlign = TextAlign.Center,
+                isPowerSaveMode = isPowerSaveMode,
                 hasGradientBackground = false
             ) { playerViewModel.seekTo(it.startAt) }
 
@@ -222,6 +230,7 @@ private fun LyricsSurface(
     fadingEdges: FadingEdges,
     scrollState: ScrollState,
     textAlign: TextAlign?,
+    isPowerSaveMode: Boolean,
     hasGradientBackground: Boolean,
     modifier: Modifier = Modifier,
     onSeekToLine: (Lyrics.Line) -> Unit
@@ -241,6 +250,7 @@ private fun LyricsSurface(
                             state = state,
                             settings = settings,
                             fadingEdges = fadingEdges,
+                            isPowerSaveMode = isPowerSaveMode,
                             hasGradientBackground = hasGradientBackground
                         ) { onSeekToLine(it) }
                     }

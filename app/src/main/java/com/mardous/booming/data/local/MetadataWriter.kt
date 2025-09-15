@@ -244,7 +244,7 @@ data class EditTarget(
         )
 
         fun artist(artist: Artist) = EditTarget(
-            type = Type.Artist,
+            type = if (artist.isAlbumArtist) Type.AlbumArtist else Type.Artist,
             name = artist.name,
             id = artist.id,
             artworkId = -1,

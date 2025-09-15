@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi
 import com.mardous.booming.data.local.MediaQueryDispatcher
 import com.mardous.booming.data.model.Album
 import com.mardous.booming.data.model.Artist
+import com.mardous.booming.extensions.utilities.collapseSpaces
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.sort.SortOrder
 import com.mardous.booming.util.sort.sortedArtists
@@ -162,14 +163,14 @@ class RealArtistRepository(
 
     fun splitIntoAlbumArtists(albums: List<Album>): List<Artist> {
         val filterSingles = this.filterSingles
-        return albums.groupBy { it.albumArtistName?.lowercase() }
+        return albums.groupBy { it.albumArtistName?.collapseSpaces()?.lowercase() }
             .filterNot {
                 it.key.isNullOrEmpty()
             }
             .map {
                 val currentAlbums = it.value
                 if (currentAlbums.isNotEmpty()) {
-                    if (Artist.VARIOUS_ARTISTS_DISPLAY_NAME.equals(currentAlbums[0].albumArtistName, ignoreCase = true)) {
+                    if (Artist.VARIOUS_ARTISTS_DISPLAY_NAME.equals(currentAlbums[0].albumArtistName?.collapseSpaces(), ignoreCase = true)) {
                         Artist(Artist.VARIOUS_ARTISTS_ID, currentAlbums, filterSingles, isAlbumArtist = true)
                     } else {
                         Artist(currentAlbums[0].artistId, currentAlbums, filterSingles, isAlbumArtist = true)

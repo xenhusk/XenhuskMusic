@@ -33,7 +33,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.mardous.booming.R
 import com.mardous.booming.extensions.hasR
 import com.mardous.booming.extensions.hasT
-import com.mardous.booming.extensions.hasU
 import com.mardous.booming.extensions.rootView
 
 abstract class AbsBaseActivity : AbsThemeActivity() {
@@ -80,9 +79,6 @@ abstract class AbsBaseActivity : AbsThemeActivity() {
                 add(POST_NOTIFICATIONS)
             } else {
                 add(READ_EXTERNAL_STORAGE)
-            }
-            if (hasU()) {
-                add(READ_MEDIA_VISUAL_USER_SELECTED)
             }
             if (!hasR()) {
                 add(WRITE_EXTERNAL_STORAGE)

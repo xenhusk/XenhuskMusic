@@ -229,4 +229,5 @@ dependencies {
     implementation(libs.jaudiotagger)
 
     implementation(libs.versioncompare)
+    implementation(libs.commons.text)
 }

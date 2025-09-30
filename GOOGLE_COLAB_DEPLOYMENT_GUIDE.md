@@ -57,11 +57,28 @@ print("✅ All dependencies installed successfully!")
 
 Copy and paste the entire `google_colab_service.py` content into a Colab cell and run it.
 
-### **Step 5: Automatic Public Access**
+### **Step 5: Public Access Setup**
 
-The service now **automatically sets up ngrok** when it starts! You'll see the public URL in the logs when you run the service.
+The service will try to set up public access automatically. You have **3 options**:
 
-**No additional cells needed** - the public URL will be displayed automatically!
+#### **Option 1: ngrok (Recommended)**
+```python
+# First, get ngrok authtoken (free):
+# 1. Go to: https://dashboard.ngrok.com/signup
+# 2. Sign up for free account  
+# 3. Get authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken
+# 4. Run this command with your token:
+
+!ngrok config add-authtoken YOUR_TOKEN_HERE
+
+# Then restart the service - it will automatically create public URL!
+```
+
+#### **Option 2: Colab Built-in Public URL**
+The service will automatically try Colab's built-in public URL if ngrok fails.
+
+#### **Option 3: Manual ngrok Setup**
+If both fail, you'll see instructions in the logs for manual setup.
 
 ## 📊 **Google Colab vs Other Platforms**
 
@@ -213,6 +230,39 @@ print(response.json())
 2. **Use ngrok**: For stable public access
 3. **Monitor resources**: Keep an eye on RAM usage
 4. **Test regularly**: Verify service is working
+
+## 🔧 **Troubleshooting**
+
+### **ngrok Authentication Error**
+If you see: `authentication failed: Usage of ngrok requires a verified account and authtoken`
+
+**Solution:**
+```python
+# Get free ngrok account and authtoken
+# 1. Go to: https://dashboard.ngrok.com/signup
+# 2. Sign up for free account
+# 3. Get authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken
+# 4. Run this command:
+
+!ngrok config add-authtoken YOUR_TOKEN_HERE
+
+# Then restart the service
+```
+
+### **No Public URL Showing**
+If you don't see a public URL:
+
+1. **Check ngrok setup**: Make sure authtoken is configured
+2. **Try Colab built-in**: The service will try Colab's public URL automatically
+3. **Manual setup**: Follow the instructions in the service logs
+
+### **Service Not Accessible**
+If your Android app can't reach the service:
+
+1. **Check URL format**: Make sure URL starts with `https://`
+2. **Test in browser**: Try accessing `/health` endpoint
+3. **Check ngrok status**: Make sure tunnel is active
+4. **Restart service**: If ngrok URL changed
 
 ## 🎯 **Advantages of Colab**
 

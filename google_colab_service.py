@@ -40,6 +40,26 @@ def install_packages():
 
 print("✅ Dependencies installation complete!")
 
+# Optional: Setup ngrok authtoken (run this cell if you want to use ngrok)
+def setup_ngrok():
+    """
+    Setup ngrok authtoken for public URL access.
+    Run this cell and follow the instructions.
+    """
+    print("🔑 Setting up ngrok authtoken...")
+    print("📝 Steps to get ngrok working:")
+    print("   1. Go to: https://dashboard.ngrok.com/signup")
+    print("   2. Sign up for free account")
+    print("   3. Get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken")
+    print("   4. Run the command below with your token:")
+    print("")
+    print("   !ngrok config add-authtoken YOUR_TOKEN_HERE")
+    print("")
+    print("   Then restart the service to get public URL!")
+
+# Uncomment the line below to see ngrok setup instructions
+# setup_ngrok()
+
 # Import libraries
 import os
 import sys
@@ -660,9 +680,25 @@ if __name__ == '__main__':
         logger.info(f"🔧 Optimization: {MAX_WORKERS} workers, full librosa support")
         logger.info("💾 Memory: 12GB RAM, unlimited dependencies")
         
-        # Setup ngrok for public access
+        # Setup public access
+        public_url = None
+        
+        # Method 1: Try ngrok with authentication
         try:
             logger.info("🌐 Setting up public access with ngrok...")
+            
+            # Check if ngrok authtoken is set
+            import os
+            if not os.environ.get('NGROK_AUTHTOKEN'):
+                logger.info("🔑 ngrok authtoken not found. Setting up free ngrok...")
+                # For free ngrok, we need to set authtoken
+                logger.info("📝 To get ngrok authtoken:")
+                logger.info("   1. Go to: https://dashboard.ngrok.com/signup")
+                logger.info("   2. Sign up for free account")
+                logger.info("   3. Get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken")
+                logger.info("   4. Run: ngrok config add-authtoken YOUR_TOKEN")
+                raise Exception("ngrok authtoken required")
+            
             public_url = ngrok.connect(5000)
             logger.info(f"🌐 Public URL: {public_url}")
             logger.info("📱 Update your Android app with this URL!")
@@ -678,7 +714,28 @@ if __name__ == '__main__':
             
         except Exception as e:
             logger.warning(f"⚠️ Failed to setup ngrok: {e}")
-            logger.info("🔧 You can manually setup ngrok in a separate cell if needed")
+            
+            # Method 2: Try Colab's built-in public URL
+            try:
+                logger.info("🌐 Trying Colab's built-in public URL...")
+                from google.colab import output
+                
+                # Enable public access
+                output.serve_kernel_port_as_window(5000)
+                logger.info("🌐 Colab public URL enabled!")
+                logger.info("📱 Check the 'Public URL' link that appeared above!")
+                logger.info("🔗 Or use the URL shown in the Colab interface")
+                
+            except Exception as e2:
+                logger.warning(f"⚠️ Colab public URL also failed: {e2}")
+                
+                # Method 3: Manual instructions
+                logger.info("🔧 Manual setup required:")
+                logger.info("   1. Install ngrok: !pip install pyngrok")
+                logger.info("   2. Get authtoken: https://dashboard.ngrok.com/signup")
+                logger.info("   3. Set authtoken: ngrok config add-authtoken YOUR_TOKEN")
+                logger.info("   4. Create tunnel: ngrok.connect(5000)")
+                logger.info("   5. Use the ngrok URL in your Android app")
         
         # Run Flask app
         app.run(host='0.0.0.0', port=5000, debug=False)

@@ -660,6 +660,26 @@ if __name__ == '__main__':
         logger.info(f"🔧 Optimization: {MAX_WORKERS} workers, full librosa support")
         logger.info("💾 Memory: 12GB RAM, unlimited dependencies")
         
+        # Setup ngrok for public access
+        try:
+            logger.info("🌐 Setting up public access with ngrok...")
+            public_url = ngrok.connect(5000)
+            logger.info(f"🌐 Public URL: {public_url}")
+            logger.info("📱 Update your Android app with this URL!")
+            
+            # Keep the tunnel alive
+            def keep_alive():
+                while True:
+                    time.sleep(60)
+                    logger.info("🔄 Keeping ngrok tunnel alive...")
+            
+            # Start keep-alive thread
+            threading.Thread(target=keep_alive, daemon=True).start()
+            
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to setup ngrok: {e}")
+            logger.info("🔧 You can manually setup ngrok in a separate cell if needed")
+        
         # Run Flask app
         app.run(host='0.0.0.0', port=5000, debug=False)
     else:

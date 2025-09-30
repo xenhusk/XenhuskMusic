@@ -57,31 +57,11 @@ print("✅ All dependencies installed successfully!")
 
 Copy and paste the entire `google_colab_service.py` content into a Colab cell and run it.
 
-### **Step 5: Make It Publicly Accessible**
+### **Step 5: Automatic Public Access**
 
-Install and run ngrok to get a public URL:
+The service now **automatically sets up ngrok** when it starts! You'll see the public URL in the logs when you run the service.
 
-```python
-# Install ngrok
-!pip install pyngrok
-
-# Import and setup
-from pyngrok import ngrok
-import threading
-import time
-
-# Start ngrok tunnel
-public_url = ngrok.connect(5000)
-print(f"🌐 Public URL: {public_url}")
-
-# Keep the tunnel alive
-def keep_alive():
-    while True:
-        time.sleep(60)
-
-# Start keep-alive thread
-threading.Thread(target=keep_alive, daemon=True).start()
-```
+**No additional cells needed** - the public URL will be displayed automatically!
 
 ## 📊 **Google Colab vs Other Platforms**
 
@@ -267,13 +247,8 @@ print(response.json())
 import flask, librosa, sklearn, joblib, pandas, numpy
 print("✅ All dependencies installed successfully!")
 
-# Step 4: Setup ngrok for public access
-from pyngrok import ngrok
-
-# Step 5: Run the service (paste google_colab_service.py content here)
-# Step 6: Create public URL
-public_url = ngrok.connect(5000)
-print(f"🌐 Your service is available at: {public_url}")
+# Step 4: Run the service (paste google_colab_service.py content here)
+# The service will automatically setup ngrok and display the public URL!
 ```
 
 ### **Alternative: Manual Upload**

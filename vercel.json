@@ -2,22 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "cloud_classification_service.py",
+      "src": "vercel_classification_service.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "cloud_classification_service.py"
+      "dest": "vercel_classification_service.py"
     }
-  ],
-  "env": {
-    "PYTHONPATH": "."
-  },
-  "functions": {
-    "cloud_classification_service.py": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }

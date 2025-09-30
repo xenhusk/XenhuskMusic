@@ -277,6 +277,21 @@ def health_check():
         'version': '1.0.0'
     })
 
+@app.route('/', methods=['GET'])
+def root():
+    """Root endpoint with service information."""
+    return jsonify({
+        'service': 'Music Classification Service',
+        'version': '1.0.0',
+        'endpoints': {
+            'health': '/health',
+            'classify': '/classify',
+            'batch_classify': '/batch_classify',
+            'model_info': '/model_info'
+        },
+        'status': 'running'
+    })
+
 @app.route('/classify', methods=['POST'])
 def classify_single():
     """
@@ -458,12 +473,25 @@ def model_info():
     if model_data is None:
         return jsonify({'error': 'Model not loaded'}), 503
     
+    # Convert numpy arrays to lists for JSON serialization
+    class_weights = model_data.get('class_weights', {})
+    if isinstance(class_weights, dict):
+        # Convert numpy arrays in class_weights to lists
+        serializable_class_weights = {}
+        for key, value in class_weights.items():
+            if hasattr(value, 'tolist'):  # numpy array
+                serializable_class_weights[key] = value.tolist()
+            else:
+                serializable_class_weights[key] = value
+    else:
+        serializable_class_weights = {}
+    
     return jsonify({
         'model_type': model_data['model_type'],
         'total_features': len(model_data['feature_names']),
         'selected_features': len(model_data['selected_feature_names']),
         'label_map': model_data['label_map'],
-        'class_weights': model_data.get('class_weights', {}),
+        'class_weights': serializable_class_weights,
         'feature_names': model_data['feature_names'],
         'selected_feature_names': model_data['selected_feature_names']
     })

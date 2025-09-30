@@ -684,6 +684,8 @@ if __name__ == '__main__':
         # Setup public access
         public_url = None
         
+        logger.info("🚀 Starting public access setup...")
+        
         # Method 1: Try ngrok with authentication
         try:
             logger.info("🌐 Setting up public access with ngrok...")
@@ -691,6 +693,8 @@ if __name__ == '__main__':
             # Check if ngrok authtoken is set
             import os
             authtoken = os.environ.get('NGROK_AUTHTOKEN')
+            logger.info(f"🔍 Checking for NGROK_AUTHTOKEN: {'Found' if authtoken else 'Not found'}")
+            
             if not authtoken:
                 logger.info("🔑 ngrok authtoken not found. Setting up free ngrok...")
                 # For free ngrok, we need to set authtoken
@@ -704,9 +708,11 @@ if __name__ == '__main__':
             # Configure ngrok with the authtoken
             logger.info("🔑 Configuring ngrok with authtoken...")
             ngrok.set_auth_token(authtoken)
+            logger.info("✅ ngrok authtoken configured successfully!")
             
+            logger.info("🌐 Creating ngrok tunnel...")
             public_url = ngrok.connect(5000)
-            logger.info(f"🌐 Public URL: {public_url}")
+            logger.info(f"🎉 SUCCESS! Public URL: {public_url}")
             logger.info("📱 Update your Android app with this URL!")
             
             # Keep the tunnel alive
@@ -720,6 +726,7 @@ if __name__ == '__main__':
             
         except Exception as e:
             logger.warning(f"⚠️ Failed to setup ngrok: {e}")
+            logger.error(f"❌ ngrok error details: {str(e)}")
             
             # Method 2: Try Colab's built-in public URL
             try:

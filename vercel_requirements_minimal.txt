@@ -1,0 +1,19 @@
+# Minimal requirements for Vercel deployment
+# Core Flask dependencies
+Flask>=2.3.0
+Flask-CORS>=4.0.0
+
+# Essential ML libraries (lighter versions)
+numpy>=1.21.0,<1.25.0
+scikit-learn>=1.0.0,<1.4.0
+joblib>=1.1.0
+
+# Lightweight audio processing (instead of librosa)
+# librosa is too heavy for Vercel, we'll use basic numpy operations
+# librosa>=0.10.0
+# soundfile>=0.12.0
+
+# Remove heavy dependencies that cause size issues
+# pandas>=1.3.0
+# matplotlib
+# seaborn

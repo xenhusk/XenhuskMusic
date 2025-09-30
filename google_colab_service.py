@@ -55,7 +55,7 @@ def setup_ngrok():
     print("")
     print("   - Click the key icon (🔑) in the left sidebar")
     print("   - Add new secret:")
-    print("     Name: ngrok_authtoken")
+    print("     Name: NGROK_AUTHTOKEN")
     print("     Value: YOUR_TOKEN_HERE")
     print("")
     print("   Then restart the service to get public URL!")
@@ -695,8 +695,8 @@ if __name__ == '__main__':
             # Check if ngrok authtoken is set in Colab secrets
             try:
                 from google.colab import userdata
-                authtoken = userdata.get('ngrok_authtoken')
-                logger.info(f"🔍 Checking for ngrok_authtoken in Colab secrets: {'Found' if authtoken else 'Not found'}")
+                authtoken = userdata.get('NGROK_AUTHTOKEN')
+                logger.info(f"🔍 Checking for NGROK_AUTHTOKEN in Colab secrets: {'Found' if authtoken else 'Not found'}")
             except Exception as e:
                 logger.info(f"🔍 Colab secrets not available: {e}")
                 authtoken = None
@@ -710,7 +710,7 @@ if __name__ == '__main__':
                 logger.info("   3. Get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken")
                 logger.info("   4. Add to Colab secrets:")
                 logger.info("      - Click the key icon (🔑) in the left sidebar")
-                logger.info("      - Add secret: 'ngrok_authtoken' = 'YOUR_TOKEN'")
+                logger.info("      - Add secret: 'NGROK_AUTHTOKEN' = 'YOUR_TOKEN'")
                 raise Exception("ngrok authtoken required")
             
             # Configure ngrok with the authtoken

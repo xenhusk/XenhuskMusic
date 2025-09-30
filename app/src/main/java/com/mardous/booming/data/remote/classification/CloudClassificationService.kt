@@ -35,7 +35,7 @@ import java.io.IOException
  */
 class CloudClassificationService(
     private val client: HttpClient,
-    private val baseUrl: String = "https://your-render-app.onrender.com" // Replace with actual Render URL
+    private val baseUrl: String = "https://xenhuskmusic.onrender.com"
 ) {
     
     companion object {

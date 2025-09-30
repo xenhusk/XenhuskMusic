@@ -73,4 +73,11 @@
     <color name="md_theme_surfaceContainer">#EFEDF4</color>
     <color name="md_theme_surfaceContainerHigh">#E9E7EF</color>
     <color name="md_theme_surfaceContainerHighest">#E3E1E9</color>
+    
+    <!-- Music Classification Colors -->
+    <color name="christian_color">#4CAF50</color>
+    <color name="secular_color">#FF9800</color>
+    <color name="success_color">#4CAF50</color>
+    <color name="error_color">#F44336</color>
+    <color name="error_container">#FFEBEE</color>
 </resources>

@@ -34,7 +34,10 @@ import com.mardous.booming.data.remote.deezer.DeezerService
 import com.mardous.booming.data.remote.github.GitHubService
 import com.mardous.booming.data.remote.jsonHttpClient
 import com.mardous.booming.data.remote.lastfm.LastFmService
-import com.mardous.booming.data.remote.lyrics.LyricsDownloadService
+import com.mardous.booming.data.remote.classification.CloudClassificationService
+import com.mardous.booming.data.local.audio.AndroidAudioFeatureExtractor
+import com.mardous.booming.data.local.repository.MusicClassificationRepository
+import com.mardous.booming.data.local.repository.PlaylistGenerationService
 import com.mardous.booming.data.remote.provideDefaultCache
 import com.mardous.booming.data.remote.provideOkHttp
 import com.mardous.booming.service.MusicService
@@ -58,6 +61,7 @@ import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.screen.sound.SoundSettingsViewModel
 import com.mardous.booming.ui.screen.tageditor.TagEditorViewModel
 import com.mardous.booming.ui.screen.update.UpdateViewModel
+import com.mardous.booming.ui.screen.classification.MusicClassificationViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.bind
@@ -84,6 +88,19 @@ val networkModule = module {
     }
     single {
         LyricsDownloadService(client = get())
+    }
+    single {
+        CloudClassificationService(client = get())
+    }
+    single {
+        AndroidAudioFeatureExtractor(context = androidContext())
+    }
+    single {
+        PlaylistGenerationService(
+            context = androidContext(),
+            playlistDao = get(),
+            classificationDao = get()
+        )
     }
 }
 
@@ -134,7 +151,7 @@ private val mainModule = module {
 private val roomModule = module {
     single {
         Room.databaseBuilder(androidContext(), BoomingDatabase::class.java, "music_database.db")
-            .addMigrations(BoomingDatabase.MIGRATION_1_2)
+            .addMigrations(BoomingDatabase.MIGRATION_1_2, BoomingDatabase.MIGRATION_2_3)
             .build()
     }
 
@@ -156,6 +173,10 @@ private val roomModule = module {
 
     factory {
         get<BoomingDatabase>().lyricsDao()
+    }
+
+    factory {
+        get<BoomingDatabase>().songClassificationDao()
     }
 }
 
@@ -235,6 +256,16 @@ private val dataModule = module {
             lyricsDao = get()
         )
     } bind LyricsRepository::class
+
+    single {
+        MusicClassificationRepository(
+            context = androidContext(),
+            classificationDao = get(),
+            cloudService = get(),
+            audioFeatureExtractor = get(),
+            playlistGenerationService = get()
+        )
+    }
 }
 
 private val viewModule = module {
@@ -315,6 +346,13 @@ private val viewModule = module {
 
     viewModel {
         AboutViewModel(repository = get())
+    }
+
+    viewModel {
+        MusicClassificationViewModel(
+            classificationRepository = get(),
+            playlistGenerationService = get()
+        )
     }
 }
 

@@ -1,0 +1,20 @@
+# Render.com deployment configuration
+# This file should be placed in the root directory of your Render service
+
+# Build command (installs dependencies)
+pip install -r requirements.txt
+
+# Start command (runs the Flask app)
+python cloud_classification_service.py
+
+# Environment variables (set these in Render dashboard)
+# PORT - automatically set by Render
+# MODEL_PATH - path to the trained model (optional, defaults to auto-discovery)
+
+# Health check endpoint
+# GET /health
+
+# Service configuration
+# - Runtime: Python 3.11
+# - Instance type: Starter (512MB RAM) or higher
+# - Auto-deploy: Yes (if connected to Git)

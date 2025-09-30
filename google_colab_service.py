@@ -3,9 +3,21 @@ Google Colab Music Classification Service
 
 This script provides a complete music classification service that can be deployed
 on Google Colab and accessed via public URL. Perfect for heavy ML workloads.
+
+To use this in Google Colab:
+1. Run the installation commands below
+2. Upload your model file
+3. Run the service
+4. Use ngrok to get a public URL
 """
 
-# Install required packages
+# Install required packages for Google Colab
+print("🚀 Installing dependencies for Google Colab...")
+
+# Method 1: Using !pip (recommended for Colab)
+!pip install flask flask-cors librosa soundfile scikit-learn joblib pandas numpy pyngrok
+
+# Method 2: Alternative using subprocess (if !pip doesn't work)
 import subprocess
 import sys
 
@@ -13,7 +25,7 @@ def install_packages():
     """Install required packages for Google Colab."""
     packages = [
         'flask', 'flask-cors', 'librosa', 'soundfile', 
-        'scikit-learn', 'joblib', 'pandas', 'numpy'
+        'scikit-learn', 'joblib', 'pandas', 'numpy', 'pyngrok'
     ]
     
     for package in packages:
@@ -23,8 +35,10 @@ def install_packages():
         except subprocess.CalledProcessError:
             print(f"❌ Failed to install {package}")
 
-# Install packages
-install_packages()
+# Uncomment the line below if !pip doesn't work
+# install_packages()
+
+print("✅ Dependencies installation complete!")
 
 # Import libraries
 import os

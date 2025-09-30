@@ -40,11 +40,24 @@ Google Colab is **perfect** for your music classification service because:
    !cp XenhuskMusic/models/improved_audio_classifier_random_forest.joblib .
    ```
 
-### **Step 3: Run the Service**
+### **Step 3: Install Dependencies**
+
+In your Colab notebook, run this cell first:
+
+```python
+# Install all required dependencies
+!pip install flask flask-cors librosa soundfile scikit-learn joblib pandas numpy pyngrok
+
+# Verify installation
+import flask, librosa, sklearn, joblib, pandas, numpy
+print("✅ All dependencies installed successfully!")
+```
+
+### **Step 4: Run the Service**
 
 Copy and paste the entire `google_colab_service.py` content into a Colab cell and run it.
 
-### **Step 4: Make It Publicly Accessible**
+### **Step 5: Make It Publicly Accessible**
 
 Install and run ngrok to get a public URL:
 
@@ -243,22 +256,38 @@ print(response.json())
 
 ### **Complete Setup in One Cell**
 ```python
+# Step 1: Install all dependencies
+!pip install flask flask-cors librosa soundfile scikit-learn joblib pandas numpy pyngrok
+
+# Step 2: Clone your repository and get model
+!git clone https://github.com/xenhusk/XenhuskMusic.git
+!cp XenhuskMusic/models/improved_audio_classifier_random_forest.joblib .
+
+# Step 3: Verify installation
+import flask, librosa, sklearn, joblib, pandas, numpy
+print("✅ All dependencies installed successfully!")
+
+# Step 4: Setup ngrok for public access
+from pyngrok import ngrok
+
+# Step 5: Run the service (paste google_colab_service.py content here)
+# Step 6: Create public URL
+public_url = ngrok.connect(5000)
+print(f"🌐 Your service is available at: {public_url}")
+```
+
+### **Alternative: Manual Upload**
+If you prefer to upload your model manually:
+```python
 # Install dependencies
 !pip install flask flask-cors librosa soundfile scikit-learn joblib pandas numpy pyngrok
 
-# Clone your repository
-!git clone https://github.com/xenhusk/XenhuskMusic.git
+# Upload your model file manually
+from google.colab import files
+uploaded = files.upload()
+print("✅ Model uploaded!")
 
-# Copy model file
-!cp XenhuskMusic/models/improved_audio_classifier_random_forest.joblib .
-
-# Setup ngrok
-from pyngrok import ngrok
-
-# Run the service (paste google_colab_service.py content here)
-# Then create public URL
-public_url = ngrok.connect(5000)
-print(f"🌐 Your service is available at: {public_url}")
+# Then run the service...
 ```
 
 ## 🎉 **Success Metrics**

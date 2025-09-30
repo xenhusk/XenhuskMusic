@@ -51,9 +51,10 @@ def setup_ngrok():
     print("   1. Go to: https://dashboard.ngrok.com/signup")
     print("   2. Sign up for free account")
     print("   3. Get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken")
-    print("   4. Run the command below with your token:")
+    print("   4. Set environment variable:")
     print("")
-    print("   !ngrok config add-authtoken YOUR_TOKEN_HERE")
+    print("   import os")
+    print("   os.environ['NGROK_AUTHTOKEN'] = 'YOUR_TOKEN_HERE'")
     print("")
     print("   Then restart the service to get public URL!")
 
@@ -689,15 +690,20 @@ if __name__ == '__main__':
             
             # Check if ngrok authtoken is set
             import os
-            if not os.environ.get('NGROK_AUTHTOKEN'):
+            authtoken = os.environ.get('NGROK_AUTHTOKEN')
+            if not authtoken:
                 logger.info("🔑 ngrok authtoken not found. Setting up free ngrok...")
                 # For free ngrok, we need to set authtoken
                 logger.info("📝 To get ngrok authtoken:")
                 logger.info("   1. Go to: https://dashboard.ngrok.com/signup")
                 logger.info("   2. Sign up for free account")
                 logger.info("   3. Get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken")
-                logger.info("   4. Run: ngrok config add-authtoken YOUR_TOKEN")
+                logger.info("   4. Set environment variable: os.environ['NGROK_AUTHTOKEN'] = 'YOUR_TOKEN'")
                 raise Exception("ngrok authtoken required")
+            
+            # Configure ngrok with the authtoken
+            logger.info("🔑 Configuring ngrok with authtoken...")
+            ngrok.set_auth_token(authtoken)
             
             public_url = ngrok.connect(5000)
             logger.info(f"🌐 Public URL: {public_url}")

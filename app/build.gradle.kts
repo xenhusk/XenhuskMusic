@@ -69,11 +69,10 @@ sealed class Version(
         }
 }
 
-val currentVersion: Version = Version.Beta(
+val currentVersion: Version = Version.Stable(
     versionMajor = 1,
-    versionMinor = 1,
-    versionPatch = 0,
-    versionBuild = 8
+    versionMinor = 0,
+    versionPatch = 0
 )
 val currentVersionCode = currentVersion.code
 
@@ -86,7 +85,7 @@ android {
         targetSdk = 35
 
         applicationId = namespace
-        versionCode = 1100108
+        versionCode = currentVersionCode
         versionName = currentVersion.name
         check(versionCode == currentVersionCode)
     }
@@ -149,7 +148,7 @@ android {
     applicationVariants.all {
         outputs.all {
             (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
-                "BoomingMusic-${defaultConfig.versionName}-${name}.apk"
+                "Xenic-${defaultConfig.versionName}-${name}.apk"
         }
     }
 }

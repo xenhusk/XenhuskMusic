@@ -1,4 +1,4 @@
-# Core dependencies for Cloud Music Classification Service
+# Core dependencies for Local Music Classification Service
 Flask>=2.3.0
 Flask-CORS>=4.0.0
 Werkzeug>=2.3.0

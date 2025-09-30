@@ -119,7 +119,7 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
             findNavController().navigate(R.id.nav_search)
         }
         val hexColor = String.format("#%06X", 0xFFFFFF and primaryColor())
-        val appName = "Booming <font color=$hexColor>Music</font>".toHtml()
+        val appName = "Xenic".toHtml()
         binding.appBarLayout.title = appName
     }
 
@@ -281,12 +281,8 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.menu_library, menu)
-        menu.removeItem(R.id.action_scan)
-        menu.removeItem(R.id.action_grid_size)
-        menu.removeItem(R.id.action_view_type)
-        menu.removeItem(R.id.action_sort_order)
-        menu.findItem(R.id.action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+        // No menu for the For You page
+        // menuInflater.inflate(R.menu.menu_library, menu)
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

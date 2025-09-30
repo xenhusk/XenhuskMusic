@@ -203,8 +203,9 @@ class AndroidAudioFeatureExtractor(private val context: Context) {
     private fun calculateSpectralCentroids(y: FloatArray): FloatArray {
         // Simplified spectral centroid calculation
         val fft = performFFT(y)
-        val magnitudes = fft.map { sqrt(it.real * it.real + it.imag * it.imag) }.toFloatArray()
-        val frequencies = FloatArray(magnitudes.size) { it * SAMPLE_RATE / magnitudes.size }
+        val magnitudesList = fft.map { sqrt(it.real * it.real + it.imag * it.imag).toFloat() }
+        val magnitudes = FloatArray(magnitudesList.size) { magnitudesList[it] }
+        val frequencies = FloatArray(magnitudes.size) { it * SAMPLE_RATE.toFloat() / magnitudes.size }
         
         val centroid = frequencies.zip(magnitudes.toList()) { freq, mag ->
             freq * mag
@@ -215,7 +216,8 @@ class AndroidAudioFeatureExtractor(private val context: Context) {
     
     private fun calculateSpectralRolloff(y: FloatArray): FloatArray {
         val fft = performFFT(y)
-        val magnitudes = fft.map { sqrt(it.real * it.real + it.imag * it.imag) }.toFloatArray()
+        val magnitudesList = fft.map { sqrt(it.real * it.real + it.imag * it.imag).toFloat() }
+        val magnitudes = FloatArray(magnitudesList.size) { magnitudesList[it] }
         val totalEnergy = magnitudes.sum()
         val threshold = totalEnergy * 0.85f
         
@@ -229,7 +231,7 @@ class AndroidAudioFeatureExtractor(private val context: Context) {
             }
         }
         
-        val rolloffFreq = rolloffIndex * SAMPLE_RATE / magnitudes.size
+        val rolloffFreq = rolloffIndex * SAMPLE_RATE.toFloat() / magnitudes.size
         return floatArrayOf(rolloffFreq)
     }
     
@@ -238,8 +240,9 @@ class AndroidAudioFeatureExtractor(private val context: Context) {
         val centroid = centroids[0]
         
         val fft = performFFT(y)
-        val magnitudes = fft.map { sqrt(it.real * it.real + it.imag * it.imag) }.toFloatArray()
-        val frequencies = FloatArray(magnitudes.size) { it * SAMPLE_RATE / magnitudes.size }
+        val magnitudesList = fft.map { sqrt(it.real * it.real + it.imag * it.imag).toFloat() }
+        val magnitudes = FloatArray(magnitudesList.size) { magnitudesList[it] }
+        val frequencies = FloatArray(magnitudes.size) { it * SAMPLE_RATE.toFloat() / magnitudes.size }
         
         val bandwidth = frequencies.zip(magnitudes.toList()) { freq, mag ->
             (freq - centroid) * (freq - centroid) * mag
@@ -272,7 +275,8 @@ class AndroidAudioFeatureExtractor(private val context: Context) {
     private fun calculateChroma(y: FloatArray): FloatArray {
         // Simplified chroma calculation
         val fft = performFFT(y)
-        val magnitudes = fft.map { sqrt(it.real * it.real + it.imag * it.imag) }.toFloatArray()
+        val magnitudesList = fft.map { sqrt(it.real * it.real + it.imag * it.imag).toFloat() }
+        val magnitudes = FloatArray(magnitudesList.size) { magnitudesList[it] }
         return floatArrayOf(magnitudes.average().toFloat())
     }
     

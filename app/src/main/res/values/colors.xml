@@ -74,10 +74,31 @@
     <color name="md_theme_surfaceContainerHigh">#E9E7EF</color>
     <color name="md_theme_surfaceContainerHighest">#E3E1E9</color>
     
-    <!-- Music Classification Colors -->
-    <color name="christian_color">#4CAF50</color>
-    <color name="secular_color">#FF9800</color>
-    <color name="success_color">#4CAF50</color>
-    <color name="error_color">#F44336</color>
+    <!-- Music Classification Colors - Material You 3 -->
+    <color name="christian_color">#2E7D32</color>
+    <color name="christian_container">#C8E6C9</color>
+    <color name="christian_on_container">#1B5E20</color>
+    
+    <color name="secular_color">#F57C00</color>
+    <color name="secular_container">#FFE0B2</color>
+    <color name="secular_on_container">#E65100</color>
+    
+    <color name="success_color">#2E7D32</color>
+    <color name="success_container">#C8E6C9</color>
+    <color name="success_on_container">#1B5E20</color>
+    
+    <color name="error_color">#D32F2F</color>
     <color name="error_container">#FFEBEE</color>
+    <color name="error_on_container">#B71C1C</color>
+    
+    <color name="warning_color">#F57C00</color>
+    <color name="warning_container">#FFF3E0</color>
+    <color name="warning_on_container">#E65100</color>
+    
+    <color name="info_color">#1976D2</color>
+    <color name="info_container">#E3F2FD</color>
+    <color name="info_on_container">#0D47A1</color>
+    
+    <!-- Surface colors for water progress bar -->
+    <color name="surface_container_highest">#F1F0F4</color>
 </resources>

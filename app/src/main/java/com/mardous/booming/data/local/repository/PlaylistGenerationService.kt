@@ -33,14 +33,15 @@ import kotlinx.coroutines.withContext
 class PlaylistGenerationService(
     private val context: Context,
     private val playlistDao: PlaylistDao,
-    private val classificationDao: SongClassificationDao
+    private val classificationDao: SongClassificationDao,
+    private val songRepository: SongRepository
 ) {
     
     companion object {
         private const val TAG = "PlaylistGenerationService"
         private const val CHRISTIAN_PLAYLIST_NAME = "Christian Music"
         private const val SECULAR_PLAYLIST_NAME = "Secular Music"
-        private const val MIN_CONFIDENCE_THRESHOLD = 0.6f // Minimum confidence for inclusion
+        private const val MIN_CONFIDENCE_THRESHOLD = 0.5f // Minimum confidence for inclusion
     }
     
     /**
@@ -142,33 +143,41 @@ class PlaylistGenerationService(
             // Clear existing songs from playlist
             playlistDao.deletePlaylistSongs(playlistId)
             
-            // Add songs to playlist
-            val songEntities = classifications.map { classification ->
-                SongEntity(
-                    playlistCreatorId = playlistId,
-                    id = classification.songId,
-                    data = "", // Will be populated by the app's song loading mechanism
-                    title = classification.songTitle,
-                    trackNumber = 0,
-                    year = 0,
-                    size = 0,
-                    duration = 0,
-                    dateAdded = System.currentTimeMillis(),
-                    dateModified = System.currentTimeMillis(),
-                    albumId = 0,
-                    albumName = "",
-                    artistId = 0,
-                    artistName = classification.artistName,
-                    albumArtist = null,
-                    genreName = null
-                )
+            // Add songs to playlist - get actual song data from repository and prevent duplicates
+            val uniqueSongIds = classifications.map { it.songId }.distinct()
+            val songEntities = uniqueSongIds.mapNotNull { songId ->
+                try {
+                    // Get the actual song data from the repository
+                    val song = songRepository.song(songId)
+                    
+                    // Convert Song to SongEntity with proper metadata
+                    SongEntity(
+                        playlistCreatorId = playlistId,
+                        id = song.id,
+                        data = song.data,
+                        title = song.title,
+                        trackNumber = song.trackNumber,
+                        year = song.year,
+                        size = song.size,
+                        duration = song.duration,
+                        dateAdded = song.dateAdded,
+                        dateModified = song.dateModified,
+                        albumId = song.albumId,
+                        albumName = song.albumName,
+                        artistId = song.artistId,
+                        artistName = song.artistName,
+                        albumArtist = song.albumArtistName,
+                        genreName = song.genreName
+                    )
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not find song with ID $songId", e)
+                    null // Skip songs that can't be found
+                }
             }
             
             // Insert songs into playlist
             if (songEntities.isNotEmpty()) {
-                // Note: This is a simplified approach. In a real implementation,
-                // you would need to get the actual song data from the media store
-                // and create proper SongEntity objects with all required fields
+                playlistDao.insertSongsToPlaylist(songEntities)
                 Log.d(TAG, "Added ${songEntities.size} songs to playlist: $playlistName")
             }
             

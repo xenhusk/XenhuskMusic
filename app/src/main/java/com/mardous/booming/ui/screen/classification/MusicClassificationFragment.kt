@@ -18,9 +18,11 @@
 package com.mardous.booming.ui.screen.classification
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentMusicClassificationBinding
+import com.mardous.booming.data.local.repository.ClassificationStats
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.ui.component.base.AbsMainActivityFragment
@@ -76,14 +79,20 @@ class MusicClassificationFragment : AbsMainActivityFragment(R.layout.fragment_mu
                 viewModel.checkCloudServiceHealth()
             }
             
-            // Classify all songs
+            // Classify random songs with custom count
+            btnClassifyRandom.setOnClickListener {
+                Log.d("MusicClassification", "Random classification button clicked")
+                showRandomClassificationDialog()
+            }
+            
+            // Classify all songs (now default parallel)
             btnClassifyAll.setOnClickListener {
                 showClassifyAllDialog()
             }
             
-            // Refresh classifications
-            btnRefresh.setOnClickListener {
-                viewModel.loadAllClassifications()
+            // Clear statistics
+            btnClearStats.setOnClickListener {
+                showClearStatsDialog()
             }
             
             // Generate playlists
@@ -94,6 +103,11 @@ class MusicClassificationFragment : AbsMainActivityFragment(R.layout.fragment_mu
             // Clear error
             btnClearError.setOnClickListener {
                 viewModel.clearError()
+            }
+            
+            // Cancel classification
+            btnCancelClassification.setOnClickListener {
+                viewModel.cancelClassification()
             }
         }
     }
@@ -124,11 +138,20 @@ class MusicClassificationFragment : AbsMainActivityFragment(R.layout.fragment_mu
     
     private fun updateUi(state: ClassificationUiState) {
         binding.apply {
-            // Loading states
-            progressBar.isVisible = state.isLoading
-            batchProgressBar.isVisible = state.isBatchLoading
-            healthProgressBar.isVisible = state.isCheckingHealth
-            playlistProgressBar.isVisible = state.isGeneratingPlaylists
+            // Progress card visibility
+            progressCard.isVisible = state.isBatchLoading || state.isGeneratingPlaylists
+            
+            // Progress display
+            if (state.isBatchLoading && state.progressMessage != null) {
+                progressMessage.text = state.progressMessage
+                
+                // Update progress bar
+                if (state.totalProgress > 0) {
+                    val progressPercentValue = (state.currentProgress * 100) / state.totalProgress
+                    progressBarDetailed.progress = progressPercentValue
+                    progressPercent.text = "$progressPercentValue%"
+                }
+            }
             
             // Error handling
             errorLayout.isVisible = state.error != null
@@ -137,16 +160,24 @@ class MusicClassificationFragment : AbsMainActivityFragment(R.layout.fragment_mu
             }
             
             // Cloud service health
-            cloudServiceStatus.isVisible = state.isCloudServiceHealthy != null
             if (state.isCloudServiceHealthy == true) {
-                cloudServiceStatus.text = "✅ Cloud service is healthy"
-                cloudServiceStatus.setTextColor(getColor(R.color.success_color))
+                cloudServiceStatus.text = "Service is healthy and ready"
+                serviceStatusChip.text = "Online"
+                serviceStatusChip.setChipBackgroundColorResource(R.color.success_container)
+                serviceStatusChip.setTextColor(ContextCompat.getColor(requireContext(), R.color.success_on_container))
             } else if (state.isCloudServiceHealthy == false) {
-                cloudServiceStatus.text = "❌ Cloud service is unavailable"
-                cloudServiceStatus.setTextColor(getColor(R.color.error_color))
+                cloudServiceStatus.text = "Service is unavailable"
+                serviceStatusChip.text = "Offline"
+                serviceStatusChip.setChipBackgroundColorResource(R.color.error_container)
+                serviceStatusChip.setTextColor(ContextCompat.getColor(requireContext(), R.color.error_on_container))
                 if (state.cloudServiceError != null) {
-                    cloudServiceStatus.text = "❌ ${state.cloudServiceError}"
+                    cloudServiceStatus.text = state.cloudServiceError
                 }
+            } else {
+                cloudServiceStatus.text = "Connecting to local classification service..."
+                serviceStatusChip.text = "Checking..."
+                serviceStatusChip.setChipBackgroundColorResource(android.R.color.darker_gray)
+                serviceStatusChip.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
             }
             
             // Batch result
@@ -168,8 +199,6 @@ class MusicClassificationFragment : AbsMainActivityFragment(R.layout.fragment_mu
     
     private fun updateStats(stats: ClassificationStats) {
         binding.apply {
-            christianCount.text = stats.christianCount.toString()
-            secularCount.text = stats.secularCount.toString()
             totalCount.text = stats.totalCount.toString()
             
             val christianPercentage = if (stats.totalCount > 0) {
@@ -235,13 +264,71 @@ class MusicClassificationFragment : AbsMainActivityFragment(R.layout.fragment_mu
             .show()
     }
     
+    private fun showRandomClassificationDialog() {
+        Log.d("MusicClassification", "Random classification button clicked - showing dialog")
+        
+        // Create a custom layout with input field
+        val input = android.widget.EditText(requireContext())
+        input.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        input.hint = "Enter number of songs (e.g., 30)"
+        input.setText("30") // Default value
+        input.gravity = android.view.Gravity.CENTER // Center the text
+        input.textAlignment = android.view.View.TEXT_ALIGNMENT_CENTER // Center alignment
+        
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Classify Random Songs")
+            .setMessage("Enter how many random songs to classify for testing:")
+            .setView(input)
+            .setPositiveButton("Start Classification") { dialog, _ ->
+                val text = input.text.toString().trim()
+                val songCount = text.toIntOrNull()
+                
+                if (songCount != null && songCount > 0) {
+                    Log.d("MusicClassification", "User entered: $songCount songs")
+                    dialog.dismiss()
+                    showConfirmationDialog(songCount)
+                } else {
+                    Log.w("MusicClassification", "Invalid input: '$text'")
+                    showToast("Please enter a valid number greater than 0")
+                }
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                Log.d("MusicClassification", "Dialog cancelled")
+                dialog.dismiss()
+            }
+            .show()
+    }
+    
+    private fun showConfirmationDialog(count: Int) {
+        Log.d("MusicClassification", "Showing confirmation dialog for $count songs")
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Confirm Random Classification")
+            .setMessage("This will classify $count random songs from your library using parallel processing. Continue?")
+            .setPositiveButton("Start") { _, _ ->
+                Log.d("MusicClassification", "Starting classification with $count songs")
+                viewModel.classifyRandomSongs(count)
+            }
+            .setNegativeButton("Cancel") { _, _ -> }
+            .show()
+    }
+    
     private fun showClassifyAllDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Classify All Songs")
-            .setMessage("This will classify all songs in your library. This may take a while and use data. Continue?")
-            .setPositiveButton("Start") { _, _ ->
-                // TODO: Get all songs from repository and classify them
-                showToast("Feature coming soon - will classify all songs in library")
+            .setMessage("This will classify all songs in your library using parallel processing (up to 8 songs at once). This is much faster than sequential processing. Continue?")
+            .setPositiveButton("Start Classification") { _, _ ->
+                viewModel.classifyAllSongsParallel()
+            }
+            .setNegativeButton("Cancel") { _, _ -> }
+            .show()
+    }
+    
+    private fun showClearStatsDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Clear Statistics")
+            .setMessage("This will clear all classification statistics and remove all stored classifications. This action cannot be undone. Continue?")
+            .setPositiveButton("Clear All") { _, _ ->
+                viewModel.clearAllClassifications()
             }
             .setNegativeButton("Cancel") { _, _ -> }
             .show()
@@ -292,6 +379,14 @@ class MusicClassificationFragment : AbsMainActivityFragment(R.layout.fragment_mu
                 viewModel.clearPlaylistGenerationResult()
             }
             .show()
+    }
+    
+    override fun onCreateMenu(menu: android.view.Menu, menuInflater: android.view.MenuInflater) {
+        // No menu items needed for this fragment
+    }
+    
+    override fun onMenuItemSelected(menuItem: android.view.MenuItem): Boolean {
+        return false
     }
     
     override fun onDestroyView() {

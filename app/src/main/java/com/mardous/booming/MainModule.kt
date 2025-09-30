@@ -34,8 +34,12 @@ import com.mardous.booming.data.remote.deezer.DeezerService
 import com.mardous.booming.data.remote.github.GitHubService
 import com.mardous.booming.data.remote.jsonHttpClient
 import com.mardous.booming.data.remote.lastfm.LastFmService
+import com.mardous.booming.data.remote.lyrics.LyricsDownloadService
 import com.mardous.booming.data.remote.classification.CloudClassificationService
 import com.mardous.booming.data.local.audio.AndroidAudioFeatureExtractor
+import com.mardous.booming.data.local.audio.LocalAudioFeatureExtractor
+import com.mardous.booming.data.local.audio.SimpleAudioDataExtractor
+import com.mardous.booming.data.local.audio.RealAudioDataExtractor
 import com.mardous.booming.data.local.repository.MusicClassificationRepository
 import com.mardous.booming.data.local.repository.PlaylistGenerationService
 import com.mardous.booming.data.remote.provideDefaultCache
@@ -90,16 +94,26 @@ val networkModule = module {
         LyricsDownloadService(client = get())
     }
     single {
-        CloudClassificationService(client = get())
+        CloudClassificationService(context = androidContext(), client = get())
     }
-    single {
-        AndroidAudioFeatureExtractor(context = androidContext())
-    }
+            single {
+                AndroidAudioFeatureExtractor(context = androidContext())
+            }
+            single {
+                LocalAudioFeatureExtractor(context = androidContext())
+            }
+            single {
+                SimpleAudioDataExtractor(context = androidContext())
+            }
+            single {
+                RealAudioDataExtractor(context = androidContext())
+            }
     single {
         PlaylistGenerationService(
             context = androidContext(),
             playlistDao = get(),
-            classificationDao = get()
+            classificationDao = get(),
+            songRepository = get()
         )
     }
 }
@@ -263,6 +277,9 @@ private val dataModule = module {
             classificationDao = get(),
             cloudService = get(),
             audioFeatureExtractor = get(),
+            localAudioFeatureExtractor = get<LocalAudioFeatureExtractor>(),
+            simpleAudioExtractor = get<SimpleAudioDataExtractor>(),
+            realAudioDataExtractor = get<RealAudioDataExtractor>(),
             playlistGenerationService = get()
         )
     }
@@ -351,7 +368,8 @@ private val viewModule = module {
     viewModel {
         MusicClassificationViewModel(
             classificationRepository = get(),
-            playlistGenerationService = get()
+            playlistGenerationService = get(),
+            songRepository = get()
         )
     }
 }

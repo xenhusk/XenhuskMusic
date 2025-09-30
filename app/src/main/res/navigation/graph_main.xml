@@ -200,4 +200,9 @@
         android:name="com.mardous.booming.ui.screen.about.LicensesFragment"
         android:label="LicensesFragment"/>
 
+    <fragment
+        android:id="@+id/nav_classification"
+        android:name="com.mardous.booming.ui.screen.classification.MusicClassificationFragment"
+        android:label="Music Classification"/>
+
 </navigation>

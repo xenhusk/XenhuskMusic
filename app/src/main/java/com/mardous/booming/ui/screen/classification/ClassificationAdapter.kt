@@ -19,9 +19,12 @@ package com.mardous.booming.ui.screen.classification
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.mardous.booming.R
 import com.mardous.booming.databinding.ItemClassificationBinding
 import com.mardous.booming.data.local.room.SongClassificationEntity
 import java.text.SimpleDateFormat
@@ -58,13 +61,21 @@ class ClassificationAdapter(
                 classificationType.text = classification.classificationType
                 confidence.text = "${(classification.confidence * 100).toInt()}%"
                 
-                // Set color based on classification type
-                val color = when (classification.classificationType) {
-                    "Christian" -> root.context.getColor(R.color.christian_color)
-                    "Secular" -> root.context.getColor(R.color.secular_color)
-                    else -> root.context.getColor(android.R.color.darker_gray)
+                // Set color and background based on classification type
+                when (classification.classificationType) {
+                    "Christian" -> {
+                        classificationType.setTextColor(ContextCompat.getColor(root.context, R.color.christian_on_container))
+                        classificationType.setBackgroundResource(R.drawable.bg_christian_badge)
+                    }
+                    "Secular" -> {
+                        classificationType.setTextColor(ContextCompat.getColor(root.context, R.color.secular_on_container))
+                        classificationType.setBackgroundResource(R.drawable.bg_secular_badge)
+                    }
+                    else -> {
+                        classificationType.setTextColor(ContextCompat.getColor(root.context, android.R.color.darker_gray))
+                        classificationType.setBackgroundResource(android.R.color.transparent)
+                    }
                 }
-                classificationType.setTextColor(color)
                 
                 // Format timestamp
                 val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())

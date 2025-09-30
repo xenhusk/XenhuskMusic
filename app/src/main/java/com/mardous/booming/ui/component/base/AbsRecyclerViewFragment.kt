@@ -226,6 +226,7 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
             R.id.action_settings -> findNavController().navigate(R.id.nav_settings)
             R.id.action_scan -> mainActivity.scanAllPaths()
             R.id.action_import_playlist -> ImportPlaylistDialog().show(childFragmentManager, "IMPORT_PLAYLIST")
+            R.id.action_classification -> findNavController().navigate(R.id.nav_classification)
         }
         return false
     }

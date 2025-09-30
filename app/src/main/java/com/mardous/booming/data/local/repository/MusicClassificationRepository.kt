@@ -20,6 +20,9 @@ package com.mardous.booming.data.local.repository
 import android.content.Context
 import android.util.Log
 import com.mardous.booming.data.local.audio.AndroidAudioFeatureExtractor
+import com.mardous.booming.data.local.audio.LocalAudioFeatureExtractor
+import com.mardous.booming.data.local.audio.SimpleAudioDataExtractor
+import com.mardous.booming.data.local.audio.RealAudioDataExtractor
 import com.mardous.booming.data.local.room.SongClassificationDao
 import com.mardous.booming.data.local.room.SongClassificationEntity
 import com.mardous.booming.data.model.Song
@@ -28,6 +31,9 @@ import com.mardous.booming.data.remote.classification.SongWithAudioData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.sync.Semaphore
 import java.io.IOException
 
 /**
@@ -38,6 +44,9 @@ class MusicClassificationRepository(
     private val classificationDao: SongClassificationDao,
     private val cloudService: CloudClassificationService,
     private val audioFeatureExtractor: AndroidAudioFeatureExtractor,
+    private val localAudioFeatureExtractor: LocalAudioFeatureExtractor,
+    private val simpleAudioExtractor: SimpleAudioDataExtractor,
+    private val realAudioDataExtractor: RealAudioDataExtractor,
     private val playlistGenerationService: PlaylistGenerationService
 ) {
     
@@ -124,7 +133,188 @@ class MusicClassificationRepository(
     }
     
     /**
-     * Classify a single song
+     * Fast classification using local feature extraction
+     */
+    suspend fun classifySongFast(song: Song): Result<SongClassificationEntity> = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "Fast classifying song: ${song.title}")
+            
+            // Extract features locally (the 65 features the model expects)
+            val featuresResult = localAudioFeatureExtractor.extractFeatures(song)
+            if (featuresResult.isFailure) {
+                return@withContext Result.failure(featuresResult.exceptionOrNull() ?: IOException("Feature extraction failed"))
+            }
+            
+            val features: FloatArray = featuresResult.getOrThrow()
+            
+            // Send features to cloud service for classification
+            val classificationResult = cloudService.classifySongWithFeatures(song, features)
+            if (classificationResult.isFailure) {
+                return@withContext Result.failure(classificationResult.exceptionOrNull() ?: IOException("Classification failed"))
+            }
+            
+            val response = classificationResult.getOrThrow()
+            
+            // Create entity
+            val entity = SongClassificationEntity(
+                songId = song.id,
+                songTitle = song.title,
+                artistName = song.artistName,
+                classificationType = response.prediction,
+                confidence = response.confidence,
+                christianProbability = response.probabilities.christian,
+                secularProbability = response.probabilities.secular,
+                classificationTimestamp = System.currentTimeMillis()
+            )
+            
+            // Save to database
+            classificationDao.insertClassification(entity)
+            
+            Log.d(TAG, "Fast classification successful: ${song.title} -> ${response.prediction}")
+            Result.success(entity)
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in fast classification: ${song.title}", e)
+            Result.failure(IOException("Fast classification failed: ${e.message}", e))
+        }
+    }
+    
+    /**
+     * Real classification using actual audio data with server-side feature extraction
+     * This is the most accurate method as it uses real audio data and proper feature extraction
+     */
+    suspend fun classifySongReal(song: Song): Result<SongClassificationEntity> = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "File upload classifying song: ${song.title}")
+            
+            // Upload audio file directly to server for classification
+            val classificationResult = cloudService.classifySongWithFile(song)
+            if (classificationResult.isFailure) {
+                Log.w(TAG, "File upload classification failed for ${song.title}, falling back to synthetic data")
+                return@withContext classifySongFast(song) // Fallback to fast classification
+            }
+            
+            val response = classificationResult.getOrThrow()
+            
+            // Create entity
+            val entity = SongClassificationEntity(
+                songId = song.id,
+                songTitle = song.title,
+                artistName = song.artistName,
+                classificationType = response.prediction,
+                confidence = response.confidence,
+                christianProbability = response.probabilities.christian,
+                secularProbability = response.probabilities.secular,
+                classificationTimestamp = System.currentTimeMillis()
+            )
+            
+            // Save to database
+            classificationDao.insertClassification(entity)
+            
+            Log.d(TAG, "File upload classification successful: ${song.title} -> ${response.prediction}")
+            Result.success(entity)
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in file upload classification: ${song.title}", e)
+            Result.failure(IOException("File upload classification failed: ${e.message}", e))
+        }
+    }
+    
+    /**
+     * Classify multiple songs in parallel for faster processing
+     */
+    suspend fun classifySongsParallel(songs: List<Song>, maxConcurrency: Int = 8, onProgress: ((Int, Int) -> Unit)? = null): ClassificationBatchResult = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "Starting parallel classification of ${songs.size} songs with max concurrency: $maxConcurrency")
+            
+            val successfulClassifications = mutableListOf<SongClassificationEntity>()
+            val failedSongs = mutableListOf<Song>()
+            var processedCount = 0
+            
+            // Filter out songs that are already classified
+            val unclassifiedSongs = songs.filter { song ->
+                val existingClassification = classificationDao.getClassificationBySongId(song.id)
+                if (existingClassification != null) {
+                    Log.d(TAG, "Skipping already classified song: ${song.title} (${existingClassification.classificationType})")
+                    processedCount++
+                    onProgress?.invoke(processedCount, songs.size)
+                }
+                existingClassification == null
+            }
+            
+            Log.d(TAG, "Skipped ${songs.size - unclassifiedSongs.size} already classified songs. Processing ${unclassifiedSongs.size} songs.")
+            
+            if (unclassifiedSongs.isEmpty()) {
+                Log.d(TAG, "All songs are already classified")
+                return@withContext ClassificationBatchResult(
+                    successfulClassifications = successfulClassifications,
+                    failedSongs = failedSongs,
+                    totalProcessed = songs.size,
+                    skippedCount = songs.size
+                )
+            }
+            
+            // Use Semaphore to limit concurrent uploads
+            val semaphore = Semaphore(maxConcurrency)
+            
+            // Create coroutines for each unclassified song
+            val jobs = unclassifiedSongs.map { song ->
+                async {
+                    try {
+                        semaphore.acquire()
+                        Log.d(TAG, "Processing unclassified song: ${song.title}")
+                        
+                        val result = classifySongReal(song)
+                        if (result.isSuccess) {
+                            successfulClassifications.add(result.getOrThrow())
+                        } else {
+                            failedSongs.add(song)
+                        }
+                        
+                        // Update progress
+                        processedCount++
+                        onProgress?.invoke(processedCount, songs.size)
+                        
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error processing song: ${song.title}", e)
+                        failedSongs.add(song)
+                        
+                        // Update progress even on error
+                        processedCount++
+                        onProgress?.invoke(processedCount, songs.size)
+                    } finally {
+                        semaphore.release()
+                    }
+                }
+            }
+            
+            // Wait for all jobs to complete
+            jobs.awaitAll()
+            
+            Log.d(TAG, "Parallel classification complete: ${successfulClassifications.size} successful, ${failedSongs.size} failed")
+            
+            ClassificationBatchResult(
+                successfulClassifications = successfulClassifications,
+                failedSongs = failedSongs,
+                totalProcessed = songs.size,
+                skippedCount = songs.size - unclassifiedSongs.size,
+                error = if (successfulClassifications.isEmpty()) "All classifications failed" else null
+            )
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in parallel classification", e)
+            ClassificationBatchResult(
+                successfulClassifications = emptyList(),
+                failedSongs = songs,
+                totalProcessed = songs.size,
+                skippedCount = 0,
+                error = e.message
+            )
+        }
+    }
+    
+    /**
+     * Classify a single song (legacy method)
      */
     suspend fun classifySong(song: Song): Result<SongClassificationEntity> = withContext(Dispatchers.IO) {
         try {
@@ -266,7 +456,8 @@ class MusicClassificationRepository(
             ClassificationBatchResult(
                 successfulClassifications = successfulClassifications,
                 failedSongs = failedSongs,
-                totalProcessed = songs.size
+                totalProcessed = songs.size,
+                skippedCount = 0
             )
             
         } catch (e: Exception) {
@@ -275,6 +466,7 @@ class MusicClassificationRepository(
                 successfulClassifications = emptyList(),
                 failedSongs = songs,
                 totalProcessed = songs.size,
+                skippedCount = 0,
                 error = e.message
             )
         }
@@ -340,6 +532,20 @@ class MusicClassificationRepository(
             Result.failure(e)
         }
     }
+    
+    /**
+     * Clear all classifications and statistics
+     */
+    suspend fun clearAllClassifications(): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            classificationDao.deleteAllClassifications()
+            Log.d(TAG, "Cleared all classifications")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error clearing all classifications", e)
+            Result.failure(e)
+        }
+    }
 }
 
 /**
@@ -355,6 +561,7 @@ data class ClassificationBatchResult(
     val successfulClassifications: List<SongClassificationEntity>,
     val failedSongs: List<Song>,
     val totalProcessed: Int,
+    val skippedCount: Int = 0,
     val error: String? = null
 ) {
     val successCount: Int get() = successfulClassifications.size

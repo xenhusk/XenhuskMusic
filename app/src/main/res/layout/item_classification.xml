@@ -40,9 +40,8 @@
                 android:text="Christian"
                 android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
                 android:textStyle="bold"
-                android:background="@drawable/classification_badge_background"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
                 android:layout_marginStart="8dp"
                 tools:text="Christian" />
 

@@ -17,6 +17,7 @@
 
 package com.mardous.booming.ui.screen.classification
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mardous.booming.data.local.repository.MusicClassificationRepository
@@ -24,20 +25,35 @@ import com.mardous.booming.data.local.repository.ClassificationStats
 import com.mardous.booming.data.local.repository.ClassificationBatchResult
 import com.mardous.booming.data.local.repository.PlaylistGenerationService
 import com.mardous.booming.data.local.repository.PlaylistGenerationResult
+import com.mardous.booming.data.local.repository.SongRepository
 import com.mardous.booming.data.local.room.SongClassificationEntity
 import com.mardous.booming.data.model.Song
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 
 /**
  * ViewModel for music classification management
  */
 class MusicClassificationViewModel(
     private val classificationRepository: MusicClassificationRepository,
-    private val playlistGenerationService: PlaylistGenerationService
+    private val playlistGenerationService: PlaylistGenerationService,
+    private val songRepository: SongRepository
 ) : ViewModel() {
+    
+    companion object {
+        private const val TAG = "MusicClassificationViewModel"
+    }
+    
+    private var currentClassificationJob: Job? = null
+    private val classificationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     
     // UI State
     private val _uiState = MutableStateFlow(ClassificationUiState())
@@ -81,7 +97,7 @@ class MusicClassificationViewModel(
     /**
      * Load all classifications
      */
-    private fun loadAllClassifications() {
+    fun loadAllClassifications() {
         viewModelScope.launch {
             try {
                 val classifications = classificationRepository.getAllClassifications()
@@ -140,6 +156,319 @@ class MusicClassificationViewModel(
                 loadAllClassifications() // Refresh classifications
             } catch (e: Exception) {
                 updateUiState { copy(isBatchLoading = false, error = e.message) }
+            }
+        }
+    }
+    
+    /**
+     * Classify all songs using parallel processing for faster results
+     */
+    fun classifyAllSongsParallel() {
+        currentClassificationJob?.cancel()
+        currentClassificationJob = classificationScope.launch {
+            updateUiState { 
+                copy(
+                    isBatchLoading = true, 
+                    error = null,
+                    progressMessage = "Loading songs from library...",
+                    currentProgress = 0,
+                    totalProgress = 0
+                ) 
+            }
+            
+            try {
+                // Get all songs from the repository on IO thread
+                val allSongs = withContext(Dispatchers.IO) {
+                    songRepository.songs()
+                }
+                
+                if (allSongs.isEmpty()) {
+                    updateUiState { 
+                        copy(
+                            isBatchLoading = false, 
+                            error = "No songs found in library",
+                            progressMessage = null
+                        ) 
+                    }
+                    return@launch
+                }
+                
+                updateUiState { 
+                    copy(
+                        progressMessage = "Classifying ${allSongs.size} songs in parallel (up to 8 concurrent)...",
+                        totalProgress = allSongs.size,
+                        currentProgress = 0
+                    ) 
+                }
+                
+                // Use parallel classification with progress updates
+                val result = classificationRepository.classifySongsParallel(
+                    songs = allSongs, 
+                    maxConcurrency = 8,
+                    onProgress = { current, total ->
+                        updateUiState { 
+                            copy(
+                                progressMessage = "Classifying all songs: ${current} of ${total} songs completed...",
+                                currentProgress = current
+                            ) 
+                        }
+                    }
+                )
+                
+                // Final update
+                updateUiState { 
+                    copy(
+                        isBatchLoading = false,
+                        batchResult = result,
+                        progressMessage = "Classification complete! Processed ${result.totalProcessed} songs with ${result.successCount} successful classifications.",
+                        currentProgress = result.totalProcessed,
+                        error = result.error
+                    ) 
+                }
+                
+                // Refresh data
+                loadStats()
+                loadAllClassifications()
+                
+                Log.d(TAG, "Parallel classification complete: ${result.successCount}/${result.totalProcessed} successful")
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in parallel classification", e)
+                updateUiState { 
+                    copy(
+                        isBatchLoading = false, 
+                        error = "Classification failed: ${e.message}",
+                        progressMessage = null
+                    ) 
+                }
+            }
+        }
+    }
+    
+    /**
+     * Classify a random sample of songs for testing
+     */
+    fun classifyRandomSongs(sampleSize: Int = 30) {
+        currentClassificationJob?.cancel()
+        currentClassificationJob = classificationScope.launch {
+            updateUiState { 
+                copy(
+                    isBatchLoading = true, 
+                    error = null,
+                    progressMessage = "Loading songs from library...",
+                    currentProgress = 0,
+                    totalProgress = sampleSize
+                ) 
+            }
+            
+            try {
+                // Get all songs from the repository on IO thread
+                val allSongs = withContext(Dispatchers.IO) {
+                    songRepository.songs()
+                }
+                
+                if (allSongs.isEmpty()) {
+                    updateUiState { 
+                        copy(
+                            isBatchLoading = false, 
+                            error = "No songs found in library",
+                            progressMessage = null
+                        ) 
+                    }
+                    return@launch
+                }
+                
+                // Select random songs
+                val randomSongs = allSongs.shuffled().take(sampleSize)
+                
+                updateUiState { 
+                    copy(
+                        progressMessage = "Testing classification on ${randomSongs.size} random songs...",
+                        totalProgress = randomSongs.size,
+                        currentProgress = 0
+                    ) 
+                }
+                
+                // Use parallel processing with progress updates
+                updateUiState { 
+                    copy(
+                        progressMessage = "Testing classification on ${randomSongs.size} random songs using parallel processing...",
+                        currentProgress = 0
+                    ) 
+                }
+                
+                // Use parallel processing with progress callback
+                val result = classificationRepository.classifySongsParallel(
+                    songs = randomSongs, 
+                    maxConcurrency = 8,
+                    onProgress = { current, total ->
+                        updateUiState { 
+                            copy(
+                                progressMessage = "Testing classification: ${current} of ${total} songs completed...",
+                                currentProgress = current
+                            ) 
+                        }
+                    }
+                )
+                
+                updateUiState { 
+                    copy(
+                        progressMessage = "Test classification complete! Processed ${result.totalProcessed} songs with ${result.successCount} successful classifications.",
+                        currentProgress = result.totalProcessed
+                    ) 
+                }
+                
+                // Final update
+                updateUiState { 
+                    copy(
+                        isBatchLoading = false,
+                        batchResult = result
+                    ) 
+                }
+                
+                // Refresh data
+                loadStats()
+                loadAllClassifications()
+                
+                Log.d(TAG, "Random classification test complete: ${result.successCount}/${result.totalProcessed} successful")
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Error in random classification test", e)
+                updateUiState { 
+                    copy(
+                        isBatchLoading = false, 
+                        error = "Test classification failed: ${e.message}",
+                        progressMessage = null
+                    ) 
+                }
+            }
+        }
+    }
+    
+    /**
+     * Classify all songs in the library
+     */
+    fun classifyAllSongs() {
+        viewModelScope.launch {
+            updateUiState { 
+                copy(
+                    isBatchLoading = true, 
+                    error = null,
+                    progressMessage = "Loading songs from library...",
+                    currentProgress = 0,
+                    totalProgress = 0
+                ) 
+            }
+            
+            try {
+                // Get all songs from the repository on IO thread
+                val allSongs = withContext(Dispatchers.IO) {
+                    songRepository.songs()
+                }
+                
+                if (allSongs.isEmpty()) {
+                    updateUiState { 
+                        copy(
+                            isBatchLoading = false, 
+                            error = "No songs found in library",
+                            progressMessage = null
+                        ) 
+                    }
+                    return@launch
+                }
+                
+                updateUiState { 
+                    copy(
+                        progressMessage = "Found ${allSongs.size} songs. Starting classification...",
+                        totalProgress = allSongs.size,
+                        currentProgress = 0
+                    ) 
+                }
+                
+                // Classify songs in smaller batches with progress updates
+                val batchSize = 10 // Process 10 songs at a time for better progress feedback
+                var processedCount = 0
+                val allResults = mutableListOf<SongClassificationEntity>()
+                
+                for (i in allSongs.indices step batchSize) {
+                    val batchEnd = minOf(i + batchSize, allSongs.size)
+                    val batch = allSongs.subList(i, batchEnd)
+                    
+                    updateUiState { 
+                        copy(
+                            progressMessage = "Classifying songs ${processedCount + 1} to ${processedCount + batch.size} of ${allSongs.size}...",
+                            currentProgress = processedCount
+                        ) 
+                    }
+                    
+                    // Classify this batch using real audio data method
+                    val batchResults = mutableListOf<SongClassificationEntity>()
+                    val failedSongs = mutableListOf<Song>()
+                    
+                    for (song in batch) {
+                        val result = classificationRepository.classifySongReal(song)
+                        if (result.isSuccess) {
+                            batchResults.add(result.getOrThrow())
+                        } else {
+                            failedSongs.add(song)
+                        }
+                    }
+                    
+                    val batchResult = ClassificationBatchResult(
+                        successfulClassifications = batchResults,
+                        failedSongs = failedSongs,
+                        totalProcessed = batch.size,
+                        error = null
+                    )
+                    if (batchResult.successCount > 0) {
+                        allResults.addAll(batchResult.successfulClassifications ?: emptyList())
+                    }
+                    
+                    processedCount += batch.size
+                    
+                    updateUiState { 
+                        copy(
+                            currentProgress = processedCount,
+                            progressMessage = "Processed $processedCount of ${allSongs.size} songs..."
+                        ) 
+                    }
+                    
+                    // Small delay to allow UI updates
+                    kotlinx.coroutines.delay(100)
+                }
+                
+                updateUiState { 
+                    copy(
+                        isBatchLoading = false,
+                        progressMessage = "Classification complete!",
+                        currentProgress = allSongs.size,
+                        batchResult = ClassificationBatchResult(
+                            successfulClassifications = allResults,
+                            failedSongs = allSongs.filter { song -> 
+                                allResults.none { it.songId == song.id } 
+                            },
+                            totalProcessed = allSongs.size,
+                            error = null
+                        ),
+                        error = null
+                    ) 
+                }
+                
+                loadStats() // Refresh stats
+                loadAllClassifications() // Refresh classifications
+                
+                // Clear progress message after a delay
+                kotlinx.coroutines.delay(2000)
+                updateUiState { copy(progressMessage = null) }
+                
+            } catch (e: Exception) {
+                updateUiState { 
+                    copy(
+                        isBatchLoading = false, 
+                        error = e.message,
+                        progressMessage = null
+                    ) 
+                }
             }
         }
     }
@@ -221,6 +550,44 @@ class MusicClassificationViewModel(
     }
     
     /**
+     * Clear all classifications and statistics
+     */
+    fun clearAllClassifications() {
+        viewModelScope.launch {
+            try {
+                val result = classificationRepository.clearAllClassifications()
+                if (result.isSuccess) {
+                    loadStats() // Refresh stats
+                    loadAllClassifications() // Refresh classifications
+                    // Success will be indicated by the UI state update
+                } else {
+                    val error = result.exceptionOrNull()?.message ?: "Clear failed"
+                    updateUiState { copy(error = error) }
+                }
+            } catch (e: Exception) {
+                updateUiState { copy(error = e.message) }
+            }
+        }
+    }
+    
+    /**
+     * Cancel the current classification process
+     */
+    fun cancelClassification() {
+        currentClassificationJob?.cancel()
+        currentClassificationJob = null
+        
+        updateUiState { 
+            copy(
+                isBatchLoading = false,
+                progressMessage = "Classification cancelled",
+                currentProgress = 0,
+                totalProgress = 0
+            ) 
+        }
+    }
+    
+    /**
      * Clear batch result
      */
     fun clearBatchResult() {
@@ -262,6 +629,12 @@ class MusicClassificationViewModel(
     private fun updateUiState(update: ClassificationUiState.() -> ClassificationUiState) {
         _uiState.value = _uiState.value.update()
     }
+    
+    override fun onCleared() {
+        super.onCleared()
+        currentClassificationJob?.cancel()
+        classificationScope.cancel()
+    }
 }
 
 /**
@@ -277,5 +650,8 @@ data class ClassificationUiState(
     val batchResult: ClassificationBatchResult? = null,
     val playlistGenerationResult: PlaylistGenerationResult? = null,
     val isCloudServiceHealthy: Boolean? = null,
-    val cloudServiceError: String? = null
+    val cloudServiceError: String? = null,
+    val progressMessage: String? = null,
+    val currentProgress: Int = 0,
+    val totalProgress: Int = 0
 )

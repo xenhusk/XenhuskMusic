@@ -18,7 +18,9 @@
 package com.mardous.booming.data.remote.classification
 
 import android.util.Log
+import android.content.Context
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.data.local.audio.AudioFileUploader
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -34,8 +36,9 @@ import java.io.IOException
  * Service for communicating with the cloud music classification API
  */
 class CloudClassificationService(
+    private val context: Context,
     private val client: HttpClient,
-    private val baseUrl: String = "https://xenhuskmusic.onrender.com"
+    private val baseUrl: String = "http://192.168.1.2:5000"
 ) {
     
     companion object {
@@ -97,7 +100,164 @@ class CloudClassificationService(
     }
     
     /**
-     * Classify multiple songs in batch
+     * Classify a song using pre-extracted features (fastest approach)
+     */
+    suspend fun classifySongWithFeatures(
+        song: Song,
+        features: FloatArray
+    ): Result<ClassificationResponse> = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "Classifying song with features: ${song.title}")
+            
+            val request = FeatureClassificationRequest(
+                song_id = "${song.id}_${song.title}",
+                features = features.toList()
+            )
+            
+            val response = client.post("$baseUrl/classify_features") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body<ClassificationResponse>()
+            
+            if (response.success) {
+                Log.d(TAG, "Classification successful: ${response.prediction} (confidence: ${response.confidence})")
+                Result.success(response)
+            } else {
+                Log.w(TAG, "Classification failed: ${response.error}")
+                Result.failure(IOException("Classification failed: ${response.error}"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error classifying song: ${song.title}", e)
+            Result.failure(IOException("Failed to classify song: ${e.message}", e))
+        }
+    }
+    
+    /**
+     * Classify a song using raw audio data (faster approach)
+     */
+    suspend fun classifySongWithRawAudio(
+        song: Song,
+        audioData: FloatArray,
+        sampleRate: Int = 22050
+    ): Result<ClassificationResponse> = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "Classifying song with raw audio: ${song.title}")
+            
+            val request = ClassificationRequest(
+                song_id = "${song.id}_${song.title}",
+                audio_data = audioData.toList(),
+                sample_rate = sampleRate
+            )
+            
+            val response = client.post("$baseUrl/classify") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body<ClassificationResponse>()
+            
+            if (response.success) {
+                Log.d(TAG, "Classification successful: ${response.prediction} (confidence: ${response.confidence})")
+                Result.success(response)
+            } else {
+                Log.w(TAG, "Classification failed: ${response.error}")
+                Result.failure(IOException("Classification failed: ${response.error}"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error classifying song: ${song.title}", e)
+            Result.failure(IOException("Failed to classify song: ${e.message}", e))
+        }
+    }
+    
+    /**
+     * Classify a song using raw audio data with server-side feature extraction
+     * This uses the new /classify_audio_data endpoint for proper feature extraction
+     */
+    suspend fun classifySongWithAudioData(
+        song: Song,
+        audioData: FloatArray,
+        sampleRate: Int = 22050
+    ): Result<ClassificationResponse> = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "Classifying song with audio data (server-side feature extraction): ${song.title}")
+            
+            val request = ClassificationRequest(
+                song_id = "${song.id}_${song.title}",
+                audio_data = audioData.toList(),
+                sample_rate = sampleRate
+            )
+            
+            val response = client.post("$baseUrl/classify_audio_data") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body<ClassificationResponse>()
+            
+            if (response.success) {
+                Log.d(TAG, "Classification successful: ${response.prediction} (confidence: ${response.confidence})")
+                Result.success(response)
+            } else {
+                Log.w(TAG, "Classification failed: ${response.error}")
+                Result.failure(IOException("Classification failed: ${response.error}"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error classifying song: ${song.title}", e)
+            Result.failure(IOException("Failed to classify song: ${e.message}", e))
+        }
+    }
+
+    suspend fun classifySongWithFile(song: Song): Result<ClassificationResponse> = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "Classifying song with file upload: ${song.title}")
+            
+            val fileUploader = AudioFileUploader(context, client, baseUrl)
+            val result = fileUploader.uploadAndClassifyFile(song)
+            
+            if (result.isSuccess) {
+                val response = result.getOrThrow()
+                Log.d(TAG, "File upload classification successful: ${response.prediction} (confidence: ${response.confidence})")
+                Result.success(response)
+            } else {
+                Log.w(TAG, "File upload classification failed: ${result.exceptionOrNull()?.message}")
+                Result.failure(result.exceptionOrNull() ?: IOException("File upload classification failed"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error classifying song with file upload: ${song.title}", e)
+            Result.failure(IOException("Failed to classify song with file upload: ${e.message}", e))
+        }
+    }
+    
+    /**
+     * Classify multiple songs in batch using raw audio data
+     */
+    suspend fun classifySongsBatchWithRawAudio(
+        songsWithAudioData: List<Pair<Song, FloatArray>>
+    ): Result<BatchClassificationResponse> = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "Batch classifying ${songsWithAudioData.size} songs with raw audio")
+            
+            val batchSongs = songsWithAudioData.map { (song, audioData) ->
+                BatchSongRequest(
+                    song_id = "${song.id}_${song.title}",
+                    audio_data = audioData.toList(),
+                    sample_rate = 22050
+                )
+            }
+            
+            val request = BatchClassificationRequest(songs = batchSongs)
+            
+            val response = client.post("$baseUrl/batch_classify") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body<BatchClassificationResponse>()
+            
+            Log.d(TAG, "Batch classification complete: ${response.summary.successful}/${response.summary.total} successful")
+            Result.success(response)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in batch classification", e)
+            Result.failure(IOException("Failed to classify songs in batch: ${e.message}", e))
+        }
+    }
+    
+    /**
+     * Classify multiple songs in batch (legacy method)
      */
     suspend fun classifySongsBatch(
         songsWithAudioData: List<SongWithAudioData>

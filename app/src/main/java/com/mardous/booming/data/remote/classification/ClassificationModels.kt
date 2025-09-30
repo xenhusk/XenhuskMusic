@@ -31,6 +31,12 @@ data class ClassificationRequest(
 )
 
 @Serializable
+data class FeatureClassificationRequest(
+    val features: List<Float>,
+    val song_id: String
+)
+
+@Serializable
 data class ClassificationResponse(
     val prediction: String,
     val confidence: Float,

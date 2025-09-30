@@ -81,6 +81,12 @@
         app:showAsAction="never" />
     <item
         android:orderInCategory="10"
+        android:id="@+id/action_classification"
+        android:icon="@drawable/ic_classify"
+        android:title="Music Classification"
+        app:showAsAction="never" />
+    <item
+        android:orderInCategory="10"
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings_24dp"
         android:title="@string/settings_title"

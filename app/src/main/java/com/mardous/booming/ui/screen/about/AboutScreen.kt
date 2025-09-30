@@ -41,21 +41,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.mardous.booming.R
-import com.mardous.booming.core.model.about.Contribution
 import com.mardous.booming.core.model.about.DeviceInfo
 import com.mardous.booming.extensions.*
 import com.mardous.booming.ui.component.compose.*
-import com.mardous.booming.ui.component.compose.lists.ContributionListItem
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-private const val AUTHOR_GITHUB_URL = "https://www.github.com/mardous"
-private const val GITHUB_URL = "$AUTHOR_GITHUB_URL/BoomingMusic"
+private const val AUTHOR_GITHUB_URL = "https://github.com/xenhusk"
+private const val GITHUB_URL = "$AUTHOR_GITHUB_URL/XenhuskMusic"
 private const val RELEASES_LINK = "$GITHUB_URL/releases"
 const val ISSUE_TRACKER_LINK = "$GITHUB_URL/issues"
-private const val AUTHOR_TELEGRAM_LINK = "https://t.me/mardeez"
-private const val APP_TELEGRAM_LINK = "https://t.me/mardousdev"
-private const val CROWDIN_PROJECT_LINK = "https://crowdin.com/project/booming-music"
+private const val AUTHOR_LINKEDIN_LINK = "https://linkedin.com/in/xenhusk"
+private const val APP_LINKEDIN_LINK = "https://linkedin.com/in/xenhusk"
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,10 +88,6 @@ fun AboutScreen(
         )
     }
 
-    val contributors by viewModel.contributors.collectAsState()
-    LaunchedEffect(Unit) {
-        viewModel.loadContributors()
-    }
 
     val sendInvitationTitle = stringResource(R.string.send_invitation_message)
     val invitationMessage = stringResource(R.string.invitation_message_content, RELEASES_LINK)
@@ -145,8 +139,8 @@ fun AboutScreen(
             )
 
             AboutAuthorSection(
-                onTelegramClick = {
-                    context.openUrl(AUTHOR_TELEGRAM_LINK)
+                onLinkedInClick = {
+                    context.openUrl(AUTHOR_LINKEDIN_LINK)
                 },
                 onGitHubClick = {
                     context.openUrl(AUTHOR_GITHUB_URL)
@@ -155,31 +149,16 @@ fun AboutScreen(
                     context.tryStartActivity(
                         Intent(Intent.ACTION_SENDTO)
                             .setData("mailto:".toUri())
-                            .putExtra(Intent.EXTRA_EMAIL, arrayOf("mardous.contact@gmail.com"))
-                            .putExtra(Intent.EXTRA_SUBJECT, "Booming Music - Support & questions")
+                            .putExtra(Intent.EXTRA_EMAIL, arrayOf("desuyodavidpaul@gmail.com"))
+                            .putExtra(Intent.EXTRA_SUBJECT, "Xenic - Support & questions")
                     )
                 }
             )
 
-            AboutContributorSection(
-                contributors = contributors,
-                onClick = {
-                    if (it.url != null) {
-                        context.openUrl(it.url)
-                    }
-                }
-            )
 
-            AboutAcknowledgmentSection(
-                onTranslatorsClick = {
-                    onNavigateToId(R.id.nav_translators)
-                }
-            )
+
 
             AboutSupportSection(
-                onTranslateClick = {
-                    context.openUrl(CROWDIN_PROJECT_LINK)
-                },
                 onReportBugsClick = {
                     showReportDialog = true
                 },
@@ -191,8 +170,8 @@ fun AboutScreen(
                             .toChooser(sendInvitationTitle)
                     )
                 },
-                onJoinChatClick = {
-                    context.openUrl(APP_TELEGRAM_LINK)
+                onJoinLinkedInClick = {
+                    context.openUrl(APP_LINKEDIN_LINK)
                 }
             )
         }
@@ -218,9 +197,9 @@ private fun AboutHeader(
                 .padding(bottom = 16.dp)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.icon_web),
+                painter = painterResource(id = R.mipmap.ic_launcher),
                 contentDescription = null,
-                modifier = Modifier.size(80.dp),
+                modifier = Modifier.size(120.dp),
                 contentScale = ContentScale.Inside
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -232,6 +211,12 @@ private fun AboutHeader(
             )
             Text(
                 text = version,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
+            Text(
+                text = stringResource(R.string.forked_from),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1
@@ -265,7 +250,7 @@ private fun AboutHeader(
 
 @Composable
 private fun AboutAuthorSection(
-    onTelegramClick: () -> Unit,
+    onLinkedInClick: () -> Unit,
     onGitHubClick: () -> Unit,
     onEmailClick: () -> Unit
 ) {
@@ -273,13 +258,13 @@ private fun AboutAuthorSection(
         AboutCard {
             AboutListItem(
                 iconRes = R.drawable.ic_person_24dp,
-                title = stringResource(R.string.mardous),
+                title = stringResource(R.string.xenhusk),
                 summary = stringResource(R.string.mardous_summary)
             )
             AboutListItem(
-                iconRes = R.drawable.ic_telegram_24dp,
-                title = stringResource(R.string.follow_on_telegram),
-                onClick = onTelegramClick
+                iconRes = R.drawable.ic_linkedin_24dp,
+                title = stringResource(R.string.follow_on_linkedin),
+                onClick = onLinkedInClick
             )
             AboutListItem(
                 iconRes = R.drawable.ic_github_circle_24dp,
@@ -295,27 +280,12 @@ private fun AboutAuthorSection(
     }
 }
 
-@Composable
-private fun AboutContributorSection(
-    contributors: List<Contribution>,
-    onClick: (Contribution) -> Unit
-) {
-    AboutSection(title = stringResource(R.string.contributors)) {
-        AboutCard {
-            contributors.forEach {
-                ContributionListItem(contribution = it) {
-                    onClick(it)
-                }
-            }
-        }
-    }
-}
+
 
 @Composable
 private fun AboutSupportSection(
     onReportBugsClick: () -> Unit,
-    onTranslateClick: () -> Unit,
-    onJoinChatClick: () -> Unit,
+    onJoinLinkedInClick: () -> Unit,
     onShareAppClick: () -> Unit
 ) {
     AboutSection(title = stringResource(R.string.support_development)) {
@@ -327,16 +297,10 @@ private fun AboutSupportSection(
                 onClick = onReportBugsClick
             )
             AboutListItem(
-                iconRes = R.drawable.ic_language_24dp,
-                title = stringResource(R.string.help_with_translations),
-                summary = stringResource(R.string.help_with_translations_summary),
-                onClick = onTranslateClick
-            )
-            AboutListItem(
-                iconRes = R.drawable.ic_telegram_24dp,
-                title = stringResource(R.string.telegram_chat),
-                summary = stringResource(R.string.telegram_chat_summary),
-                onClick = onJoinChatClick
+                iconRes = R.drawable.ic_linkedin_24dp,
+                title = stringResource(R.string.linkedin_profile),
+                summary = stringResource(R.string.linkedin_profile_summary),
+                onClick = onJoinLinkedInClick
             )
             AboutListItem(
                 iconRes = R.drawable.ic_share_24dp,
@@ -348,21 +312,6 @@ private fun AboutSupportSection(
     }
 }
 
-@Composable
-private fun AboutAcknowledgmentSection(
-    onTranslatorsClick: () -> Unit
-) {
-    AboutSection(title = stringResource(R.string.acknowledgments_title)) {
-        AboutCard {
-            AboutListItem(
-                iconRes = R.drawable.ic_translate_24dp,
-                title = stringResource(R.string.translators_title),
-                summary = stringResource(R.string.translators_summary),
-                onClick = onTranslatorsClick
-            )
-        }
-    }
-}
 
 @Composable
 private fun ReportBugsDialog(

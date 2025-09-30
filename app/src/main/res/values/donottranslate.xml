@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name" translatable="false">Booming Music</string>
-	<string name="app_name_long" translatable="false">Booming Music</string>
+	<string name="app_name" translatable="false">Xenic</string>
+	<string name="app_name_long" translatable="false">Xenic</string>
 
-	<string name="mardous" translatable="false">Christians Martínez Alvarado</string>
+	<string name="xenhusk" translatable="false">David Paul Desuyo</string>
 
 	<string name="empty_text_emoji" translatable="false">&#128561;</string>
 

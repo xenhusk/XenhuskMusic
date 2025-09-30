@@ -135,7 +135,7 @@
     <string name="permission_exact_alarms_description">Permission to schedule exact alarms is required for the sleep timer to work properly</string>
     <string name="permission_ringtone_title">Ringtone (optional)</string>
     <string name="permission_ringtone_description">The app needs permission to access your device settings in order to set music as Ringtone</string>
-    <string name="permission_request_write_settings"><![CDATA[You must allow Booming Music to modify the system settings in order to set <b>%s</b> as your ringtone]]></string>
+    <string name="permission_request_write_settings"><![CDATA[You must allow Xenic to modify the system settings in order to set <b>%s</b> as your ringtone]]></string>
     <string name="permissions_denied">Permissions denied</string>
     <string name="permissions_needed">Permissions needed</string>
     <string name="grant_access_action">Grant access</string>
@@ -440,7 +440,7 @@
     <string name="reset_equalizer">Reset equalizer</string>
     <string name="select_configurations_to_export">Select configurations to export:</string>
     <string name="select_a_file_to_save_exported_configurations">Select a file to save exported configurations.</string>
-    <string name="select_a_file_containing_booming_eq_presets">Select a file containing Booming Music EQ presets.</string>
+    <string name="select_a_file_containing_booming_eq_presets">Select a file containing Xenic EQ presets.</string>
     <string name="select_configurations_to_import">Select configurations to import:</string>
     <string name="are_you_sure_you_want_to_reset_the_equalizer">Are you sure you want to reset the equalizer?
         \n\nThis will clear all your presets.</string>
@@ -495,7 +495,7 @@
     <string name="import_lyrics_for_song_x">Imported lyrics for %s</string>
     <string name="could_not_import_lyrics_for_song_x">Couldn\'t import lyrics for %s</string>
     <string name="select_a_file_containing_synchronized_lyrics">Select a LRC file containing synced lyrics.</string>
-    <string name="cannot_download_lyrics">Booming Music couldn\'t find the lyrics for this song. Do you want to search manually?</string>
+    <string name="cannot_download_lyrics">Xenic couldn\'t find the lyrics for this song. Do you want to search manually?</string>
     <string name="search_lyrics">Search lyrics</string>
     <string name="choose_lyrics">Choose the type of lyrics</string>
     <string name="download_lyrics">Download lyrics</string>
@@ -506,7 +506,7 @@
     <string name="lyrics_were_updated_successfully">Lyrics were updated successfully.</string>
     <string name="failed_to_update_lyrics">Failed to update lyrics.</string>
     <string name="there_are_no_changes_to_save">There are no changes to save.</string>
-    <string name="lyrics_source_external_file">Lyrics come from an external file. You can\'t edit this file directly from Booming Music.</string>
+    <string name="lyrics_source_external_file">Lyrics come from an external file. You can\'t edit this file directly from Xenic.</string>
     <string name="font_imported_successfully">Font imported successfully.</string>
     <string name="could_not_import_font">Could not import font.</string>
 
@@ -535,25 +535,24 @@
     <string name="fork_on_github">Fork on GitHub</string>
     <string name="licenses">Licenses</string>
     <string name="author">Author</string>
-    <string name="mardous_summary">Lead Developer</string>
+    <string name="mardous_summary">Developer &amp; Maintainer</string>
+    <string name="forked_from">Forked from Booming Music</string>
     <string name="contributors">Contributors</string>
     <string name="acknowledgments_title">Acknowledgment</string>
     <string name="translators_title">Translators</string>
-    <string name="translators_summary">Thanks to those who make Booming Music available in many languages.</string>
-    <string name="telegram_chat">Telegram chat</string>
-    <string name="telegram_chat_summary">Join the chat in Telegram and get informed about new releases and news.</string>
+    <string name="translators_summary">Thanks to those who make Xenic available in many languages.</string>
+    <string name="linkedin_profile">LinkedIn Profile</string>
+    <string name="linkedin_profile_summary">Connect with me on LinkedIn for professional updates and networking.</string>
     <string name="view_profile_on_github">View profile on GitHub</string>
-    <string name="follow_on_telegram">DM on Telegram</string>
+    <string name="follow_on_linkedin">Connect on LinkedIn</string>
     <string name="write_an_email">Write an email</string>
     <string name="support_development">Support development</string>
-    <string name="help_with_translations">Help with translations</string>
-    <string name="help_with_translations_summary">You can contribute to the project by helping translate Booming Music into other languages.</string>
     <string name="report_bugs">Report bugs</string>
     <string name="report_bugs_summary">Report bugs or request new features.</string>
     <string name="share_app">Share this app</string>
     <string name="share_app_summary">You can help this app grow if you share it with friends.</string>
     <string name="send_invitation_message">Send invitation message</string>
-    <string name="invitation_message_content">Hi. Check out Booming Music! The best app to listen local music on Android. You can download it from here: %s</string>
+    <string name="invitation_message_content">Hi. Check out Xenic! The best app to listen local music on Android. You can download it from here: %s</string>
 
     <!-- Bug report -->
     <string name="report_an_issue">Report an issue</string>
@@ -563,7 +562,7 @@
 
     <!-- SAF -->
     <string name="saf_access_required_title">Storage Access Required</string>
-    <string name="saf_access_required_message">Booming Music requires permission to access these files. Please select the root folder where your music files are stored.</string>
+    <string name="saf_access_required_message">Xenic requires permission to access these files. Please select the root folder where your music files are stored.</string>
     <string name="saf_show_files_button">Show files</string>
     <string name="saf_error_uri">Can\'t get SAF URI</string>
     <string name="saf_write_failed">File write failed: %s</string>
@@ -588,7 +587,7 @@
     <string name="update_title">Update</string>
     <string name="update_summary">Settings for app updates.</string>
     <string name="about_title">About</string>
-    <string name="about_summary">Booming Music %s, touch for more info.</string>
+    <string name="about_summary">Xenic %s, touch for more info.</string>
 
     <!-- Preference headers -->
     <string name="general_header">General</string>
@@ -740,7 +739,7 @@
     <string name="online_artist_images_summary">This depends on your metadata download policy.</string>
     <string name="preferred_artist_image_size_title">Preferred image size</string>
     <string name="delete_downloaded_lyrics_title">Delete downloaded lyrics</string>
-    <string name="delete_downloaded_lyrics_summary">Only lyrics downloaded by Booming Music. Does not affect lyrics embedded in ID3v2 tags or LRC files.</string>
+    <string name="delete_downloaded_lyrics_summary">Only lyrics downloaded by Xenic. Does not affect lyrics embedded in ID3v2 tags or LRC files.</string>
     <string name="lyrics_cleared">Lyrics cleared.</string>
 
     <!-- Library preferences -->
@@ -873,7 +872,7 @@
     <string name="update_available_title">Update available</string>
     <string name="more_info_action">More info.</string>
     <string name="download_action">Download</string>
-    <string name="downloading_update">Downloading Booming Music update.</string>
+    <string name="downloading_update">Downloading Xenic update.</string>
 
     <string name="uncaught_error_title">Oops! That wasn\'t supposed to happen!</string>
     <string name="uncaught_error_message">It seems something went wrong and caused the app to crash.

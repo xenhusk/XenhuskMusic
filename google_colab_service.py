@@ -43,7 +43,7 @@ print("✅ Dependencies installation complete!")
 # Optional: Setup ngrok authtoken (run this cell if you want to use ngrok)
 def setup_ngrok():
     """
-    Setup ngrok authtoken for public URL access.
+    Setup ngrok authtoken for public URL access using Colab secrets.
     Run this cell and follow the instructions.
     """
     print("🔑 Setting up ngrok authtoken...")
@@ -51,10 +51,12 @@ def setup_ngrok():
     print("   1. Go to: https://dashboard.ngrok.com/signup")
     print("   2. Sign up for free account")
     print("   3. Get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken")
-    print("   4. Set environment variable:")
+    print("   4. Add to Colab secrets:")
     print("")
-    print("   import os")
-    print("   os.environ['NGROK_AUTHTOKEN'] = 'YOUR_TOKEN_HERE'")
+    print("   - Click the key icon (🔑) in the left sidebar")
+    print("   - Add new secret:")
+    print("     Name: ngrok_authtoken")
+    print("     Value: YOUR_TOKEN_HERE")
     print("")
     print("   Then restart the service to get public URL!")
 
@@ -690,10 +692,14 @@ if __name__ == '__main__':
         try:
             logger.info("🌐 Setting up public access with ngrok...")
             
-            # Check if ngrok authtoken is set
-            import os
-            authtoken = os.environ.get('NGROK_AUTHTOKEN')
-            logger.info(f"🔍 Checking for NGROK_AUTHTOKEN: {'Found' if authtoken else 'Not found'}")
+            # Check if ngrok authtoken is set in Colab secrets
+            try:
+                from google.colab import userdata
+                authtoken = userdata.get('ngrok_authtoken')
+                logger.info(f"🔍 Checking for ngrok_authtoken in Colab secrets: {'Found' if authtoken else 'Not found'}")
+            except Exception as e:
+                logger.info(f"🔍 Colab secrets not available: {e}")
+                authtoken = None
             
             if not authtoken:
                 logger.info("🔑 ngrok authtoken not found. Setting up free ngrok...")
@@ -702,7 +708,9 @@ if __name__ == '__main__':
                 logger.info("   1. Go to: https://dashboard.ngrok.com/signup")
                 logger.info("   2. Sign up for free account")
                 logger.info("   3. Get your authtoken from: https://dashboard.ngrok.com/get-started/your-authtoken")
-                logger.info("   4. Set environment variable: os.environ['NGROK_AUTHTOKEN'] = 'YOUR_TOKEN'")
+                logger.info("   4. Add to Colab secrets:")
+                logger.info("      - Click the key icon (🔑) in the left sidebar")
+                logger.info("      - Add secret: 'ngrok_authtoken' = 'YOUR_TOKEN'")
                 raise Exception("ngrok authtoken required")
             
             # Configure ngrok with the authtoken
@@ -744,11 +752,10 @@ if __name__ == '__main__':
                 
                 # Method 3: Manual instructions
                 logger.info("🔧 Manual setup required:")
-                logger.info("   1. Install ngrok: !pip install pyngrok")
+                logger.info("   1. Add ngrok_authtoken to Colab secrets (🔑 icon)")
                 logger.info("   2. Get authtoken: https://dashboard.ngrok.com/signup")
-                logger.info("   3. Set authtoken: ngrok config add-authtoken YOUR_TOKEN")
-                logger.info("   4. Create tunnel: ngrok.connect(5000)")
-                logger.info("   5. Use the ngrok URL in your Android app")
+                logger.info("   3. Or run manual ngrok setup in separate cell")
+                logger.info("   4. Use the ngrok URL in your Android app")
         
         # Run Flask app
         app.run(host='0.0.0.0', port=5000, debug=False)

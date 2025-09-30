@@ -394,10 +394,12 @@ def classify_songs_batch_optimized(songs: List[Dict[str, Any]], max_workers: int
         
         return {
             'success': True,
-            'total_songs': len(songs),
-            'successful_classifications': len(results) - failed_count,
-            'failed_classifications': failed_count,
-            'results': results
+            'results': results,
+            'summary': {
+                'total': len(songs),
+                'successful': len(results) - failed_count,
+                'failed': failed_count
+            }
         }
         
     except Exception as e:
@@ -405,10 +407,12 @@ def classify_songs_batch_optimized(songs: List[Dict[str, Any]], max_workers: int
         return {
             'success': False,
             'error': str(e),
-            'total_songs': len(songs),
-            'successful_classifications': 0,
-            'failed_classifications': len(songs),
-            'results': []
+            'results': [],
+            'summary': {
+                'total': len(songs),
+                'successful': 0,
+                'failed': len(songs)
+            }
         }
 
 @app.route('/health', methods=['GET'])
@@ -540,7 +544,7 @@ def batch_classify():
         batch_result = classify_songs_batch_optimized(songs, max_workers=MAX_WORKERS)
         
         if batch_result['success']:
-            logger.info(f"Batch processing completed: {batch_result['successful_classifications']}/{batch_result['total_songs']} successful")
+            logger.info(f"Batch processing completed: {batch_result['summary']['successful']}/{batch_result['summary']['total']} successful")
         else:
             logger.error(f"Batch processing failed: {batch_result.get('error', 'Unknown error')}")
         

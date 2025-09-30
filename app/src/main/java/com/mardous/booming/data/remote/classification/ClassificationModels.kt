@@ -87,5 +87,33 @@ data class ModelInfoResponse(
     val label_map: Map<String, String>,
     val class_weights: Map<String, Float>,
     val feature_names: List<String>,
-    val selected_feature_names: List<String>
+    val selected_feature_names: List<String>,
+    val performance: PerformanceMetrics? = null
+)
+
+@Serializable
+data class PerformanceMetrics(
+    val max_workers: Int,
+    val uptime_hours: Float,
+    val total_requests: Int,
+    val requests_per_hour: Float,
+    val optimization_level: String
+)
+
+@Serializable
+data class PerformanceStatsResponse(
+    val service_status: String,
+    val optimization_level: String,
+    val free_tier_optimized: Boolean,
+    val performance_metrics: PerformanceMetrics,
+    val render_free_tier_specs: RenderSpecs
+)
+
+@Serializable
+data class RenderSpecs(
+    val cpu_cores: String,
+    val memory: String,
+    val optimization_strategy: String,
+    val max_concurrent_requests: Int,
+    val recommended_batch_size: String
 )

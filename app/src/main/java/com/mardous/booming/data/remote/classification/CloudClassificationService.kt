@@ -145,6 +145,24 @@ class CloudClassificationService(
             Result.failure(IOException("Failed to get model info: ${e.message}", e))
         }
     }
+    
+    /**
+     * Get performance statistics from the service
+     */
+    suspend fun getPerformanceStats(): Result<PerformanceStatsResponse> = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "Getting performance statistics...")
+            val response = client.get("$baseUrl/performance") {
+                contentType(ContentType.Application.Json)
+            }.body<PerformanceStatsResponse>()
+            
+            Log.d(TAG, "Performance stats retrieved: ${response.performance_metrics.max_workers} workers, ${response.performance_metrics.uptime_hours}h uptime")
+            Result.success(response)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting performance stats", e)
+            Result.failure(IOException("Failed to get performance stats: ${e.message}", e))
+        }
+    }
 }
 
 /**

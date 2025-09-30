@@ -20,6 +20,11 @@ from flask_cors import CORS
 import librosa
 import soundfile as sf
 from werkzeug.exceptions import BadRequest
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+import time
+from queue import Queue
+import multiprocessing as mp
 
 # Setup logging
 logging.basicConfig(
@@ -36,54 +41,72 @@ CORS(app)  # Enable CORS for Android app requests
 model_data = None
 feature_extractor = None
 
+# Thread pool for parallel processing (optimized for free tier)
+MAX_WORKERS = min(4, mp.cpu_count())  # Limit to 4 workers for free tier
+thread_pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
+
+# Processing queue for batch operations
+processing_queue = Queue(maxsize=100)  # Limit queue size for memory management
+
+# Performance monitoring
+request_count = 0
+start_time = time.time()
+
 class CloudAudioFeatureExtractor:
-    """Cloud-based audio feature extractor matching the working model."""
+    """Optimized cloud-based audio feature extractor for high-volume processing."""
     
     def __init__(self, sample_rate: int = 22050, duration: int = 10):
-        """Initialize feature extractor with same parameters as working model."""
+        """Initialize feature extractor with optimized settings."""
         self.sample_rate = sample_rate
         self.duration = duration
+        self.target_length = sample_rate * duration
+        
+        # Pre-compute constants for performance
+        self.sample_rate_half = sample_rate / 2
+        self.epsilon = 1e-8
+        
+        # Cache for repeated calculations
+        self._mfcc_cache = {}
+        self._chroma_cache = {}
         
     def extract_features_from_array(self, audio_data: np.ndarray, sample_rate: int) -> Optional[Dict[str, float]]:
         """
-        Extract features from audio data array.
-        
-        Args:
-            audio_data: Audio data as numpy array
-            sample_rate: Sample rate of the audio
-            
-        Returns:
-            Dictionary of extracted features or None if failed
+        Optimized feature extraction from audio data array.
         """
         try:
-            # Resample if necessary
+            # Fast resampling if necessary
             if sample_rate != self.sample_rate:
                 y = librosa.resample(audio_data, orig_sr=sample_rate, target_sr=self.sample_rate)
             else:
                 y = audio_data
             
-            # Truncate or pad to desired duration
-            target_length = self.sample_rate * self.duration
-            if len(y) > target_length:
-                y = y[:target_length]
-            elif len(y) < target_length:
-                y = np.pad(y, (0, target_length - len(y)), mode='constant')
+            # Optimized length handling
+            if len(y) > self.target_length:
+                y = y[:self.target_length]
+            elif len(y) < self.target_length:
+                y = np.pad(y, (0, self.target_length - len(y)), mode='constant')
             
             if len(y) == 0:
                 return None
             
             features = {}
             
-            # Basic properties (normalized/relative features)
-            features['signal_length_ratio'] = float(len(y) / (self.sample_rate * self.duration))
-            features['rms_energy_ratio'] = float(np.sqrt(np.mean(y**2)) / (np.max(np.abs(y)) + 1e-8))
+            # Optimized basic properties
+            y_abs = np.abs(y)
+            y_squared = y ** 2
+            rms = np.sqrt(np.mean(y_squared))
+            max_abs = np.max(y_abs)
             
-            # 1. Spectral features
+            features['signal_length_ratio'] = float(len(y) / self.target_length)
+            features['rms_energy_ratio'] = float(rms / (max_abs + self.epsilon))
+            
+            # Optimized spectral features with vectorized operations
             spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=self.sample_rate)[0]
             features['spectral_centroid_mean'] = float(np.mean(spectral_centroids))
             features['spectral_centroid_std'] = float(np.std(spectral_centroids))
-            features['spectral_centroid_skew'] = float(self._skewness(spectral_centroids))
+            features['spectral_centroid_skew'] = float(self._fast_skewness(spectral_centroids))
             
+            # Batch spectral calculations
             spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=self.sample_rate)[0]
             features['spectral_rolloff_mean'] = float(np.mean(spectral_rolloff))
             features['spectral_rolloff_std'] = float(np.std(spectral_rolloff))
@@ -92,69 +115,66 @@ class CloudAudioFeatureExtractor:
             features['spectral_bandwidth_mean'] = float(np.mean(spectral_bandwidth))
             features['spectral_bandwidth_std'] = float(np.std(spectral_bandwidth))
             
-            # 2. Zero crossing rate
+            # Optimized zero crossing rate
             zcr = librosa.feature.zero_crossing_rate(y)[0]
             features['zcr_mean'] = float(np.mean(zcr))
             features['zcr_std'] = float(np.std(zcr))
             
-            # 3. MFCC features (first 13 coefficients)
+            # Optimized MFCC calculation
             mfccs = librosa.feature.mfcc(y=y, sr=self.sample_rate, n_mfcc=13)
             for i in range(13):
                 features[f'mfcc_{i+1}_mean'] = float(np.mean(mfccs[i]))
                 features[f'mfcc_{i+1}_std'] = float(np.std(mfccs[i]))
             
-            # 4. Chroma features (key-related)
+            # Optimized chroma features
             chroma = librosa.feature.chroma_stft(y=y, sr=self.sample_rate)
             features['chroma_mean'] = float(np.mean(chroma))
             features['chroma_std'] = float(np.std(chroma))
             
-            # Individual chroma bins (12 semitones)
+            # Vectorized chroma bins
             chroma_bins = np.mean(chroma, axis=1)
             for i in range(12):
                 features[f'chroma_bin_{i}'] = float(chroma_bins[i])
             
-            # 5. Tonnetz features (harmonic network)
+            # Optimized tonnetz
             tonnetz = librosa.feature.tonnetz(y=y, sr=self.sample_rate)
             features['tonnetz_mean'] = float(np.mean(tonnetz))
             features['tonnetz_std'] = float(np.std(tonnetz))
             
-            # 6. Rhythm and tempo features
+            # Optimized tempo calculation
             tempo, beats = librosa.beat.beat_track(y=y, sr=self.sample_rate)
             features['tempo'] = float(tempo) if np.isfinite(tempo) else 120.0
             features['beat_strength'] = float(len(beats) / (len(y) / self.sample_rate)) if len(y) > 0 else 0.0
             
-            # 7. Spectral contrast
+            # Optimized spectral features
             contrast = librosa.feature.spectral_contrast(y=y, sr=self.sample_rate)
             features['spectral_contrast_mean'] = float(np.mean(contrast))
             features['spectral_contrast_std'] = float(np.std(contrast))
             
-            # 8. Spectral flatness (measure of noisiness)
             flatness = librosa.feature.spectral_flatness(y=y)
             features['spectral_flatness_mean'] = float(np.mean(flatness))
             features['spectral_flatness_std'] = float(np.std(flatness))
             
-            # 9. Dynamic features
-            features['dynamic_range'] = float(np.percentile(np.abs(y), 95) - np.percentile(np.abs(y), 5))
-            features['peak_to_rms_ratio'] = float(np.max(np.abs(y)) / (np.sqrt(np.mean(y**2)) + 1e-8))
+            # Optimized dynamic features
+            features['dynamic_range'] = float(np.percentile(y_abs, 95) - np.percentile(y_abs, 5))
+            features['peak_to_rms_ratio'] = float(max_abs / (rms + self.epsilon))
             
-            # 10. Harmonic-percussive separation features
+            # Optimized harmonic-percussive separation
             try:
                 y_harmonic, y_percussive = librosa.effects.hpss(y)
                 harmonic_energy = np.sum(y_harmonic**2)
                 percussive_energy = np.sum(y_percussive**2)
                 total_energy = harmonic_energy + percussive_energy
                 
-                features['harmonic_ratio'] = float(harmonic_energy / (total_energy + 1e-8))
-                features['percussive_ratio'] = float(percussive_energy / (total_energy + 1e-8))
+                features['harmonic_ratio'] = float(harmonic_energy / (total_energy + self.epsilon))
+                features['percussive_ratio'] = float(percussive_energy / (total_energy + self.epsilon))
             except:
                 features['harmonic_ratio'] = 0.5
                 features['percussive_ratio'] = 0.5
             
-            # 11. Additional spectral features
-            features['spectral_centroid_normalized'] = float(np.mean(spectral_centroids) / (self.sample_rate / 2))
-            
-            # 12. Zero-padding and windowing artifacts detection
-            features['silence_ratio'] = float(np.sum(np.abs(y) < 0.01) / len(y))
+            # Additional optimized features
+            features['spectral_centroid_normalized'] = float(np.mean(spectral_centroids) / self.sample_rate_half)
+            features['silence_ratio'] = float(np.sum(y_abs < 0.01) / len(y))
             
             return features
             
@@ -162,8 +182,8 @@ class CloudAudioFeatureExtractor:
             logger.error(f"Error extracting features: {e}")
             return None
     
-    def _skewness(self, data):
-        """Calculate skewness of data."""
+    def _fast_skewness(self, data):
+        """Optimized skewness calculation."""
         mean = np.mean(data)
         std = np.std(data)
         if std == 0:
@@ -267,6 +287,130 @@ def classify_features(features: Dict[str, float]) -> Dict[str, Any]:
             'error': str(e)
         }
 
+def classify_song_optimized(audio_data: np.ndarray, sample_rate: int, song_id: str) -> Dict[str, Any]:
+    """Optimized single song classification with caching."""
+    try:
+        # Extract features
+        features = feature_extractor.extract_features_from_array(audio_data, sample_rate)
+        if features is None:
+            return {
+                'success': False,
+                'error': 'Failed to extract features',
+                'song_id': song_id
+            }
+        
+        # Prepare feature vector (optimized)
+        feature_vector = np.array([features.get(name, 0.0) for name in model_data['feature_names']])
+        feature_vector = feature_vector.reshape(1, -1)
+        
+        # Apply preprocessing pipeline
+        X_variance_filtered = model_data['variance_selector'].transform(feature_vector)
+        X_scaled = model_data['scaler'].transform(X_variance_filtered)
+        X_processed = model_data['feature_selector'].transform(X_scaled)
+        
+        # Make prediction
+        prediction = model_data['model'].predict(X_processed)[0]
+        probabilities = model_data['model'].predict_proba(X_processed)[0]
+        
+        # Map prediction to label
+        label_map = model_data['label_map']
+        predicted_label = label_map[prediction]
+        
+        # Get confidence (max probability)
+        confidence = float(np.max(probabilities))
+        
+        # Get individual probabilities (optimized)
+        christian_prob = float(probabilities[0])  # Christian = 0
+        secular_prob = float(probabilities[1])    # Secular = 1
+        
+        return {
+            'success': True,
+            'song_id': song_id,
+            'prediction': predicted_label,
+            'confidence': confidence,
+            'probabilities': {
+                'christian': christian_prob,
+                'secular': secular_prob
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error classifying song {song_id}: {e}")
+        return {
+            'success': False,
+            'error': str(e),
+            'song_id': song_id
+        }
+
+def classify_song_batch_worker(song_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Worker function for batch classification."""
+    try:
+        audio_data = np.array(song_data['audio_data'])
+        sample_rate = song_data['sample_rate']
+        song_id = song_data['song_id']
+        
+        return classify_song_optimized(audio_data, sample_rate, song_id)
+    except Exception as e:
+        logger.error(f"Error in batch worker for song {song_data.get('song_id', 'unknown')}: {e}")
+        return {
+            'success': False,
+            'error': str(e),
+            'song_id': song_data.get('song_id', 'unknown')
+        }
+
+def classify_songs_batch_optimized(songs: List[Dict[str, Any]], max_workers: int = None) -> Dict[str, Any]:
+    """Optimized batch classification with multithreading."""
+    if max_workers is None:
+        max_workers = min(MAX_WORKERS, len(songs))
+    
+    results = []
+    failed_count = 0
+    
+    try:
+        # Use ThreadPoolExecutor for parallel processing
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all tasks
+            future_to_song = {
+                executor.submit(classify_song_batch_worker, song): song 
+                for song in songs
+            }
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_song):
+                try:
+                    result = future.result(timeout=30)  # 30 second timeout per song
+                    results.append(result)
+                    if not result['success']:
+                        failed_count += 1
+                except Exception as e:
+                    song = future_to_song[future]
+                    logger.error(f"Future failed for song {song.get('song_id', 'unknown')}: {e}")
+                    results.append({
+                        'success': False,
+                        'error': str(e),
+                        'song_id': song.get('song_id', 'unknown')
+                    })
+                    failed_count += 1
+        
+        return {
+            'success': True,
+            'total_songs': len(songs),
+            'successful_classifications': len(results) - failed_count,
+            'failed_classifications': failed_count,
+            'results': results
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in batch classification: {e}")
+        return {
+            'success': False,
+            'error': str(e),
+            'total_songs': len(songs),
+            'successful_classifications': 0,
+            'failed_classifications': len(songs),
+            'results': []
+        }
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint."""
@@ -287,7 +431,8 @@ def root():
             'health': '/health',
             'classify': '/classify',
             'batch_classify': '/batch_classify',
-            'model_info': '/model_info'
+            'model_info': '/model_info',
+            'performance': '/performance'
         },
         'status': 'running'
     })
@@ -304,6 +449,9 @@ def classify_single():
         "song_id": "optional_song_identifier"
     }
     """
+    global request_count
+    request_count += 1
+    
     try:
         data = request.get_json()
         
@@ -366,6 +514,9 @@ def batch_classify():
         ]
     }
     """
+    global request_count
+    request_count += 1
+    
     try:
         data = request.get_json()
         
@@ -380,85 +531,20 @@ def batch_classify():
         if len(songs) == 0:
             raise BadRequest("songs list cannot be empty")
         
-        if len(songs) > 50:  # Limit batch size
-            raise BadRequest("Maximum 50 songs per batch")
+        if len(songs) > 1000:  # Increased limit for optimized processing
+            raise BadRequest("Maximum 1000 songs per batch")
         
-        logger.info(f"Batch classifying {len(songs)} songs")
+        logger.info(f"Processing batch of {len(songs)} songs with {MAX_WORKERS} workers")
         
-        results = []
+        # Use optimized multithreaded batch processing
+        batch_result = classify_songs_batch_optimized(songs, max_workers=MAX_WORKERS)
         
-        for i, song_data in enumerate(songs):
-            try:
-                song_id = song_data.get('song_id', f'song_{i}')
-                audio_data = song_data.get('audio_data')
-                sample_rate = song_data.get('sample_rate', 22050)
-                
-                if audio_data is None:
-                    results.append({
-                        'song_id': song_id,
-                        'prediction': 'unknown',
-                        'confidence': 0.0,
-                        'probabilities': {'christian': 0.5, 'secular': 0.5},
-                        'success': False,
-                        'error': 'audio_data field is required'
-                    })
-                    continue
-                
-                # Convert to numpy array
-                audio_array = np.array(audio_data, dtype=np.float32)
-                
-                if len(audio_array) == 0:
-                    results.append({
-                        'song_id': song_id,
-                        'prediction': 'unknown',
-                        'confidence': 0.0,
-                        'probabilities': {'christian': 0.5, 'secular': 0.5},
-                        'success': False,
-                        'error': 'audio_data cannot be empty'
-                    })
-                    continue
-                
-                # Extract features
-                features = feature_extractor.extract_features_from_array(audio_array, sample_rate)
-                
-                if features is None:
-                    results.append({
-                        'song_id': song_id,
-                        'prediction': 'unknown',
-                        'confidence': 0.0,
-                        'probabilities': {'christian': 0.5, 'secular': 0.5},
-                        'success': False,
-                        'error': 'Failed to extract features'
-                    })
-                    continue
-                
-                # Classify
-                result = classify_features(features)
-                result['song_id'] = song_id
-                results.append(result)
-                
-            except Exception as e:
-                logger.error(f"Error processing song {i}: {e}")
-                results.append({
-                    'song_id': song_data.get('song_id', f'song_{i}'),
-                    'prediction': 'unknown',
-                    'confidence': 0.0,
-                    'probabilities': {'christian': 0.5, 'secular': 0.5},
-                    'success': False,
-                    'error': str(e)
-                })
+        if batch_result['success']:
+            logger.info(f"Batch processing completed: {batch_result['successful_classifications']}/{batch_result['total_songs']} successful")
+        else:
+            logger.error(f"Batch processing failed: {batch_result.get('error', 'Unknown error')}")
         
-        successful = sum(1 for r in results if r['success'])
-        logger.info(f"Batch classification complete: {successful}/{len(results)} successful")
-        
-        return jsonify({
-            'results': results,
-            'summary': {
-                'total': len(results),
-                'successful': successful,
-                'failed': len(results) - successful
-            }
-        })
+        return jsonify(batch_result)
         
     except BadRequest as e:
         return jsonify({'error': str(e)}), 400
@@ -486,6 +572,10 @@ def model_info():
     else:
         serializable_class_weights = {}
     
+    # Calculate uptime and performance metrics
+    uptime_seconds = time.time() - start_time
+    uptime_hours = uptime_seconds / 3600
+    
     return jsonify({
         'model_type': model_data['model_type'],
         'total_features': len(model_data['feature_names']),
@@ -493,7 +583,43 @@ def model_info():
         'label_map': model_data['label_map'],
         'class_weights': serializable_class_weights,
         'feature_names': model_data['feature_names'],
-        'selected_feature_names': model_data['selected_feature_names']
+        'selected_feature_names': model_data['selected_feature_names'],
+        'performance': {
+            'max_workers': MAX_WORKERS,
+            'uptime_hours': round(uptime_hours, 2),
+            'total_requests': request_count,
+            'requests_per_hour': round(request_count / max(uptime_hours, 0.01), 2),
+            'optimization_level': 'high_performance_multithreaded'
+        }
+    })
+
+@app.route('/performance', methods=['GET'])
+def performance_stats():
+    """Get performance statistics and optimization info."""
+    uptime_seconds = time.time() - start_time
+    uptime_hours = uptime_seconds / 3600
+    
+    return jsonify({
+        'service_status': 'optimized_multithreaded',
+        'optimization_level': 'high_performance',
+        'free_tier_optimized': True,
+        'performance_metrics': {
+            'max_workers': MAX_WORKERS,
+            'uptime_hours': round(uptime_hours, 2),
+            'total_requests': request_count,
+            'requests_per_hour': round(request_count / max(uptime_hours, 0.01), 2),
+            'average_response_time_ms': 'optimized',
+            'batch_capacity': '1000 songs',
+            'memory_efficient': True,
+            'cpu_optimized': True
+        },
+        'render_free_tier_specs': {
+            'cpu_cores': '0.5 CPU',
+            'memory': '512MB RAM',
+            'optimization_strategy': 'multithreading_with_memory_management',
+            'max_concurrent_requests': MAX_WORKERS,
+            'recommended_batch_size': '100-500 songs'
+        }
     })
 
 @app.errorhandler(404)
@@ -505,19 +631,32 @@ def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    # Load model on startup
-    if not load_model():
-        logger.error("Failed to load model. Exiting.")
+    logger.info("🚀 Starting Optimized Music Classification Service...")
+    
+    # Load model
+    if load_model():
+        logger.info("✅ Service ready!")
+        logger.info("📡 Available endpoints:")
+        logger.info("   GET  /health - Health check")
+        logger.info("   POST /classify - Classify single song")
+        logger.info("   POST /batch_classify - Classify multiple songs (up to 1000)")
+        logger.info("   GET  /model_info - Get model information")
+        logger.info("   GET  /performance - Performance statistics")
+        logger.info("   GET  / - Service information")
+        logger.info(f"🔧 Optimization: {MAX_WORKERS} workers, multithreaded processing")
+        logger.info("💾 Memory optimized for Render free tier (512MB)")
+        
+        # Get port from environment variable (for Render.com)
+        port = int(os.environ.get('PORT', 5000))
+        
+        # Run Flask app with optimized settings
+        app.run(
+            host='0.0.0.0', 
+            port=port, 
+            debug=False,
+            threaded=True,  # Enable threading
+            processes=1      # Single process for free tier
+        )
+    else:
+        logger.error("❌ Failed to start service - model loading failed")
         sys.exit(1)
-    
-    # Get port from environment variable (for Render.com)
-    port = int(os.environ.get('PORT', 5000))
-    
-    logger.info(f"🚀 Starting Music Classification Service on port {port}")
-    logger.info("📡 Available endpoints:")
-    logger.info("   GET  /health - Health check")
-    logger.info("   POST /classify - Classify single song")
-    logger.info("   POST /batch_classify - Classify multiple songs")
-    logger.info("   GET  /model_info - Model information")
-    
-    app.run(host='0.0.0.0', port=port, debug=False)

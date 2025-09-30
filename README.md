@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="metadata/en-US/images/icon.png" width=160 height=160 align="center">
+<img src="assets/Xenic_logo.png" width=160 height=160 align="center">
 
 # Xenic
 

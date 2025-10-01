@@ -139,6 +139,7 @@ android {
     }
     lint {
         abortOnError = true
+        baseline = file("lint-baseline.xml")
         warning += listOf("ImpliedQuantity", "Instantiatable", "MissingQuantity", "MissingTranslation")
     }
     dependenciesInfo {

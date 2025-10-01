@@ -166,7 +166,6 @@ class App : Application(), SingletonImageLoader.Factory {
             ThreadPolicy.Builder()
                 .detectAll()
                 .penaltyLog()
-                .penaltyFlashScreen()
                 .build()
         )
     }
